@@ -1,6 +1,6 @@
 {
-  "name": "hcm-ale-trail-frontend",
-  "version": "1.0.0",
+  "name": "hcm-ale-trail-v2",
+  "version": "2.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
