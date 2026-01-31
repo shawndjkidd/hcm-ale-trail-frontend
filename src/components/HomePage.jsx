@@ -1,91 +1,113 @@
-function HomePage({ trail, breweries, stamps, onExplore }) {
+import translations from '../translations'
+
+const FLAGS = {
+  en: '🇬🇧',
+  vn: '🇻🇳',
+  kr: '🇰🇷',
+  jp: '🇯🇵'
+}
+
+function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onNavigate, resetCard }) {
   if (!trail) return null
 
+  const t = translations[language]
   const progress = breweries.length > 0 ? (stamps.length / breweries.length) * 100 : 0
 
   return (
     <div className="home-page">
-      {/* Hero Section */}
-      <section className="hero">
-        <div className="hero-content">
-          <div className="hero-badge">🍺 CRAFT BEER PASSPORT</div>
-          <h2 className="hero-title">{trail.name}</h2>
-          <p className="hero-location">📍 {trail.city}, {trail.country}</p>
-          <p className="hero-description">{trail.description}</p>
-          
-          <div className="hero-stats">
-            <div className="stat">
-              <div className="stat-number">{breweries.length}</div>
-              <div className="stat-label">Breweries</div>
-            </div>
-            <div className="stat">
-              <div className="stat-number">{stamps.length}</div>
-              <div className="stat-label">Collected</div>
-            </div>
-            <div className="stat">
-              <div className="stat-number">{Math.round(progress)}%</div>
-              <div className="stat-label">Complete</div>
-            </div>
-          </div>
-
-          <button className="cta-button" onClick={onExplore}>
-            🗺️ Explore Breweries
+      {/* Language Toggle */}
+      <div className="language-toggle">
+        {Object.keys(FLAGS).map(lang => (
+          <button
+            key={lang}
+            className={`flag-btn ${language === lang ? 'active' : ''}`}
+            onClick={() => setLanguage(lang)}
+          >
+            {FLAGS[lang]}
           </button>
-        </div>
+        ))}
+      </div>
 
-        <div className="hero-visual">
-          <div className="beer-glass">
-            <div className="beer-fill" style={{ height: `${progress}%` }}></div>
-            <div className="beer-foam"></div>
-          </div>
-        </div>
-      </section>
+      {/* Header */}
+      <div className="header-badge">
+        {t.craftBeerPassport}
+      </div>
 
-      {/* Info Cards */}
-      <section className="info-section">
-        <h3 className="section-title">How It Works</h3>
-        <div className="info-cards">
-          <div className="info-card">
-            <div className="info-icon">1️⃣</div>
-            <h4>Visit Breweries</h4>
-            <p>Explore {breweries.length} amazing craft breweries across Saigon</p>
-          </div>
-          <div className="info-card">
-            <div className="info-icon">2️⃣</div>
-            <h4>Collect Stamps</h4>
-            <p>Get a unique code at each brewery and add it to your passport</p>
-          </div>
-          <div className="info-card">
-            <div className="info-icon">3️⃣</div>
-            <h4>Earn Rewards</h4>
-            <p>{trail.reward_text}</p>
-          </div>
+      {/* Progress */}
+      <div className="progress-section">
+        <div className="progress-header">
+          <span className="progress-label">{t.stamps}</span>
+          <span className="progress-count">{stamps.length}/{breweries.length}</span>
         </div>
-      </section>
+        <div className="progress-bar-container">
+          <div className="progress-bar-fill" style={{ width: `${progress}%` }}></div>
+        </div>
+      </div>
 
-      {/* Featured Breweries Preview */}
-      {breweries.length > 0 && (
-        <section className="preview-section">
-          <h3 className="section-title">Featured Stops</h3>
-          <div className="brewery-preview">
-            {breweries.slice(0, 3).map(brewery => (
-              <div key={brewery.id} className="preview-card">
-                {brewery.logo_url && (
-                  <img src={brewery.logo_url} alt={brewery.name} className="preview-logo" />
-                )}
-                <h4>{brewery.name}</h4>
-                <p className="preview-location">{brewery.neighborhood}</p>
-                {stamps.includes(brewery.id) && (
-                  <div className="stamp-badge">✓ STAMPED</div>
+      {/* Trail Social Media */}
+      <div className="trail-social">
+        <a href="https://www.instagram.com/hcm.aletrail/" target="_blank" rel="noopener noreferrer" className="social-btn instagram">
+          <span className="social-icon">📷</span> IG
+        </a>
+        <a href="https://www.facebook.com/hcmaletrail" target="_blank" rel="noopener noreferrer" className="social-btn facebook">
+          <span className="social-icon">👍</span> FB
+        </a>
+      </div>
+
+      {/* Brewery List */}
+      <div className="brewery-list">
+        {breweries.map((brewery, index) => {
+          const isStamped = stamps.includes(brewery.id)
+          return (
+            <div 
+              key={brewery.id}
+              className={`brewery-item ${isStamped ? 'stamped' : ''}`}
+              onClick={() => onBreweryClick(brewery)}
+            >
+              <div className="brewery-number">{index + 1}</div>
+              <div className="brewery-info">
+                <div className="brewery-name">{brewery.name}</div>
+                <div className="brewery-district">{brewery.address}</div>
+              </div>
+              <div className="brewery-logo">
+                {brewery.logo_url ? (
+                  <img 
+                    src={brewery.logo_url} 
+                    alt={brewery.name}
+                    className={isStamped ? 'color' : 'grayscale'}
+                  />
+                ) : (
+                  <div className="logo-placeholder">🍺</div>
                 )}
               </div>
-            ))}
-          </div>
-          <button className="cta-button secondary" onClick={onExplore}>
-            View All {breweries.length} Breweries →
-          </button>
-        </section>
-      )}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Bottom Navigation */}
+      <div className="bottom-nav">
+        <button className="nav-btn yellow" onClick={() => onNavigate('faq')}>
+          {t.faq}
+        </button>
+        <button className="nav-btn black" onClick={() => window.open('https://www.hochiminhaletrail.com/', '_blank')}>
+          {t.website}
+        </button>
+        <button className="nav-btn green" onClick={() => window.open('https://www.google.com/maps/d/u/1/viewer?mid=1ZO-30TD2syibuwwqGF7wDxwHACOEsBQ&ll=10.77928527172877%2C106.69519550000001&z=15', '_blank')}>
+          {t.maps}
+        </button>
+        <button className="nav-btn orange" onClick={() => onNavigate('mybeers')}>
+          {t.myBeers}
+        </button>
+      </div>
+
+      {/* Footer */}
+      <div className="footer">
+        <div className="footer-year">2026 HO CHI MINH ALE TRAIL</div>
+        <button className="reset-btn" onClick={resetCard}>
+          {t.resetCard}
+        </button>
+      </div>
     </div>
   )
 }
