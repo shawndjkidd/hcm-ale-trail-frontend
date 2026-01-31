@@ -16,7 +16,6 @@ function App() {
   const [stamps, setStamps] = useState([])
   const [beers, setBeers] = useState([])
   const [loading, setLoading] = useState(true)
-  const [qrMessage, setQrMessage] = useState(null)
 
   useEffect(() => {
     loadData()
@@ -25,40 +24,20 @@ function App() {
   }, [])
 
   useEffect(() => {
-    // Check for URL parameters from QR code scan
+    // Check for URL parameters from QR code scan (just navigate, don't auto-stamp)
     const urlParams = new URLSearchParams(window.location.search)
     const breweryParam = urlParams.get('brewery')
-    const collectParam = urlParams.get('collect')
     
     if (breweryParam && breweries.length > 0) {
       const breweryIndex = parseInt(breweryParam) - 1
       if (breweryIndex >= 0 && breweryIndex < breweries.length) {
         const brewery = breweries[breweryIndex]
-        
-        // If collect=yes (from QR code), auto-stamp
-        if (collectParam === 'yes') {
-          if (!stamps.includes(brewery.id)) {
-            addStamp(brewery.id)
-            setQrMessage({
-              type: 'success',
-              text: `🎉 ${translations[language].stampCollected} (${stamps.length + 1}/8)`
-            })
-          } else {
-            setQrMessage({
-              type: 'info',
-              text: `✓ ${translations[language].alreadyCollected} (${stamps.length}/8)`
-            })
-          }
-        }
-        
-        // Navigate to brewery page
         navigate('brewery', brewery)
-        
         // Clean URL without reloading
         window.history.replaceState({}, '', window.location.pathname)
       }
     }
-  }, [breweries, stamps])
+  }, [breweries])
 
   const loadData = async () => {
     try {
@@ -159,12 +138,7 @@ function App() {
           addStamp={addStamp}
           addBeer={addBeer}
           language={language}
-          onBack={() => {
-            setQrMessage(null)
-            navigate('home')
-          }}
-          qrMessage={qrMessage}
-          clearQrMessage={() => setQrMessage(null)}
+          onBack={() => navigate('home')}
         />
       )}
       
