@@ -43,13 +43,13 @@ const BREWERY_DATA = {
   '7 Bridges Brewing Co.': {
     instagram: 'https://www.instagram.com/7bridgesbrewingco/',
     facebook: 'https://facebook.com/7BridgesBrewingCo',
-    maps: 'https://maps.app.goo.gl/YJ8hKMxPqp7vJ9Zy9',
+    maps: 'https://www.google.com/maps/search/?api=1&query=38+Dong+Du+Ben+Nghe+Quan+1+Ho+Chi+Minh+City',
     hashtag: '#hcmaletrail @7bridgesbrewingco'
   },
   'Belgo Saigon': {
     instagram: 'https://www.instagram.com/belgo_belgianbrewery/',
     facebook: 'https://www.facebook.com/belgobelgiancraftbeerbrewery',
-    maps: 'https://maps.app.goo.gl/8zQhxvWJCpYNrTVK8',
+    maps: 'https://www.google.com/maps/search/?api=1&query=29-31+Ton+That+Thiep+Ben+Nghe+Quan+1+Ho+Chi+Minh+City',
     hashtag: '#hcmaletrail @belgo_belgianbrewery'
   }
 }
