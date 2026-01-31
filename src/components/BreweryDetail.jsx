@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import translations from '../translations'
 import AddBeerModal from './AddBeerModal'
 
@@ -53,46 +53,30 @@ const BREWERY_DATA = {
   }
 }
 
-function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, onBack, qrMessage, clearQrMessage }) {
-  const [code, setCode] = useState('')
-  const [message, setMessage] = useState(null)
+function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, onBack }) {
   const [showAddBeer, setShowAddBeer] = useState(false)
+  const [message, setMessage] = useState(null)
 
   const t = translations[language]
   const isStamped = stamps.includes(brewery.id)
   const breweryBeers = beers.filter(b => b.breweryId === brewery.id)
   const breweryInfo = BREWERY_DATA[brewery.name] || {}
 
-  // Show QR message if present
-  useEffect(() => {
-    if (qrMessage) {
-      setMessage(qrMessage)
-      setTimeout(() => {
-        setMessage(null)
-        clearQrMessage()
-      }, 5000)
+  const handleBeerAdded = (beer) => {
+    // Add the beer
+    addBeer(beer)
+    
+    // Auto-stamp if not already stamped
+    if (!isStamped) {
+      addStamp(brewery.id)
+      setMessage({ 
+        type: 'success', 
+        text: `🎉 ${t.stampCollected} (${stamps.length + 1}/8)` 
+      })
+      setTimeout(() => setMessage(null), 5000)
     }
-  }, [qrMessage])
-
-  const handleCodeSubmit = () => {
-    if (!code.trim()) {
-      setMessage({ type: 'error', text: t.invalidCode })
-      return
-    }
-
-    if (code.trim() === brewery.secret_code) {
-      if (isStamped) {
-        setMessage({ type: 'info', text: t.alreadyCollected })
-      } else {
-        addStamp(brewery.id)
-        setMessage({ type: 'success', text: `🎉 ${t.stampCollected}` })
-      }
-      setCode('')
-    } else {
-      setMessage({ type: 'error', text: t.invalidCode })
-    }
-
-    setTimeout(() => setMessage(null), 3000)
+    
+    setShowAddBeer(false)
   }
 
   const copyHashtag = () => {
@@ -105,13 +89,23 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     <div className="brewery-detail">
       <button className="back-btn" onClick={onBack}>← BACK</button>
 
-      <div className="qr-instruction-box">
-        <div className="qr-icon">📱</div>
-        <div className="qr-instruction-text">
-          <strong>Scan QR code at brewery</strong>
-          <p>Use your phone camera to scan the QR code displayed at this location</p>
+      {/* BIG INSTRUCTION BOX - Shows if NOT stamped */}
+      {!isStamped && (
+        <div className="stamp-instruction-box">
+          <div className="stamp-icon">🍺</div>
+          <div className="stamp-instruction-text">
+            <strong>{t.addBeerToCollect || "Add a beer to collect your stamp!"}</strong>
+            <p>{t.addBeerSubtext || "Rate the beer you're drinking to get your stamp"}</p>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* SUCCESS MESSAGE - Shows if just stamped */}
+      {message && (
+        <div className={`message ${message.type}`}>
+          {message.text}
+        </div>
+      )}
 
       <div className="brewery-info-card centered">
         <h1 className="brewery-title">{brewery.name}</h1>
@@ -130,11 +124,12 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </a>
       )}
 
+      {/* ADD BEER BUTTON - Prominent and colorful */}
       <button 
-        className="action-btn yellow"
+        className="action-btn yellow add-beer-cta"
         onClick={() => setShowAddBeer(true)}
       >
-        🍺 {t.addBeer}
+        🍺 {isStamped ? t.addAnotherBeer || t.addBeer : t.addBeerNow || "ADD BEER NOW!"}
       </button>
 
       {breweryBeers.length > 0 && (
@@ -183,35 +178,10 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </button>
       </div>
 
-      <div className="code-section">
-        <h3 className="code-title">{t.codeBackup || "Backup: Enter Code"}</h3>
-        <p style={{textAlign: 'center', color: '#000', fontSize: '0.9rem', marginBottom: '1rem'}}>
-          {t.codeBackupText || "If QR scan doesn't work, ask staff for the code"}
-        </p>
-        <div className="code-input-container">
-          <input
-            type="text"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            placeholder="* * * *"
-            maxLength="4"
-            className="code-input"
-          />
-          <button className="go-btn" onClick={handleCodeSubmit}>
-            {t.go}
-          </button>
-        </div>
-        {message && (
-          <div className={`message ${message.type}`}>
-            {message.text}
-          </div>
-        )}
-      </div>
-
       {showAddBeer && (
         <AddBeerModal
           brewery={brewery}
-          addBeer={addBeer}
+          onSave={handleBeerAdded}
           language={language}
           onClose={() => setShowAddBeer(false)}
         />
