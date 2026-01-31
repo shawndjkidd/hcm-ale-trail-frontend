@@ -23,6 +23,22 @@ function App() {
     loadBeersFromStorage()
   }, [])
 
+  useEffect(() => {
+    // Check for URL parameters to auto-open brewery
+    const urlParams = new URLSearchParams(window.location.search)
+    const breweryParam = urlParams.get('brewery')
+    
+    if (breweryParam && breweries.length > 0) {
+      const breweryIndex = parseInt(breweryParam) - 1
+      if (breweryIndex >= 0 && breweryIndex < breweries.length) {
+        const brewery = breweries[breweryIndex]
+        navigate('brewery', brewery)
+        // Clean URL without reloading
+        window.history.replaceState({}, '', window.location.pathname)
+      }
+    }
+  }, [breweries])
+
   const loadData = async () => {
     try {
       const trailRes = await fetch(`${API_URL}/trails/hcm`)
