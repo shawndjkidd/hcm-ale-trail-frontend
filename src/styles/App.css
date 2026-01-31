@@ -2,7 +2,7 @@
    HCM ALE TRAIL - BOLD RED/YELLOW/BLACK DESIGN
    ========================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap');
 
 :root {
   --red-primary: #E31E24;
@@ -25,7 +25,8 @@
 }
 
 body {
-  font-family: 'Noto Sans', var(--font-body);
+  font-family: 'Nunito', var(--font-body);
+  font-weight: 700;
   background: var(--red-primary);
   color: var(--white);
   line-height: 1.4;
@@ -77,17 +78,20 @@ body {
 }
 
 .flag-btn {
-  font-size: 2rem;
+  font-size: 3rem;
   background: none;
-  border: 3px solid transparent;
+  border: 4px solid transparent;
   cursor: pointer;
-  padding: 0.25rem 0.5rem;
-  transition: all 0.2s;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s;
+  border-radius: 8px;
 }
 
 .flag-btn.active {
   border-color: var(--yellow-primary);
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 209, 0, 0.2);
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(255, 209, 0, 0.5);
 }
 
 .header-badge {
@@ -100,6 +104,7 @@ body {
   letter-spacing: 2px;
   border: 4px solid var(--black);
   margin: 1rem 0;
+  box-shadow: 0 4px 0 var(--black);
 }
 
 .top-nav {
@@ -118,10 +123,17 @@ body {
   color: var(--white);
   transition: transform 0.2s;
   text-align: center;
+  box-shadow: 0 3px 0 var(--black);
 }
 
 .nav-btn-small:hover {
-  transform: scale(1.05);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 var(--black);
+}
+
+.nav-btn-small:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 var(--black);
 }
 
 .nav-btn-small.yellow {
@@ -146,6 +158,7 @@ body {
   border: 4px solid var(--yellow-primary);
   padding: 1rem;
   margin: 1rem 0;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
 }
 
 .progress-header {
@@ -172,12 +185,14 @@ body {
   background: var(--red-dark);
   border: 2px solid var(--yellow-primary);
   overflow: hidden;
+  border-radius: 4px;
 }
 
 .progress-bar-fill {
   height: 100%;
   background: var(--yellow-primary);
   transition: width 0.5s ease;
+  box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .trail-social {
@@ -199,6 +214,18 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  box-shadow: 0 4px 0 var(--black);
+  transition: transform 0.2s;
+}
+
+.social-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--black);
+}
+
+.social-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 var(--black);
 }
 
 .social-btn.instagram {
@@ -222,10 +249,17 @@ body {
   cursor: pointer;
   transition: transform 0.2s;
   position: relative;
+  box-shadow: 0 4px 0 var(--black);
 }
 
 .brewery-item:hover {
-  transform: scale(1.02);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--black);
+}
+
+.brewery-item:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 var(--black);
 }
 
 .brewery-item.stamped::before {
@@ -363,6 +397,12 @@ body {
   font-size: 0.8rem;
   cursor: pointer;
   letter-spacing: 1px;
+  transition: all 0.2s;
+}
+
+.reset-btn:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .brewery-detail {
@@ -383,6 +423,18 @@ body {
   cursor: pointer;
   margin-bottom: 1rem;
   width: 100%;
+  box-shadow: 0 4px 0 var(--black);
+  transition: transform 0.2s;
+}
+
+.back-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--black);
+}
+
+.back-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 var(--black);
 }
 
 .qr-section {
@@ -398,6 +450,18 @@ body {
   font-family: var(--font-display);
   font-size: 1.5rem;
   cursor: pointer;
+  box-shadow: 0 4px 0 var(--red-primary);
+  transition: transform 0.2s;
+}
+
+.qr-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--red-primary);
+}
+
+.qr-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 var(--red-primary);
 }
 
 .brewery-info-card {
@@ -406,6 +470,7 @@ body {
   border: 4px solid var(--black);
   padding: 1.5rem;
   margin: 1rem 0;
+  box-shadow: 0 4px 0 var(--black);
 }
 
 .brewery-info-card.centered .brewery-title {
@@ -442,6 +507,18 @@ body {
   color: var(--white);
   text-decoration: none;
   text-align: center;
+  box-shadow: 0 4px 0 var(--black);
+  transition: transform 0.2s;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--black);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 var(--black);
 }
 
 .action-btn.green {
@@ -457,6 +534,7 @@ body {
   border: 4px solid var(--black);
   padding: 1rem;
   margin: 1rem 0;
+  box-shadow: 0 4px 0 var(--black);
 }
 
 .brewery-beers h3 {
@@ -493,6 +571,7 @@ body {
   border: 4px solid var(--black);
   padding: 1rem;
   margin: 1rem 0;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
 }
 
 .hashtag-text {
@@ -507,11 +586,23 @@ body {
   width: 100%;
   background: var(--yellow-primary);
   color: var(--black);
-  border: none;
+  border: 3px solid var(--black);
   padding: 0.75rem;
   font-family: var(--font-display);
   font-size: 1.2rem;
   cursor: pointer;
+  box-shadow: 0 3px 0 var(--black);
+  transition: transform 0.2s;
+}
+
+.copy-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 var(--black);
+}
+
+.copy-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 var(--black);
 }
 
 .code-section {
@@ -519,6 +610,7 @@ body {
   border: 4px solid var(--red-primary);
   padding: 1.5rem;
   margin: 1rem 0;
+  box-shadow: 0 4px 0 var(--red-primary);
 }
 
 .code-title {
@@ -539,12 +631,13 @@ body {
   width: 100%;
   background: var(--black);
   color: var(--white);
-  border: none;
+  border: 3px solid var(--black);
   padding: 1rem;
   font-family: var(--font-display);
   font-size: 2rem;
   text-align: center;
   letter-spacing: 0.5rem;
+  border-radius: 4px;
 }
 
 .go-btn {
@@ -556,6 +649,18 @@ body {
   font-family: var(--font-display);
   font-size: 1.5rem;
   cursor: pointer;
+  box-shadow: 0 4px 0 var(--black);
+  transition: transform 0.2s;
+}
+
+.go-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--black);
+}
+
+.go-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 var(--black);
 }
 
 .message {
@@ -564,6 +669,7 @@ body {
   text-align: center;
   font-weight: bold;
   border: 3px solid var(--black);
+  border-radius: 4px;
 }
 
 .message.success {
@@ -605,6 +711,7 @@ body {
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
+  box-shadow: 0 8px 0 var(--black);
 }
 
 .modal-close {
@@ -621,6 +728,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 50%;
+  box-shadow: 0 3px 0 var(--black);
 }
 
 .modal-content h2,
@@ -656,6 +765,7 @@ body {
   border: 3px solid var(--black);
   font-family: var(--font-body);
   font-size: 1rem;
+  border-radius: 4px;
 }
 
 .star-rating {
@@ -669,7 +779,11 @@ body {
   font-size: 2rem;
   cursor: pointer;
   opacity: 0.3;
-  transition: opacity 0.2s;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.star:hover {
+  transform: scale(1.2);
 }
 
 .star.active {
@@ -690,6 +804,20 @@ body {
   font-size: 1.2rem;
   border: 3px solid var(--black);
   cursor: pointer;
+  box-shadow: 0 3px 0 var(--black);
+  transition: transform 0.2s;
+}
+
+.btn-cancel:hover,
+.btn-save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 var(--black);
+}
+
+.btn-cancel:active,
+.btn-save:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 var(--black);
 }
 
 .btn-cancel {
@@ -713,6 +841,7 @@ body {
   padding: 1rem;
   margin-bottom: 0.5rem;
   border: 4px solid var(--black);
+  box-shadow: 0 4px 0 var(--black);
 }
 
 .faq-step.red {
@@ -751,6 +880,7 @@ body {
   font-size: 2rem;
   border: 4px solid var(--black);
   margin: 1rem 0;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
 }
 
 .faq-tips {
@@ -759,6 +889,7 @@ body {
   border: 4px solid var(--black);
   padding: 1rem;
   margin: 1rem 0;
+  box-shadow: 0 4px 0 var(--black);
 }
 
 .faq-tips h3 {
@@ -787,6 +918,18 @@ body {
   font-size: 1.5rem;
   cursor: pointer;
   margin-top: 1rem;
+  box-shadow: 0 4px 0 var(--black);
+  transition: transform 0.2s;
+}
+
+.ok-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--black);
+}
+
+.ok-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 var(--black);
 }
 
 .my-beers-page {
@@ -812,6 +955,7 @@ body {
   text-align: center;
   color: var(--black);
   margin: 2rem 0;
+  box-shadow: 0 4px 0 var(--black);
 }
 
 .beer-list {
@@ -824,6 +968,7 @@ body {
   padding: 1rem;
   margin-bottom: 1rem;
   color: var(--black);
+  box-shadow: 0 4px 0 var(--black);
 }
 
 .beer-card .beer-name {
