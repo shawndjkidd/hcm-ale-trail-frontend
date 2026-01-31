@@ -386,4 +386,654 @@ body {
   color: rgba(255, 255, 255, 0.3);
   padding: 0.5rem 1rem;
   font-size: 0.8rem;
-  cur
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+}
+
+.reset-btn:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.brewery-detail {
+  background: var(--yellow-primary);
+  min-height: 100vh;
+  padding: 1rem;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.back-btn {
+  background: var(--red-primary);
+  color: var(--white);
+  border: 4px solid var(--black);
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  width: 100%;
+  box-shadow: 0 4px 0 var(--black);
+  transition: transform 0.2s;
+}
+
+.back-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--black);
+}
+
+.back-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 var(--black);
+}
+
+.qr-section {
+  margin: 1rem 0;
+}
+
+.qr-btn {
+  width: 100%;
+  background: var(--white);
+  color: var(--red-primary);
+  border: 4px solid var(--red-primary);
+  padding: 1.5rem;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 4px 0 var(--red-primary);
+  transition: transform 0.2s;
+}
+
+.qr-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--red-primary);
+}
+
+.qr-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 var(--red-primary);
+}
+
+.brewery-info-card {
+  background: var(--red-primary);
+  color: var(--white);
+  border: 4px solid var(--black);
+  padding: 1.5rem;
+  margin: 1rem 0;
+  box-shadow: 0 4px 0 var(--black);
+}
+
+.brewery-info-card.centered .brewery-title {
+  text-align: center;
+}
+
+.brewery-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--yellow-primary);
+  margin-bottom: 0.5rem;
+}
+
+.brewery-address {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  font-style: italic;
+}
+
+.brewery-description {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.action-btn {
+  display: block;
+  width: 100%;
+  padding: 1.25rem;
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  border: 4px solid var(--black);
+  cursor: pointer;
+  margin: 0.5rem 0;
+  color: var(--white);
+  text-decoration: none;
+  text-align: center;
+  box-shadow: 0 4px 0 var(--black);
+  transition: transform 0.2s;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--black);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 var(--black);
+}
+
+.action-btn.green {
+  background: var(--green-primary);
+}
+
+.action-btn.yellow {
+  background: var(--yellow-primary);
+  color: var(--black);
+}
+
+.brewery-beers {
+  background: var(--white);
+  border: 4px solid var(--black);
+  padding: 1rem;
+  margin: 1rem 0;
+  box-shadow: 0 4px 0 var(--black);
+}
+
+.brewery-beers h3 {
+  color: var(--red-primary);
+  font-family: var(--font-display);
+  margin-bottom: 0.5rem;
+}
+
+.beer-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  border-bottom: 2px solid var(--gray);
+  color: var(--black);
+}
+
+.beer-name {
+  font-weight: bold;
+}
+
+.beer-rating {
+  font-size: 1.2rem;
+}
+
+.brewery-social {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.hashtag-section {
+  background: var(--black);
+  border: 4px solid var(--black);
+  padding: 1rem;
+  margin: 1rem 0;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+.hashtag-text {
+  color: var(--yellow-primary);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.copy-btn {
+  width: 100%;
+  background: var(--yellow-primary);
+  color: var(--black);
+  border: 3px solid var(--black);
+  padding: 0.75rem;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--black);
+  transition: transform 0.2s;
+}
+
+.copy-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 var(--black);
+}
+
+.copy-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 var(--black);
+}
+
+.code-section {
+  background: var(--yellow-primary);
+  border: 4px solid var(--red-primary);
+  padding: 1.5rem;
+  margin: 1rem 0;
+  box-shadow: 0 4px 0 var(--red-primary);
+}
+
+.code-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--red-primary);
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.code-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.code-input {
+  width: 100%;
+  background: var(--black);
+  color: var(--white);
+  border: 3px solid var(--black);
+  padding: 1rem;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  text-align: center;
+  letter-spacing: 0.5rem;
+  border-radius: 4px;
+}
+
+.go-btn {
+  width: 100%;
+  background: var(--green-primary);
+  color: var(--white);
+  border: 4px solid var(--black);
+  padding: 1rem;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 4px 0 var(--black);
+  transition: transform 0.2s;
+}
+
+.go-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--black);
+}
+
+.go-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 var(--black);
+}
+
+.message {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  text-align: center;
+  font-weight: bold;
+  border: 3px solid var(--black);
+  border-radius: 4px;
+}
+
+.message.success {
+  background: var(--green-primary);
+  color: var(--white);
+}
+
+.message.error {
+  background: var(--red-primary);
+  color: var(--white);
+}
+
+.message.info {
+  background: var(--black);
+  color: var(--yellow-primary);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 1000;
+}
+
+.modal-content,
+.faq-content {
+  background: var(--yellow-primary);
+  border: 5px solid var(--black);
+  padding: 2rem;
+  max-width: 480px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 8px 0 var(--black);
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: var(--red-primary);
+  color: var(--white);
+  border: 3px solid var(--black);
+  width: 40px;
+  height: 40px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  box-shadow: 0 3px 0 var(--black);
+}
+
+.modal-content h2,
+.faq-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--red-primary);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.modal-subtitle {
+  text-align: center;
+  color: var(--black);
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+  color: var(--black);
+  margin-bottom: 0.5rem;
+}
+
+.text-input,
+.textarea-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 3px solid var(--black);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  border-radius: 4px;
+}
+
+.star-rating {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.star {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  opacity: 0.3;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.star:hover {
+  transform: scale(1.2);
+}
+
+.star.active {
+  opacity: 1;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.btn-cancel,
+.btn-save {
+  flex: 1;
+  padding: 0.75rem;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  border: 3px solid var(--black);
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--black);
+  transition: transform 0.2s;
+}
+
+.btn-cancel:hover,
+.btn-save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 var(--black);
+}
+
+.btn-cancel:active,
+.btn-save:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 var(--black);
+}
+
+.btn-cancel {
+  background: var(--gray);
+  color: var(--white);
+}
+
+.btn-save {
+  background: var(--green-primary);
+  color: var(--white);
+}
+
+.faq-steps {
+  margin-top: 1rem;
+}
+
+.faq-step {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  border: 4px solid var(--black);
+  box-shadow: 0 4px 0 var(--black);
+}
+
+.faq-step.red {
+  background: var(--red-primary);
+  color: var(--white);
+}
+
+.faq-step.green {
+  background: var(--green-primary);
+  color: var(--white);
+}
+
+.step-number {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  color: var(--yellow-primary);
+  flex-shrink: 0;
+}
+
+.step-text {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+}
+
+.step-subtext {
+  font-size: 1rem;
+  margin-top: 0.25rem;
+}
+
+.faq-banner {
+  background: var(--black);
+  color: var(--yellow-primary);
+  text-align: center;
+  padding: 1.5rem;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  border: 4px solid var(--black);
+  margin: 1rem 0;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+.faq-tips {
+  background: var(--white);
+  color: var(--black);
+  border: 4px solid var(--black);
+  padding: 1rem;
+  margin: 1rem 0;
+  box-shadow: 0 4px 0 var(--black);
+}
+
+.faq-tips h3 {
+  font-family: var(--font-display);
+  color: var(--red-primary);
+  margin-bottom: 0.5rem;
+}
+
+.faq-tips ul {
+  list-style: none;
+  padding: 0;
+}
+
+.faq-tips li {
+  margin: 0.5rem 0;
+  line-height: 1.6;
+}
+
+.ok-btn {
+  width: 100%;
+  background: var(--red-primary);
+  color: var(--white);
+  border: 4px solid var(--black);
+  padding: 1rem;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  cursor: pointer;
+  margin-top: 1rem;
+  box-shadow: 0 4px 0 var(--black);
+  transition: transform 0.2s;
+}
+
+.ok-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--black);
+}
+
+.ok-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 var(--black);
+}
+
+.my-beers-page {
+  background: var(--yellow-primary);
+  min-height: 100vh;
+  padding: 1rem;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.page-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--red-primary);
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.empty-state {
+  background: var(--white);
+  border: 4px solid var(--black);
+  padding: 2rem;
+  text-align: center;
+  color: var(--black);
+  margin: 2rem 0;
+  box-shadow: 0 4px 0 var(--black);
+}
+
+.beer-list {
+  margin: 1rem 0;
+}
+
+.beer-card {
+  background: var(--white);
+  border: 4px solid var(--black);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  color: var(--black);
+  box-shadow: 0 4px 0 var(--black);
+}
+
+.beer-card .beer-name {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--red-primary);
+  margin-bottom: 0.25rem;
+}
+
+.beer-card .beer-brewery {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.beer-card .beer-rating {
+  font-size: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+.beer-card .beer-notes {
+  font-style: italic;
+  color: var(--gray);
+}
+
+/* QR Scanner Styles */
+.qr-scanner-container {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--white);
+  border: 4px solid var(--red-primary);
+  border-radius: 8px;
+}
+
+#qr-reader {
+  width: 100%;
+  border: none;
+}
+
+#qr-reader video {
+  width: 100% !important;
+  height: auto !important;
+  border-radius: 4px;
+}
+
+#qr-reader__dashboard {
+  display: none !important;
+}
+
+.scanning-text {
+  text-align: center;
+  color: var(--red-primary);
+  font-weight: bold;
+  margin-top: 1rem;
+  font-size: 1rem;
+}
+
+@media (max-width: 480px) {
+  .brewery-number {
+    width: 60px;
+    height: 60px;
+    font-size: 2rem;
+  }
+  
+  .brewery-name {
+    font-size: 1.2rem;
+  }
+  
+  .brewery-logo {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .nav-btn {
+    font-size: 1rem;
+  }
+}
