@@ -8,13 +8,13 @@ import translations from './translations'
 const API_URL = 'https://aletrail-platform.vercel.app/api'
 
 function App() {
-  const [currentView, setCurrentView] = useState('home') // home, brewery, mybeers, faq
+  const [currentView, setCurrentView] = useState('home')
   const [selectedBrewery, setSelectedBrewery] = useState(null)
   const [language, setLanguage] = useState('en')
   const [trail, setTrail] = useState(null)
   const [breweries, setBreweries] = useState([])
   const [stamps, setStamps] = useState([])
-  const [beers, setBeers] = useState([]) // All rated beers
+  const [beers, setBeers] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -118,3 +118,31 @@ function App() {
         <BreweryDetail 
           brewery={selectedBrewery}
           stamps={stamps}
+          beers={beers}
+          addStamp={addStamp}
+          addBeer={addBeer}
+          language={language}
+          onBack={() => navigate('home')}
+        />
+      )}
+      
+      {currentView === 'mybeers' && (
+        <MyBeers 
+          beers={beers}
+          breweries={breweries}
+          language={language}
+          onBack={() => navigate('home')}
+        />
+      )}
+      
+      {currentView === 'faq' && (
+        <FAQ 
+          language={language}
+          onClose={() => navigate('home')}
+        />
+      )}
+    </div>
+  )
+}
+
+export default App
