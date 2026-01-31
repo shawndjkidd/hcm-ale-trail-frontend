@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react'
-import { Html5QrcodeScanner } from 'html5-qrcode'
+import { useState } from 'react'
 import translations from '../translations'
 import AddBeerModal from './AddBeerModal'
 
@@ -58,39 +57,24 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
   const [code, setCode] = useState('')
   const [message, setMessage] = useState(null)
   const [showAddBeer, setShowAddBeer] = useState(false)
-  const [scanning, setScanning] = useState(false)
-  const [scanner, setScanner] = useState(null)
 
   const t = translations[language]
   const isStamped = stamps.includes(brewery.id)
   const breweryBeers = beers.filter(b => b.breweryId === brewery.id)
   const breweryInfo = BREWERY_DATA[brewery.name] || {}
 
-  useEffect(() => {
-    return () => {
-      if (scanner) {
-        scanner.clear().catch(err => console.error('Scanner cleanup error:', err))
-      }
-    }
-  }, [scanner])
-
-  const handleCodeSubmit = (scannedCode = null) => {
-    const codeToCheck = scannedCode || code.trim()
-    
-    if (!codeToCheck) {
+  const handleCodeSubmit = () => {
+    if (!code.trim()) {
       setMessage({ type: 'error', text: t.invalidCode })
       return
     }
 
-    if (codeToCheck === brewery.secret_code) {
+    if (code.trim() === brewery.secret_code) {
       if (isStamped) {
         setMessage({ type: 'info', text: t.alreadyCollected })
       } else {
         addStamp(brewery.id)
         setMessage({ type: 'success', text: `🎉 ${t.stampCollected}` })
-        if (scanning) {
-          stopScanning()
-        }
       }
       setCode('')
     } else {
@@ -98,44 +82,6 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     }
 
     setTimeout(() => setMessage(null), 3000)
-  }
-
-  const startScanning = () => {
-    setScanning(true)
-    setMessage(null)
-
-    const qrScanner = new Html5QrcodeScanner('qr-reader', {
-      fps: 10,
-      qrbox: { width: 250, height: 250 },
-      aspectRatio: 1.0,
-    })
-
-    qrScanner.render(
-      (decodedText) => {
-        handleCodeSubmit(decodedText)
-      },
-      (error) => {
-        // Silent error - scanning continues
-      }
-    )
-
-    setScanner(qrScanner)
-  }
-
-  const stopScanning = () => {
-    if (scanner) {
-      scanner.clear().catch(err => console.error('Error stopping scanner:', err))
-      setScanner(null)
-    }
-    setScanning(false)
-  }
-
-  const handleQRScan = () => {
-    if (scanning) {
-      stopScanning()
-    } else {
-      startScanning()
-    }
   }
 
   const copyHashtag = () => {
@@ -148,16 +94,12 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     <div className="brewery-detail">
       <button className="back-btn" onClick={onBack}>← BACK</button>
 
-      <div className="qr-section">
-        <button className="qr-btn" onClick={handleQRScan}>
-          📱 {scanning ? t.stopScanning : t.scanQR}
-        </button>
-        {scanning && (
-          <div className="qr-scanner-container">
-            <div id="qr-reader"></div>
-            <p className="scanning-text">{t.scanningQR}</p>
-          </div>
-        )}
+      <div className="qr-instruction-box">
+        <div className="qr-icon">📱</div>
+        <div className="qr-instruction-text">
+          <strong>{t.scanQRInstruction || "Scan QR code at brewery"}</strong>
+          <p>{t.scanQRSubtext || "Use your phone camera to scan the QR code displayed at this brewery"}</p>
+        </div>
       </div>
 
       <div className="brewery-info-card centered">
@@ -241,7 +183,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
             maxLength="4"
             className="code-input"
           />
-          <button className="go-btn" onClick={() => handleCodeSubmit()}>
+          <button className="go-btn" onClick={handleCodeSubmit}>
             {t.go}
           </button>
         </div>
