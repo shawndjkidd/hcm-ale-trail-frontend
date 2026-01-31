@@ -3,7 +3,7 @@ import translations from '../translations'
 import AddBeerModal from './AddBeerModal'
 
 const BREWERY_DATA = {
-  'BiaCraft Artisan Ales': {
+  'BiaCraft': {
     instagram: 'https://www.instagram.com/biacraftartisanales/',
     facebook: 'https://facebook.com/biacraft',
     maps: 'https://maps.app.goo.gl/jwRQhzZMzijiHYtN7',
@@ -42,13 +42,13 @@ const BREWERY_DATA = {
   '7 Bridges Brewing Co.': {
     instagram: 'https://www.instagram.com/7bridgesbrewingco/',
     facebook: 'https://facebook.com/7BridgesBrewingCo',
-    maps: 'https://maps.app.goo.gl/EypAZwTsL9mzq6vw8',
+    maps: 'https://maps.app.goo.gl/TYZvQW4VKmZ8vLjG8',
     hashtag: '#hcmaletrail @7bridgesbrewingco'
   },
   'Belgo Saigon': {
     instagram: 'https://www.instagram.com/belgo_belgianbrewery/',
     facebook: 'https://www.facebook.com/belgobelgiancraftbeerbrewery',
-    maps: 'https://maps.app.goo.gl/xj8SvJBYfvR9mNfv8',
+    maps: 'https://maps.app.goo.gl/B8k9f8YC3nVJYxYH7',
     hashtag: '#hcmaletrail @belgo_belgianbrewery'
   }
 }
@@ -122,7 +122,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
       )}
 
       <button 
-        className="action-btn orange"
+        className="action-btn yellow"
         onClick={() => setShowAddBeer(true)}
       >
         🍺 {t.addBeer}
