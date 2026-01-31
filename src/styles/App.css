@@ -428,31 +428,39 @@ body {
   box-shadow: 0 2px 0 var(--black);
 }
 
-.qr-section {
-  margin: 1rem 0;
-}
-
-.qr-btn {
-  width: 100%;
+.qr-instruction-box {
   background: var(--white);
-  color: var(--red-primary);
   border: 4px solid var(--red-primary);
   padding: 1.5rem;
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-  cursor: pointer;
+  margin: 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
   box-shadow: 0 4px 0 var(--red-primary);
-  transition: transform 0.2s;
 }
 
-.qr-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 0 var(--red-primary);
+.qr-icon {
+  font-size: 3rem;
+  flex-shrink: 0;
 }
 
-.qr-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 0 var(--red-primary);
+.qr-instruction-text {
+  flex: 1;
+  color: var(--black);
+}
+
+.qr-instruction-text strong {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  color: var(--red-primary);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.qr-instruction-text p {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin: 0;
 }
 
 .brewery-info-card {
@@ -983,38 +991,6 @@ body {
 .beer-card .beer-notes {
   font-style: italic;
   color: var(--gray);
-}
-
-/* QR Scanner Styles */
-.qr-scanner-container {
-  margin-top: 1rem;
-  padding: 1rem;
-  background: var(--white);
-  border: 4px solid var(--red-primary);
-  border-radius: 8px;
-}
-
-#qr-reader {
-  width: 100%;
-  border: none;
-}
-
-#qr-reader video {
-  width: 100% !important;
-  height: auto !important;
-  border-radius: 4px;
-}
-
-#qr-reader__dashboard {
-  display: none !important;
-}
-
-.scanning-text {
-  text-align: center;
-  color: var(--red-primary);
-  font-weight: bold;
-  margin-top: 1rem;
-  font-size: 1rem;
 }
 
 @media (max-width: 480px) {
