@@ -1,28 +1,28 @@
 import { useState } from 'react'
 import translations from '../translations'
 
-function AddBeerModal({ brewery, addBeer, language, onClose }) {
+function AddBeerModal({ brewery, onSave, language, onClose }) {
   const [beerName, setBeerName] = useState('')
   const [rating, setRating] = useState(0)
   const [notes, setNotes] = useState('')
-
+  
   const t = translations[language]
 
-  const handleSave = () => {
+  const handleSubmit = () => {
     if (!beerName.trim() || rating === 0) {
-      alert('Please enter a beer name and rating!')
+      alert(t.pleaseComplete || 'Please enter a beer name and rating!')
       return
     }
 
-    addBeer({
+    const beer = {
       breweryId: brewery.id,
       breweryName: brewery.name,
-      name: beerName,
+      name: beerName.trim(),
       rating,
-      notes
-    })
+      notes: notes.trim()
+    }
 
-    onClose()
+    onSave(beer)
   }
 
   return (
@@ -39,7 +39,7 @@ function AddBeerModal({ brewery, addBeer, language, onClose }) {
             type="text"
             value={beerName}
             onChange={(e) => setBeerName(e.target.value)}
-            placeholder="e.g. Gorilla IPA"
+            placeholder="e.g. Saigon IPA"
             className="text-input"
           />
         </div>
@@ -60,11 +60,11 @@ function AddBeerModal({ brewery, addBeer, language, onClose }) {
         </div>
 
         <div className="form-group">
-          <label>{t.tastingNotes}</label>
+          <label>{t.tastingNotes} ({t.optional || 'Optional'})</label>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Optional tasting notes..."
+            placeholder="e.g. Hoppy, citrus notes..."
             className="textarea-input"
             rows="3"
           />
@@ -74,7 +74,7 @@ function AddBeerModal({ brewery, addBeer, language, onClose }) {
           <button className="btn-cancel" onClick={onClose}>
             {t.cancel}
           </button>
-          <button className="btn-save" onClick={handleSave}>
+          <button className="btn-save" onClick={handleSubmit}>
             {t.save}
           </button>
         </div>
