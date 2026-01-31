@@ -1,20 +1,26 @@
 import { useState, useEffect } from 'react'
 import HomePage from './components/HomePage'
-import BreweryList from './components/BreweryList'
-import StampCollection from './components/StampCollection'
+import BreweryDetail from './components/BreweryDetail'
+import MyBeers from './components/MyBeers'
+import FAQ from './components/FAQ'
+import translations from './translations'
 
 const API_URL = 'https://aletrail-platform.vercel.app/api'
 
 function App() {
-  const [currentView, setCurrentView] = useState('home')
+  const [currentView, setCurrentView] = useState('home') // home, brewery, mybeers, faq
+  const [selectedBrewery, setSelectedBrewery] = useState(null)
+  const [language, setLanguage] = useState('en')
   const [trail, setTrail] = useState(null)
   const [breweries, setBreweries] = useState([])
   const [stamps, setStamps] = useState([])
+  const [beers, setBeers] = useState([]) // All rated beers
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     loadData()
     loadStampsFromStorage()
+    loadBeersFromStorage()
   }, [])
 
   const loadData = async () => {
@@ -47,6 +53,13 @@ function App() {
     }
   }
 
+  const loadBeersFromStorage = () => {
+    const saved = localStorage.getItem('hcm-ale-trail-beers')
+    if (saved) {
+      setBeers(JSON.parse(saved))
+    }
+  }
+
   const addStamp = (breweryId) => {
     if (!stamps.includes(breweryId)) {
       const newStamps = [...stamps, breweryId]
@@ -55,82 +68,53 @@ function App() {
     }
   }
 
-  const navigate = (view) => {
+  const addBeer = (beer) => {
+    const newBeers = [...beers, { ...beer, id: Date.now(), timestamp: new Date().toISOString() }]
+    setBeers(newBeers)
+    localStorage.setItem('hcm-ale-trail-beers', JSON.stringify(newBeers))
+  }
+
+  const navigate = (view, brewery = null) => {
     setCurrentView(view)
+    setSelectedBrewery(brewery)
     window.scrollTo(0, 0)
+  }
+
+  const resetCard = () => {
+    if (window.confirm(translations[language].resetConfirm)) {
+      localStorage.removeItem('hcm-ale-trail-stamps')
+      localStorage.removeItem('hcm-ale-trail-beers')
+      setStamps([])
+      setBeers([])
+      alert(translations[language].resetSuccess)
+    }
   }
 
   if (loading) {
     return (
       <div className="loading">
         <div className="loading-spinner"></div>
-        <p>Loading Saigon's finest breweries...</p>
+        <p>{translations[language].loading}</p>
       </div>
     )
   }
 
   return (
     <div className="app">
-      <header className="header">
-        <div className="header-content">
-          <h1 className="logo" onClick={() => navigate('home')}>
-            HCM ALE TRAIL
-          </h1>
-          <nav className="nav">
-            <button 
-              className={currentView === 'home' ? 'active' : ''} 
-              onClick={() => navigate('home')}
-            >
-              Home
-            </button>
-            <button 
-              className={currentView === 'breweries' ? 'active' : ''} 
-              onClick={() => navigate('breweries')}
-            >
-              Breweries
-            </button>
-            <button 
-              className={`stamp-btn ${currentView === 'stamps' ? 'active' : ''}`}
-              onClick={() => navigate('stamps')}
-            >
-              <span className="stamp-count">{stamps.length}/{breweries.length}</span>
-              Stamps
-            </button>
-          </nav>
-        </div>
-      </header>
-
-      <main className="main-content">
-        {currentView === 'home' && (
-          <HomePage 
-            trail={trail} 
-            breweries={breweries}
-            stamps={stamps}
-            onExplore={() => navigate('breweries')}
-          />
-        )}
-        
-        {currentView === 'breweries' && (
-          <BreweryList 
-            breweries={breweries}
-            stamps={stamps}
-          />
-        )}
-        
-        {currentView === 'stamps' && (
-          <StampCollection 
-            breweries={breweries}
-            stamps={stamps}
-            addStamp={addStamp}
-          />
-        )}
-      </main>
-
-      <footer className="footer">
-        <p>© 2026 HCM Ale Trail • Discover Saigon's Craft Beer Scene</p>
-      </footer>
-    </div>
-  )
-}
-
-export default App
+      {currentView === 'home' && (
+        <HomePage 
+          trail={trail}
+          breweries={breweries}
+          stamps={stamps}
+          language={language}
+          setLanguage={setLanguage}
+          onBreweryClick={(brewery) => navigate('brewery', brewery)}
+          onNavigate={navigate}
+          resetCard={resetCard}
+        />
+      )}
+      
+      {currentView === 'brewery' && selectedBrewery && (
+        <BreweryDetail 
+          brewery={selectedBrewery}
+          stamps={stamps}
