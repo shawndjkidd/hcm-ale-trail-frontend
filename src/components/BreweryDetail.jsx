@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import translations from '../translations'
 import AddBeerModal from './AddBeerModal'
 
@@ -53,7 +53,7 @@ const BREWERY_DATA = {
   }
 }
 
-function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, onBack }) {
+function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, onBack, qrMessage, clearQrMessage }) {
   const [code, setCode] = useState('')
   const [message, setMessage] = useState(null)
   const [showAddBeer, setShowAddBeer] = useState(false)
@@ -62,6 +62,17 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
   const isStamped = stamps.includes(brewery.id)
   const breweryBeers = beers.filter(b => b.breweryId === brewery.id)
   const breweryInfo = BREWERY_DATA[brewery.name] || {}
+
+  // Show QR message if present
+  useEffect(() => {
+    if (qrMessage) {
+      setMessage(qrMessage)
+      setTimeout(() => {
+        setMessage(null)
+        clearQrMessage()
+      }, 5000)
+    }
+  }, [qrMessage])
 
   const handleCodeSubmit = () => {
     if (!code.trim()) {
@@ -97,8 +108,8 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
       <div className="qr-instruction-box">
         <div className="qr-icon">📱</div>
         <div className="qr-instruction-text">
-          <strong>{t.scanQRInstruction || "Scan QR code at brewery"}</strong>
-          <p>{t.scanQRSubtext || "Use your phone camera to scan the QR code displayed at this brewery"}</p>
+          <strong>Scan QR code at brewery</strong>
+          <p>Use your phone camera to scan the QR code displayed at this location</p>
         </div>
       </div>
 
@@ -173,7 +184,10 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
       </div>
 
       <div className="code-section">
-        <h3 className="code-title">{t.code}</h3>
+        <h3 className="code-title">{t.codeBackup || "Backup: Enter Code"}</h3>
+        <p style={{textAlign: 'center', color: '#000', fontSize: '0.9rem', marginBottom: '1rem'}}>
+          {t.codeBackupText || "If QR scan doesn't work, ask staff for the code"}
+        </p>
         <div className="code-input-container">
           <input
             type="text"
