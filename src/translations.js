@@ -1,6 +1,6 @@
 const translations = {
   en: {
-    craftBeerPassport: "CRAFT BEER PASSPORT",
+    craftBeerPassport: "HO CHI MINH ALE TRAIL",
     stamps: "STAMPS",
     faq: "FAQ",
     website: "WEBSITE",
@@ -39,10 +39,13 @@ const translations = {
     resetConfirm: "Are you sure you want to reset your card? This will delete all stamps and beer ratings.",
     resetSuccess: "Card reset successfully!",
     resetCard: "RESET CARD",
+    scanningQR: "Scanning... Point camera at QR code",
+    cameraError: "Camera access denied. Please allow camera access or use code entry below.",
+    stopScanning: "STOP SCANNING",
   },
   
   vn: {
-    craftBeerPassport: "HỘ CHIẾU PHA CHẾ",
+    craftBeerPassport: "TUYẾN PHA HỒ CHÍ MINH",
     stamps: "TEM",
     faq: "FAQ",
     website: "TRANG WEB",
@@ -81,10 +84,13 @@ const translations = {
     resetConfirm: "Bạn có chắc muốn đặt lại thẻ của mình không? Điều này sẽ xóa tất cả tem và đánh giá bia.",
     resetSuccess: "Đặt lại thẻ thành công!",
     resetCard: "ĐẶT LẠI THẺ",
+    scanningQR: "Đang quét... Hướng máy ảnh vào mã QR",
+    cameraError: "Quyền truy cập máy ảnh bị từ chối. Vui lòng cho phép hoặc sử dụng nhập mã bên dưới.",
+    stopScanning: "DỪNG QUÉT",
   },
   
   kr: {
-    craftBeerPassport: "크래프트 맥주 여권",
+    craftBeerPassport: "호치민 에일 트레일",
     stamps: "스탬프",
     faq: "FAQ",
     website: "웹사이트",
@@ -123,10 +129,13 @@ const translations = {
     resetConfirm: "카드를 재설정하시겠습니까? 모든 스탬프와 맥주 평가가 삭제됩니다.",
     resetSuccess: "카드가 성공적으로 재설정되었습니다!",
     resetCard: "카드 재설정",
+    scanningQR: "스캔 중... QR 코드에 카메라를 향하세요",
+    cameraError: "카메라 접근이 거부되었습니다. 카메라 접근을 허용하거나 아래 코드 입력을 사용하세요.",
+    stopScanning: "스캔 중지",
   },
   
   jp: {
-    craftBeerPassport: "クラフトビールパスポート",
+    craftBeerPassport: "ホーチミン エールトレイル",
     stamps: "スタンプ",
     faq: "FAQ",
     website: "ウェブサイト",
@@ -165,6 +174,9 @@ const translations = {
     resetConfirm: "カードをリセットしてもよろしいですか？すべてのスタンプとビール評価が削除されます。",
     resetSuccess: "カードが正常にリセットされました!",
     resetCard: "カードリセット",
+    scanningQR: "スキャン中... QRコードにカメラを向けてください",
+    cameraError: "カメラアクセスが拒否されました。カメラアクセスを許可するか、以下のコード入力を使用してください。",
+    stopScanning: "スキャン停止",
   }
 }
 
