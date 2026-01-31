@@ -2,9 +2,8 @@ import { useState } from 'react'
 import translations from '../translations'
 import AddBeerModal from './AddBeerModal'
 
-// Hardcoded brewery social media and maps
 const BREWERY_DATA = {
-  'BiaCraft': {
+  'BiaCraft Artisan Ales': {
     instagram: 'https://www.instagram.com/biacraftartisanales/',
     facebook: 'https://facebook.com/biacraft',
     maps: 'https://maps.app.goo.gl/jwRQhzZMzijiHYtN7',
@@ -36,7 +35,7 @@ const BREWERY_DATA = {
   },
   'Rooster Beers': {
     instagram: 'https://instagram.com/roosterbeers',
-    facebook: 'https://facebook.com/roosterbeers',
+    facebook: 'https://www.facebook.com/theroosterbeers',
     maps: 'https://maps.app.goo.gl/kxQy9aCbHnchCScf8',
     hashtag: '#hcmaletrail @roosterbeers'
   },
@@ -48,7 +47,7 @@ const BREWERY_DATA = {
   },
   'Belgo Saigon': {
     instagram: 'https://instagram.com/belgosaigon',
-    facebook: 'https://facebook.com/belgosaigon',
+    facebook: 'https://www.facebook.com/belgobelgiancraftbeerbrewery',
     maps: 'https://maps.app.goo.gl/BelgoMapsLink',
     hashtag: '#hcmaletrail @belgosaigon'
   }
@@ -105,7 +104,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </button>
       </div>
 
-      <div className="brewery-info-card">
+      <div className="brewery-info-card centered">
         <h1 className="brewery-title">{brewery.name}</h1>
         <p className="brewery-address">📍 {brewery.address}</p>
         <p className="brewery-description">{brewery.description}</p>
