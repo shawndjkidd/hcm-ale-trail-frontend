@@ -31,9 +31,9 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
 
       <div className="top-nav">
         <button className="nav-btn-small yellow" onClick={() => onNavigate('faq')}>{t.faq}</button>
-        <button className="nav-btn-small black" onClick={() => window.open('https://www.hochiminhaletrail.com/', '_blank')}>{t.website}</button>
+        <button className="nav-btn-small red" onClick={() => window.open('https://www.hochiminhaletrail.com/', '_blank')}>{t.website}</button>
         <button className="nav-btn-small green" onClick={() => window.open('https://www.google.com/maps/d/u/1/viewer?mid=1ZO-30TD2syibuwwqGF7wDxwHACOEsBQ&ll=10.77928527172877%2C106.69519550000001&z=15', '_blank')}>{t.maps}</button>
-        <button className="nav-btn-small orange" onClick={() => onNavigate('mybeers')}>{t.myBeers}</button>
+        <button className="nav-btn-small yellow" onClick={() => onNavigate('mybeers')}>{t.myBeers}</button>
       </div>
 
       <div className="progress-section">
