@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { Html5QrcodeScanner } from 'html5-qrcode'
 import translations from '../translations'
 import AddBeerModal from './AddBeerModal'
 
@@ -42,13 +43,13 @@ const BREWERY_DATA = {
   '7 Bridges Brewing Co.': {
     instagram: 'https://www.instagram.com/7bridgesbrewingco/',
     facebook: 'https://facebook.com/7BridgesBrewingCo',
-    maps: 'https://maps.app.goo.gl/TYZvQW4VKmZ8vLjG8',
+    maps: 'https://maps.app.goo.gl/YJ8hKMxPqp7vJ9Zy9',
     hashtag: '#hcmaletrail @7bridgesbrewingco'
   },
   'Belgo Saigon': {
     instagram: 'https://www.instagram.com/belgo_belgianbrewery/',
     facebook: 'https://www.facebook.com/belgobelgiancraftbeerbrewery',
-    maps: 'https://maps.app.goo.gl/B8k9f8YC3nVJYxYH7',
+    maps: 'https://maps.app.goo.gl/8zQhxvWJCpYNrTVK8',
     hashtag: '#hcmaletrail @belgo_belgianbrewery'
   }
 }
@@ -57,24 +58,39 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
   const [code, setCode] = useState('')
   const [message, setMessage] = useState(null)
   const [showAddBeer, setShowAddBeer] = useState(false)
+  const [scanning, setScanning] = useState(false)
+  const [scanner, setScanner] = useState(null)
 
   const t = translations[language]
   const isStamped = stamps.includes(brewery.id)
   const breweryBeers = beers.filter(b => b.breweryId === brewery.id)
   const breweryInfo = BREWERY_DATA[brewery.name] || {}
 
-  const handleCodeSubmit = () => {
-    if (!code.trim()) {
+  useEffect(() => {
+    return () => {
+      if (scanner) {
+        scanner.clear().catch(err => console.error('Scanner cleanup error:', err))
+      }
+    }
+  }, [scanner])
+
+  const handleCodeSubmit = (scannedCode = null) => {
+    const codeToCheck = scannedCode || code.trim()
+    
+    if (!codeToCheck) {
       setMessage({ type: 'error', text: t.invalidCode })
       return
     }
 
-    if (code.trim() === brewery.secret_code) {
+    if (codeToCheck === brewery.secret_code) {
       if (isStamped) {
         setMessage({ type: 'info', text: t.alreadyCollected })
       } else {
         addStamp(brewery.id)
         setMessage({ type: 'success', text: `🎉 ${t.stampCollected}` })
+        if (scanning) {
+          stopScanning()
+        }
       }
       setCode('')
     } else {
@@ -84,8 +100,42 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     setTimeout(() => setMessage(null), 3000)
   }
 
+  const startScanning = () => {
+    setScanning(true)
+    setMessage(null)
+
+    const qrScanner = new Html5QrcodeScanner('qr-reader', {
+      fps: 10,
+      qrbox: { width: 250, height: 250 },
+      aspectRatio: 1.0,
+    })
+
+    qrScanner.render(
+      (decodedText) => {
+        handleCodeSubmit(decodedText)
+      },
+      (error) => {
+        // Silent error - scanning continues
+      }
+    )
+
+    setScanner(qrScanner)
+  }
+
+  const stopScanning = () => {
+    if (scanner) {
+      scanner.clear().catch(err => console.error('Error stopping scanner:', err))
+      setScanner(null)
+    }
+    setScanning(false)
+  }
+
   const handleQRScan = () => {
-    alert('QR scanning would open your camera here. For now, please use the code entry below.')
+    if (scanning) {
+      stopScanning()
+    } else {
+      startScanning()
+    }
   }
 
   const copyHashtag = () => {
@@ -100,8 +150,14 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
 
       <div className="qr-section">
         <button className="qr-btn" onClick={handleQRScan}>
-          📱 {t.scanQR}
+          📱 {scanning ? t.stopScanning : t.scanQR}
         </button>
+        {scanning && (
+          <div className="qr-scanner-container">
+            <div id="qr-reader"></div>
+            <p className="scanning-text">{t.scanningQR}</p>
+          </div>
+        )}
       </div>
 
       <div className="brewery-info-card centered">
@@ -185,7 +241,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
             maxLength="4"
             className="code-input"
           />
-          <button className="go-btn" onClick={handleCodeSubmit}>
+          <button className="go-btn" onClick={() => handleCodeSubmit()}>
             {t.go}
           </button>
         </div>
