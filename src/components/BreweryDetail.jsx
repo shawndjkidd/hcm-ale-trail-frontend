@@ -10,46 +10,46 @@ const BREWERY_DATA = {
     hashtag: '#hcmaletrail @biacraftartisanales'
   },
   'Heart of Darkness': {
-    instagram: 'https://instagram.com/heartofdarknessbrewery',
+    instagram: 'https://www.instagram.com/heartofdarknessbrewery/',
     facebook: 'https://facebook.com/HeartOfDarknessBrewery',
     maps: 'https://maps.app.goo.gl/ah6bzRWZhM6gz3C78',
     hashtag: '#hcmaletrail @heartofdarknessbrewery'
   },
   'Deme': {
-    instagram: 'https://instagram.com/demebrewing',
+    instagram: 'https://www.instagram.com/deme.brewing/',
     facebook: 'https://facebook.com/demebrewing',
     maps: 'https://maps.app.goo.gl/NMMSRCjDehDUvtD5A',
-    hashtag: '#hcmaletrail @demebrewing'
+    hashtag: '#hcmaletrail @deme.brewing'
   },
   'Steersman': {
-    instagram: 'https://instagram.com/steersmanbrewery',
+    instagram: 'https://www.instagram.com/steersmanbrewery/',
     facebook: 'https://facebook.com/steersmanbrewery',
     maps: 'https://maps.app.goo.gl/ZtHzaoCea36zqUdWA',
     hashtag: '#hcmaletrail @steersmanbrewery'
   },
   'East West Brewing': {
-    instagram: 'https://instagram.com/eastwestbrewery',
+    instagram: 'https://www.instagram.com/eastwestbrewery/',
     facebook: 'https://facebook.com/eastwestbrewery',
     maps: 'https://maps.app.goo.gl/2CjzhfFS6h2qmNeq8',
     hashtag: '#hcmaletrail @eastwestbrewery'
   },
   'Rooster Beers': {
-    instagram: 'https://instagram.com/roosterbeers',
+    instagram: 'https://www.instagram.com/rooster.beers/',
     facebook: 'https://www.facebook.com/theroosterbeers',
     maps: 'https://maps.app.goo.gl/kxQy9aCbHnchCScf8',
-    hashtag: '#hcmaletrail @roosterbeers'
+    hashtag: '#hcmaletrail @rooster.beers'
   },
   '7 Bridges Brewing Co.': {
-    instagram: 'https://instagram.com/7bridgesbrewing',
+    instagram: 'https://www.instagram.com/7bridgesbrewingco/',
     facebook: 'https://facebook.com/7BridgesBrewingCo',
-    maps: 'https://maps.app.goo.gl/7BridgesMapsLink',
-    hashtag: '#hcmaletrail @7bridgesbrewing'
+    maps: 'https://maps.app.goo.gl/EypAZwTsL9mzq6vw8',
+    hashtag: '#hcmaletrail @7bridgesbrewingco'
   },
   'Belgo Saigon': {
-    instagram: 'https://instagram.com/belgosaigon',
+    instagram: 'https://www.instagram.com/belgo_belgianbrewery/',
     facebook: 'https://www.facebook.com/belgobelgiancraftbeerbrewery',
-    maps: 'https://maps.app.goo.gl/BelgoMapsLink',
-    hashtag: '#hcmaletrail @belgosaigon'
+    maps: 'https://maps.app.goo.gl/xj8SvJBYfvR9mNfv8',
+    hashtag: '#hcmaletrail @belgo_belgianbrewery'
   }
 }
 
@@ -110,14 +110,16 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         <p className="brewery-description">{brewery.description}</p>
       </div>
 
-      <a 
-        href={breweryInfo.maps} 
-        target="_blank" 
-        rel="noopener noreferrer"
-        className="action-btn green"
-      >
-        📍 {t.directions}
-      </a>
+      {breweryInfo.maps && (
+        <a 
+          href={breweryInfo.maps} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="action-btn green"
+        >
+          📍 {t.directions}
+        </a>
+      )}
 
       <button 
         className="action-btn orange"
@@ -141,22 +143,26 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
       )}
 
       <div className="brewery-social">
-        <a 
-          href={breweryInfo.instagram} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="social-btn instagram"
-        >
-          📷 IG
-        </a>
-        <a 
-          href={breweryInfo.facebook} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="social-btn facebook"
-        >
-          👍 FB
-        </a>
+        {breweryInfo.instagram && (
+          <a 
+            href={breweryInfo.instagram} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="social-btn instagram"
+          >
+            📷 IG
+          </a>
+        )}
+        {breweryInfo.facebook && (
+          <a 
+            href={breweryInfo.facebook} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="social-btn facebook"
+          >
+            👍 FB
+          </a>
+        )}
       </div>
 
       <div className="hashtag-section">
