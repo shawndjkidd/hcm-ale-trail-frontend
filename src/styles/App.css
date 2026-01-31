@@ -10,7 +10,6 @@
   --yellow-primary: #FFD100;
   --yellow-dark: #FFA500;
   --green-primary: #00B050;
-  --orange-primary: #FF6600;
   --black: #000000;
   --white: #FFFFFF;
   --gray: #808080;
@@ -141,16 +140,12 @@ body {
   color: var(--black);
 }
 
-.nav-btn-small.black {
-  background: var(--black);
+.nav-btn-small.red {
+  background: var(--red-primary);
 }
 
 .nav-btn-small.green {
   background: var(--green-primary);
-}
-
-.nav-btn-small.orange {
-  background: var(--orange-primary);
 }
 
 .progress-section {
@@ -364,16 +359,12 @@ body {
   color: var(--black);
 }
 
-.nav-btn.black {
-  background: var(--black);
+.nav-btn.red {
+  background: var(--red-primary);
 }
 
 .nav-btn.green {
   background: var(--green-primary);
-}
-
-.nav-btn.orange {
-  background: var(--orange-primary);
 }
 
 .footer {
@@ -525,8 +516,9 @@ body {
   background: var(--green-primary);
 }
 
-.action-btn.orange {
-  background: var(--orange-primary);
+.action-btn.yellow {
+  background: var(--yellow-primary);
+  color: var(--black);
 }
 
 .brewery-beers {
