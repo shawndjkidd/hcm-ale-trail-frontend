@@ -45,7 +45,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
           {t.faq}
         </button>
         <a 
-          href="https://www.hcmaletrail.com" 
+          href="https://www.hochiminhaletrail.com/" 
           target="_blank" 
           rel="noopener noreferrer"
           className="nav-btn-small red"
@@ -53,7 +53,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
           {t.website}
         </a>
         <a 
-          href="https://maps.app.goo.gl/hcmaletrail" 
+          href="https://www.google.com/maps/d/u/1/viewer?mid=1ZO-30TD2syibuwwqGF7wDxwHACOEsBQ&ll=10.77928527172877%2C106.69519550000001&z=15" 
           target="_blank" 
           rel="noopener noreferrer"
           className="nav-btn-small green"
@@ -78,26 +78,32 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         </div>
       </div>
 
-      {trail && (
-        <div className="trail-social">
-          <a 
-            href={trail.instagram_url} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="social-btn instagram"
-          >
-            📷 IG
-          </a>
-          <a 
-            href={trail.facebook_url} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="social-btn facebook"
-          >
-            👍 FB
-          </a>
-        </div>
-      )}
+      <div className="trail-social">
+        <a 
+          href="https://www.instagram.com/hcmaletrail/" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="social-btn instagram"
+        >
+          📷 IG
+        </a>
+        <a 
+          href="https://www.facebook.com/hcmaletrail" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="social-btn facebook"
+        >
+          👍 FB
+        </a>
+        <a 
+          href="https://www.messenger.com/t/115480196509607/?messaging_source=source%3Apages%3Amessage_shortlink&source_id=1441792&recurring_notification=0" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="social-btn messenger"
+        >
+          💬 MSG
+        </a>
+      </div>
 
       <div className="brewery-list">
         {breweries.map((brewery, index) => {
@@ -125,7 +131,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
                 )}
               </div>
               
-              {/* COMPLETED STAMP OVERLAY - Same as redesign */}
               {isStamped && (
                 <div className="completed-stamp">
                   <div className="stamp-text">COMPLETED!</div>
