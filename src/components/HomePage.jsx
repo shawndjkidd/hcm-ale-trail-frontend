@@ -112,7 +112,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
               <div className="brewery-number">{index + 1}</div>
               <div className="brewery-info">
                 <div className="brewery-name">{brewery.name}</div>
-                <div className="brewery-district">{brewery.district}</div>
+                <div className="brewery-address-small">{brewery.address}</div>
               </div>
               <div className="brewery-logo">
                 {brewery.logo_url ? (
