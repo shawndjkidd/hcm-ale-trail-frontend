@@ -1,39 +1,12 @@
 /* ==========================================
    HO CHI MINH ALE TRAIL - PASSPORT DESIGN
    Modern, Tactile, Craft Beer Experience
-   WITH COLOR/GRAYSCALE THEME TOGGLE
    ========================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
 
-/* COLOR THEME VARIABLES */
-body.color {
-  --red-deep: #A8352A;
-  --gold-warm: #D4A574;
-  --charcoal: #2A2A2A;
-  --cream: #F5F1E8;
-  --green-muted: #5A7A5E;
-  --blue-muted: #4A6B8A;
-  --red-muted: #B55A5A;
-  --text-dark: #1A1A1A;
-  --text-light: #6B6B6B;
-}
-
-/* GRAYSCALE THEME VARIABLES */
-body.grayscale {
-  --red-deep: #3A3A3A;
-  --gold-warm: #8A8A8A;
-  --charcoal: #1A1A1A;
-  --cream: #E8E8E8;
-  --green-muted: #5A5A5A;
-  --blue-muted: #4A4A4A;
-  --red-muted: #6A6A6A;
-  --text-dark: #1A1A1A;
-  --text-light: #6B6B6B;
-}
-
-/* DEFAULT (COLOR) */
 :root {
+  /* Vietnam-inspired muted palette */
   --red-deep: #A8352A;
   --gold-warm: #D4A574;
   --charcoal: #2A2A2A;
@@ -43,6 +16,8 @@ body.grayscale {
   --red-muted: #B55A5A;
   --text-dark: #1A1A1A;
   --text-light: #6B6B6B;
+  
+  /* Typography */
   --font-main: 'Inter', -apple-system, sans-serif;
 }
 
@@ -58,7 +33,6 @@ body {
   color: var(--text-dark);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  transition: background-color 0.3s ease;
 }
 
 /* Add subtle paper texture */
@@ -125,7 +99,7 @@ body::before {
 }
 
 /* ==========================================
-   1. LANGUAGE TOGGLE BAR + THEME TOGGLE
+   1. LANGUAGE TOGGLE BAR
    ========================================== */
 
 .language-toggle {
@@ -154,26 +128,6 @@ body::before {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(212, 165, 116, 0.5);
   box-shadow: 0 0 12px rgba(212, 165, 116, 0.3);
-}
-
-.theme-toggle-btn {
-  font-size: 2rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  cursor: pointer;
-  padding: 0.5rem 0.75rem;
-  border-radius: 50%;
-  transition: all 0.2s ease;
-  margin-left: 1rem;
-}
-
-.theme-toggle-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: scale(1.1);
-}
-
-.theme-toggle-btn:active {
-  transform: scale(0.95);
 }
 
 /* ==========================================
@@ -309,10 +263,6 @@ body::before {
   background: linear-gradient(180deg, var(--gold-warm), #B8935F);
   transition: width 0.5s ease;
   box-shadow: 0 0 8px rgba(212, 165, 116, 0.5);
-}
-
-body.grayscale .progress-bar-fill {
-  background: linear-gradient(180deg, var(--gold-warm), #6A6A6A);
 }
 
 /* ==========================================
@@ -454,12 +404,6 @@ body.grayscale .progress-bar-fill {
 /* UNLOCKED STATE */
 .brewery-logo img.color {
   filter: none;
-  opacity: 1;
-}
-
-/* In grayscale theme, also desaturate unlocked logos */
-body.grayscale .brewery-logo img.color {
-  filter: grayscale(100%);
   opacity: 1;
 }
 
@@ -837,6 +781,119 @@ body.grayscale .brewery-logo img.color {
 }
 
 /* ==========================================
+   INSTAGRAM SHARE PROMPT
+   ========================================== */
+
+.share-prompt {
+  background: linear-gradient(135deg, #E1306C 0%, #C13584 100%);
+  color: white;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(225, 48, 108, 0.3);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.share-prompt-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.share-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.share-text {
+  flex: 1;
+}
+
+.share-text strong {
+  font-size: 1.2rem;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.share-text p {
+  font-size: 0.85rem;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
+.share-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.share-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.share-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.share-btn {
+  padding: 0.875rem;
+  font-weight: 700;
+  font-size: 0.8rem;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.share-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.share-btn.copy {
+  background: white;
+  color: #E1306C;
+}
+
+.share-btn.instagram {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid white;
+}
+
+.share-btn.instagram:hover {
+  background: white;
+  color: #E1306C;
+}
+
+/* ==========================================
    MODALS
    ========================================== */
 
@@ -1204,11 +1261,6 @@ body.grayscale .brewery-logo img.color {
   border: 1px solid rgba(212, 165, 116, 0.3);
   padding: 0.75rem;
   border-radius: 4px;
-}
-
-body.grayscale .grouped-beer-item {
-  background: rgba(138, 138, 138, 0.1);
-  border: 1px solid rgba(138, 138, 138, 0.3);
 }
 
 .grouped-beer-header {
