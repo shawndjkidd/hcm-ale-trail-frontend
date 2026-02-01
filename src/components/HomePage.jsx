@@ -37,8 +37,18 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
       </div>
 
       <div className="header-badge">
-        <h1>{t.craftBeerPassport}</h1>
-        <p>Saigon's Craft Beer Passport</p>
+        <div className="header-content">
+          <div className="header-logo">
+            <img 
+              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbYevBhYikj4yPqY_Brd1CN4zEhaxGiZdJ0A&s" 
+              alt="HCM Ale Trail Logo"
+            />
+          </div>
+          <div className="header-text">
+            <h1>{t.craftBeerPassport}</h1>
+            <p>Saigon's Craft Beer Passport</p>
+          </div>
+        </div>
       </div>
 
       <div className="top-nav">
