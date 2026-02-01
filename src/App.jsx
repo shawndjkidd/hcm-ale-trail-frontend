@@ -16,6 +16,7 @@ function App() {
   const [stamps, setStamps] = useState([])
   const [beers, setBeers] = useState([])
   const [loading, setLoading] = useState(true)
+  const [qrValidated, setQrValidated] = useState(null) // Track which brewery was scanned
 
   useEffect(() => {
     loadData()
@@ -24,7 +25,7 @@ function App() {
   }, [])
 
   useEffect(() => {
-    // Check for URL parameters from QR code scan (just navigate, don't auto-stamp)
+    // Check for URL parameters from QR code scan
     const urlParams = new URLSearchParams(window.location.search)
     const breweryParam = urlParams.get('brewery')
     
@@ -32,6 +33,7 @@ function App() {
       const breweryIndex = parseInt(breweryParam) - 1
       if (breweryIndex >= 0 && breweryIndex < breweries.length) {
         const brewery = breweries[breweryIndex]
+        setQrValidated(brewery.id) // Mark this brewery as QR-validated
         navigate('brewery', brewery)
         // Clean URL without reloading
         window.history.replaceState({}, '', window.location.pathname)
@@ -96,6 +98,12 @@ function App() {
     window.scrollTo(0, 0)
   }
 
+  const handleBreweryClick = (brewery) => {
+    // When clicked from home page (not QR scan), don't validate
+    setQrValidated(null)
+    navigate('brewery', brewery)
+  }
+
   const resetCard = () => {
     if (window.confirm(translations[language].resetConfirm)) {
       localStorage.removeItem('hcm-ale-trail-stamps')
@@ -124,7 +132,7 @@ function App() {
           stamps={stamps}
           language={language}
           setLanguage={setLanguage}
-          onBreweryClick={(brewery) => navigate('brewery', brewery)}
+          onBreweryClick={handleBreweryClick}
           onNavigate={navigate}
           resetCard={resetCard}
         />
@@ -139,6 +147,7 @@ function App() {
           addBeer={addBeer}
           language={language}
           onBack={() => navigate('home')}
+          qrValidated={qrValidated === selectedBrewery.id}
         />
       )}
       
