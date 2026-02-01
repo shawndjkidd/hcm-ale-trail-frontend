@@ -80,7 +80,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
 
       <div className="trail-social">
         <a 
-          href="https://www.instagram.com/hcmaletrail/" 
+          href="https://www.instagram.com/hcm.aletrail/" 
           target="_blank" 
           rel="noopener noreferrer"
           className="social-btn instagram"
@@ -124,7 +124,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
                   <img 
                     src={brewery.logo_url} 
                     alt={brewery.name}
-                    className={isStamped ? 'color' : 'grayscale'}
+                    className="color"
                   />
                 ) : (
                   <span className="logo-placeholder">🍺</span>
