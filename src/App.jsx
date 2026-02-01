@@ -11,7 +11,6 @@ function App() {
   const [currentView, setCurrentView] = useState('home')
   const [selectedBrewery, setSelectedBrewery] = useState(null)
   const [language, setLanguage] = useState('en')
-  const [theme, setTheme] = useState('color')
   const [trail, setTrail] = useState(null)
   const [breweries, setBreweries] = useState([])
   const [stamps, setStamps] = useState([])
@@ -23,7 +22,6 @@ function App() {
     loadData()
     loadStampsFromStorage()
     loadBeersFromStorage()
-    loadThemeFromStorage()
   }, [])
 
   useEffect(() => {
@@ -40,10 +38,6 @@ function App() {
       }
     }
   }, [breweries])
-
-  useEffect(() => {
-    document.body.className = theme
-  }, [theme])
 
   const loadData = async () => {
     try {
@@ -80,19 +74,6 @@ function App() {
     if (saved) {
       setBeers(JSON.parse(saved))
     }
-  }
-
-  const loadThemeFromStorage = () => {
-    const saved = localStorage.getItem('hcm-ale-trail-theme')
-    if (saved) {
-      setTheme(saved)
-    }
-  }
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'color' ? 'grayscale' : 'color'
-    setTheme(newTheme)
-    localStorage.setItem('hcm-ale-trail-theme', newTheme)
   }
 
   const addStamp = (breweryId) => {
@@ -148,8 +129,6 @@ function App() {
           stamps={stamps}
           language={language}
           setLanguage={setLanguage}
-          theme={theme}
-          toggleTheme={toggleTheme}
           onBreweryClick={handleBreweryClick}
           onNavigate={navigate}
           resetCard={resetCard}
