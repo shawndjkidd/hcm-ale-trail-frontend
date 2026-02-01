@@ -337,8 +337,8 @@ body {
 }
 
 .brewery-logo img.grayscale {
-  filter: grayscale(100%);
-  opacity: 0.5;
+  filter: none;
+  opacity: 1;
 }
 
 .brewery-logo img.color {
@@ -609,6 +609,14 @@ body {
   display: flex;
   gap: 0.5rem;
   margin: 1rem 0;
+}
+
+.instagram-btn {
+  background: #E1306C !important;
+}
+
+.facebook-btn {
+  background: #1877f2 !important;
 }
 
 .hashtag-section {
