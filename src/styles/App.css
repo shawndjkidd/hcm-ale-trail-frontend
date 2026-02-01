@@ -94,4 +94,918 @@ body {
 }
 
 .header-badge {
-  backgroun
+  background: var(--yellow-primary);
+  color: var(--black);
+  text-align: center;
+  padding: 1rem;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  letter-spacing: 2px;
+  border: 4px solid var(--black);
+  margin: 1rem 0;
+  box-shadow: 0 4px 0 var(--black);
+}
+
+.top-nav {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.25rem;
+  margin: 1rem 0;
+}
+
+.nav-btn-small {
+  padding: 0.75rem 0.5rem;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  border: 3px solid var(--black);
+  cursor: pointer;
+  color: var(--white);
+  transition: transform 0.2s;
+  text-align: center;
+  box-shadow: 0 3px 0 var(--black);
+  text-decoration: none;
+  display: block;
+}
+
+.nav-btn-small:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 var(--black);
+}
+
+.nav-btn-small:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 var(--black);
+}
+
+.nav-btn-small.yellow {
+  background: var(--yellow-primary);
+  color: var(--black);
+}
+
+.nav-btn-small.red {
+  background: var(--red-primary);
+}
+
+.nav-btn-small.green {
+  background: var(--green-primary);
+}
+
+.progress-section {
+  background: var(--black);
+  border: 4px solid var(--yellow-primary);
+  padding: 1rem;
+  margin: 1rem 0;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.progress-label {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--yellow-primary);
+}
+
+.progress-count {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  color: var(--white);
+}
+
+.progress-bar-container {
+  height: 30px;
+  background: var(--red-dark);
+  border: 2px solid var(--yellow-primary);
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--yellow-primary);
+  transition: width 0.5s ease;
+  box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.trail-social {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.social-btn {
+  flex: 1;
+  padding: 0.75rem;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  text-decoration: none;
+  text-align: center;
+  border: 4px solid var(--black);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 0 var(--black);
+  transition: transform 0.2s;
+}
+
+.social-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--black);
+}
+
+.social-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 var(--black);
+}
+
+.social-btn.instagram {
+  background: #E1306C;
+}
+
+.social-btn.facebook {
+  background: #1877f2;
+}
+
+.brewery-list {
+  margin: 1rem 0;
+}
+
+.brewery-item {
+  display: flex;
+  align-items: center;
+  background: var(--white);
+  border: 4px solid var(--black);
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+  position: relative;
+  box-shadow: 0 4px 0 var(--black);
+}
+
+.brewery-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--black);
+}
+
+.brewery-item:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 var(--black);
+}
+
+.brewery-item.stamped::before {
+  content: '✓';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 2rem;
+  color: var(--green-primary);
+  opacity: 0.4;
+  font-weight: bold;
+  z-index: 1;
+}
+
+/* COMPLETED STAMP OVERLAY */
+.completed-stamp {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-15deg);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.stamp-text {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--red-primary);
+  background: rgba(255, 255, 255, 0.9);
+  border: 5px solid var(--red-primary);
+  border-radius: 8px;
+  padding: 0.5rem 1.5rem;
+  box-shadow: 
+    0 0 0 3px rgba(227, 30, 36, 0.3),
+    0 4px 8px rgba(0, 0, 0, 0.3);
+  letter-spacing: 2px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  opacity: 0.85;
+}
+
+.brewery-number {
+  background: var(--red-primary);
+  color: var(--yellow-primary);
+  font-family: var(--font-display);
+  font-size: 3rem;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-right: 4px solid var(--black);
+}
+
+.brewery-info {
+  flex: 1;
+  padding: 0.5rem 1rem;
+}
+
+.brewery-name {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--red-primary);
+  text-transform: uppercase;
+}
+
+.brewery-district {
+  font-size: 0.9rem;
+  color: var(--red-primary);
+  font-weight: bold;
+}
+
+.brewery-logo {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border-left: 4px dashed var(--black);
+}
+
+.brewery-logo img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.brewery-logo img.grayscale {
+  filter: grayscale(100%);
+  opacity: 0.5;
+}
+
+.brewery-logo img.color {
+  filter: none;
+  opacity: 1;
+}
+
+.logo-placeholder {
+  font-size: 2rem;
+  opacity: 0.3;
+}
+
+.bottom-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.nav-btn {
+  padding: 1rem;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  border: 4px solid var(--black);
+  cursor: pointer;
+  color: var(--white);
+  transition: transform 0.2s;
+}
+
+.nav-btn:hover {
+  transform: scale(1.05);
+}
+
+.nav-btn.yellow {
+  background: var(--yellow-primary);
+  color: var(--black);
+}
+
+.nav-btn.red {
+  background: var(--red-primary);
+}
+
+.nav-btn.green {
+  background: var(--green-primary);
+}
+
+.footer {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.footer-year {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  color: var(--yellow-primary);
+  margin-bottom: 1rem;
+  letter-spacing: 1px;
+}
+
+.reset-btn {
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.3);
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+}
+
+.reset-btn:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.brewery-detail {
+  background: var(--yellow-primary);
+  min-height: 100vh;
+  padding: 1rem;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.back-btn {
+  background: var(--red-primary);
+  color: var(--white);
+  border: 4px solid var(--black);
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  width: 100%;
+  box-shadow: 0 4px 0 var(--black);
+  transition: transform 0.2s;
+}
+
+.back-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--black);
+}
+
+.back-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 var(--black);
+}
+
+/* STAMP COLLECTION INSTRUCTION BOX */
+.stamp-instruction-box {
+  background: var(--yellow-primary);
+  border: 5px solid var(--red-primary);
+  padding: 1.5rem;
+  margin: 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 6px 0 var(--red-primary);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.stamp-icon {
+  font-size: 4rem;
+  flex-shrink: 0;
+}
+
+.stamp-instruction-text {
+  flex: 1;
+  color: var(--black);
+}
+
+.stamp-instruction-text strong {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--red-primary);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.stamp-instruction-text p {
+  font-size: 1rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.brewery-info-card {
+  background: var(--red-primary);
+  color: var(--white);
+  border: 4px solid var(--black);
+  padding: 1.5rem;
+  margin: 1rem 0;
+  box-shadow: 0 4px 0 var(--black);
+}
+
+.brewery-info-card.centered .brewery-title {
+  text-align: center;
+}
+
+.brewery-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--yellow-primary);
+  margin-bottom: 0.5rem;
+}
+
+.brewery-address {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  font-style: italic;
+}
+
+.brewery-description {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.action-btn {
+  display: block;
+  width: 100%;
+  padding: 1.25rem;
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  border: 4px solid var(--black);
+  cursor: pointer;
+  margin: 0.5rem 0;
+  color: var(--white);
+  text-decoration: none;
+  text-align: center;
+  box-shadow: 0 4px 0 var(--black);
+  transition: transform 0.2s;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--black);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 var(--black);
+}
+
+.action-btn.green {
+  background: var(--green-primary);
+}
+
+.action-btn.yellow {
+  background: var(--yellow-primary);
+  color: var(--black);
+}
+
+/* Make ADD BEER button more prominent */
+.add-beer-cta {
+  font-size: 1.5rem !important;
+  padding: 1.5rem !important;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.brewery-beers {
+  background: var(--white);
+  border: 4px solid var(--black);
+  padding: 1rem;
+  margin: 1rem 0;
+  box-shadow: 0 4px 0 var(--black);
+}
+
+.brewery-beers h3 {
+  color: var(--red-primary);
+  font-family: var(--font-display);
+  margin-bottom: 0.5rem;
+}
+
+.beer-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  border-bottom: 2px solid var(--gray);
+  color: var(--black);
+}
+
+.beer-name {
+  font-weight: bold;
+}
+
+.beer-rating {
+  font-size: 1.2rem;
+}
+
+.brewery-social {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.hashtag-section {
+  background: var(--black);
+  border: 4px solid var(--black);
+  padding: 1rem;
+  margin: 1rem 0;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+.hashtag-text {
+  color: var(--yellow-primary);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.copy-btn {
+  width: 100%;
+  background: var(--yellow-primary);
+  color: var(--black);
+  border: 3px solid var(--black);
+  padding: 0.75rem;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--black);
+  transition: transform 0.2s;
+}
+
+.copy-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 var(--black);
+}
+
+.copy-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 var(--black);
+}
+
+.message {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  text-align: center;
+  font-weight: bold;
+  border: 3px solid var(--black);
+  border-radius: 4px;
+}
+
+.message.success {
+  background: var(--green-primary);
+  color: var(--white);
+}
+
+.message.error {
+  background: var(--red-primary);
+  color: var(--white);
+}
+
+.message.info {
+  background: var(--black);
+  color: var(--yellow-primary);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 1000;
+}
+
+.modal-content,
+.faq-content {
+  background: var(--yellow-primary);
+  border: 5px solid var(--black);
+  padding: 2rem;
+  max-width: 480px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 8px 0 var(--black);
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: var(--red-primary);
+  color: var(--white);
+  border: 3px solid var(--black);
+  width: 40px;
+  height: 40px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  box-shadow: 0 3px 0 var(--black);
+}
+
+.modal-content h2,
+.faq-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--red-primary);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.modal-subtitle {
+  text-align: center;
+  color: var(--black);
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+  color: var(--black);
+  margin-bottom: 0.5rem;
+}
+
+.text-input,
+.textarea-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 3px solid var(--black);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  border-radius: 4px;
+}
+
+.star-rating {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.star {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  opacity: 0.3;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.star:hover {
+  transform: scale(1.2);
+}
+
+.star.active {
+  opacity: 1;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.btn-cancel,
+.btn-save {
+  flex: 1;
+  padding: 0.75rem;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  border: 3px solid var(--black);
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--black);
+  transition: transform 0.2s;
+}
+
+.btn-cancel:hover,
+.btn-save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 var(--black);
+}
+
+.btn-cancel:active,
+.btn-save:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 var(--black);
+}
+
+.btn-cancel {
+  background: var(--gray);
+  color: var(--white);
+}
+
+.btn-save {
+  background: var(--green-primary);
+  color: var(--white);
+}
+
+.faq-steps {
+  margin-top: 1rem;
+}
+
+.faq-step {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  border: 4px solid var(--black);
+  box-shadow: 0 4px 0 var(--black);
+}
+
+.faq-step.red {
+  background: var(--red-primary);
+  color: var(--white);
+}
+
+.faq-step.green {
+  background: var(--green-primary);
+  color: var(--white);
+}
+
+.step-number {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  color: var(--yellow-primary);
+  flex-shrink: 0;
+}
+
+.step-text {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+}
+
+.step-subtext {
+  font-size: 1rem;
+  margin-top: 0.25rem;
+}
+
+.faq-banner {
+  background: var(--black);
+  color: var(--yellow-primary);
+  text-align: center;
+  padding: 1.5rem;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  border: 4px solid var(--black);
+  margin: 1rem 0;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+.faq-tips {
+  background: var(--white);
+  color: var(--black);
+  border: 4px solid var(--black);
+  padding: 1rem;
+  margin: 1rem 0;
+  box-shadow: 0 4px 0 var(--black);
+}
+
+.faq-tips h3 {
+  font-family: var(--font-display);
+  color: var(--red-primary);
+  margin-bottom: 0.5rem;
+}
+
+.faq-tips ul {
+  list-style: none;
+  padding: 0;
+}
+
+.faq-tips li {
+  margin: 0.5rem 0;
+  line-height: 1.6;
+}
+
+.ok-btn {
+  width: 100%;
+  background: var(--red-primary);
+  color: var(--white);
+  border: 4px solid var(--black);
+  padding: 1rem;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  cursor: pointer;
+  margin-top: 1rem;
+  box-shadow: 0 4px 0 var(--black);
+  transition: transform 0.2s;
+}
+
+.ok-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--black);
+}
+
+.ok-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 0 var(--black);
+}
+
+.my-beers-page {
+  background: var(--yellow-primary);
+  min-height: 100vh;
+  padding: 1rem;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.page-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--red-primary);
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.empty-state {
+  background: var(--white);
+  border: 4px solid var(--black);
+  padding: 2rem;
+  text-align: center;
+  color: var(--black);
+  margin: 2rem 0;
+  box-shadow: 0 4px 0 var(--black);
+}
+
+.beer-list {
+  margin: 1rem 0;
+}
+
+.beer-card {
+  background: var(--white);
+  border: 4px solid var(--black);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  color: var(--black);
+  box-shadow: 0 4px 0 var(--black);
+}
+
+.beer-card .beer-name {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--red-primary);
+  margin-bottom: 0.25rem;
+}
+
+.beer-card .beer-brewery {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.beer-card .beer-rating {
+  font-size: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+.beer-card .beer-notes {
+  font-style: italic;
+  color: var(--gray);
+}
+
+@media (max-width: 480px) {
+  .brewery-number {
+    width: 60px;
+    height: 60px;
+    font-size: 2rem;
+  }
+  
+  .brewery-name {
+    font-size: 1.2rem;
+  }
+  
+  .brewery-logo {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .nav-btn {
+    font-size: 1rem;
+  }
+}
