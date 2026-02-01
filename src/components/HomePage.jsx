@@ -37,7 +37,8 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
       </div>
 
       <div className="header-badge">
-        {t.craftBeerPassport}
+        <h1>{t.craftBeerPassport}</h1>
+        <p>Saigon's Craft Beer Passport</p>
       </div>
 
       <div className="top-nav">
@@ -127,7 +128,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
               
               {isStamped && (
                 <div className="completed-stamp">
-                  <div className="stamp-text">COMPLETED!</div>
+                  <div className="stamp-text">COMPLETED</div>
                 </div>
               )}
             </div>
