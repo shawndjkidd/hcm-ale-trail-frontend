@@ -7,55 +7,64 @@ const BREWERY_DATA = {
     instagram: 'https://www.instagram.com/biacraftartisanales/',
     facebook: 'https://facebook.com/biacraft',
     maps: 'https://maps.app.goo.gl/jwRQhzZMzijiHYtN7',
-    hashtag: '#hcmaletrail @biacraftartisanales'
+    hashtag: '#hcmaletrail @biacraftartisanales',
+    code: '1234'
   },
   'Heart of Darkness': {
     instagram: 'https://www.instagram.com/heartofdarknessbrewery/',
     facebook: 'https://facebook.com/HeartOfDarknessBrewery',
     maps: 'https://maps.app.goo.gl/ah6bzRWZhM6gz3C78',
-    hashtag: '#hcmaletrail @heartofdarknessbrewery'
+    hashtag: '#hcmaletrail @heartofdarknessbrewery',
+    code: '5678'
   },
   'Deme': {
     instagram: 'https://www.instagram.com/deme.brewing/',
     facebook: 'https://facebook.com/demebrewing',
     maps: 'https://maps.app.goo.gl/NMMSRCjDehDUvtD5A',
-    hashtag: '#hcmaletrail @deme.brewing'
+    hashtag: '#hcmaletrail @deme.brewing',
+    code: '9012'
   },
   'Steersman': {
     instagram: 'https://www.instagram.com/steersmanbrewery/',
     facebook: 'https://facebook.com/steersmanbrewery',
     maps: 'https://maps.app.goo.gl/ZtHzaoCea36zqUdWA',
-    hashtag: '#hcmaletrail @steersmanbrewery'
+    hashtag: '#hcmaletrail @steersmanbrewery',
+    code: '3456'
   },
   'East West Brewing': {
     instagram: 'https://www.instagram.com/eastwestbrewery/',
     facebook: 'https://facebook.com/eastwestbrewery',
     maps: 'https://maps.app.goo.gl/2CjzhfFS6h2qmNeq8',
-    hashtag: '#hcmaletrail @eastwestbrewery'
+    hashtag: '#hcmaletrail @eastwestbrewery',
+    code: '7890'
   },
   'Rooster Beers': {
     instagram: 'https://www.instagram.com/rooster.beers/',
     facebook: 'https://www.facebook.com/theroosterbeers',
     maps: 'https://maps.app.goo.gl/kxQy9aCbHnchCScf8',
-    hashtag: '#hcmaletrail @rooster.beers'
+    hashtag: '#hcmaletrail @rooster.beers',
+    code: '2468'
   },
   '7 Bridges Brewing Co.': {
     instagram: 'https://www.instagram.com/7bridgesbrewingco/',
     facebook: 'https://facebook.com/7BridgesBrewingCo',
     maps: 'https://www.google.com/maps/search/?api=1&query=38+Dong+Du+Ben+Nghe+Quan+1+Ho+Chi+Minh+City',
-    hashtag: '#hcmaletrail @7bridgesbrewingco'
+    hashtag: '#hcmaletrail @7bridgesbrewingco',
+    code: '1357'
   },
   'Belgo Saigon': {
     instagram: 'https://www.instagram.com/belgo_belgianbrewery/',
     facebook: 'https://www.facebook.com/belgobelgiancraftbeerbrewery',
     maps: 'https://www.google.com/maps/search/?api=1&query=29-31+Ton+That+Thiep+Ben+Nghe+Quan+1+Ho+Chi+Minh+City',
-    hashtag: '#hcmaletrail @belgo_belgianbrewery'
+    hashtag: '#hcmaletrail @belgo_belgianbrewery',
+    code: '9753'
   }
 }
 
-function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, onBack }) {
+function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, onBack, qrValidated }) {
   const [showAddBeer, setShowAddBeer] = useState(false)
   const [message, setMessage] = useState(null)
+  const [manualCode, setManualCode] = useState('')
 
   const t = translations[language]
   const isStamped = stamps.includes(brewery.id)
@@ -79,6 +88,18 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     setShowAddBeer(false)
   }
 
+  const handleManualCode = () => {
+    const correctCode = breweryInfo.code
+    if (manualCode.trim() === correctCode) {
+      // Code is correct - allow them to add beer
+      setShowAddBeer(true)
+      setManualCode('')
+    } else {
+      setMessage({ type: 'error', text: t.invalidCode || 'Invalid code. Try again!' })
+      setTimeout(() => setMessage(null), 3000)
+    }
+  }
+
   const copyHashtag = () => {
     const hashtag = breweryInfo.hashtag || `#hcmaletrail @${brewery.name.toLowerCase().replace(/\s/g, '')}`
     navigator.clipboard.writeText(hashtag)
@@ -89,18 +110,18 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     <div className="brewery-detail">
       <button className="back-btn" onClick={onBack}>← BACK</button>
 
-      {/* BIG INSTRUCTION BOX - Shows if NOT stamped */}
-      {!isStamped && (
+      {/* INSTRUCTION BOX - Shows if NOT stamped AND NOT QR validated */}
+      {!isStamped && !qrValidated && (
         <div className="stamp-instruction-box">
           <div className="stamp-icon">🍺</div>
           <div className="stamp-instruction-text">
-            <strong>{t.addBeerToCollect || "Add a beer to collect your stamp!"}</strong>
-            <p>{t.addBeerSubtext || "Rate the beer you're drinking to get your stamp"}</p>
+            <strong>{t.scanQRToCollect || "Scan the QR code at the brewery to collect your stamp!"}</strong>
+            <p>{t.orEnterCode || "Or enter the code below if QR doesn't work"}</p>
           </div>
         </div>
       )}
 
-      {/* SUCCESS MESSAGE - Shows if just stamped */}
+      {/* SUCCESS MESSAGE */}
       {message && (
         <div className={`message ${message.type}`}>
           {message.text}
@@ -120,17 +141,40 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
           rel="noopener noreferrer"
           className="action-btn green"
         >
-          📍 {t.directions}
+          📍 {t.findOnMaps || "Find me on Google Maps"}
         </a>
       )}
 
-      {/* ADD BEER BUTTON - Prominent and colorful */}
-      <button 
-        className="action-btn yellow add-beer-cta"
-        onClick={() => setShowAddBeer(true)}
-      >
-        🍺 {isStamped ? t.addAnotherBeer || t.addBeer : t.addBeerNow || "ADD BEER NOW!"}
-      </button>
+      {/* ADD BEER BUTTON - Only shows if QR validated OR already stamped */}
+      {(qrValidated || isStamped) && (
+        <button 
+          className="action-btn yellow add-beer-cta"
+          onClick={() => setShowAddBeer(true)}
+        >
+          🍺 {isStamped ? (t.addAnotherBeer || t.addBeer) : (t.addBeerNow || "ADD BEER NOW!")}
+        </button>
+      )}
+
+      {/* MANUAL CODE ENTRY - Only shows if NOT validated and NOT stamped */}
+      {!qrValidated && !isStamped && (
+        <div className="manual-code-section">
+          <label className="code-label">{t.codeBackup || "Backup: Enter Code"}</label>
+          <p className="code-subtext">{t.codeBackupText || "If QR scan doesn't work, ask staff for the code"}</p>
+          <div className="code-input-row">
+            <input
+              type="text"
+              value={manualCode}
+              onChange={(e) => setManualCode(e.target.value)}
+              placeholder="1234"
+              maxLength="4"
+              className="code-input"
+            />
+            <button className="code-btn" onClick={handleManualCode}>
+              {t.go || "GO!"}
+            </button>
+          </div>
+        </div>
+      )}
 
       {breweryBeers.length > 0 && (
         <div className="brewery-beers">
