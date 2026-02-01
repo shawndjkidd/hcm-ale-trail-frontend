@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import translations from '../translations'
 
-function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onNavigate, resetCard }) {
+function HomePage({ trail, breweries, stamps, language, setLanguage, theme, toggleTheme, onBreweryClick, onNavigate, resetCard }) {
   const [showFAQ, setShowFAQ] = useState(false)
   
   const t = translations[language]
@@ -34,21 +34,18 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         >
           🇯🇵
         </button>
+        <button 
+          className="theme-toggle-btn"
+          onClick={toggleTheme}
+          title={theme === 'color' ? 'Switch to Grayscale' : 'Switch to Color'}
+        >
+          {theme === 'color' ? '⚫' : '🎨'}
+        </button>
       </div>
 
       <div className="header-badge">
-        <div className="header-content">
-          <div className="header-logo">
-            <img 
-              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbYevBhYikj4yPqY_Brd1CN4zEhaxGiZdJ0A&s" 
-              alt="HCM Ale Trail Logo"
-            />
-          </div>
-          <div className="header-text">
-            <h1>{t.craftBeerPassport}</h1>
-            <p>Saigon's Craft Beer Passport</p>
-          </div>
-        </div>
+        <h1>{t.craftBeerPassport}</h1>
+        <p>Saigon's Craft Beer Passport</p>
       </div>
 
       <div className="top-nav">
