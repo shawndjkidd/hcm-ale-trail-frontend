@@ -65,6 +65,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
   const [showAddBeer, setShowAddBeer] = useState(false)
   const [message, setMessage] = useState(null)
   const [manualCode, setManualCode] = useState('')
+  const [showSharePrompt, setShowSharePrompt] = useState(false)
 
   const t = translations[language]
   const isStamped = stamps.includes(brewery.id)
@@ -86,6 +87,9 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     }
     
     setShowAddBeer(false)
+    
+    // Show share prompt after successful check-in
+    setShowSharePrompt(true)
   }
 
   const handleManualCode = () => {
@@ -103,7 +107,26 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
   const copyHashtag = () => {
     const hashtag = breweryInfo.hashtag || `#hcmaletrail @${brewery.name.toLowerCase().replace(/\s/g, '')}`
     navigator.clipboard.writeText(hashtag)
-    alert(`Copied: ${hashtag}`)
+    setMessage({ type: 'success', text: `✅ Copied: ${hashtag}` })
+    setTimeout(() => setMessage(null), 3000)
+  }
+
+  const shareToInstagram = () => {
+    const hashtag = breweryInfo.hashtag || `#hcmaletrail @${brewery.name.toLowerCase().replace(/\s/g, '')}`
+    // Try to open Instagram app, fallback to web
+    const instagramUrl = `instagram://camera`
+    const instagramWebUrl = `https://www.instagram.com/`
+    
+    // Copy hashtag first
+    navigator.clipboard.writeText(hashtag)
+    
+    // Try to open Instagram
+    window.location.href = instagramUrl
+    
+    // Fallback to web after a delay
+    setTimeout(() => {
+      window.open(instagramWebUrl, '_blank')
+    }, 500)
   }
 
   return (
@@ -125,6 +148,28 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
       {message && (
         <div className={`message ${message.type}`}>
           {message.text}
+        </div>
+      )}
+
+      {/* SHARE PROMPT - Shows after successful check-in */}
+      {showSharePrompt && (
+        <div className="share-prompt">
+          <div className="share-prompt-header">
+            <span className="share-icon">📸</span>
+            <div className="share-text">
+              <strong>{t.shareYourExperience || "Share Your Experience!"}</strong>
+              <p>{t.shareInstructions || "Take a pic, copy the hashtag, and post on Instagram"}</p>
+            </div>
+            <button className="share-close" onClick={() => setShowSharePrompt(false)}>✕</button>
+          </div>
+          <div className="share-actions">
+            <button className="share-btn copy" onClick={copyHashtag}>
+              📋 {t.copyHashtag || "COPY HASHTAG"}
+            </button>
+            <button className="share-btn instagram" onClick={shareToInstagram}>
+              📷 {t.postToInstagram || "POST TO INSTAGRAM"}
+            </button>
+          </div>
         </div>
       )}
 
@@ -155,7 +200,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </button>
       )}
 
-      {/* SOCIAL MEDIA BUTTONS - Moved up here */}
+      {/* SOCIAL MEDIA BUTTONS */}
       <div className="brewery-social">
         {breweryInfo.instagram && (
           <a 
@@ -179,7 +224,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         )}
       </div>
 
-      {/* HASHTAG SECTION - Moved under social */}
+      {/* HASHTAG SECTION */}
       <div className="hashtag-section">
         <div className="hashtag-text">
           {breweryInfo.hashtag}
