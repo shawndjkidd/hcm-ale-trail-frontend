@@ -113,14 +113,13 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
 
   const shareToInstagram = () => {
     const hashtag = breweryInfo.hashtag || `#hcmaletrail @${brewery.name.toLowerCase().replace(/\s/g, '')}`
-    // Try to open Instagram app, fallback to web
-    const instagramUrl = `instagram://camera`
-    const instagramWebUrl = `https://www.instagram.com/`
-    
     // Copy hashtag first
     navigator.clipboard.writeText(hashtag)
     
     // Try to open Instagram
+    const instagramUrl = `instagram://camera`
+    const instagramWebUrl = `https://www.instagram.com/`
+    
     window.location.href = instagramUrl
     
     // Fallback to web after a delay
