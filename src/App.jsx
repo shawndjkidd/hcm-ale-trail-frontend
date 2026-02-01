@@ -32,4 +32,160 @@ function App() {
     
     if (breweryParam && breweries.length > 0) {
       const breweryIndex = parseInt(breweryParam) - 1
-      if (breweryIndex >= 0 && breweryIndex < brewer
+      if (breweryIndex >= 0 && breweryIndex < breweries.length) {
+        const brewery = breweries[breweryIndex]
+        setQrValidated(brewery.id)
+        navigate('brewery', brewery)
+        window.history.replaceState({}, '', window.location.pathname)
+      }
+    }
+  }, [breweries])
+
+  useEffect(() => {
+    document.body.className = theme
+  }, [theme])
+
+  const loadData = async () => {
+    try {
+      const trailRes = await fetch(`${API_URL}/trails/hcm`)
+      const trailData = await trailRes.json()
+      
+      if (trailData.success) {
+        setTrail(trailData.trail)
+      }
+
+      const breweriesRes = await fetch(`${API_URL}/breweries?trail=hcm`)
+      const breweriesData = await breweriesRes.json()
+      
+      if (breweriesData.success) {
+        setBreweries(breweriesData.breweries)
+      }
+
+      setLoading(false)
+    } catch (error) {
+      console.error('Error loading data:', error)
+      setLoading(false)
+    }
+  }
+
+  const loadStampsFromStorage = () => {
+    const saved = localStorage.getItem('hcm-ale-trail-stamps')
+    if (saved) {
+      setStamps(JSON.parse(saved))
+    }
+  }
+
+  const loadBeersFromStorage = () => {
+    const saved = localStorage.getItem('hcm-ale-trail-beers')
+    if (saved) {
+      setBeers(JSON.parse(saved))
+    }
+  }
+
+  const loadThemeFromStorage = () => {
+    const saved = localStorage.getItem('hcm-ale-trail-theme')
+    if (saved) {
+      setTheme(saved)
+    }
+  }
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'color' ? 'grayscale' : 'color'
+    setTheme(newTheme)
+    localStorage.setItem('hcm-ale-trail-theme', newTheme)
+  }
+
+  const addStamp = (breweryId) => {
+    if (!stamps.includes(breweryId)) {
+      const newStamps = [...stamps, breweryId]
+      setStamps(newStamps)
+      localStorage.setItem('hcm-ale-trail-stamps', JSON.stringify(newStamps))
+    }
+  }
+
+  const addBeer = (beer) => {
+    const newBeers = [...beers, { ...beer, id: Date.now(), timestamp: new Date().toISOString() }]
+    setBeers(newBeers)
+    localStorage.setItem('hcm-ale-trail-beers', JSON.stringify(newBeers))
+  }
+
+  const navigate = (view, brewery = null) => {
+    setCurrentView(view)
+    setSelectedBrewery(brewery)
+    window.scrollTo(0, 0)
+  }
+
+  const handleBreweryClick = (brewery) => {
+    setQrValidated(null)
+    navigate('brewery', brewery)
+  }
+
+  const resetCard = () => {
+    if (window.confirm(translations[language].resetConfirm)) {
+      localStorage.removeItem('hcm-ale-trail-stamps')
+      localStorage.removeItem('hcm-ale-trail-beers')
+      setStamps([])
+      setBeers([])
+      alert(translations[language].resetSuccess)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="loading">
+        <div className="loading-spinner"></div>
+        <p>{translations[language].loading}</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="app">
+      {currentView === 'home' && (
+        <HomePage 
+          trail={trail}
+          breweries={breweries}
+          stamps={stamps}
+          language={language}
+          setLanguage={setLanguage}
+          theme={theme}
+          toggleTheme={toggleTheme}
+          onBreweryClick={handleBreweryClick}
+          onNavigate={navigate}
+          resetCard={resetCard}
+        />
+      )}
+      
+      {currentView === 'brewery' && selectedBrewery && (
+        <BreweryDetail 
+          brewery={selectedBrewery}
+          stamps={stamps}
+          beers={beers}
+          addStamp={addStamp}
+          addBeer={addBeer}
+          language={language}
+          onBack={() => navigate('home')}
+          qrValidated={qrValidated === selectedBrewery.id}
+        />
+      )}
+      
+      {currentView === 'mybeers' && (
+        <MyBeers 
+          beers={beers}
+          breweries={breweries}
+          language={language}
+          onBack={() => navigate('home')}
+        />
+      )}
+      
+      {currentView === 'faq' && (
+        <FAQ 
+          language={language}
+          onClose={() => navigate('home')}
+        />
+      )}
+    </div>
+  )
+}
+
+export default App
