@@ -199,29 +199,27 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </button>
       )}
 
-      {/* SOCIAL MEDIA BUTTONS */}
-      <div className="brewery-social">
-        {breweryInfo.instagram && (
-          <a 
-            href={breweryInfo.instagram} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="social-btn instagram"
-          >
-            📷 IG
-          </a>
-        )}
-        {breweryInfo.facebook && (
-          <a 
-            href={breweryInfo.facebook} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="social-btn facebook"
-          >
-            👍 FB
-          </a>
-        )}
-      </div>
+      {/* SOCIAL MEDIA BUTTONS - FULL WIDTH */}
+      {breweryInfo.instagram && (
+        <a 
+          href={breweryInfo.instagram} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="action-btn instagram-btn"
+        >
+          📷 INSTAGRAM
+        </a>
+      )}
+      {breweryInfo.facebook && (
+        <a 
+          href={breweryInfo.facebook} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="action-btn facebook-btn"
+        >
+          👍 FACEBOOK
+        </a>
+      )}
 
       {/* HASHTAG SECTION */}
       <div className="hashtag-section">
