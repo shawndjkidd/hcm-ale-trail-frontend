@@ -116,7 +116,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
           <div className="stamp-icon">🍺</div>
           <div className="stamp-instruction-text">
             <strong>{t.scanQRToCollect || "Scan the QR code at the brewery to collect your stamp!"}</strong>
-            <p>{t.orEnterCode || "Or enter the code below if QR doesn't work"}</p>
+            <p>{t.scanFirst || "Scan the QR code first to check in your beer"}</p>
           </div>
         </div>
       )}
@@ -155,41 +155,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </button>
       )}
 
-      {/* MANUAL CODE ENTRY - Only shows if NOT validated and NOT stamped */}
-      {!qrValidated && !isStamped && (
-        <div className="manual-code-section">
-          <label className="code-label">{t.codeBackup || "Backup: Enter Code"}</label>
-          <p className="code-subtext">{t.codeBackupText || "If QR scan doesn't work, ask staff for the code"}</p>
-          <div className="code-input-row">
-            <input
-              type="text"
-              value={manualCode}
-              onChange={(e) => setManualCode(e.target.value)}
-              placeholder="1234"
-              maxLength="4"
-              className="code-input"
-            />
-            <button className="code-btn" onClick={handleManualCode}>
-              {t.go || "GO!"}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {breweryBeers.length > 0 && (
-        <div className="brewery-beers">
-          <h3>{t.beersAt} {brewery.name}:</h3>
-          {breweryBeers.map(beer => (
-            <div key={beer.id} className="beer-item">
-              <div className="beer-name">{beer.name}</div>
-              <div className="beer-rating">
-                {'⭐'.repeat(beer.rating)}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
+      {/* SOCIAL MEDIA BUTTONS - Moved up here */}
       <div className="brewery-social">
         {breweryInfo.instagram && (
           <a 
@@ -213,6 +179,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         )}
       </div>
 
+      {/* HASHTAG SECTION - Moved under social */}
       <div className="hashtag-section">
         <div className="hashtag-text">
           {breweryInfo.hashtag}
@@ -221,6 +188,41 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
           📋 COPY
         </button>
       </div>
+
+      {/* BEERS LIST */}
+      {breweryBeers.length > 0 && (
+        <div className="brewery-beers">
+          <h3>{t.beersAt} {brewery.name}:</h3>
+          {breweryBeers.map(beer => (
+            <div key={beer.id} className="beer-item">
+              <div className="beer-name">{beer.name}</div>
+              <div className="beer-rating">
+                {'⭐'.repeat(beer.rating)}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* MANUAL CODE ENTRY - Moved to bottom, smaller */}
+      {!qrValidated && !isStamped && (
+        <div className="manual-code-section-small">
+          <p className="code-subtext-small">{t.codeBackupText || "If QR scan doesn't work, ask staff for the code"}</p>
+          <div className="code-input-row">
+            <input
+              type="text"
+              value={manualCode}
+              onChange={(e) => setManualCode(e.target.value)}
+              placeholder="Code"
+              maxLength="4"
+              className="code-input-small"
+            />
+            <button className="code-btn-small" onClick={handleManualCode}>
+              {t.go || "GO"}
+            </button>
+          </div>
+        </div>
+      )}
 
       {showAddBeer && (
         <AddBeerModal
