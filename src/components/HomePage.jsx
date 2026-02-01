@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import translations from '../translations'
 
-function HomePage({ trail, breweries, stamps, language, setLanguage, theme, toggleTheme, onBreweryClick, onNavigate, resetCard }) {
+function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onNavigate, resetCard }) {
   const [showFAQ, setShowFAQ] = useState(false)
   
   const t = translations[language]
@@ -33,13 +33,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, theme, togg
           onClick={() => setLanguage('jp')}
         >
           🇯🇵
-        </button>
-        <button 
-          className="theme-toggle-btn"
-          onClick={toggleTheme}
-          title={theme === 'color' ? 'Switch to Grayscale' : 'Switch to Color'}
-        >
-          {theme === 'color' ? '⚫' : '🎨'}
         </button>
       </div>
 
