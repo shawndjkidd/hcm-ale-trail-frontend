@@ -1,59 +1,103 @@
+import { useState } from 'react'
 import translations from '../translations'
 
-const FLAGS = {
-  en: '🇬🇧',
-  vn: '🇻🇳',
-  kr: '🇰🇷',
-  jp: '🇯🇵'
-}
-
 function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onNavigate, resetCard }) {
-  if (!trail) return null
-
+  const [showFAQ, setShowFAQ] = useState(false)
+  
   const t = translations[language]
-  const progress = breweries.length > 0 ? (stamps.length / breweries.length) * 100 : 0
+  const progress = (stamps.length / breweries.length) * 100
 
   return (
     <div className="home-page">
       <div className="language-toggle">
-        {Object.keys(FLAGS).map(lang => (
-          <button
-            key={lang}
-            className={`flag-btn ${language === lang ? 'active' : ''}`}
-            onClick={() => setLanguage(lang)}
-          >
-            {FLAGS[lang]}
-          </button>
-        ))}
+        <button 
+          className={`flag-btn ${language === 'en' ? 'active' : ''}`}
+          onClick={() => setLanguage('en')}
+        >
+          🇺🇸
+        </button>
+        <button 
+          className={`flag-btn ${language === 'vn' ? 'active' : ''}`}
+          onClick={() => setLanguage('vn')}
+        >
+          🇻🇳
+        </button>
+        <button 
+          className={`flag-btn ${language === 'kr' ? 'active' : ''}`}
+          onClick={() => setLanguage('kr')}
+        >
+          🇰🇷
+        </button>
+        <button 
+          className={`flag-btn ${language === 'jp' ? 'active' : ''}`}
+          onClick={() => setLanguage('jp')}
+        >
+          🇯🇵
+        </button>
       </div>
 
-      <div className="header-badge">{t.craftBeerPassport}</div>
+      <div className="header-badge">
+        {t.craftBeerPassport}
+      </div>
 
       <div className="top-nav">
-        <button className="nav-btn-small yellow" onClick={() => onNavigate('faq')}>{t.faq}</button>
-        <button className="nav-btn-small red" onClick={() => window.open('https://www.hochiminhaletrail.com/', '_blank')}>{t.website}</button>
-        <button className="nav-btn-small green" onClick={() => window.open('https://www.google.com/maps/d/u/1/viewer?mid=1ZO-30TD2syibuwwqGF7wDxwHACOEsBQ&ll=10.77928527172877%2C106.69519550000001&z=15', '_blank')}>{t.maps}</button>
-        <button className="nav-btn-small yellow" onClick={() => onNavigate('mybeers')}>{t.myBeers}</button>
+        <button className="nav-btn-small yellow" onClick={() => onNavigate('faq')}>
+          {t.faq}
+        </button>
+        <a 
+          href="https://www.hcmaletrail.com" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="nav-btn-small red"
+        >
+          {t.website}
+        </a>
+        <a 
+          href="https://maps.app.goo.gl/hcmaletrail" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="nav-btn-small green"
+        >
+          {t.maps}
+        </a>
+        <button className="nav-btn-small yellow" onClick={() => onNavigate('mybeers')}>
+          {t.myBeers}
+        </button>
       </div>
 
       <div className="progress-section">
         <div className="progress-header">
-          <span className="progress-label">{t.stamps}</span>
-          <span className="progress-count">{stamps.length}/{breweries.length}</span>
+          <div className="progress-label">{t.stamps}</div>
+          <div className="progress-count">{stamps.length}/8</div>
         </div>
         <div className="progress-bar-container">
-          <div className="progress-bar-fill" style={{ width: `${progress}%` }}></div>
+          <div 
+            className="progress-bar-fill" 
+            style={{ width: `${progress}%` }}
+          />
         </div>
       </div>
 
-      <div className="trail-social">
-        <a href="https://www.instagram.com/hcm.aletrail/" target="_blank" rel="noopener noreferrer" className="social-btn instagram">
-          <span className="social-icon">📷</span> IG
-        </a>
-        <a href="https://www.facebook.com/hcmaletrail" target="_blank" rel="noopener noreferrer" className="social-btn facebook">
-          <span className="social-icon">👍</span> FB
-        </a>
-      </div>
+      {trail && (
+        <div className="trail-social">
+          <a 
+            href={trail.instagram_url} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="social-btn instagram"
+          >
+            📷 IG
+          </a>
+          <a 
+            href={trail.facebook_url} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="social-btn facebook"
+          >
+            👍 FB
+          </a>
+        </div>
+      )}
 
       <div className="brewery-list">
         {breweries.map((brewery, index) => {
@@ -67,7 +111,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
               <div className="brewery-number">{index + 1}</div>
               <div className="brewery-info">
                 <div className="brewery-name">{brewery.name}</div>
-                <div className="brewery-district">{brewery.address}</div>
+                <div className="brewery-district">{brewery.district}</div>
               </div>
               <div className="brewery-logo">
                 {brewery.logo_url ? (
@@ -77,17 +121,26 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
                     className={isStamped ? 'color' : 'grayscale'}
                   />
                 ) : (
-                  <div className="logo-placeholder">🍺</div>
+                  <span className="logo-placeholder">🍺</span>
                 )}
               </div>
+              
+              {/* COMPLETED STAMP OVERLAY */}
+              {isStamped && (
+                <div className="completed-stamp">
+                  <div className="stamp-text">COMPLETED!</div>
+                </div>
+              )}
             </div>
           )
         })}
       </div>
 
       <div className="footer">
-        <div className="footer-year">2026 HO CHI MINH ALE TRAIL</div>
-        <button className="reset-btn" onClick={resetCard}>{t.resetCard}</button>
+        <div className="footer-year">HCM ALE TRAIL 2025</div>
+        <button className="reset-btn" onClick={resetCard}>
+          {t.resetCard}
+        </button>
       </div>
     </div>
   )
