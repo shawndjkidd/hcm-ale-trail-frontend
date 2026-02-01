@@ -125,7 +125,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
                 )}
               </div>
               
-              {/* COMPLETED STAMP OVERLAY */}
               {isStamped && (
                 <div className="completed-stamp">
                   <div className="stamp-text">COMPLETED!</div>
@@ -138,6 +137,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
 
       <div className="footer">
         <div className="footer-year">HCM ALE TRAIL 2025</div>
+        <div className="powered-by">Powered by Laidback Labs</div>
         <button className="reset-btn" onClick={resetCard}>
           {t.resetCard}
         </button>
