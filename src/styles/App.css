@@ -271,7 +271,7 @@ body::before {
 
 .trail-social {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 0.5rem;
   padding: 0 1rem 1rem;
   background: var(--charcoal);
@@ -305,6 +305,10 @@ body::before {
 
 .social-btn.facebook {
   background: var(--blue-muted);
+}
+
+.social-btn.messenger {
+  background: #0084FF;
 }
 
 /* ==========================================
@@ -395,13 +399,12 @@ body::before {
   transition: all 0.3s ease;
 }
 
-/* LOCKED STATE */
+/* ALL LOGOS IN COLOR */
 .brewery-logo img.grayscale {
-  filter: grayscale(100%) brightness(0.6);
-  opacity: 0.4;
+  filter: none;
+  opacity: 1;
 }
 
-/* UNLOCKED STATE */
 .brewery-logo img.color {
   filter: none;
   opacity: 1;
@@ -412,7 +415,7 @@ body::before {
   opacity: 0.2;
 }
 
-/* COMPLETED STAMP OVERLAY */
+/* COMPLETED STAMP OVERLAY - DARKER */
 .completed-stamp {
   position: absolute;
   top: 50%;
@@ -420,7 +423,7 @@ body::before {
   transform: translate(-50%, -50%) rotate(-12deg);
   z-index: 2;
   pointer-events: none;
-  opacity: 0.15;
+  opacity: 0.35;
 }
 
 .stamp-text {
