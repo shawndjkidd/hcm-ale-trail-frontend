@@ -1,11 +1,25 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import translations from '../translations'
 
 function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onNavigate, resetCard }) {
   const [showFAQ, setShowFAQ] = useState(false)
+  const [showCompletionModal, setShowCompletionModal] = useState(false)
   
   const t = translations[language]
   const progress = (stamps.length / breweries.length) * 100
+  const isComplete = stamps.length === 8
+
+  useEffect(() => {
+    // Show completion modal when all 8 stamps are collected
+    if (isComplete && !localStorage.getItem('hcm-completion-modal-shown')) {
+      setShowCompletionModal(true)
+    }
+  }, [isComplete])
+
+  const handleCloseCompletionModal = () => {
+    setShowCompletionModal(false)
+    localStorage.setItem('hcm-completion-modal-shown', 'true')
+  }
 
   return (
     <div className="home-page">
@@ -147,6 +161,37 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
           {t.resetCard}
         </button>
       </div>
+
+      {/* COMPLETION MODAL */}
+      {showCompletionModal && (
+        <div className="modal-overlay">
+          <div className="completion-modal">
+            <button className="modal-close" onClick={handleCloseCompletionModal}>✕</button>
+            <div className="completion-icon">🎉</div>
+            <h2 className="completion-title">CONGRATULATIONS!</h2>
+            <p className="completion-subtitle">You've completed the HCM Ale Trail!</p>
+            
+            <div className="completion-steps">
+              <div className="completion-step">
+                <div className="step-number-circle">1</div>
+                <div className="step-text">Show your server, bartender, or staff your completed card</div>
+              </div>
+              <div className="completion-step">
+                <div className="step-number-circle">2</div>
+                <div className="step-text">The staff will get you your free hat</div>
+              </div>
+              <div className="completion-step">
+                <div className="step-number-circle">3</div>
+                <div className="step-text">Help us grow! Share your experience and tag us on social media. Thank you for supporting Saigon's craft beer scene! 🍺</div>
+              </div>
+            </div>
+
+            <button className="completion-ok-btn" onClick={handleCloseCompletionModal}>
+              GOT IT!
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
