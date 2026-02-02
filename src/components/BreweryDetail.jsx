@@ -6,7 +6,7 @@ const BREWERY_DATA = {
   'BiaCraft': {
     instagram: 'https://www.instagram.com/biacraftartisanales/',
     facebook: 'https://facebook.com/biacraft',
-    maps: 'https://maps.app.goo.gl/jwRQhzZMzijiHYtN7',
+    maps: 'https://www.google.com/maps/search/?api=1&query=96+Xuan+Thuy+Thao+Dien+Ward+Thu+Duc+Ho+Chi+Minh+City',
     hashtag: '#hcmaletrail @biacraftartisanales',
     code: '1234'
   },
@@ -41,7 +41,7 @@ const BREWERY_DATA = {
   'Rooster Beers': {
     instagram: 'https://www.instagram.com/rooster.beers/',
     facebook: 'https://www.facebook.com/theroosterbeers',
-    maps: 'https://maps.app.goo.gl/kxQy9aCbHnchCScf8',
+    maps: 'https://www.google.com/maps/search/?api=1&query=40+Bui+Vien+Phuong+Pham+Ngu+Lao+Quan+1+Ho+Chi+Minh+City',
     hashtag: '#hcmaletrail @rooster.beers',
     code: '2468'
   },
