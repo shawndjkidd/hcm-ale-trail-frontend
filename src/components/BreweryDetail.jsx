@@ -6,56 +6,56 @@ const BREWERY_DATA = {
   'BiaCraft': {
     instagram: 'https://www.instagram.com/biacraftartisanales/',
     facebook: 'https://facebook.com/biacraft',
-    maps: 'https://www.google.com/maps/search/?api=1&query=BiaCraft+Saigon',
+    maps: 'https://www.google.com/maps/search/?api=1&query=96+Xuan+Thuy+Thao+Dien+Ward+Thu+Duc+Ho+Chi+Minh+City',
     hashtag: '#hcmaletrail @biacraftartisanales',
     code: '1234'
   },
   'Heart of Darkness': {
     instagram: 'https://www.instagram.com/heartofdarknessbrewery/',
     facebook: 'https://facebook.com/HeartOfDarknessBrewery',
-    maps: 'https://www.google.com/maps/search/?api=1&query=Heart+of+Darkness+Brewery+Saigon',
+    maps: 'https://maps.app.goo.gl/ah6bzRWZhM6gz3C78',
     hashtag: '#hcmaletrail @heartofdarknessbrewery',
     code: '5678'
   },
   'Deme': {
     instagram: 'https://www.instagram.com/deme.brewing/',
     facebook: 'https://facebook.com/demebrewing',
-    maps: 'https://www.google.com/maps/search/?api=1&query=Deme+Brewing+Saigon',
+    maps: 'https://maps.app.goo.gl/NMMSRCjDehDUvtD5A',
     hashtag: '#hcmaletrail @deme.brewing',
     code: '9012'
   },
   'Steersman': {
     instagram: 'https://www.instagram.com/steersmanbrewery/',
     facebook: 'https://facebook.com/steersmanbrewery',
-    maps: 'https://www.google.com/maps/search/?api=1&query=Steersman+Brewery+Saigon',
+    maps: 'https://maps.app.goo.gl/ZtHzaoCea36zqUdWA',
     hashtag: '#hcmaletrail @steersmanbrewery',
     code: '3456'
   },
   'East West Brewing': {
     instagram: 'https://www.instagram.com/eastwestbrewery/',
     facebook: 'https://facebook.com/eastwestbrewery',
-    maps: 'https://www.google.com/maps/search/?api=1&query=East+West+Brewing+Saigon',
+    maps: 'https://maps.app.goo.gl/2CjzhfFS6h2qmNeq8',
     hashtag: '#hcmaletrail @eastwestbrewery',
     code: '7890'
   },
   'Rooster Beers': {
     instagram: 'https://www.instagram.com/rooster.beers/',
     facebook: 'https://www.facebook.com/theroosterbeers',
-    maps: 'https://www.google.com/maps/search/?api=1&query=Rooster+Beers+Saigon',
+    maps: 'https://www.google.com/maps/search/?api=1&query=40+Bui+Vien+Phuong+Pham+Ngu+Lao+Quan+1+Ho+Chi+Minh+City',
     hashtag: '#hcmaletrail @rooster.beers',
     code: '2468'
   },
   '7 Bridges Brewing Co.': {
     instagram: 'https://www.instagram.com/7bridgesbrewingco/',
     facebook: 'https://facebook.com/7BridgesBrewingCo',
-    maps: 'https://www.google.com/maps/search/?api=1&query=7+Bridges+Brewing+Co+Saigon',
+    maps: 'https://www.google.com/maps/search/?api=1&query=38+Dong+Du+Ben+Nghe+Quan+1+Ho+Chi+Minh+City',
     hashtag: '#hcmaletrail @7bridgesbrewingco',
     code: '1357'
   },
   'Belgo Saigon': {
     instagram: 'https://www.instagram.com/belgo_belgianbrewery/',
     facebook: 'https://www.facebook.com/belgobelgiancraftbeerbrewery',
-    maps: 'https://www.google.com/maps/search/?api=1&query=Belgo+Saigon',
+    maps: 'https://www.google.com/maps/search/?api=1&query=29-31+Ton+That+Thiep+Ben+Nghe+Quan+1+Ho+Chi+Minh+City',
     hashtag: '#hcmaletrail @belgo_belgianbrewery',
     code: '9753'
   }
