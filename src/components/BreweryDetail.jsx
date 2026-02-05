@@ -6,57 +6,57 @@ const BREWERY_DATA = {
   'BiaCraft': {
     instagram: 'https://www.instagram.com/biacraftartisanales/',
     facebook: 'https://facebook.com/biacraft',
-    maps: 'https://www.google.com/maps/search/?api=1&query=96+Xuan+Thuy+Thao+Dien+Ward+Thu+Duc+Ho+Chi+Minh+City',
-    hashtag: '#hcmaletrail @biacraftartisanales',
+    maps: 'https://www.google.com/maps/search/?api=1&query=1+Le+Ngo+Cat+Phuong+Vo+Thi+Sau+Quan+3+Ho+Chi+Minh+City',
+    instagramHandle: '@biacraftartisanales',
     code: '1234'
   },
   'Heart of Darkness': {
     instagram: 'https://www.instagram.com/heartofdarknessbrewery/',
     facebook: 'https://facebook.com/HeartOfDarknessBrewery',
     maps: 'https://maps.app.goo.gl/ah6bzRWZhM6gz3C78',
-    hashtag: '#hcmaletrail @heartofdarknessbrewery',
+    instagramHandle: '@heartofdarknessbrewery',
     code: '5678'
   },
   'Deme': {
     instagram: 'https://www.instagram.com/deme.brewing/',
     facebook: 'https://facebook.com/demebrewing',
     maps: 'https://maps.app.goo.gl/NMMSRCjDehDUvtD5A',
-    hashtag: '#hcmaletrail @deme.brewing',
+    instagramHandle: '@deme.brewing',
     code: '9012'
   },
   'Steersman': {
     instagram: 'https://www.instagram.com/steersmanbrewery/',
     facebook: 'https://facebook.com/steersmanbrewery',
     maps: 'https://maps.app.goo.gl/ZtHzaoCea36zqUdWA',
-    hashtag: '#hcmaletrail @steersmanbrewery',
+    instagramHandle: '@steersmanbrewery',
     code: '3456'
   },
   'East West Brewing': {
     instagram: 'https://www.instagram.com/eastwestbrewery/',
     facebook: 'https://facebook.com/eastwestbrewery',
     maps: 'https://maps.app.goo.gl/2CjzhfFS6h2qmNeq8',
-    hashtag: '#hcmaletrail @eastwestbrewery',
+    instagramHandle: '@eastwestbrewery',
     code: '7890'
   },
   'Rooster Beers': {
     instagram: 'https://www.instagram.com/rooster.beers/',
     facebook: 'https://www.facebook.com/theroosterbeers',
     maps: 'https://www.google.com/maps/search/?api=1&query=40+Bui+Vien+Phuong+Pham+Ngu+Lao+Quan+1+Ho+Chi+Minh+City',
-    hashtag: '#hcmaletrail @rooster.beers',
+    instagramHandle: '@rooster.beers',
     code: '2468'
   },
   '7 Bridges Brewing Co.': {
     instagram: 'https://www.instagram.com/7bridgesbrewingco/',
     facebook: 'https://facebook.com/7BridgesBrewingCo',
     maps: 'https://www.google.com/maps/search/?api=1&query=38+Dong+Du+Ben+Nghe+Quan+1+Ho+Chi+Minh+City',
-    hashtag: '#hcmaletrail @7bridgesbrewingco',
+    instagramHandle: '@7bridgesbrewingco',
     code: '1357'
   },
   'Belgo Saigon': {
     instagram: 'https://www.instagram.com/belgo_belgianbrewery/',
     facebook: 'https://www.facebook.com/belgobelgiancraftbeerbrewery',
     maps: 'https://www.google.com/maps/search/?api=1&query=29-31+Ton+That+Thiep+Ben+Nghe+Quan+1+Ho+Chi+Minh+City',
-    hashtag: '#hcmaletrail @belgo_belgianbrewery',
+    instagramHandle: '@belgo_belgianbrewery',
     code: '9753'
   }
 }
@@ -104,17 +104,17 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     }
   }
 
-  const copyHashtag = () => {
-    const hashtag = breweryInfo.hashtag || `#hcmaletrail @${brewery.name.toLowerCase().replace(/\s/g, '')}`
-    navigator.clipboard.writeText(hashtag)
-    setMessage({ type: 'success', text: `✅ Copied: ${hashtag}` })
+  const copyInstagramHandle = () => {
+    const handle = breweryInfo.instagramHandle || `@${brewery.name.toLowerCase().replace(/\s/g, '')}`
+    navigator.clipboard.writeText(handle)
+    setMessage({ type: 'success', text: `✅ Copied: ${handle}` })
     setTimeout(() => setMessage(null), 3000)
   }
 
   const shareToInstagram = () => {
-    const hashtag = breweryInfo.hashtag || `#hcmaletrail @${brewery.name.toLowerCase().replace(/\s/g, '')}`
-    // Copy hashtag first
-    navigator.clipboard.writeText(hashtag)
+    const handle = breweryInfo.instagramHandle || `@${brewery.name.toLowerCase().replace(/\s/g, '')}`
+    // Copy handle first
+    navigator.clipboard.writeText(handle)
     
     // Try to open Instagram
     const instagramUrl = `instagram://camera`
@@ -157,13 +157,13 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
             <span className="share-icon">📸</span>
             <div className="share-text">
               <strong>{t.shareYourExperience || "Share Your Experience!"}</strong>
-              <p>{t.shareInstructions || "Take a pic, copy the hashtag, and post on Instagram"}</p>
+              <p>{t.shareInstructions || "Take a pic, tag the brewery, and post on Instagram"}</p>
             </div>
             <button className="share-close" onClick={() => setShowSharePrompt(false)}>✕</button>
           </div>
           <div className="share-actions">
-            <button className="share-btn copy" onClick={copyHashtag}>
-              📋 {t.copyHashtag || "COPY HASHTAG"}
+            <button className="share-btn copy" onClick={copyInstagramHandle}>
+              📋 {t.copyHandle || "COPY @HANDLE"}
             </button>
             <button className="share-btn instagram" onClick={shareToInstagram}>
               📷 {t.postToInstagram || "POST TO INSTAGRAM"}
@@ -185,7 +185,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
           rel="noopener noreferrer"
           className="action-btn green"
         >
-          📍 {t.directions || "DIRECTIONS"}
+          📍 {t.findOnMaps || "Find me on Google Maps"}
         </a>
       )}
 
@@ -221,13 +221,13 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </a>
       )}
 
-      {/* HASHTAG SECTION */}
+      {/* INSTAGRAM HANDLE SECTION */}
       <div className="hashtag-section">
         <div className="hashtag-text">
-          {breweryInfo.hashtag}
+          Tag: {breweryInfo.instagramHandle}
         </div>
-        <button className="copy-btn" onClick={copyHashtag}>
-          📋 COPY
+        <button className="copy-btn" onClick={copyInstagramHandle}>
+          📋 COPY HANDLE
         </button>
       </div>
 
