@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import translations from '../translations'
 
 function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onNavigate, resetCard }) {
-  const [showFAQ, setShowFAQ] = useState(false)
   const [showCompletionModal, setShowCompletionModal] = useState(false)
   const [hatClaimed, setHatClaimed] = useState(false)
   
@@ -11,7 +10,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
   const isComplete = stamps.length === 8
 
   useEffect(() => {
-    // Check if hat was already claimed
     const claimed = localStorage.getItem('hcm-hat-claimed')
     if (claimed === 'true') {
       setHatClaimed(true)
@@ -19,21 +17,25 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
   }, [])
 
   useEffect(() => {
-    // Show completion modal when all 8 stamps are collected
-    if (isComplete && !localStorage.getItem('hcm-completion-modal-shown')) {
+    if (isComplete) {
       setShowCompletionModal(true)
     }
   }, [isComplete])
 
   const handleCloseCompletionModal = () => {
     setShowCompletionModal(false)
-    localStorage.setItem('hcm-completion-modal-shown', 'true')
   }
 
   const handleClaimHat = () => {
     localStorage.setItem('hcm-hat-claimed', 'true')
     setHatClaimed(true)
+  }
+
+  const handleResetCard = () => {
+    localStorage.removeItem('hcm-hat-claimed')
+    setHatClaimed(false)
     setShowCompletionModal(false)
+    resetCard()
   }
 
   return (
@@ -163,7 +165,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
               
               {isStamped && (
                 <div className="completed-stamp">
-                  <div className="stamp-text">COMPLETED</div>
+                  <div className="stamp-text">COMPLETED!</div>
                 </div>
               )}
             </div>
@@ -173,47 +175,45 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
 
       <div className="footer">
         <div className="footer-year">HCM ALE TRAIL 2025</div>
-        <div className="powered-by">Powered by Laidback Labs</div>
-        <button className="reset-btn" onClick={resetCard}>
+        <button className="reset-btn" onClick={handleResetCard}>
           {t.resetCard}
         </button>
       </div>
 
-      {/* COMPLETION MODAL */}
       {showCompletionModal && (
         <div className="modal-overlay">
           <div className="completion-modal">
             <button className="modal-close" onClick={handleCloseCompletionModal}>✕</button>
             <div className="completion-icon">🎉</div>
-            <h2 className="completion-title">CONGRATULATIONS!</h2>
-            <p className="completion-subtitle">You've completed the HCM Ale Trail!</p>
+            <h2 className="completion-title">{t.congratulations}</h2>
+            <p className="completion-subtitle">{t.completedTrail}</p>
             
             <div className="completion-steps">
               <div className="completion-step">
                 <div className="step-number-circle">1</div>
-                <div className="step-text">Show your server, bartender, or staff your completed card</div>
+                <div className="step-text">{t.completionStep1}</div>
               </div>
               <div className="completion-step">
                 <div className="step-number-circle">2</div>
-                <div className="step-text">The staff will get you your free hat</div>
+                <div className="step-text">{t.completionStep2}</div>
               </div>
               <div className="completion-step">
                 <div className="step-number-circle">3</div>
-                <div className="step-text">Help us grow! Share your experience and tag us on social media. Thank you for supporting Saigon's craft beer scene! 🍺</div>
+                <div className="step-text">{t.completionStep3}</div>
               </div>
             </div>
 
             {!hatClaimed ? (
               <button className="completion-ok-btn" onClick={handleClaimHat}>
-                CLAIM MY FREE HAT!
+                {t.claimHat}
               </button>
             ) : (
               <>
                 <div className="hat-claimed-message">
-                  ✅ Hat already claimed! Thank you for participating!
+                  {t.hatClaimed}
                 </div>
                 <button className="completion-ok-btn claimed" onClick={handleCloseCompletionModal}>
-                  CLOSE
+                  {t.close}
                 </button>
               </>
             )}
