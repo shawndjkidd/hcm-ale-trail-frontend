@@ -262,7 +262,6 @@ body {
   box-shadow: 0 2px 0 var(--black);
 }
 
-/* COMPLETED STAMP OVERLAY */
 .completed-stamp {
   position: absolute;
   top: 50%;
@@ -446,7 +445,6 @@ body {
   box-shadow: 0 2px 0 var(--black);
 }
 
-/* STAMP COLLECTION INSTRUCTION BOX */
 .stamp-instruction-box {
   background: var(--yellow-primary);
   border: 5px solid var(--red-primary);
@@ -558,7 +556,6 @@ body {
   color: var(--black);
 }
 
-/* Make ADD BEER button more prominent */
 .add-beer-cta {
   font-size: 1.5rem !important;
   padding: 1.5rem !important;
@@ -611,12 +608,16 @@ body {
   margin: 1rem 0;
 }
 
+/* INSTAGRAM BUTTON - PINK */
 .instagram-btn {
   background: #E1306C !important;
+  color: var(--white) !important;
 }
 
+/* FACEBOOK BUTTON - BLUE */
 .facebook-btn {
-  background: #1877f2 !important;
+  background: #1877F2 !important;
+  color: var(--white) !important;
 }
 
 .hashtag-section {
@@ -681,10 +682,6 @@ body {
   background: var(--black);
   color: var(--yellow-primary);
 }
-
-/* ==========================================
-   INSTAGRAM SHARE PROMPT
-   ========================================== */
 
 .share-prompt {
   background: linear-gradient(135deg, #E1306C 0%, #C13584 100%);
@@ -797,10 +794,6 @@ body {
   color: #E1306C;
   border-color: var(--black);
 }
-
-/* ==========================================
-   MANUAL CODE ENTRY
-   ========================================== */
 
 .manual-code-section {
   background: var(--white);
@@ -1172,7 +1165,6 @@ body {
   color: var(--gray);
 }
 
-/* MY BEERS PAGE - TOP RATED SECTION */
 .top-rated-section {
   background: var(--black);
   border: 5px solid var(--yellow-primary);
@@ -1228,7 +1220,6 @@ body {
   font-style: italic;
 }
 
-/* BEERS BY BREWERY SECTION */
 .beers-by-brewery-section {
   margin: 1rem 0;
 }
@@ -1287,7 +1278,6 @@ body {
   margin-top: 0.25rem;
 }
 
-/* STATS SUMMARY */
 .stats-summary {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1316,10 +1306,6 @@ body {
   margin-top: 0.25rem;
   text-transform: uppercase;
 }
-
-/* ==========================================
-   COMPLETION MODAL
-   ========================================== */
 
 .completion-modal {
   background: var(--yellow-primary);
@@ -1385,15 +1371,6 @@ body {
   box-shadow: 0 3px 0 var(--black);
 }
 
-.step-text {
-  flex: 1;
-  color: var(--black);
-  font-size: 1rem;
-  line-height: 1.5;
-  padding-top: 0.5rem;
-  font-weight: 600;
-}
-
 .completion-ok-btn {
   width: 100%;
   background: var(--green-primary);
@@ -1420,10 +1397,6 @@ body {
   box-shadow: 0 2px 0 var(--black);
 }
 
-/* ==========================================
-   HAT CLAIM STYLES (ITEM #3)
-   ========================================== */
-
 .hat-claimed-message {
   background: var(--green-primary);
   color: var(--white);
@@ -1439,10 +1412,6 @@ body {
 .completion-ok-btn.claimed {
   background: var(--gray) !important;
 }
-
-/* ==========================================
-   RESPONSIVE
-   ========================================== */
 
 @media (max-width: 480px) {
   .brewery-number {
