@@ -1420,6 +1420,30 @@ body {
   box-shadow: 0 2px 0 var(--black);
 }
 
+/* ==========================================
+   HAT CLAIM STYLES (ITEM #3)
+   ========================================== */
+
+.hat-claimed-message {
+  background: var(--green-primary);
+  color: var(--white);
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 4px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+  border: 3px solid var(--black);
+}
+
+.completion-ok-btn.claimed {
+  background: var(--gray) !important;
+}
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+
 @media (max-width: 480px) {
   .brewery-number {
     width: 60px;
