@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import translations from '../translations'
 
 function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onNavigate, resetCard }) {
-  const [showFAQ, setShowFAQ] = useState(false)
   const [showCompletionModal, setShowCompletionModal] = useState(false)
   const [hatClaimed, setHatClaimed] = useState(false)
   
@@ -11,7 +10,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
   const isComplete = stamps.length === 8
 
   useEffect(() => {
-    // Check if hat was already claimed
+    // Check if hat was already claimed for this completion
     const claimed = localStorage.getItem('hcm-hat-claimed')
     if (claimed === 'true') {
       setHatClaimed(true)
@@ -20,20 +19,27 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
 
   useEffect(() => {
     // Show completion modal when all 8 stamps are collected
-    if (isComplete && !localStorage.getItem('hcm-completion-modal-shown')) {
+    if (isComplete) {
       setShowCompletionModal(true)
     }
   }, [isComplete])
 
   const handleCloseCompletionModal = () => {
     setShowCompletionModal(false)
-    localStorage.setItem('hcm-completion-modal-shown', 'true')
   }
 
   const handleClaimHat = () => {
     localStorage.setItem('hcm-hat-claimed', 'true')
     setHatClaimed(true)
+  }
+
+  const handleResetCard = () => {
+    // Clear hat claim status when resetting
+    localStorage.removeItem('hcm-hat-claimed')
+    setHatClaimed(false)
     setShowCompletionModal(false)
+    // Call the original reset function
+    resetCard()
   }
 
   return (
@@ -172,7 +178,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
 
       <div className="footer">
         <div className="footer-year">HCM ALE TRAIL 2025</div>
-        <button className="reset-btn" onClick={resetCard}>
+        <button className="reset-btn" onClick={handleResetCard}>
           {t.resetCard}
         </button>
       </div>
