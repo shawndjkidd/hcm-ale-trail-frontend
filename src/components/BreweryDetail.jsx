@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import translations from '../translations'
 import AddBeerModal from './AddBeerModal'
 
@@ -72,11 +72,15 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
   const breweryBeers = beers.filter(b => b.breweryId === brewery.id)
   const breweryInfo = BREWERY_DATA[brewery.name] || {}
 
+  useEffect(() => {
+    if (qrValidated && !isStamped) {
+      setShowAddBeer(true)
+    }
+  }, [qrValidated, isStamped])
+
   const handleBeerAdded = (beer) => {
-    // Add the beer
     addBeer(beer)
     
-    // Auto-stamp if not already stamped
     if (!isStamped) {
       addStamp(brewery.id)
       setMessage({ 
@@ -87,15 +91,12 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     }
     
     setShowAddBeer(false)
-    
-    // Show share prompt after successful check-in
     setShowSharePrompt(true)
   }
 
   const handleManualCode = () => {
     const correctCode = breweryInfo.code
     if (manualCode.trim() === correctCode) {
-      // Code is correct - allow them to add beer
       setShowAddBeer(true)
       setManualCode('')
     } else {
@@ -113,16 +114,13 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
 
   const shareToInstagram = () => {
     const handle = breweryInfo.instagramHandle || `@${brewery.name.toLowerCase().replace(/\s/g, '')}`
-    // Copy handle first
     navigator.clipboard.writeText(handle)
     
-    // Try to open Instagram
     const instagramUrl = `instagram://camera`
     const instagramWebUrl = `https://www.instagram.com/`
     
     window.location.href = instagramUrl
     
-    // Fallback to web after a delay
     setTimeout(() => {
       window.open(instagramWebUrl, '_blank')
     }, 500)
@@ -132,7 +130,6 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     <div className="brewery-detail">
       <button className="back-btn" onClick={onBack}>← BACK</button>
 
-      {/* INSTRUCTION BOX - Shows if NOT stamped AND NOT QR validated */}
       {!isStamped && !qrValidated && (
         <div className="stamp-instruction-box">
           <div className="stamp-icon">🍺</div>
@@ -143,14 +140,12 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </div>
       )}
 
-      {/* SUCCESS MESSAGE */}
       {message && (
         <div className={`message ${message.type}`}>
           {message.text}
         </div>
       )}
 
-      {/* SHARE PROMPT - Shows after successful check-in */}
       {showSharePrompt && (
         <div className="share-prompt">
           <div className="share-prompt-header">
@@ -172,7 +167,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </div>
       )}
 
-      <div className="brewery-info-card centered">
+      <div className="brewery-info-card">
         <h1 className="brewery-title">{brewery.name}</h1>
         <p className="brewery-address">📍 {brewery.address}</p>
         <p className="brewery-description">{brewery.description}</p>
@@ -189,7 +184,6 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </a>
       )}
 
-      {/* ADD BEER BUTTON - Only shows if QR validated OR already stamped */}
       {(qrValidated || isStamped) && (
         <button 
           className="action-btn yellow add-beer-cta"
@@ -199,31 +193,27 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </button>
       )}
 
-      {/* SOCIAL MEDIA BUTTONS */}
-      <div className="brewery-social">
-        {breweryInfo.instagram && (
-          <a 
-            href={breweryInfo.instagram} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="social-btn instagram"
-          >
-            📷 IG
-          </a>
-        )}
-        {breweryInfo.facebook && (
-          <a 
-            href={breweryInfo.facebook} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="social-btn facebook"
-          >
-            👍 FB
-          </a>
-        )}
-      </div>
+      {breweryInfo.instagram && (
+        <a 
+          href={breweryInfo.instagram} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="action-btn instagram-btn"
+        >
+          📷 INSTAGRAM
+        </a>
+      )}
+      {breweryInfo.facebook && (
+        <a 
+          href={breweryInfo.facebook} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="action-btn facebook-btn"
+        >
+          👍 FACEBOOK
+        </a>
+      )}
 
-      {/* INSTAGRAM HANDLE SECTION */}
       <div className="hashtag-section">
         <div className="hashtag-text">
           Tag: {breweryInfo.instagramHandle}
@@ -233,7 +223,6 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </button>
       </div>
 
-      {/* BEERS LIST */}
       {breweryBeers.length > 0 && (
         <div className="brewery-beers">
           <h3>{t.beersAt} {brewery.name}:</h3>
@@ -248,10 +237,10 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </div>
       )}
 
-      {/* MANUAL CODE ENTRY - Moved to bottom, smaller */}
       {!qrValidated && !isStamped && (
-        <div className="manual-code-section-small">
-          <p className="code-subtext-small">{t.codeBackupText || "If QR scan doesn't work, ask staff for the code"}</p>
+        <div className="manual-code-section">
+          <p className="code-label">{t.codeBackup || "Backup: Enter Code"}</p>
+          <p className="code-subtext">{t.codeBackupText || "If QR scan doesn't work, ask staff for the code"}</p>
           <div className="code-input-row">
             <input
               type="text"
@@ -259,10 +248,10 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
               onChange={(e) => setManualCode(e.target.value)}
               placeholder="Code"
               maxLength="4"
-              className="code-input-small"
+              className="code-input"
             />
-            <button className="code-btn-small" onClick={handleManualCode}>
-              {t.go || "GO"}
+            <button className="code-btn" onClick={handleManualCode}>
+              {t.go || "GO!"}
             </button>
           </div>
         </div>
