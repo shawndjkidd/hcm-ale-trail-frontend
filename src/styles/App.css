@@ -614,9 +614,24 @@ body::before {
   color: var(--text-dark);
 }
 
+/* ==========================================
+   BRIGHT YELLOW ADD BEER BUTTON WITH GLOW (ITEM #6)
+   ========================================== */
+
 .add-beer-cta {
-  background: var(--gold-warm) !important;
+  background: #FFD100 !important;
   color: var(--text-dark) !important;
+  animation: pulse-glow 2s ease-in-out infinite !important;
+  box-shadow: 0 0 20px rgba(255, 209, 0, 0.6) !important;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(255, 209, 0, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 209, 0, 0.9);
+  }
 }
 
 /* MANUAL CODE ENTRY - SMALL VERSION AT BOTTOM */
@@ -1426,6 +1441,26 @@ body::before {
 
 .completion-ok-btn:active {
   transform: translateY(1px);
+}
+
+/* ==========================================
+   HAT CLAIM STYLES (ITEM #6)
+   ========================================== */
+
+.hat-claimed-message {
+  background: var(--green-muted);
+  color: var(--cream);
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 4px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.completion-ok-btn.claimed {
+  background: #6B6B6B !important;
 }
 
 /* ==========================================
