@@ -47,6 +47,15 @@ const translations = {
     resetConfirm: "Are you sure you want to reset your card? This will delete all stamps and beer ratings.",
     resetSuccess: "Card reset successfully!",
     resetCard: "RESET CARD",
+    // Completion Modal
+    congratulations: "CONGRATULATIONS!",
+    completedTrail: "You've completed the HCM Ale Trail!",
+    completionStep1: "Show your server, bartender, or staff your completed card",
+    completionStep2: "The staff will get you your free hat",
+    completionStep3: "Help us grow! Share your experience and tag us on social media. Thank you for supporting Saigon's craft beer scene! 🍺",
+    claimHat: "CLAIM MY FREE HAT!",
+    hatClaimed: "✅ Hat already claimed! Thank you for participating!",
+    close: "CLOSE",
   },
   
   vn: {
@@ -88,15 +97,24 @@ const translations = {
     beer: "bia",
     beers: "bia",
     totalBeers: "Tổng Số Bia",
-    breweries: "Nhà Máy Pha",
+    breweries: "Nhà Máy Bia",
     fiveStars: "Bia 5 Sao",
-    noBeerRatings: "Chưa có đánh giá bia. Hãy đến nhà máy pha và thêm bia đầu tiên của bạn!",
-    loading: "Đang tải nhà máy pha tốt nhất Sài Gòn...",
+    noBeerRatings: "Chưa có đánh giá bia. Hãy đến nhà máy bia và thêm bia đầu tiên của bạn!",
+    loading: "Đang tải nhà máy bia tốt nhất Sài Gòn...",
     stampCollected: "Đã thu thập tem!",
     completion: "CHÚC MỪNG! Bạn đã hoàn thành HCM Ale Trail!",
     resetConfirm: "Bạn có chắc muốn đặt lại thẻ của mình không? Điều này sẽ xóa tất cả tem và đánh giá bia.",
     resetSuccess: "Đặt lại thẻ thành công!",
     resetCard: "ĐẶT LẠI THẺ",
+    // Completion Modal
+    congratulations: "CHÚC MỪNG!",
+    completedTrail: "Bạn đã hoàn thành HCM Ale Trail!",
+    completionStep1: "Cho nhân viên phục vụ xem thẻ đã hoàn thành của bạn",
+    completionStep2: "Nhân viên sẽ đưa cho bạn mũ miễn phí",
+    completionStep3: "Hãy giúp chúng tôi phát triển! Chia sẻ trải nghiệm và tag chúng tôi trên mạng xã hội. Cảm ơn bạn đã ủng hộ làng bia thủ công Sài Gòn! 🍺",
+    claimHat: "NHẬN MŨ MIỄN PHÍ!",
+    hatClaimed: "✅ Đã nhận mũ! Cảm ơn bạn đã tham gia!",
+    close: "ĐÓNG",
   },
   
   kr: {
@@ -147,6 +165,15 @@ const translations = {
     resetConfirm: "카드를 재설정하시겠습니까? 모든 스탬프와 맥주 평가가 삭제됩니다.",
     resetSuccess: "카드가 성공적으로 재설정되었습니다!",
     resetCard: "카드 재설정",
+    // Completion Modal
+    congratulations: "축하합니다!",
+    completedTrail: "HCM 에일 트레일을 완료했습니다!",
+    completionStep1: "직원에게 완료된 카드를 보여주세요",
+    completionStep2: "직원이 무료 모자를 드릴 것입니다",
+    completionStep3: "성장을 도와주세요! 경험을 공유하고 소셜 미디어에 태그해 주세요. 사이공 수제 맥주 씬을 지원해 주셔서 감사합니다! 🍺",
+    claimHat: "무료 모자 받기!",
+    hatClaimed: "✅ 이미 모자를 받았습니다! 참여해 주셔서 감사합니다!",
+    close: "닫기",
   },
   
   jp: {
@@ -197,6 +224,15 @@ const translations = {
     resetConfirm: "カードをリセットしてもよろしいですか？すべてのスタンプとビール評価が削除されます。",
     resetSuccess: "カードが正常にリセットされました!",
     resetCard: "カードリセット",
+    // Completion Modal
+    congratulations: "おめでとうございます!",
+    completedTrail: "HCMエールトレイルを完了しました!",
+    completionStep1: "スタッフに完了したカードを見せてください",
+    completionStep2: "スタッフが無料の帽子をお渡しします",
+    completionStep3: "成長を助けてください！体験を共有し、SNSでタグ付けしてください。サイゴンのクラフトビールシーンを応援してくれてありがとう！🍺",
+    claimHat: "無料帽子をもらう!",
+    hatClaimed: "✅ 帽子は受け取り済みです！ご参加ありがとうございました！",
+    close: "閉じる",
   }
 }
 
