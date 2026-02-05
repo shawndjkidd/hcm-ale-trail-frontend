@@ -4,10 +4,19 @@ import translations from '../translations'
 function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onNavigate, resetCard }) {
   const [showFAQ, setShowFAQ] = useState(false)
   const [showCompletionModal, setShowCompletionModal] = useState(false)
+  const [hatClaimed, setHatClaimed] = useState(false)
   
   const t = translations[language]
   const progress = (stamps.length / breweries.length) * 100
   const isComplete = stamps.length === 8
+
+  useEffect(() => {
+    // Check if hat was already claimed
+    const claimed = localStorage.getItem('hcm-hat-claimed')
+    if (claimed === 'true') {
+      setHatClaimed(true)
+    }
+  }, [])
 
   useEffect(() => {
     // Show completion modal when all 8 stamps are collected
@@ -19,6 +28,12 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
   const handleCloseCompletionModal = () => {
     setShowCompletionModal(false)
     localStorage.setItem('hcm-completion-modal-shown', 'true')
+  }
+
+  const handleClaimHat = () => {
+    localStorage.setItem('hcm-hat-claimed', 'true')
+    setHatClaimed(true)
+    setShowCompletionModal(false)
   }
 
   return (
@@ -188,9 +203,20 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
               </div>
             </div>
 
-            <button className="completion-ok-btn" onClick={handleCloseCompletionModal}>
-              GOT IT!
-            </button>
+            {!hatClaimed ? (
+              <button className="completion-ok-btn" onClick={handleClaimHat}>
+                CLAIM MY FREE HAT!
+              </button>
+            ) : (
+              <>
+                <div className="hat-claimed-message">
+                  ✅ Hat already claimed! Thank you for participating!
+                </div>
+                <button className="completion-ok-btn claimed" onClick={handleCloseCompletionModal}>
+                  CLOSE
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
