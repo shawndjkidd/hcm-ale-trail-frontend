@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import translations from '../translations'
 
-function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onNavigate, resetCard }) {
+function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onNavigate, resetCard, user, timerStart, timerEnd }) {
   const [showCompletionModal, setShowCompletionModal] = useState(false)
   const [hatClaimed, setHatClaimed] = useState(false)
+  const [elapsedTime, setElapsedTime] = useState(null)
   
   const t = translations[language]
   const progress = (stamps.length / breweries.length) * 100
@@ -21,6 +22,29 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
       setShowCompletionModal(true)
     }
   }, [isComplete])
+
+  // Live timer update
+  useEffect(() => {
+    if (timerStart && !timerEnd) {
+      const interval = setInterval(() => {
+        setElapsedTime(Date.now() - timerStart)
+      }, 1000)
+      return () => clearInterval(interval)
+    } else if (timerStart && timerEnd) {
+      setElapsedTime(timerEnd - timerStart)
+    }
+  }, [timerStart, timerEnd])
+
+  const formatTime = (ms) => {
+    if (!ms) return null
+    
+    const totalSeconds = Math.floor(ms / 1000)
+    const hours = Math.floor(totalSeconds / 3600)
+    const minutes = Math.floor((totalSeconds % 3600) / 60)
+    const seconds = totalSeconds % 60
+
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+  }
 
   const handleCloseCompletionModal = () => {
     setShowCompletionModal(false)
@@ -71,6 +95,26 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         {t.craftBeerPassport}
       </div>
 
+      {/* User greeting */}
+      {user && (
+        <div className="user-greeting">
+          👋 Welcome back, <strong>{user.name}</strong>!
+        </div>
+      )}
+
+      {/* Timer display */}
+      {timerStart && (
+        <div className={`timer-display ${timerEnd ? 'completed' : 'running'}`}>
+          <div className="timer-icon">⏱️</div>
+          <div className="timer-info">
+            <div className="timer-value">{formatTime(elapsedTime)}</div>
+            <div className="timer-status">
+              {timerEnd ? t.completed : t.inProgress}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="top-nav">
         <button className="nav-btn-small yellow" onClick={() => onNavigate('faq')}>
           {t.faq}
@@ -91,8 +135,8 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         >
           {t.maps}
         </a>
-        <button className="nav-btn-small yellow" onClick={() => onNavigate('mybeers')}>
-          {t.myBeers}
+        <button className="nav-btn-small yellow" onClick={() => onNavigate('leaderboard')}>
+          🏆
         </button>
       </div>
 
@@ -126,14 +170,9 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         >
           👍 FB
         </a>
-        <a 
-          href="https://www.messenger.com/t/115480196509607/?messaging_source=source%3Apages%3Amessage_shortlink&source_id=1441792&recurring_notification=0" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="social-btn messenger"
-        >
-          💬 MSG
-        </a>
+        <button className="social-btn mybeers" onClick={() => onNavigate('mybeers')}>
+          🍺 {t.myBeers}
+        </button>
       </div>
 
       <div className="brewery-list">
@@ -186,6 +225,14 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
             <div className="completion-icon">🎉</div>
             <h2 className="completion-title">{t.congratulations}</h2>
             <p className="completion-subtitle">{t.completedTrail}</p>
+            
+            {/* Show completion time */}
+            {timerStart && timerEnd && (
+              <div className="completion-time">
+                <div className="completion-time-label">{t.yourCompletionTime}</div>
+                <div className="completion-time-value">{formatTime(timerEnd - timerStart)}</div>
+              </div>
+            )}
             
             <div className="completion-steps">
               <div className="completion-step">
