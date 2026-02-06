@@ -61,7 +61,7 @@ const BREWERY_DATA = {
   }
 }
 
-function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, onBack, qrValidated }) {
+function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, onBack, qrValidated, timerStart }) {
   const [showAddBeer, setShowAddBeer] = useState(false)
   const [message, setMessage] = useState(null)
   const [manualCode, setManualCode] = useState('')
@@ -71,6 +71,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
   const isStamped = stamps.includes(brewery.id)
   const breweryBeers = beers.filter(b => b.breweryId === brewery.id)
   const breweryInfo = BREWERY_DATA[brewery.name] || {}
+  const isFirstStamp = stamps.length === 0
 
   useEffect(() => {
     if (qrValidated && !isStamped) {
@@ -82,12 +83,28 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     addBeer(beer)
     
     if (!isStamped) {
+      // Check if this will be the first stamp (timer starts)
+      if (isFirstStamp) {
+        setMessage({ 
+          type: 'success', 
+          text: `⏱️ ${t.timerStarted}` 
+        })
+        setTimeout(() => {
+          setMessage({ 
+            type: 'success', 
+            text: `🎉 ${t.stampCollected} (1/8)` 
+          })
+          setTimeout(() => setMessage(null), 3000)
+        }, 2000)
+      } else {
+        setMessage({ 
+          type: 'success', 
+          text: `🎉 ${t.stampCollected} (${stamps.length + 1}/8)` 
+        })
+        setTimeout(() => setMessage(null), 5000)
+      }
+      
       addStamp(brewery.id)
-      setMessage({ 
-        type: 'success', 
-        text: `🎉 ${t.stampCollected} (${stamps.length + 1}/8)` 
-      })
-      setTimeout(() => setMessage(null), 5000)
     }
     
     setShowAddBeer(false)
