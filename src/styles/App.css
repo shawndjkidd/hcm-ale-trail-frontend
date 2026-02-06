@@ -13,6 +13,8 @@
   --black: #000000;
   --white: #FFFFFF;
   --gray: #808080;
+  --instagram-pink: #E1306C;
+  --facebook-blue: #1877F2;
   --font-display: 'Impact', 'Arial Black', sans-serif;
   --font-body: 'Arial', sans-serif;
 }
@@ -224,12 +226,14 @@ body {
   box-shadow: 0 2px 0 var(--black);
 }
 
+/* HOME PAGE & BREWERY DETAIL - Instagram Pink */
 .social-btn.instagram {
-  background: #E1306C;
+  background: var(--instagram-pink);
 }
 
+/* HOME PAGE & BREWERY DETAIL - Facebook Blue */
 .social-btn.facebook {
-  background: #1877f2;
+  background: var(--facebook-blue);
 }
 
 .social-btn.messenger {
@@ -608,15 +612,15 @@ body {
   margin: 1rem 0;
 }
 
-/* INSTAGRAM BUTTON - PINK */
+/* INSTAGRAM BUTTON - PINK (Brewery Detail) */
 .instagram-btn {
-  background: #E1306C !important;
+  background: var(--instagram-pink) !important;
   color: var(--white) !important;
 }
 
-/* FACEBOOK BUTTON - BLUE */
+/* FACEBOOK BUTTON - BLUE (Brewery Detail) */
 .facebook-btn {
-  background: #1877F2 !important;
+  background: var(--facebook-blue) !important;
   color: var(--white) !important;
 }
 
