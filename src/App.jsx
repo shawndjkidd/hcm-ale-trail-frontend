@@ -6,6 +6,7 @@ import MyBeers from './components/MyBeers'
 import WelcomeModal from './components/WelcomeModal'
 import Leaderboard from './components/Leaderboard'
 import translations from './translations'
+import { recordCheckin } from './lib/supabase'
 import './styles/App.css'
 
 const BREWERIES = [
@@ -91,12 +92,26 @@ function App() {
   const handleUserRegistration = (userData) => {
     setUser(userData)
     setShowWelcome(false)
+    
+    // If existing user, restore their stamps from Supabase
+    if (userData.isExisting && userData.existingStamps && userData.existingStamps.length > 0) {
+      setStamps(userData.existingStamps)
+      localStorage.setItem('hcm-stamps', JSON.stringify(userData.existingStamps))
+    }
   }
 
-  const addStamp = (breweryId) => {
+  const addStamp = async (breweryId) => {
     if (!stamps.includes(breweryId)) {
       const newStamps = [...stamps, breweryId]
       setStamps(newStamps)
+      
+      // Save to Supabase
+      if (user?.id) {
+        const { error } = await recordCheckin(user.id, breweryId, 'qr_scan')
+        if (error) {
+          console.log('Error saving check-in to Supabase:', error)
+        }
+      }
       
       // Start timer on first stamp
       if (newStamps.length === 1 && !timerStart) {

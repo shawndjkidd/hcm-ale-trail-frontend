@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import translations from '../translations'
-import { registerParticipant } from '../lib/supabase'
+import { registerParticipant, getParticipantCheckins } from '../lib/supabase'
 
 const COUNTRIES = [
   "Vietnam", "United States", "United Kingdom", "Australia", "South Korea", 
@@ -9,13 +9,6 @@ const COUNTRIES = [
   "Netherlands", "Belgium", "New Zealand", "Ireland", "Sweden", "Denmark",
   "Norway", "Finland", "Switzerland", "Austria", "Italy", "Spain", "Portugal",
   "Brazil", "Mexico", "Argentina", "India", "Russia", "South Africa", "Other"
-]
-
-const LANGUAGES = [
-  { code: 'en', label: '🇺🇸' },
-  { code: 'vi', label: '🇻🇳' },
-  { code: 'ko', label: '🇰🇷' },
-  { code: 'ja', label: '🇯🇵' },
 ]
 
 function WelcomeModal({ language, setLanguage, onComplete }) {
@@ -86,16 +79,24 @@ function WelcomeModal({ language, setLanguage, onComplete }) {
         return
       }
 
+      // If existing user, fetch their stamps from Supabase
+      let existingStamps = []
+      if (isExisting && participant?.id) {
+        const { data: stamps } = await getParticipantCheckins(participant.id)
+        existingStamps = stamps || []
+      }
+
       const userData = {
         id: participant.id,
-        name: name.trim(),
+        name: isExisting ? participant.display_name : name.trim(),
         email: email.trim(),
         dob,
         age,
         country: country || null,
         gender: gender || null,
         registeredAt: new Date().toISOString(),
-        isExisting
+        isExisting,
+        existingStamps
       }
 
       localStorage.setItem('hcm-user', JSON.stringify(userData))
@@ -112,17 +113,32 @@ function WelcomeModal({ language, setLanguage, onComplete }) {
   return (
     <div className="modal-overlay">
       <div className="welcome-modal">
-        {/* Language Toggle */}
+        {/* Language Toggle - Same as HomePage */}
         <div className="language-toggle">
-          {LANGUAGES.map((lang) => (
-            <button
-              key={lang.code}
-              className={`lang-btn ${language === lang.code ? 'active' : ''}`}
-              onClick={() => setLanguage(lang.code)}
-            >
-              {lang.label}
-            </button>
-          ))}
+          <button 
+            className={`flag-btn ${language === 'en' ? 'active' : ''}`}
+            onClick={() => setLanguage('en')}
+          >
+            🇺🇸
+          </button>
+          <button 
+            className={`flag-btn ${language === 'vn' ? 'active' : ''}`}
+            onClick={() => setLanguage('vn')}
+          >
+            🇻🇳
+          </button>
+          <button 
+            className={`flag-btn ${language === 'kr' ? 'active' : ''}`}
+            onClick={() => setLanguage('kr')}
+          >
+            🇰🇷
+          </button>
+          <button 
+            className={`flag-btn ${language === 'jp' ? 'active' : ''}`}
+            onClick={() => setLanguage('jp')}
+          >
+            🇯🇵
+          </button>
         </div>
 
         {/* Logo */}
