@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import translations from '../translations'
+import { registerParticipant } from '../lib/supabase'
 
 const COUNTRIES = [
   "Vietnam", "United States", "United Kingdom", "Australia", "South Korea", 
@@ -10,12 +11,21 @@ const COUNTRIES = [
   "Brazil", "Mexico", "Argentina", "India", "Russia", "South Africa", "Other"
 ]
 
-function WelcomeModal({ language, onComplete }) {
+const LANGUAGES = [
+  { code: 'en', label: '🇺🇸' },
+  { code: 'vi', label: '🇻🇳' },
+  { code: 'ko', label: '🇰🇷' },
+  { code: 'ja', label: '🇯🇵' },
+]
+
+function WelcomeModal({ language, setLanguage, onComplete }) {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [dob, setDob] = useState('')
   const [country, setCountry] = useState('')
+  const [gender, setGender] = useState('')
   const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   const t = translations[language]
 
@@ -34,7 +44,7 @@ function WelcomeModal({ language, onComplete }) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setError('')
 
     if (!name.trim()) {
@@ -58,26 +68,70 @@ function WelcomeModal({ language, onComplete }) {
       return
     }
 
-    const userData = {
-      name: name.trim(),
-      email: email.trim(),
-      dob,
-      age,
-      country: country || null,
-      registeredAt: new Date().toISOString()
+    setIsLoading(true)
+
+    try {
+      const { data: participant, error: supabaseError, isExisting } = await registerParticipant({
+        name: name.trim(),
+        email: email.trim(),
+        dateOfBirth: dob,
+        country: country || null,
+        gender: gender || null,
+      })
+
+      if (supabaseError) {
+        console.error('Supabase error:', supabaseError)
+        setError('Registration failed. Please try again.')
+        setIsLoading(false)
+        return
+      }
+
+      const userData = {
+        id: participant.id,
+        name: name.trim(),
+        email: email.trim(),
+        dob,
+        age,
+        country: country || null,
+        gender: gender || null,
+        registeredAt: new Date().toISOString(),
+        isExisting
+      }
+
+      localStorage.setItem('hcm-user', JSON.stringify(userData))
+      onComplete(userData)
+
+    } catch (err) {
+      console.error('Registration error:', err)
+      setError('Registration failed. Please try again.')
     }
 
-    // Save to localStorage
-    localStorage.setItem('hcm-user', JSON.stringify(userData))
-
-    // Call completion handler
-    onComplete(userData)
+    setIsLoading(false)
   }
 
   return (
     <div className="modal-overlay">
       <div className="welcome-modal">
-        <div className="welcome-icon">🍺</div>
+        {/* Language Toggle */}
+        <div className="language-toggle">
+          {LANGUAGES.map((lang) => (
+            <button
+              key={lang.code}
+              className={`lang-btn ${language === lang.code ? 'active' : ''}`}
+              onClick={() => setLanguage(lang.code)}
+            >
+              {lang.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Logo */}
+        <img 
+          src="/Logo-Ale-Trail-2023-04.png" 
+          alt="HCM Ale Trail" 
+          className="welcome-logo"
+        />
+        
         <h2 className="welcome-title">{t.welcome}</h2>
         <p className="welcome-subtitle">{t.welcomeSubtitle}</p>
 
@@ -128,16 +182,41 @@ function WelcomeModal({ language, onComplete }) {
           </select>
         </div>
 
+        {/* Gender Toggle - Optional */}
+        <div className="form-group">
+          <label>{t.gender || 'Gender'} ({t.optional || 'Optional'})</label>
+          <div className="gender-toggle">
+            <button
+              type="button"
+              className={`gender-btn ${gender === 'male' ? 'active' : ''}`}
+              onClick={() => setGender(gender === 'male' ? '' : 'male')}
+            >
+              {t.male || 'Male'}
+            </button>
+            <button
+              type="button"
+              className={`gender-btn ${gender === 'female' ? 'active' : ''}`}
+              onClick={() => setGender(gender === 'female' ? '' : 'female')}
+            >
+              {t.female || 'Female'}
+            </button>
+          </div>
+        </div>
+
         {error && (
           <div className="form-error">{error}</div>
         )}
 
-        <button className="welcome-btn" onClick={handleSubmit}>
-          {t.startTrail}
+        <button 
+          className="welcome-btn" 
+          onClick={handleSubmit}
+          disabled={isLoading}
+        >
+          {isLoading ? 'Registering...' : t.startTrail}
         </button>
 
         <p className="welcome-disclaimer">
-          🔒 Your data is stored locally and used only for the Ale Trail experience.
+          🔒 {t.disclaimer || 'Your data is securely stored and used only for the Ale Trail experience.'}
         </p>
       </div>
     </div>

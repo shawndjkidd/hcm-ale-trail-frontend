@@ -181,7 +181,8 @@ function App() {
     <div className="app">
       {showWelcome && (
         <WelcomeModal 
-          language={language} 
+          language={language}
+          setLanguage={setLanguage}
           onComplete={handleUserRegistration}
         />
       )}

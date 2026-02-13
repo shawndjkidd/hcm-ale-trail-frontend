@@ -1760,3 +1760,72 @@ body {
 .leaderboard-footer p {
   margin: 0.5rem 0;
 }
+/* Language Toggle */
+.language-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.lang-btn {
+  padding: 6px 12px;
+  border: 2px solid #333;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.lang-btn.active {
+  background: #333;
+  color: white;
+}
+
+.lang-btn:hover {
+  background: #eee;
+}
+
+.lang-btn.active:hover {
+  background: #333;
+}
+
+/* Welcome Logo */
+.welcome-logo {
+  width: 150px;
+  height: auto;
+  margin: 0 auto 16px;
+  display: block;
+}
+
+/* Gender Toggle */
+.gender-toggle {
+  display: flex;
+  gap: 12px;
+}
+
+.gender-btn {
+  flex: 1;
+  padding: 12px;
+  border: 2px solid #333;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.gender-btn.active {
+  background: #333;
+  color: white;
+}
+
+.gender-btn:hover {
+  background: #eee;
+}
+
+.gender-btn.active:hover {
+  background: #333;
+}
