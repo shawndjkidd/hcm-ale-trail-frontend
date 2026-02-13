@@ -10,23 +10,23 @@ export const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a92e';
 
 // Register a new participant
 export async function registerParticipant(data) {
-  const { name, email, dateOfBirth, country } = data;
+  const { name, email, dateOfBirth, country, gender } = data;
   
   // Check if email already exists
-  const { data: existing } = await supabase
+  const { data: existingUsers, error: checkError } = await supabase
     .from('participants')
-    .select('id')
-    .eq('email', email.toLowerCase())
-    .single();
+    .select('*')
+    .eq('email', email.toLowerCase());
   
-  if (existing) {
-    return { data: existing, error: null, isExisting: true };
+  // If user already exists, return their data
+  if (existingUsers && existingUsers.length > 0) {
+    return { data: existingUsers[0], error: null, isExisting: true };
   }
   
   // Extract birth year from date
   const birthYear = new Date(dateOfBirth).getFullYear();
   
-  // Create new participant - using actual column names from table
+  // Create new participant
   const { data: participant, error } = await supabase
     .from('participants')
     .insert({
@@ -36,6 +36,7 @@ export async function registerParticipant(data) {
       birth_year: birthYear,
       home_country: country || null,
       country: country || null,
+      gender: gender || null,
     })
     .select()
     .single();
@@ -49,15 +50,14 @@ export async function registerParticipant(data) {
 
 // Record a check-in (stamp)
 export async function recordCheckin(participantId, breweryId, method = 'qr_scan') {
-  const { data: existing } = await supabase
+  const { data: existingCheckins } = await supabase
     .from('checkins')
-    .select('id')
+    .select('*')
     .eq('participant_id', participantId)
-    .eq('brewery_id', breweryId)
-    .single();
+    .eq('brewery_id', breweryId);
   
-  if (existing) {
-    return { data: existing, error: null, isExisting: true };
+  if (existingCheckins && existingCheckins.length > 0) {
+    return { data: existingCheckins[0], error: null, isExisting: true };
   }
   
   const { data, error } = await supabase
@@ -93,13 +93,16 @@ export async function saveBeerRating(participantId, breweryId, beerName, rating,
 
 // Get participant by email
 export async function getParticipantByEmail(email) {
-  const { data, error } = await supabase
+  const { data: participants, error } = await supabase
     .from('participants')
     .select('*')
-    .eq('email', email.toLowerCase())
-    .single();
+    .eq('email', email.toLowerCase());
   
-  return { data, error };
+  if (participants && participants.length > 0) {
+    return { data: participants[0], error: null };
+  }
+  
+  return { data: null, error };
 }
 
 // Get participant's check-ins
