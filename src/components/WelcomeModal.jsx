@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import translations from '../translations'
-import { registerParticipant, getParticipantCheckins } from '../lib/supabase'
+import { registerParticipant } from '../lib/supabase'
 
 const COUNTRIES = [
   "Vietnam", "United States", "United Kingdom", "Australia", "South Korea", 
@@ -79,13 +79,6 @@ function WelcomeModal({ language, setLanguage, onComplete }) {
         return
       }
 
-      // If existing user, fetch their stamps from Supabase
-      let existingStamps = []
-      if (isExisting && participant?.id) {
-        const { data: stamps } = await getParticipantCheckins(participant.id)
-        existingStamps = stamps || []
-      }
-
       const userData = {
         id: participant.id,
         name: isExisting ? participant.display_name : name.trim(),
@@ -95,8 +88,7 @@ function WelcomeModal({ language, setLanguage, onComplete }) {
         country: country || null,
         gender: gender || null,
         registeredAt: new Date().toISOString(),
-        isExisting,
-        existingStamps
+        isExisting
       }
 
       localStorage.setItem('hcm-user', JSON.stringify(userData))
@@ -113,7 +105,7 @@ function WelcomeModal({ language, setLanguage, onComplete }) {
   return (
     <div className="modal-overlay">
       <div className="welcome-modal">
-        {/* Language Toggle - Same as HomePage */}
+        {/* Language Toggle */}
         <div className="language-toggle">
           <button 
             className={`flag-btn ${language === 'en' ? 'active' : ''}`}
@@ -198,7 +190,7 @@ function WelcomeModal({ language, setLanguage, onComplete }) {
           </select>
         </div>
 
-        {/* Gender Toggle - Optional */}
+        {/* Gender Toggle */}
         <div className="form-group">
           <label>{t.gender || 'Gender'} ({t.optional || 'Optional'})</label>
           <div className="gender-toggle">
