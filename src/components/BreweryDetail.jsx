@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import translations from '../translations'
 import AddBeerModal from './AddBeerModal'
+import { saveBeerRating } from '../lib/supabase'
 
 const BREWERY_DATA = {
   'BiaCraft': {
@@ -61,7 +62,7 @@ const BREWERY_DATA = {
   }
 }
 
-function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, onBack, qrValidated, timerStart }) {
+function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, onBack, qrValidated, timerStart, user }) {
   const [showAddBeer, setShowAddBeer] = useState(false)
   const [message, setMessage] = useState(null)
   const [manualCode, setManualCode] = useState('')
@@ -79,8 +80,17 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     }
   }, [qrValidated, isStamped])
 
-  const handleBeerAdded = (beer) => {
+  const handleBeerAdded = async (beer) => {
     addBeer(beer)
+    
+    // Save beer rating to Supabase
+    if (user?.id) {
+      try {
+        await saveBeerRating(user.id, brewery.id, beer.name, beer.rating, beer.notes || null)
+      } catch (err) {
+        console.log('Error saving beer rating:', err)
+      }
+    }
     
     if (!isStamped) {
       if (isFirstStamp) {

@@ -104,6 +104,37 @@ export async function recordCheckin(participantId, frontendBreweryId, method = '
   return { data, error, isExisting: false };
 }
 
+// Save a beer rating
+export async function saveBeerRating(participantId, frontendBreweryId, beerName, rating, notes = null) {
+  const breweryUUID = BREWERY_MAP[frontendBreweryId];
+  
+  if (!breweryUUID) {
+    console.log('Invalid brewery ID:', frontendBreweryId);
+    return { data: null, error: { message: 'Invalid brewery ID' } };
+  }
+  
+  const { data, error } = await supabase
+    .from('beer_ratings')
+    .insert({
+      participant_id: participantId,
+      brewery_id: breweryUUID,
+      trail_id: TRAIL_ID,
+      beer_name: beerName,
+      rating: rating,
+      notes: notes,
+    })
+    .select()
+    .single();
+  
+  if (error) {
+    console.log('Beer rating error:', error);
+  } else {
+    console.log('Beer rating saved to Supabase:', data);
+  }
+  
+  return { data, error };
+}
+
 // Get participant's check-ins (returns frontend IDs 1-8)
 export async function getParticipantCheckins(participantId) {
   const { data: checkins, error } = await supabase

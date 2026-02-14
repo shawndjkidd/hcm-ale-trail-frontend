@@ -56,7 +56,6 @@ function App() {
     const urlParams = new URLSearchParams(window.location.search)
     const breweryId = urlParams.get('brewery')
     
-    // Just check for brewery parameter - no need for validated=true
     if (breweryId) {
       const brewery = BREWERIES.find(b => b.id === parseInt(breweryId))
       if (brewery) {
@@ -242,6 +241,7 @@ function App() {
           onBack={() => handleNavigate('home')}
           qrValidated={qrValidated}
           timerStart={timerStart}
+          user={user}
         />
       )}
 
