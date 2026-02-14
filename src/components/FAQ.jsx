@@ -55,3 +55,5 @@ function FAQ({ language, onBack }) {
     </div>
   )
 }
+
+export default FAQ
