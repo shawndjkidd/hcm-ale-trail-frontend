@@ -83,7 +83,6 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     addBeer(beer)
     
     if (!isStamped) {
-      // Check if this will be the first stamp (timer starts)
       if (isFirstStamp) {
         setMessage({ 
           type: 'success', 
@@ -190,16 +189,39 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         <p className="brewery-description">{brewery.description}</p>
       </div>
 
-      {breweryInfo.maps && (
-        <a 
-          href={breweryInfo.maps} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="action-btn green"
-        >
-          📍 {t.findOnMaps || "Find me on Google Maps"}
-        </a>
-      )}
+      {/* Three buttons in a row */}
+      <div className="brewery-buttons-row">
+        {breweryInfo.maps && (
+          <a 
+            href={breweryInfo.maps} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="action-btn green"
+          >
+            📍 MAPS
+          </a>
+        )}
+        {breweryInfo.instagram && (
+          <a 
+            href={breweryInfo.instagram} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="action-btn instagram-btn"
+          >
+            📷 IG
+          </a>
+        )}
+        {breweryInfo.facebook && (
+          <a 
+            href={breweryInfo.facebook} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="action-btn facebook-btn"
+          >
+            👍 FB
+          </a>
+        )}
+      </div>
 
       {(qrValidated || isStamped) && (
         <button 
@@ -208,27 +230,6 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         >
           🍺 {isStamped ? (t.addAnotherBeer || t.addBeer) : (t.addBeerNow || "ADD BEER NOW!")}
         </button>
-      )}
-
-      {breweryInfo.instagram && (
-        <a 
-          href={breweryInfo.instagram} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="action-btn instagram-btn"
-        >
-          📷 INSTAGRAM
-        </a>
-      )}
-      {breweryInfo.facebook && (
-        <a 
-          href={breweryInfo.facebook} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="action-btn facebook-btn"
-        >
-          👍 FACEBOOK
-        </a>
       )}
 
       <div className="hashtag-section">
