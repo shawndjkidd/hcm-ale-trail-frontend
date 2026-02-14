@@ -1,12 +1,12 @@
 import translations from '../translations'
 
-function FAQ({ language, onClose }) {
+function FAQ({ language, onBack }) {
   const t = translations[language]
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay" onClick={onBack}>
       <div className="faq-content" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}>✕</button>
+        <button className="modal-close" onClick={onBack}>✕</button>
         
         <h1 className="faq-title">{t.howToPlay}</h1>
 
@@ -47,7 +47,7 @@ function FAQ({ language, onClose }) {
             </ul>
           </div>
 
-          <button className="ok-btn" onClick={onClose}>
+          <button className="ok-btn" onClick={onBack}>
             {t.ok}
           </button>
         </div>
@@ -55,5 +55,3 @@ function FAQ({ language, onClose }) {
     </div>
   )
 }
-
-export default FAQ

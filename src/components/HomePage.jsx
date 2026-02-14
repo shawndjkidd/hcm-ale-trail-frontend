@@ -82,7 +82,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
           {t.website}
         </a>
         <a 
-          href="https://www.google.com/maps/d/u/1/viewer?mid=1ZO-30TD2syibuwwqGF7wDxwHACOEsBQ&ll=10.77928527172877%2C106.69519550000001&z=15" 
+          href="https://www.google.com/maps/d/u/1/viewer?mid=1ZO-30TD2syibuwwqGF7wDxwHACOEsBQ&ll=10.77928527172877%2C106.69519550000001&z=15"
           target="_blank" 
           rel="noopener noreferrer"
           className="nav-btn-small green"
