@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
+import { Routes, Route, useNavigate, useParams, Navigate } from 'react-router-dom'
+
 import HomePage from './components/HomePage'
 import BreweryDetail from './components/BreweryDetail'
 import FAQ from './components/FAQ'
@@ -20,11 +22,45 @@ const BREWERIES = [
   { id: 8, name: 'Belgo Saigon', district: 'District 1', address: '29-31 Ton That Thiep, Ben Nghe, Quan 1', description: 'Belgian-style brewery with classic and creative brews.', logo_url: '/logos/belgo.png' }
 ]
 
+function BreweryRoute({
+  breweries,
+  stamps,
+  beers,
+  addStamp,
+  addBeer,
+  language,
+  onBack,
+  qrValidated,
+  timerStart,
+  user
+}) {
+  const { id } = useParams()
+  const breweryId = parseInt(id, 10)
+  const brewery = breweries.find(b => b.id === breweryId)
+
+  if (!brewery) return <Navigate to="/" replace />
+
+  return (
+    <BreweryDetail
+      brewery={brewery}
+      stamps={stamps}
+      beers={beers}
+      addStamp={addStamp}
+      addBeer={addBeer}
+      language={language}
+      onBack={onBack}
+      qrValidated={qrValidated}
+      timerStart={timerStart}
+      user={user}
+    />
+  )
+}
+
 function App() {
+  const navigate = useNavigate()
+
   const [stamps, setStamps] = useState([])
   const [beers, setBeers] = useState([])
-  const [selectedBrewery, setSelectedBrewery] = useState(null)
-  const [view, setView] = useState('home')
   const [language, setLanguage] = useState('en')
   const [qrValidated, setQrValidated] = useState(false)
   const [user, setUser] = useState(null)
@@ -32,7 +68,7 @@ function App() {
   const [timerStart, setTimerStart] = useState(null)
   const [timerEnd, setTimerEnd] = useState(null)
   const [leaderboardData, setLeaderboardData] = useState([])
-  
+
   const pendingQR = useRef(null)
 
   const t = translations[language]
@@ -45,7 +81,7 @@ function App() {
     const savedTimerStart = localStorage.getItem('hcm-timer-start')
     const savedTimerEnd = localStorage.getItem('hcm-timer-end')
     const savedLeaderboard = localStorage.getItem('hcm-leaderboard')
-    
+
     if (savedStamps) setStamps(JSON.parse(savedStamps))
     if (savedBeers) setBeers(JSON.parse(savedBeers))
     if (savedLang) setLanguage(savedLang)
@@ -54,23 +90,25 @@ function App() {
     if (savedLeaderboard) setLeaderboardData(JSON.parse(savedLeaderboard))
 
     const urlParams = new URLSearchParams(window.location.search)
-    const breweryId = urlParams.get('brewery')
-    
-    if (breweryId) {
-      const brewery = BREWERIES.find(b => b.id === parseInt(breweryId))
+    const breweryIdParam = urlParams.get('brewery')
+
+    if (breweryIdParam) {
+      const brewery = BREWERIES.find(b => b.id === parseInt(breweryIdParam))
       if (brewery) {
-        pendingQR.current = { brewery, breweryId: parseInt(breweryId) }
-        
+        pendingQR.current = { brewery, breweryId: parseInt(breweryIdParam) }
+
         if (savedUser) {
-          setSelectedBrewery(brewery)
           setQrValidated(true)
-          setView('brewery')
           setUser(JSON.parse(savedUser))
           setShowWelcome(false)
+          navigate(`/brewery/${brewery.id}`, { replace: true })
         } else {
           setShowWelcome(true)
+          // Wait for welcome completion, then navigate
         }
       }
+
+      // Keep your old behavior: strip query param after reading it
       window.history.replaceState({}, '', window.location.pathname)
     } else {
       if (savedUser) {
@@ -80,6 +118,7 @@ function App() {
         setShowWelcome(true)
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -97,17 +136,19 @@ function App() {
   const handleUserRegistration = (userData) => {
     setUser(userData)
     setShowWelcome(false)
-    
+
     if (userData.isExisting && userData.existingStamps && userData.existingStamps.length > 0) {
       setStamps(userData.existingStamps)
       localStorage.setItem('hcm-stamps', JSON.stringify(userData.existingStamps))
     }
-    
+
     if (pendingQR.current) {
-      setSelectedBrewery(pendingQR.current.brewery)
+      const breweryId = pendingQR.current.brewery.id
       setQrValidated(true)
-      setView('brewery')
+      navigate(`/brewery/${breweryId}`, { replace: true })
       pendingQR.current = null
+    } else {
+      navigate('/', { replace: true })
     }
   }
 
@@ -115,7 +156,7 @@ function App() {
     if (!stamps.includes(breweryId)) {
       const newStamps = [...stamps, breweryId]
       setStamps(newStamps)
-      
+
       if (user?.id) {
         try {
           const { error } = await recordCheckin(user.id, breweryId, 'qr_scan')
@@ -128,18 +169,18 @@ function App() {
           console.log('Check-in error:', err)
         }
       }
-      
+
       if (newStamps.length === 1 && !timerStart) {
         const startTime = Date.now()
         setTimerStart(startTime)
         localStorage.setItem('hcm-timer-start', startTime.toString())
       }
-      
+
       if (newStamps.length === 8 && timerStart && !timerEnd) {
         const endTime = Date.now()
         setTimerEnd(endTime)
         localStorage.setItem('hcm-timer-end', endTime.toString())
-        
+
         if (user) {
           const completionTime = endTime - timerStart
           const newEntry = {
@@ -161,17 +202,16 @@ function App() {
   }
 
   const handleBreweryClick = (brewery) => {
-    setSelectedBrewery(brewery)
     setQrValidated(false)
-    setView('brewery')
+    navigate(`/brewery/${brewery.id}`)
   }
 
   const handleNavigate = (newView) => {
-    setView(newView)
-    if (newView !== 'brewery') {
-      setSelectedBrewery(null)
-      setQrValidated(false)
-    }
+    if (newView === 'home') navigate('/')
+    if (newView === 'brewery') navigate('/') // safety fallback
+    if (newView === 'faq') navigate('/faq')
+    if (newView === 'mybeers') navigate('/mybeers')
+    if (newView === 'leaderboard') navigate('/leaderboard')
   }
 
   const resetCard = () => {
@@ -186,6 +226,7 @@ function App() {
       localStorage.removeItem('hcm-timer-start')
       localStorage.removeItem('hcm-timer-end')
       alert(t.resetSuccess)
+      navigate('/', { replace: true })
     }
   }
 
@@ -208,67 +249,81 @@ function App() {
   return (
     <div className="app">
       {showWelcome && (
-        <WelcomeModal 
+        <WelcomeModal
           language={language}
           setLanguage={setLanguage}
           onComplete={handleUserRegistration}
         />
       )}
 
-      {view === 'home' && (
-        <HomePage
-          breweries={BREWERIES}
-          stamps={stamps}
-          language={language}
-          setLanguage={setLanguage}
-          onBreweryClick={handleBreweryClick}
-          onNavigate={handleNavigate}
-          resetCard={resetCard}
-          user={user}
-          timerStart={timerStart}
-          timerEnd={timerEnd}
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <HomePage
+              breweries={BREWERIES}
+              stamps={stamps}
+              language={language}
+              setLanguage={setLanguage}
+              onBreweryClick={handleBreweryClick}
+              onNavigate={handleNavigate}
+              resetCard={resetCard}
+              user={user}
+              timerStart={timerStart}
+              timerEnd={timerEnd}
+            />
+          }
         />
-      )}
-      
-      {view === 'brewery' && selectedBrewery && (
-        <BreweryDetail
-          brewery={selectedBrewery}
-          stamps={stamps}
-          beers={beers}
-          addStamp={addStamp}
-          addBeer={addBeer}
-          language={language}
-          onBack={() => handleNavigate('home')}
-          qrValidated={qrValidated}
-          timerStart={timerStart}
-          user={user}
-        />
-      )}
 
-      {view === 'faq' && (
-        <FAQ
-          language={language}
-          onBack={() => handleNavigate('home')}
+        <Route
+          path="/brewery/:id"
+          element={
+            <BreweryRoute
+              breweries={BREWERIES}
+              stamps={stamps}
+              beers={beers}
+              addStamp={addStamp}
+              addBeer={addBeer}
+              language={language}
+              onBack={() => navigate('/')}
+              qrValidated={qrValidated}
+              timerStart={timerStart}
+              user={user}
+            />
+          }
         />
-      )}
 
-      {view === 'mybeers' && (
-        <MyBeers
-          beers={beers}
-          breweries={BREWERIES}
-          language={language}
-          onBack={() => handleNavigate('home')}
+        <Route
+          path="/faq"
+          element={<FAQ language={language} onBack={() => navigate('/')} />}
         />
-      )}
 
-      {view === 'leaderboard' && (
-        <Leaderboard
-          language={language}
-          onBack={() => handleNavigate('home')}
-          userTime={getUserCompletionTime()}
-          leaderboardData={leaderboardData}
+        <Route
+          path="/mybeers"
+          element={
+            <MyBeers
+              beers={beers}
+              breweries={BREWERIES}
+              language={language}
+              onBack={() => navigate('/')}
+            />
+          }
         />
-      )}
+
+        <Route
+          path="/leaderboard"
+          element={
+            <Leaderboard
+              language={language}
+              onBack={() => navigate('/')}
+              userTime={getUserCompletionTime()}
+              leaderboardData={leaderboardData}
+            />
+          }
+        />
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </div>
   )
 }
