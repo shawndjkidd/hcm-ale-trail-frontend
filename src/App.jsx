@@ -55,9 +55,9 @@ function App() {
 
     const urlParams = new URLSearchParams(window.location.search)
     const breweryId = urlParams.get('brewery')
-    const validated = urlParams.get('validated')
     
-    if (breweryId && validated === 'true') {
+    // Just check for brewery parameter - no need for validated=true
+    if (breweryId) {
       const brewery = BREWERIES.find(b => b.id === parseInt(breweryId))
       if (brewery) {
         pendingQR.current = { brewery, breweryId: parseInt(breweryId) }
