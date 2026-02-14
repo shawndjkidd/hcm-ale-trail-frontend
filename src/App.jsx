@@ -33,7 +33,6 @@ function App() {
   const [timerEnd, setTimerEnd] = useState(null)
   const [leaderboardData, setLeaderboardData] = useState([])
   
-  // Store pending QR navigation
   const pendingQR = useRef(null)
 
   const t = translations[language]
@@ -54,7 +53,6 @@ function App() {
     if (savedTimerEnd) setTimerEnd(parseInt(savedTimerEnd))
     if (savedLeaderboard) setLeaderboardData(JSON.parse(savedLeaderboard))
 
-    // Check for QR code validation in URL
     const urlParams = new URLSearchParams(window.location.search)
     const breweryId = urlParams.get('brewery')
     const validated = urlParams.get('validated')
@@ -62,10 +60,8 @@ function App() {
     if (breweryId && validated === 'true') {
       const brewery = BREWERIES.find(b => b.id === parseInt(breweryId))
       if (brewery) {
-        // Store the pending QR navigation
         pendingQR.current = { brewery, breweryId: parseInt(breweryId) }
         
-        // If user is already logged in, navigate immediately
         if (savedUser) {
           setSelectedBrewery(brewery)
           setQrValidated(true)
@@ -73,14 +69,11 @@ function App() {
           setUser(JSON.parse(savedUser))
           setShowWelcome(false)
         } else {
-          // Show welcome modal, will navigate after registration
           setShowWelcome(true)
         }
       }
-      // Clean URL
       window.history.replaceState({}, '', window.location.pathname)
     } else {
-      // No QR params - normal flow
       if (savedUser) {
         setUser(JSON.parse(savedUser))
         setShowWelcome(false)
@@ -106,13 +99,11 @@ function App() {
     setUser(userData)
     setShowWelcome(false)
     
-    // If existing user, restore their stamps from Supabase
     if (userData.isExisting && userData.existingStamps && userData.existingStamps.length > 0) {
       setStamps(userData.existingStamps)
       localStorage.setItem('hcm-stamps', JSON.stringify(userData.existingStamps))
     }
     
-    // Check if there's a pending QR navigation
     if (pendingQR.current) {
       setSelectedBrewery(pendingQR.current.brewery)
       setQrValidated(true)
@@ -126,7 +117,6 @@ function App() {
       const newStamps = [...stamps, breweryId]
       setStamps(newStamps)
       
-      // Save to Supabase
       if (user?.id) {
         try {
           const { error } = await recordCheckin(user.id, breweryId, 'qr_scan')
@@ -284,10 +274,3 @@ function App() {
 }
 
 export default App
-```
-
-**Step 5:** Press **Cmd + S** to save
-
-**Step 6:** Test locally - scan a QR code or manually go to:
-```
-http://localhost:5173/?brewery=1&validated=true
