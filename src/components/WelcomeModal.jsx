@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import translations from '../translations'
-import { registerParticipant } from '../lib/supabase'
+import { registerParticipant, getParticipantCheckins } from '../lib/supabase'
 
 const COUNTRIES = [
   "Vietnam", "United States", "United Kingdom", "Australia", "South Korea", 
@@ -79,6 +79,13 @@ function WelcomeModal({ language, setLanguage, onComplete }) {
         return
       }
 
+      // If existing user, fetch their stamps from Supabase
+      let existingStamps = []
+      if (isExisting && participant?.id) {
+        const { data: stamps } = await getParticipantCheckins(participant.id)
+        existingStamps = stamps || []
+      }
+
       const userData = {
         id: participant.id,
         name: isExisting ? participant.display_name : name.trim(),
@@ -88,7 +95,8 @@ function WelcomeModal({ language, setLanguage, onComplete }) {
         country: country || null,
         gender: gender || null,
         registeredAt: new Date().toISOString(),
-        isExisting
+        isExisting,
+        existingStamps
       }
 
       localStorage.setItem('hcm-user', JSON.stringify(userData))

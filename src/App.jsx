@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import HomePage from './components/HomePage'
 import BreweryDetail from './components/BreweryDetail'
 import FAQ from './components/FAQ'
@@ -32,10 +32,12 @@ function App() {
   const [timerStart, setTimerStart] = useState(null)
   const [timerEnd, setTimerEnd] = useState(null)
   const [leaderboardData, setLeaderboardData] = useState([])
+  
+  // Store pending QR navigation
+  const pendingQR = useRef(null)
 
   const t = translations[language]
 
-  // Load saved data on mount
   useEffect(() => {
     const savedStamps = localStorage.getItem('hcm-stamps')
     const savedBeers = localStorage.getItem('hcm-beers')
@@ -51,13 +53,6 @@ function App() {
     if (savedTimerStart) setTimerStart(parseInt(savedTimerStart))
     if (savedTimerEnd) setTimerEnd(parseInt(savedTimerEnd))
     if (savedLeaderboard) setLeaderboardData(JSON.parse(savedLeaderboard))
-    
-    if (savedUser) {
-      setUser(JSON.parse(savedUser))
-      setShowWelcome(false)
-    } else {
-      setShowWelcome(true)
-    }
 
     // Check for QR code validation in URL
     const urlParams = new URLSearchParams(window.location.search)
@@ -67,16 +62,34 @@ function App() {
     if (breweryId && validated === 'true') {
       const brewery = BREWERIES.find(b => b.id === parseInt(breweryId))
       if (brewery) {
-        setSelectedBrewery(brewery)
-        setQrValidated(true)
-        setView('brewery')
+        // Store the pending QR navigation
+        pendingQR.current = { brewery, breweryId: parseInt(breweryId) }
+        
+        // If user is already logged in, navigate immediately
+        if (savedUser) {
+          setSelectedBrewery(brewery)
+          setQrValidated(true)
+          setView('brewery')
+          setUser(JSON.parse(savedUser))
+          setShowWelcome(false)
+        } else {
+          // Show welcome modal, will navigate after registration
+          setShowWelcome(true)
+        }
       }
       // Clean URL
       window.history.replaceState({}, '', window.location.pathname)
+    } else {
+      // No QR params - normal flow
+      if (savedUser) {
+        setUser(JSON.parse(savedUser))
+        setShowWelcome(false)
+      } else {
+        setShowWelcome(true)
+      }
     }
   }, [])
 
-  // Save data when it changes
   useEffect(() => {
     localStorage.setItem('hcm-stamps', JSON.stringify(stamps))
   }, [stamps])
@@ -98,6 +111,14 @@ function App() {
       setStamps(userData.existingStamps)
       localStorage.setItem('hcm-stamps', JSON.stringify(userData.existingStamps))
     }
+    
+    // Check if there's a pending QR navigation
+    if (pendingQR.current) {
+      setSelectedBrewery(pendingQR.current.brewery)
+      setQrValidated(true)
+      setView('brewery')
+      pendingQR.current = null
+    }
   }
 
   const addStamp = async (breweryId) => {
@@ -107,26 +128,29 @@ function App() {
       
       // Save to Supabase
       if (user?.id) {
-        const { error } = await recordCheckin(user.id, breweryId, 'qr_scan')
-        if (error) {
-          console.log('Error saving check-in to Supabase:', error)
+        try {
+          const { error } = await recordCheckin(user.id, breweryId, 'qr_scan')
+          if (error) {
+            console.log('Error saving check-in to Supabase:', error)
+          } else {
+            console.log('Check-in saved to Supabase for brewery:', breweryId)
+          }
+        } catch (err) {
+          console.log('Check-in error:', err)
         }
       }
       
-      // Start timer on first stamp
       if (newStamps.length === 1 && !timerStart) {
         const startTime = Date.now()
         setTimerStart(startTime)
         localStorage.setItem('hcm-timer-start', startTime.toString())
       }
       
-      // Stop timer on 8th stamp
       if (newStamps.length === 8 && timerStart && !timerEnd) {
         const endTime = Date.now()
         setTimerEnd(endTime)
         localStorage.setItem('hcm-timer-end', endTime.toString())
         
-        // Add to leaderboard
         if (user) {
           const completionTime = endTime - timerStart
           const newEntry = {
@@ -260,3 +284,10 @@ function App() {
 }
 
 export default App
+```
+
+**Step 5:** Press **Cmd + S** to save
+
+**Step 6:** Test locally - scan a QR code or manually go to:
+```
+http://localhost:5173/?brewery=1&validated=true
