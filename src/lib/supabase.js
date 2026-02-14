@@ -10,13 +10,13 @@ export const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a92e';
 
 // Map frontend brewery IDs (1-8) to Supabase UUIDs
 const BREWERY_MAP = {
-  1: '8c3dc4f3-e100-4d63-be0e-ee8b65da8fe8', // BiaCraft
-  2: '3f80a715-b664-423d-a04d-3d22fcdeb335', // Heart of Darkness
+  1: '8c3dc4f3-e100-4d63-be0e-ee8b65da8fee', // BiaCraft
+  2: '3f80a715-b664-423d-a04d-3d22fcdeb339', // Heart of Darkness
   3: '6b29d3f2-6b0e-4404-af89-40d7bc7482c5', // Deme
   4: 'c1fb805f-4010-4e8c-85cf-634f6a681308', // Steersman
-  5: 'f094c3fc-e07d-4678-919a-923a6b805028', // East West Brewing
+  5: 'f094c3fc-e07d-4678-919a-923a6b80502a', // East West Brewing
   6: '1ba7a599-f91c-425d-98e7-275dd0efbb06', // Rooster Beers
-  7: 'd098db66-258b-445e-ad92-c0e769b4270c', // 7 Bridges Brewing Co.
+  7: 'd098db66-258b-445e-ad92-c0e769b427c1', // 7 Bridges Brewing Co.
   8: '64393821-1783-4892-8b18-019898d170ce', // Belgo Saigon
 };
 
