@@ -14,8 +14,11 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install (ignore lockfile to fix rollup optional deps)
-        run: npm install --no-package-lock
+      - name: Install dependencies
+        run: npm install
+
+      - name: Fix rollup linux optional binary (workaround)
+        run: npm install --no-save @rollup/rollup-linux-x64-gnu
 
       - name: Lint
         run: npm run lint --if-present
