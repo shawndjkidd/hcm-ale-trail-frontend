@@ -14,8 +14,8 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install (no cache, include optional deps)
-        run: npm install --include=optional
+      - name: Install (ignore lockfile to fix rollup optional deps)
+        run: npm install --no-package-lock
 
       - name: Lint
         run: npm run lint --if-present
