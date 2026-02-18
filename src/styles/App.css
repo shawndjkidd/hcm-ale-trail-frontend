@@ -65,98 +65,15 @@ body {
 .home-page {
   background: var(--red-primary);
   min-height: 100vh;
-  padding: 1rem;
-}
-
-.language-toggle {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-  padding: 1rem 0;
-  background: transparent;
-  border: none;
-}
-
-.flag-btn {
-  font-size: 3rem;
-  background: none;
-  border: 4px solid transparent;
-  cursor: pointer;
-  padding: 0.5rem 1rem;
-  transition: all 0.3s;
-  border-radius: 8px;
-}
-
-.flag-btn.active {
-  border-color: var(--yellow-primary);
-  background: rgba(255, 209, 0, 0.2);
-  transform: scale(1.1);
-  box-shadow: 0 0 15px rgba(255, 209, 0, 0.4);
-}
-
-.header-badge {
-  background: var(--yellow-primary);
-  color: var(--black);
-  text-align: center;
-  padding: 1rem;
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-  letter-spacing: 2px;
-  border: 4px solid var(--black);
-  margin: 1rem 0;
-  box-shadow: 0 4px 0 var(--black);
-}
-
-.top-nav {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.25rem;
-  margin: 1rem 0;
-}
-
-.nav-btn-small {
-  padding: 0.75rem 0.5rem;
-  font-family: var(--font-display);
-  font-size: 0.9rem;
-  border: 3px solid var(--black);
-  cursor: pointer;
-  color: var(--white);
-  transition: transform 0.2s;
-  text-align: center;
-  box-shadow: 0 3px 0 var(--black);
-  text-decoration: none;
-  display: block;
-}
-
-.nav-btn-small:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 0 var(--black);
-}
-
-.nav-btn-small:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 0 var(--black);
-}
-
-.nav-btn-small.yellow {
-  background: var(--yellow-primary);
-  color: var(--black);
-}
-
-.nav-btn-small.red {
-  background: var(--red-primary);
-}
-
-.nav-btn-small.green {
-  background: var(--green-primary);
+  padding-bottom: 1rem;
 }
 
 .progress-section {
   background: var(--black);
   border: 4px solid var(--yellow-primary);
   padding: 1rem;
-  margin: 1rem 0;
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
+  margin: 0 12px 8px;
+  box-shadow: 4px 4px 0 var(--black);
 }
 
 .progress-header {
@@ -193,55 +110,8 @@ body {
   box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.trail-social {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 0.5rem;
-  margin: 1rem 0;
-}
-
-.social-btn {
-  padding: 0.75rem;
-  font-family: var(--font-display);
-  font-size: 1.2rem;
-  text-decoration: none;
-  text-align: center;
-  border: 4px solid var(--black);
-  color: var(--white);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  box-shadow: 0 4px 0 var(--black);
-  transition: transform 0.2s;
-}
-
-.social-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 0 var(--black);
-}
-
-.social-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 0 var(--black);
-}
-
-/* HOME PAGE & BREWERY DETAIL - Instagram Pink */
-.social-btn.instagram {
-  background: var(--instagram-pink);
-}
-
-/* HOME PAGE & BREWERY DETAIL - Facebook Blue */
-.social-btn.facebook {
-  background: var(--facebook-blue);
-}
-
-.social-btn.messenger {
-  background: #0084FF;
-}
-
 .brewery-list {
-  margin: 1rem 0;
+  margin: 0 12px;
 }
 
 .brewery-item {
@@ -253,17 +123,17 @@ body {
   cursor: pointer;
   transition: transform 0.2s;
   position: relative;
-  box-shadow: 0 4px 0 var(--black);
+  box-shadow: 4px 4px 0 var(--black);
 }
 
 .brewery-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 0 var(--black);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--black);
 }
 
 .brewery-item:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 0 var(--black);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--black);
 }
 
 .completed-stamp {
@@ -354,40 +224,6 @@ body {
   opacity: 0.3;
 }
 
-.bottom-nav {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
-  margin: 1rem 0;
-}
-
-.nav-btn {
-  padding: 1rem;
-  font-family: var(--font-display);
-  font-size: 1.2rem;
-  border: 4px solid var(--black);
-  cursor: pointer;
-  color: var(--white);
-  transition: transform 0.2s;
-}
-
-.nav-btn:hover {
-  transform: scale(1.05);
-}
-
-.nav-btn.yellow {
-  background: var(--yellow-primary);
-  color: var(--black);
-}
-
-.nav-btn.red {
-  background: var(--red-primary);
-}
-
-.nav-btn.green {
-  background: var(--green-primary);
-}
-
 .footer {
   text-align: center;
   padding: 2rem 1rem;
@@ -417,6 +253,10 @@ body {
   color: rgba(255, 255, 255, 0.5);
 }
 
+/* ==========================================
+   BREWERY DETAIL PAGE
+   ========================================== */
+
 .brewery-detail {
   background: var(--yellow-primary);
   min-height: 100vh;
@@ -435,18 +275,18 @@ body {
   cursor: pointer;
   margin-bottom: 1rem;
   width: 100%;
-  box-shadow: 0 4px 0 var(--black);
+  box-shadow: 4px 4px 0 var(--black);
   transition: transform 0.2s;
 }
 
 .back-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 0 var(--black);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--black);
 }
 
 .back-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 0 var(--black);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--black);
 }
 
 .stamp-instruction-box {
@@ -462,12 +302,8 @@ body {
 }
 
 @keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.02);
-  }
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
 }
 
 .stamp-icon {
@@ -500,7 +336,7 @@ body {
   border: 4px solid var(--black);
   padding: 1.5rem;
   margin: 1rem 0;
-  box-shadow: 0 4px 0 var(--black);
+  box-shadow: 4px 4px 0 var(--black);
 }
 
 .brewery-info-card.centered .brewery-title {
@@ -537,18 +373,18 @@ body {
   color: var(--white);
   text-decoration: none;
   text-align: center;
-  box-shadow: 0 4px 0 var(--black);
+  box-shadow: 4px 4px 0 var(--black);
   transition: transform 0.2s;
 }
 
 .action-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 0 var(--black);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--black);
 }
 
 .action-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 0 var(--black);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--black);
 }
 
 .action-btn.green {
@@ -567,12 +403,8 @@ body {
 }
 
 @keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }
 
 .brewery-beers {
@@ -580,7 +412,7 @@ body {
   border: 4px solid var(--black);
   padding: 1rem;
   margin: 1rem 0;
-  box-shadow: 0 4px 0 var(--black);
+  box-shadow: 4px 4px 0 var(--black);
 }
 
 .brewery-beers h3 {
@@ -606,19 +438,27 @@ body {
   font-size: 1.2rem;
 }
 
-.brewery-social {
+.brewery-buttons-row {
   display: flex;
-  gap: 0.5rem;
-  margin: 1rem 0;
+  gap: 8px;
+  margin: 12px 0;
 }
 
-/* INSTAGRAM BUTTON - PINK (Brewery Detail) */
+.brewery-buttons-row .action-btn {
+  flex: 1;
+  padding: 16px 8px;
+  font-size: 0.9rem;
+  text-align: center;
+  text-decoration: none;
+  font-weight: bold;
+  border: 3px solid #000;
+}
+
 .instagram-btn {
   background: var(--instagram-pink) !important;
   color: var(--white) !important;
 }
 
-/* FACEBOOK BUTTON - BLUE (Brewery Detail) */
 .facebook-btn {
   background: var(--facebook-blue) !important;
   color: var(--white) !important;
@@ -649,18 +489,18 @@ body {
   font-family: var(--font-display);
   font-size: 1.2rem;
   cursor: pointer;
-  box-shadow: 0 3px 0 var(--black);
+  box-shadow: 4px 4px 0 var(--black);
   transition: transform 0.2s;
 }
 
 .copy-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 0 var(--black);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--black);
 }
 
 .copy-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 0 var(--black);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--black);
 }
 
 .message {
@@ -804,7 +644,7 @@ body {
   border: 4px solid var(--black);
   padding: 1.5rem;
   margin: 1rem 0;
-  box-shadow: 0 4px 0 var(--black);
+  box-shadow: 4px 4px 0 var(--black);
 }
 
 .code-label {
@@ -848,20 +688,24 @@ body {
   font-family: var(--font-display);
   font-size: 1.2rem;
   cursor: pointer;
-  box-shadow: 0 3px 0 var(--black);
+  box-shadow: 4px 4px 0 var(--black);
   transition: transform 0.2s;
   text-transform: uppercase;
 }
 
 .code-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 0 var(--black);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--black);
 }
 
 .code-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 0 var(--black);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--black);
 }
+
+/* ==========================================
+   MODALS
+   ========================================== */
 
 .modal-overlay {
   position: fixed;
@@ -1006,6 +850,10 @@ body {
   color: var(--white);
 }
 
+/* ==========================================
+   FAQ PAGE
+   ========================================== */
+
 .faq-steps {
   margin-top: 1rem;
 }
@@ -1017,7 +865,7 @@ body {
   padding: 1rem;
   margin-bottom: 0.5rem;
   border: 4px solid var(--black);
-  box-shadow: 0 4px 0 var(--black);
+  box-shadow: 4px 4px 0 var(--black);
 }
 
 .faq-step.red {
@@ -1065,7 +913,7 @@ body {
   border: 4px solid var(--black);
   padding: 1rem;
   margin: 1rem 0;
-  box-shadow: 0 4px 0 var(--black);
+  box-shadow: 4px 4px 0 var(--black);
 }
 
 .faq-tips h3 {
@@ -1094,19 +942,23 @@ body {
   font-size: 1.5rem;
   cursor: pointer;
   margin-top: 1rem;
-  box-shadow: 0 4px 0 var(--black);
+  box-shadow: 4px 4px 0 var(--black);
   transition: transform 0.2s;
 }
 
 .ok-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 0 var(--black);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--black);
 }
 
 .ok-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 0 var(--black);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--black);
 }
+
+/* ==========================================
+   MY BEERS PAGE
+   ========================================== */
 
 .my-beers-page {
   background: var(--yellow-primary);
@@ -1131,7 +983,7 @@ body {
   text-align: center;
   color: var(--black);
   margin: 2rem 0;
-  box-shadow: 0 4px 0 var(--black);
+  box-shadow: 4px 4px 0 var(--black);
 }
 
 .beer-list {
@@ -1144,7 +996,7 @@ body {
   padding: 1rem;
   margin-bottom: 1rem;
   color: var(--black);
-  box-shadow: 0 4px 0 var(--black);
+  box-shadow: 4px 4px 0 var(--black);
 }
 
 .beer-card .beer-name {
@@ -1233,7 +1085,7 @@ body {
   border: 4px solid var(--black);
   padding: 1rem;
   margin-bottom: 1rem;
-  box-shadow: 0 4px 0 var(--black);
+  box-shadow: 4px 4px 0 var(--black);
 }
 
 .brewery-group-title {
@@ -1294,7 +1146,7 @@ body {
   border: 4px solid var(--black);
   padding: 1rem;
   text-align: center;
-  box-shadow: 0 4px 0 var(--black);
+  box-shadow: 4px 4px 0 var(--black);
 }
 
 .stat-number {
@@ -1310,6 +1162,10 @@ body {
   margin-top: 0.25rem;
   text-transform: uppercase;
 }
+
+/* ==========================================
+   COMPLETION MODAL
+   ========================================== */
 
 .completion-modal {
   background: var(--yellow-primary);
@@ -1385,20 +1241,20 @@ body {
   font-size: 1.5rem;
   cursor: pointer;
   margin-top: 1rem;
-  box-shadow: 0 4px 0 var(--black);
+  box-shadow: 4px 4px 0 var(--black);
   transition: transform 0.2s;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 .completion-ok-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 0 var(--black);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--black);
 }
 
 .completion-ok-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 0 var(--black);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--black);
 }
 
 .hat-claimed-message {
@@ -1417,26 +1273,6 @@ body {
   background: var(--gray) !important;
 }
 
-@media (max-width: 480px) {
-  .brewery-number {
-    width: 60px;
-    height: 60px;
-    font-size: 2rem;
-  }
-  
-  .brewery-name {
-    font-size: 1.2rem;
-  }
-  
-  .brewery-logo {
-    width: 60px;
-    height: 60px;
-  }
-  
-  .nav-btn {
-    font-size: 1rem;
-  }
-}
 /* ==========================================
    WELCOME MODAL / REGISTRATION
    ========================================== */
@@ -1485,18 +1321,18 @@ body {
   font-size: 1.5rem;
   cursor: pointer;
   margin-top: 1rem;
-  box-shadow: 0 4px 0 var(--black);
+  box-shadow: 4px 4px 0 var(--black);
   transition: transform 0.2s;
 }
 
 .welcome-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 0 var(--black);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--black);
 }
 
 .welcome-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 0 var(--black);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--black);
 }
 
 .welcome-disclaimer {
@@ -1504,6 +1340,13 @@ body {
   font-size: 0.75rem;
   color: var(--gray);
   margin-top: 1.5rem;
+}
+
+.welcome-logo {
+  width: 150px;
+  height: auto;
+  margin: 0 auto 16px;
+  display: block;
 }
 
 .form-error {
@@ -1517,106 +1360,34 @@ body {
   border: 2px solid var(--black);
 }
 
-/* ==========================================
-   USER GREETING
-   ========================================== */
-
-.user-greeting {
-  background: var(--black);
-  color: var(--yellow-primary);
-  text-align: center;
-  padding: 0.75rem;
-  font-size: 1rem;
-  margin: 0 0 1rem 0;
-  border: 2px solid var(--yellow-primary);
-}
-
-/* ==========================================
-   TIMER DISPLAY
-   ========================================== */
-
-.timer-display {
+.gender-toggle {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  background: var(--black);
-  padding: 1rem;
-  margin: 0 0 1rem 0;
-  border: 3px solid var(--yellow-primary);
+  gap: 12px;
 }
 
-.timer-display.running {
-  animation: timer-pulse 1s ease-in-out infinite;
+.gender-btn {
+  flex: 1;
+  padding: 12px;
+  border: 2px solid #333;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.2s;
 }
 
-.timer-display.completed {
-  border-color: var(--green-primary);
-  background: var(--green-primary);
+.gender-btn.active {
+  background: #333;
+  color: white;
 }
 
-@keyframes timer-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+.gender-btn:hover {
+  background: #eee;
 }
 
-.timer-icon {
-  font-size: 2rem;
-}
-
-.timer-info {
-  text-align: center;
-}
-
-.timer-value {
-  font-family: var(--font-display);
-  font-size: 2rem;
-  color: var(--yellow-primary);
-}
-
-.timer-display.completed .timer-value {
-  color: var(--white);
-}
-
-.timer-status {
-  font-size: 0.8rem;
-  color: var(--white);
-  opacity: 0.8;
-}
-
-/* ==========================================
-   MY BEERS BUTTON (social row)
-   ========================================== */
-
-.social-btn.mybeers {
-  background: var(--yellow-primary);
-  color: var(--black);
-  border: 4px solid var(--black);
-}
-
-/* ==========================================
-   COMPLETION TIME
-   ========================================== */
-
-.completion-time {
-  background: var(--black);
-  padding: 1.5rem;
-  margin: 1rem 0 2rem 0;
-  border-radius: 8px;
-  text-align: center;
-}
-
-.completion-time-label {
-  color: var(--white);
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
-  opacity: 0.8;
-}
-
-.completion-time-value {
-  font-family: var(--font-display);
-  font-size: 3rem;
-  color: var(--yellow-primary);
+.gender-btn.active:hover {
+  background: #333;
 }
 
 /* ==========================================
@@ -1654,7 +1425,7 @@ body {
   padding: 1.5rem;
   margin-bottom: 1.5rem;
   text-align: center;
-  box-shadow: 0 4px 0 var(--black);
+  box-shadow: 4px 4px 0 var(--black);
 }
 
 .your-time-label {
@@ -1680,7 +1451,7 @@ body {
   background: var(--white);
   border: 4px solid var(--black);
   overflow: hidden;
-  box-shadow: 0 4px 0 var(--black);
+  box-shadow: 4px 4px 0 var(--black);
 }
 
 .leaderboard-header-row {
@@ -1760,87 +1531,171 @@ body {
 .leaderboard-footer p {
   margin: 0.5rem 0;
 }
-/* Language Toggle */
-.language-toggle {
+
+/* ==========================================
+   NEW HOMEPAGE LAYOUT
+   ========================================== */
+
+/* Larger flags - fill full width */
+.language-toggle-large {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 12px 4px;
+}
+
+.flag-btn-large {
+  font-size: 3.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.flag-btn-large:hover {
+  transform: scale(1.05);
+}
+
+.flag-btn-large.active {
+  background: var(--yellow-primary);
+  transform: scale(1.1);
+  box-shadow: 4px 4px 0 var(--black);
+}
+
+/* Header logo in box */
+.header-logo {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.lang-btn {
-  padding: 6px 12px;
-  border: 2px solid #333;
-  background: white;
+  align-items: center;
+  margin: 8px 12px 12px;
+  background: var(--yellow-primary);
+  border: 4px solid var(--black);
   border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s;
+  padding: 8px 20px;
+  box-shadow: 4px 4px 0 var(--black);
 }
 
-.lang-btn.active {
-  background: #333;
-  color: white;
-}
-
-.lang-btn:hover {
-  background: #eee;
-}
-
-.lang-btn.active:hover {
-  background: #333;
-}
-
-/* Welcome Logo */
-.welcome-logo {
-  width: 150px;
+.header-logo-img {
+  width: 100%;
+  max-width: 350px;
   height: auto;
-  margin: 0 auto 16px;
-  display: block;
+  object-fit: contain;
 }
 
-/* Gender Toggle */
-.gender-toggle {
-  display: flex;
-  gap: 12px;
-}
-
-.gender-btn {
-  flex: 1;
-  padding: 12px;
-  border: 2px solid #333;
-  background: white;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: bold;
-  transition: all 0.2s;
-}
-
-.gender-btn.active {
-  background: #333;
-  color: white;
-}
-
-.gender-btn:hover {
-  background: #eee;
-}
-
-.gender-btn.active:hover {
-  background: #333;
-}/* Brewery detail buttons row */
-.brewery-buttons-row {
+/* Full width nav rows - match stamps edge */
+.nav-row-full {
   display: flex;
   gap: 8px;
-  margin: 12px 0;
+  margin: 0 12px 8px;
 }
 
-.brewery-buttons-row .action-btn {
+/* Third-width buttons - larger font */
+.nav-btn-third {
   flex: 1;
-  padding: 16px 8px;
-  font-size: 0.9rem;
+  padding: 18px 8px;
+  font-size: 1.1rem;
+  font-weight: 900;
+  font-family: 'Impact', 'Arial Black', sans-serif;
   text-align: center;
   text-decoration: none;
-  font-weight: bold;
-  border: 3px solid #000;
+  border: 4px solid var(--black);
+  border-radius: 4px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: transform 0.1s, box-shadow 0.1s;
+  box-shadow: 4px 4px 0 var(--black);
+}
+
+.nav-btn-third:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--black);
+}
+
+.nav-btn-third:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--black);
+}
+
+.nav-btn-third.yellow {
+  background: var(--yellow-primary);
+  color: var(--black);
+}
+
+.nav-btn-third.red {
+  background: var(--red-primary);
+  color: var(--white);
+}
+
+.nav-btn-third.green {
+  background: var(--green-primary);
+  color: var(--white);
+}
+
+.nav-btn-third.instagram {
+  background: #E1306C;
+  color: var(--white);
+}
+
+.nav-btn-third.facebook {
+  background: #1877F2;
+  color: var(--white);
+}
+
+.nav-btn-third.messenger {
+  background: #0099FF;
+  color: var(--white);
+}
+
+/* Half-width buttons */
+.nav-btn-half {
+  flex: 1;
+  padding: 18px 8px;
+  font-size: 1.7rem;
+  font-weight: 900;
+  font-family: 'Impact', 'Arial Black', sans-serif;
+  text-align: center;
+  text-decoration: none;
+  border: 4px solid var(--black);
+  border-radius: 4px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: transform 0.1s, box-shadow 0.1s;
+  box-shadow: 4px 4px 0 var(--black);
+}
+
+.nav-btn-half:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--black);
+}
+
+.nav-btn-half:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--black);
+}
+
+.nav-btn-half.yellow {
+  background: var(--yellow-primary);
+  color: var(--black);
+}
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+
+@media (max-width: 480px) {
+  .brewery-number {
+    width: 60px;
+    height: 60px;
+    font-size: 2rem;
+  }
+  
+  .brewery-name {
+    font-size: 1.2rem;
+  }
+  
+  .brewery-logo {
+    width: 60px;
+    height: 60px;
+  }
 }

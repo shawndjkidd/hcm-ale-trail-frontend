@@ -61,7 +61,7 @@ const BREWERY_DATA = {
   }
 }
 
-function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, onBack, qrValidated, timerStart }) {
+function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, onBack, qrValidated, timerStart, user }) {
   const [showAddBeer, setShowAddBeer] = useState(false)
   const [message, setMessage] = useState(null)
   const [manualCode, setManualCode] = useState('')
@@ -79,8 +79,9 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     }
   }, [qrValidated, isStamped])
 
-  const handleBeerAdded = (beer) => {
+  const handleBeerAdded = async (beer) => {
     addBeer(beer)
+    
     
     if (!isStamped) {
       if (isFirstStamp) {
@@ -144,7 +145,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
 
   return (
     <div className="brewery-detail">
-      <button className="back-btn" onClick={onBack}>← BACK</button>
+      <button className="back-btn" onClick={onBack}>← {t.back || 'BACK'}</button>
 
       {!isStamped && !qrValidated && (
         <div className="stamp-instruction-box">
@@ -186,7 +187,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
       <div className="brewery-info-card">
         <h1 className="brewery-title">{brewery.name}</h1>
         <p className="brewery-address">📍 {brewery.address}</p>
-        <p className="brewery-description">{brewery.description}</p>
+        <p className="brewery-description">{t[`brewery${brewery.id}Desc`] || brewery.description}</p>
       </div>
 
       {/* Three buttons in a row */}
@@ -198,7 +199,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
             rel="noopener noreferrer"
             className="action-btn green"
           >
-            📍 MAPS
+            {t.maps}
           </a>
         )}
         {breweryInfo.instagram && (
@@ -208,7 +209,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
             rel="noopener noreferrer"
             className="action-btn instagram-btn"
           >
-            📷 IG
+            {t.instagram}
           </a>
         )}
         {breweryInfo.facebook && (
@@ -218,7 +219,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
             rel="noopener noreferrer"
             className="action-btn facebook-btn"
           >
-            👍 FB
+            {t.facebook}
           </a>
         )}
       </div>
@@ -234,10 +235,10 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
 
       <div className="hashtag-section">
         <div className="hashtag-text">
-          Tag: {breweryInfo.instagramHandle}
+          {t.tag || "Tag"}: {breweryInfo.instagramHandle}
         </div>
         <button className="copy-btn" onClick={copyInstagramHandle}>
-          📋 COPY HANDLE
+          📋 {t.copyHandle || "COPY HANDLE"}
         </button>
       </div>
 
@@ -264,7 +265,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
               type="text"
               value={manualCode}
               onChange={(e) => setManualCode(e.target.value)}
-              placeholder="Code"
+              placeholder={t.code || "Code"}
               maxLength="4"
               className="code-input"
             />

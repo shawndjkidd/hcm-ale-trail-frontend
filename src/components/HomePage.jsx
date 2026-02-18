@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import translations from '../translations'
 
 function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onNavigate, resetCard }) {
-  const [showFAQ, setShowFAQ] = useState(false)
   const [showCompletionModal, setShowCompletionModal] = useState(false)
   const [hatClaimed, setHatClaimed] = useState(false)
   
@@ -11,7 +10,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
   const isComplete = stamps.length === 8
 
   useEffect(() => {
-    // Check if hat was already claimed
     const claimed = localStorage.getItem('hcm-hat-claimed')
     if (claimed === 'true') {
       setHatClaimed(true)
@@ -19,7 +17,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
   }, [])
 
   useEffect(() => {
-    // Show completion modal when all 8 stamps are collected
     if (isComplete && !localStorage.getItem('hcm-completion-modal-shown')) {
       setShowCompletionModal(true)
     }
@@ -38,62 +35,95 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
 
   return (
     <div className="home-page">
-      <div className="language-toggle">
+      {/* Language Flags - Larger, Less Gap */}
+      <div className="language-toggle-large">
         <button 
-          className={`flag-btn ${language === 'en' ? 'active' : ''}`}
+          className={`flag-btn-large ${language === 'en' ? 'active' : ''}`}
           onClick={() => setLanguage('en')}
         >
           🇺🇸
         </button>
         <button 
-          className={`flag-btn ${language === 'vn' ? 'active' : ''}`}
+          className={`flag-btn-large ${language === 'vn' ? 'active' : ''}`}
           onClick={() => setLanguage('vn')}
         >
           🇻🇳
         </button>
         <button 
-          className={`flag-btn ${language === 'kr' ? 'active' : ''}`}
+          className={`flag-btn-large ${language === 'kr' ? 'active' : ''}`}
           onClick={() => setLanguage('kr')}
         >
           🇰🇷
         </button>
         <button 
-          className={`flag-btn ${language === 'jp' ? 'active' : ''}`}
+          className={`flag-btn-large ${language === 'jp' ? 'active' : ''}`}
           onClick={() => setLanguage('jp')}
         >
           🇯🇵
         </button>
       </div>
 
-      <div className="header-badge">
-        {t.craftBeerPassport}
+      {/* Logo Image Instead of Text */}
+      <div className="header-logo">
+        <img 
+         src="/logos/HCM Logo-Ale-Trail-2023-BK.png"
+          alt="HCM Ale Trail" 
+          className="header-logo-img"
+        />
       </div>
 
-      <div className="top-nav">
-        <button className="nav-btn-small yellow" onClick={() => onNavigate('faq')}>
+      {/* Row 1: FAQ, Website, Google */}
+      <div className="nav-row-full">
+        <button className="nav-btn-third yellow" onClick={() => onNavigate('faq')}>
           {t.faq}
         </button>
         <a 
           href="https://www.hochiminhaletrail.com/" 
           target="_blank" 
           rel="noopener noreferrer"
-          className="nav-btn-small red"
+          className="nav-btn-third red"
         >
           {t.website}
         </a>
-        <a 
-          href="https://www.google.com/maps/d/u/1/viewer?mid=1ZO-30TD2syibuwwqGF7wDxwHACOEsBQ&ll=10.77928527172877%2C106.69519550000001&z=15"
+       <a 
+          href="https://www.google.com/maps/d/u/1/viewer?mid=1ZO-30TD2syibuwwqGF7wDxwHACOEsBQ&ll=10.77928527172877%2C106.69519550000001&z=15" 
           target="_blank" 
           rel="noopener noreferrer"
-          className="nav-btn-small green"
+          className="nav-btn-third green"
         >
           {t.maps}
         </a>
-        <button className="nav-btn-small yellow" onClick={() => onNavigate('leaderboard')}>
-          ⏱️🏅
-        </button>
       </div>
 
+      {/* Row 2: Social Media */}
+      <div className="nav-row-full">
+        <a 
+          href="https://www.instagram.com/hcm.aletrail/" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="nav-btn-third instagram"
+        >
+          {t.instagram}
+        </a>
+        <a 
+          href="https://www.facebook.com/hcmaletrail" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="nav-btn-third facebook"
+        >
+          {t.facebook}
+        </a>
+        <a 
+          href="https://www.messenger.com/t/115480196509607/?messaging_source=source%3Apages%3Amessage_shortlink&source_id=1441792&recurring_notification=0" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="nav-btn-third messenger"
+        >
+          {t.messenger}
+        </a>
+      </div>
+
+      {/* Stamps Progress */}
       <div className="progress-section">
         <div className="progress-header">
           <div className="progress-label">{t.stamps}</div>
@@ -107,33 +137,17 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         </div>
       </div>
 
-      <div className="trail-social">
-        <a 
-          href="https://www.instagram.com/hcm.aletrail/" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="social-btn instagram"
-        >
-          📷 IG
-        </a>
-        <a 
-          href="https://www.facebook.com/hcmaletrail" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="social-btn facebook"
-        >
-          👍 FB
-        </a>
-        <a 
-          href="https://www.messenger.com/t/115480196509607/?messaging_source=source%3Apages%3Amessage_shortlink&source_id=1441792&recurring_notification=0" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="social-btn messenger"
-        >
-          💬 MSG
-        </a>
+      {/* Row 3: My Beers & Leaderboard */}
+      <div className="nav-row-full">
+        <button className="nav-btn-half yellow" onClick={() => onNavigate('mybeers')}>
+           {t.myBeers}
+        </button>
+        <button className="nav-btn-half yellow" onClick={() => onNavigate('leaderboard')}>
+           {t.leaderboard || 'LEADERBOARD'}
+        </button>
       </div>
 
+      {/* Brewery List */}
       <div className="brewery-list">
         {breweries.map((brewery, index) => {
           const isStamped = stamps.includes(brewery.id)
@@ -177,7 +191,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         </button>
       </div>
 
-      {/* COMPLETION MODAL */}
+      {/* Completion Modal */}
       {showCompletionModal && (
         <div className="modal-overlay">
           <div className="completion-modal">
