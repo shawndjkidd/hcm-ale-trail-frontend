@@ -17,8 +17,12 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Fix rollup linux optional binary (workaround)
-        run: npm install --no-save @rollup/rollup-linux-x64-gnu
+      - name: Fix rollup linux optional binary (match rollup version)
+        shell: bash
+        run: |
+          ROLLUP_VERSION=$(node -p "require('./package-lock.json').packages['node_modules/rollup'].version")
+          echo "Detected rollup version: $ROLLUP_VERSION"
+          npm install --no-save @rollup/rollup-linux-x64-gnu@$ROLLUP_VERSION
 
       - name: Lint
         run: npm run lint --if-present
