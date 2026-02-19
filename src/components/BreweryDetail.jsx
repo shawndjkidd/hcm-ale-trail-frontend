@@ -2,6 +2,16 @@ import { useState, useEffect } from 'react'
 import translations from '../translations'
 import AddBeerModal from './AddBeerModal'
 
+// Sample events data (will come from Supabase later)
+const SAMPLE_EVENTS = [
+  { id: 1, title: 'Tap Takeover Night', date: 'Feb 28', time: '7:00 PM', breweryId: 1, description: 'Special guest taps from local breweries', link: 'https://facebook.com/events/123' },
+  { id: 2, title: 'IPA Festival', date: 'Mar 5', time: '6:00 PM', breweryId: 2, description: '10+ IPAs on tap, live music', link: 'https://facebook.com/events/456' },
+  { id: 3, title: 'Brew & Quiz Night', date: 'Mar 8', time: '8:00 PM', breweryId: 5, description: 'Trivia night with beer prizes', link: null },
+  { id: 4, title: 'St. Patrick\'s Day Party', date: 'Mar 17', time: '5:00 PM', breweryId: 8, description: 'Green beer, Irish food, live music all night', link: 'https://facebook.com/events/789' },
+  { id: 5, title: 'Meet the Brewer', date: 'Mar 1', time: '6:00 PM', breweryId: 1, description: 'Chat with our head brewer', link: null },
+  { id: 6, title: 'Stout Day', date: 'Mar 15', time: '4:00 PM', breweryId: 2, description: 'All stouts 20% off', link: null },
+]
+
 const BREWERY_DATA = {
   'BiaCraft': {
     instagram: 'https://www.instagram.com/biacraftartisanales/',
@@ -72,6 +82,9 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
   const breweryBeers = beers.filter(b => b.breweryId === brewery.id)
   const breweryInfo = BREWERY_DATA[brewery.name] || {}
   const isFirstStamp = stamps.length === 0
+  
+  // Get events for this brewery
+  const breweryEvents = SAMPLE_EVENTS.filter(e => e.breweryId === brewery.id)
 
   useEffect(() => {
     if (qrValidated && !isStamped) {
@@ -81,7 +94,6 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
 
   const handleBeerAdded = async (beer) => {
     addBeer(beer)
-    
     
     if (!isStamped) {
       if (isFirstStamp) {
@@ -129,20 +141,6 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     setTimeout(() => setMessage(null), 3000)
   }
 
-  const shareToInstagram = () => {
-    const handle = breweryInfo.instagramHandle || `@${brewery.name.toLowerCase().replace(/\s/g, '')}`
-    navigator.clipboard.writeText(handle)
-    
-    const instagramUrl = `instagram://camera`
-    const instagramWebUrl = `https://www.instagram.com/`
-    
-    window.location.href = instagramUrl
-    
-    setTimeout(() => {
-      window.open(instagramWebUrl, '_blank')
-    }, 500)
-  }
-
   return (
     <div className="brewery-detail">
       <button className="back-btn" onClick={onBack}>← {t.back || 'BACK'}</button>
@@ -151,8 +149,8 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         <div className="stamp-instruction-box">
           <div className="stamp-icon">🍺</div>
           <div className="stamp-instruction-text">
-            <strong>{t.scanQRToCollect || "Scan the QR code at the brewery to collect your stamp!"}</strong>
-            <p>{t.scanFirst || "Scan the QR code first to check in your beer"}</p>
+            <strong>{t.scanQRToCollect}</strong>
+            <p>{t.scanFirst}</p>
           </div>
         </div>
       )}
@@ -168,18 +166,23 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
           <div className="share-prompt-header">
             <span className="share-icon">📸</span>
             <div className="share-text">
-              <strong>{t.shareYourExperience || "Share Your Experience!"}</strong>
-              <p>{t.shareInstructions || "Take a pic, tag the brewery, and post on Instagram"}</p>
+              <strong>{t.shareYourExperience}</strong>
+              <p>{t.shareInstructions}</p>
             </div>
             <button className="share-close" onClick={() => setShowSharePrompt(false)}>✕</button>
           </div>
           <div className="share-actions">
             <button className="share-btn copy" onClick={copyInstagramHandle}>
-              📋 {t.copyHandle || "COPY @HANDLE"}
+              📋 {t.copyHandle}
             </button>
-            <button className="share-btn instagram" onClick={shareToInstagram}>
-              📷 {t.postToInstagram || "POST TO INSTAGRAM"}
-            </button>
+            <a 
+              href={breweryInfo.instagram} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="share-btn instagram"
+            >
+              📷 {t.instagram}
+            </a>
           </div>
         </div>
       )}
@@ -188,6 +191,38 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         <h1 className="brewery-title">{brewery.name}</h1>
         <p className="brewery-address">📍 {brewery.address}</p>
         <p className="brewery-description">{t[`brewery${brewery.id}Desc`] || brewery.description}</p>
+      </div>
+
+      {/* Upcoming Events at this Brewery */}
+      <div className="brewery-events-section">
+        <h3 className="brewery-events-title">{t.upcomingEvents || 'UPCOMING EVENTS'}</h3>
+        {breweryEvents.length > 0 ? (
+          breweryEvents.map(event => (
+            <div key={event.id} className="brewery-event-item">
+              <div className="brewery-event-header">
+                <span className="brewery-event-name">{event.title}</span>
+                <span className="brewery-event-date">{event.date}</span>
+              </div>
+              <div className="brewery-event-time">🕐 {event.time}</div>
+              {event.description && (
+                <div className="brewery-event-desc">{event.description}</div>
+              )}
+              {event.link && (
+                <a 
+                  href={event.link} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="event-link-btn"
+                  style={{ marginTop: '8px' }}
+                >
+                  {t.moreInfo || 'MORE INFO'}
+                </a>
+              )}
+            </div>
+          ))
+        ) : (
+          <p className="no-events">{t.noEvents || 'No upcoming events'}</p>
+        )}
       </div>
 
       {/* Three buttons in a row */}
@@ -229,7 +264,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
           className="action-btn yellow add-beer-cta"
           onClick={() => setShowAddBeer(true)}
         >
-          🍺 {isStamped ? (t.addAnotherBeer || t.addBeer) : (t.addBeerNow || "ADD BEER NOW!")}
+          🍺 {isStamped ? t.addAnotherBeer : t.addBeerNow}
         </button>
       )}
 
@@ -238,7 +273,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
           {t.tag || "Tag"}: {breweryInfo.instagramHandle}
         </div>
         <button className="copy-btn" onClick={copyInstagramHandle}>
-          📋 {t.copyHandle || "COPY HANDLE"}
+          📋 {t.copyHandle}
         </button>
       </div>
 
@@ -258,8 +293,8 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
 
       {!qrValidated && !isStamped && (
         <div className="manual-code-section">
-          <p className="code-label">{t.codeBackup || "Backup: Enter Code"}</p>
-          <p className="code-subtext">{t.codeBackupText || "If QR scan doesn't work, ask staff for the code"}</p>
+          <p className="code-label">{t.codeBackup}</p>
+          <p className="code-subtext">{t.codeBackupText}</p>
           <div className="code-input-row">
             <input
               type="text"

@@ -1,94 +1,72 @@
 import translations from '../translations'
 
-function Leaderboard({ language, onBack, userTime, leaderboardData }) {
+function Leaderboard({ language, onBack, timerStart, completionTime }) {
   const t = translations[language]
+  
+  // Mock leaderboard data - will be replaced with Supabase data
+  const leaderboardData = [
+    // { rank: 1, name: 'John D.', time: '2:34:15' },
+    // { rank: 2, name: 'Sarah M.', time: '3:12:45' },
+  ]
 
   const formatTime = (ms) => {
     if (!ms) return '--:--:--'
-    
-    const totalSeconds = Math.floor(ms / 1000)
-    const hours = Math.floor(totalSeconds / 3600)
-    const minutes = Math.floor((totalSeconds % 3600) / 60)
-    const seconds = totalSeconds % 60
-
-    if (hours > 0) {
-      return `${hours}h ${minutes}m ${seconds}s`
-    } else if (minutes > 0) {
-      return `${minutes}m ${seconds}s`
-    } else {
-      return `${seconds}s`
-    }
+    const hours = Math.floor(ms / 3600000)
+    const minutes = Math.floor((ms % 3600000) / 60000)
+    const seconds = Math.floor((ms % 60000) / 1000)
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
   }
 
-  const formatTimeShort = (ms) => {
-    if (!ms) return '--:--:--'
-    
-    const totalSeconds = Math.floor(ms / 1000)
-    const hours = Math.floor(totalSeconds / 3600)
-    const minutes = Math.floor((totalSeconds % 3600) / 60)
-    const seconds = totalSeconds % 60
-
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+  const getYourStatus = () => {
+    if (completionTime) return t.completed
+    if (timerStart) return t.inProgress
+    return t.notStarted
   }
-
-  // Sort leaderboard by time (fastest first)
-  const sortedLeaderboard = [...(leaderboardData || [])].sort((a, b) => a.time - b.time)
 
   return (
     <div className="leaderboard-page">
-      <button className="back-btn" onClick={onBack}>← BACK</button>
+      <button className="back-btn" onClick={onBack}>← {t.back}</button>
 
-      <div className="leaderboard-header">
-        <div className="trophy-icon">🏆</div>
-        <h1 className="leaderboard-title">{t.leaderboardTitle}</h1>
+      <h1 className="leaderboard-title-compact">{t.leaderboardTitle}</h1>
+
+      {/* Your Time Card - Compact */}
+      <div className="your-time-card-compact">
+        <span className="your-time-label-inline">{t.yourTime}:</span>
+        <span className="your-time-value-inline">
+          {completionTime ? formatTime(completionTime) : (timerStart ? t.inProgress : '--:--:--')}
+        </span>
       </div>
 
-      {/* User's own time */}
-      <div className="your-time-card">
-        <div className="your-time-label">{t.yourTime}</div>
-        <div className="your-time-value">
-          {userTime ? formatTime(userTime) : t.notStarted}
-        </div>
-        {userTime && (
-          <div className="your-time-status">{t.completed} ✅</div>
-        )}
-      </div>
-
-      {/* Leaderboard list */}
+      {/* Leaderboard List */}
       <div className="leaderboard-list">
         <div className="leaderboard-header-row">
-          <div className="lb-rank">{t.rank}</div>
-          <div className="lb-name">{t.name}</div>
-          <div className="lb-time">{t.time}</div>
+          <span>{t.rank}</span>
+          <span>{t.name}</span>
+          <span>{t.time}</span>
         </div>
-
-        {sortedLeaderboard.length > 0 ? (
-          sortedLeaderboard.map((entry, index) => (
-            <div 
-              key={entry.id || index} 
-              className={`leaderboard-row ${index < 3 ? 'top-three' : ''} ${index === 0 ? 'gold' : ''} ${index === 1 ? 'silver' : ''} ${index === 2 ? 'bronze' : ''}`}
-            >
-              <div className="lb-rank">
-                {index === 0 && '🥇'}
-                {index === 1 && '🥈'}
-                {index === 2 && '🥉'}
-                {index > 2 && `#${index + 1}`}
-              </div>
-              <div className="lb-name">{entry.name}</div>
-              <div className="lb-time">{formatTimeShort(entry.time)}</div>
-            </div>
-          ))
-        ) : (
+        
+        {leaderboardData.length === 0 ? (
           <div className="no-completions">
             <p>{t.noCompletionsYet}</p>
-            <div className="first-place-icon">🏆</div>
           </div>
+        ) : (
+          leaderboardData.map((entry, index) => (
+            <div 
+              key={index} 
+              className={`leaderboard-row ${index < 3 ? ['gold', 'silver', 'bronze'][index] : ''}`}
+            >
+              <span className="lb-rank">
+                {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : entry.rank}
+              </span>
+              <span className="lb-name">{entry.name}</span>
+              <span className="lb-time">{entry.time}</span>
+            </div>
+          ))
         )}
       </div>
 
       <div className="leaderboard-footer">
-        <p>Complete all 8 breweries as fast as you can!</p>
-        <p>⏱️ Timer starts on your first stamp</p>
+        <p>{t.yourCompletionTime}: {getYourStatus()}</p>
       </div>
     </div>
   )

@@ -103,6 +103,16 @@ const translations = {
     brewery6Desc: "Backpacker favorite with affordable craft beer options.",
     brewery7Desc: "Cozy taproom with a focus on hop-forward beers.",
     brewery8Desc: "Belgian-style brewery with classic and creative brews.",
+    sideQuest: "SIDE QUEST",
+    bonusChallenge: "Bonus Challenge",
+    comingSoon: "Coming Soon!",
+    beerEvents: "BEER EVENTS",
+    upcomingEvents: "Upcoming Events",
+    trailGuide: "TRAIL GUIDE",
+    upcomingBeerEvents: "UPCOMING BEER EVENTS",
+    upcomingEvents: "UPCOMING EVENTS",
+    noEvents: "No upcoming events",
+    moreInfo: "MORE INFO",
   },
   
   vn: {
@@ -209,6 +219,16 @@ const translations = {
     brewery6Desc: "Địa điểm yêu thích của dân du lịch bụi với bia thủ công giá phải chăng.",
     brewery7Desc: "Quán bia ấm cúng chuyên về các loại bia đậm hương hoa bia.",
     brewery8Desc: "Nhà máy bia kiểu Bỉ với các loại bia cổ điển và sáng tạo.",
+    sideQuest: "NHIỆM VỤ PHỤ",
+    bonusChallenge: "Thử Thách Bonus",
+    comingSoon: "Sắp Ra Mắt!",
+    beerEvents: "SỰ KIỆN BIA",
+    upcomingEvents: "Sự Kiện Sắp Tới",
+    trailGuide: "HƯỚNG DẪN",
+    upcomingBeerEvents: "SỰ KIỆN BIA SẮP TỚI",
+    upcomingEvents: "SỰ KIỆN SẮP TỚI",
+    noEvents: "Không có sự kiện sắp tới",
+    moreInfo: "THÊM THÔNG TIN",
   },
   
   kr: {
@@ -315,6 +335,16 @@ const translations = {
     brewery6Desc: "저렴한 크래프트 맥주를 제공하는 배낭여행자들의 인기 장소.",
     brewery7Desc: "홉 향이 강한 맥주에 집중하는 아늑한 탭룸.",
     brewery8Desc: "클래식하고 창의적인 맥주를 제공하는 벨기에 스타일 양조장.",
+    sideQuest: "사이드 퀘스트",
+    bonusChallenge: "보너스 챌린지",
+    comingSoon: "곧 출시!",
+    beerEvents: "맥주 이벤트",
+    upcomingEvents: "다가오는 이벤트",
+    trailGuide: "트레일 가이드",
+    upcomingBeerEvents: "다가오는 맥주 이벤트",
+    upcomingEvents: "다가오는 이벤트",
+    noEvents: "예정된 이벤트 없음",
+    moreInfo: "더 알아보기",
   },
   
   jp: {
@@ -421,6 +451,16 @@ const translations = {
     brewery6Desc: "お手頃なクラフトビールを提供するバックパッカーに人気の場所。",
     brewery7Desc: "ホップの効いたビールに特化した居心地の良いタップルーム。",
     brewery8Desc: "クラシックで創造的なビールを提供するベルギースタイルの醸造所。",
+    sideQuest: "サイドクエスト",
+    bonusChallenge: "ボーナスチャレンジ",
+    comingSoon: "近日公開！",
+    beerEvents: "ビールイベント",
+    upcomingEvents: "今後のイベント",
+    trailGuide: "トレイルガイド",
+    upcomingBeerEvents: "今後のビールイベント",
+    upcomingEvents: "今後のイベント",
+    noEvents: "予定されているイベントはありません",
+    moreInfo: "詳細",
   }
 }
 

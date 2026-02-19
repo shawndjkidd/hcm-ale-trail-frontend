@@ -1580,6 +1580,7 @@ body {
   width: 100%;
   max-width: 350px;
   height: auto;
+  max-height: 60px;
   object-fit: contain;
 }
 
@@ -1651,7 +1652,7 @@ body {
 .nav-btn-half {
   flex: 1;
   padding: 18px 8px;
-  font-size: 1.7rem;
+  font-size: 2.2rem;
   font-weight: 900;
   font-family: 'Impact', 'Arial Black', sans-serif;
   text-align: center;
@@ -1698,4 +1699,727 @@ body {
     width: 60px;
     height: 60px;
   }
+}
+
+/* ==========================================
+   MY BEERS - COMPACT LAYOUT
+   ========================================== */
+
+.top-rated-list-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.top-beer-compact {
+  background: var(--white);
+  border: 3px solid var(--red-primary);
+  padding: 10px 12px;
+  border-radius: 4px;
+}
+
+.top-beer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.top-beer-name {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--red-primary);
+}
+
+.top-beer-stars {
+  font-size: 0.9rem;
+}
+
+.top-beer-brewery {
+  font-size: 0.85rem;
+  color: var(--black);
+  margin-top: 2px;
+}
+
+/* ==========================================
+   LEADERBOARD - COMPACT LAYOUT
+   ========================================== */
+
+.leaderboard-title-compact {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  color: var(--yellow-primary);
+  text-align: center;
+  margin: 0.5rem 0;
+}
+
+.your-time-card-compact {
+  background: var(--black);
+  border: 3px solid var(--yellow-primary);
+  padding: 12px 16px;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.your-time-label-inline {
+  color: var(--white);
+  font-size: 1rem;
+}
+
+.your-time-value-inline {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--yellow-primary);
+}
+
+/* ==========================================
+   SIDE QUEST BUTTON (GREEN)
+   ========================================== */
+
+.brewery-item.side-quest-green {
+  background: linear-gradient(135deg, #00B050 0%, #008C41 100%);
+  border: 4px solid var(--black);
+}
+
+.brewery-item.side-quest-green .brewery-name {
+  color: var(--yellow-primary);
+}
+
+.brewery-item.side-quest-green .brewery-district {
+  color: var(--white);
+}
+
+.brewery-number.side-quest-green {
+  background: #007A38;
+  color: var(--yellow-primary);
+  font-size: 2rem;
+}
+
+/* ==========================================
+   BEER EVENTS BUTTON
+   ========================================== */
+
+.brewery-item.beer-events {
+  background: linear-gradient(135deg, #E31E24 0%, #C41E3A 100%);
+  border: 4px solid var(--yellow-primary);
+}
+
+.brewery-item.beer-events .brewery-name {
+  color: var(--yellow-primary);
+}
+
+.brewery-item.beer-events .brewery-district {
+  color: var(--white);
+}
+
+.brewery-number.beer-events {
+  background: var(--yellow-primary);
+  color: var(--red-primary);
+  font-size: 2rem;
+  border-right: 4px solid var(--black);
+}
+
+/* ==========================================
+   PROMO SECTIONS
+   ========================================== */
+
+.promo-sections {
+  margin: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.promo-card {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border: 3px solid var(--black);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s;
+  text-decoration: none;
+}
+
+.promo-card:hover {
+  transform: translateX(4px);
+}
+
+.promo-card.spotlight {
+  background: linear-gradient(135deg, #F39C12 0%, #E67E22 100%);
+}
+
+.promo-card.event {
+  background: linear-gradient(135deg, #3498DB 0%, #2980B9 100%);
+}
+
+.promo-card.merch {
+  background: linear-gradient(135deg, #1ABC9C 0%, #16A085 100%);
+}
+
+.promo-icon {
+  font-size: 2rem;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.promo-content {
+  flex: 1;
+}
+
+.promo-label {
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.promo-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--white);
+  margin: 2px 0;
+}
+
+.promo-subtitle {
+  font-size: 0.8rem;
+  color: var(--yellow-primary);
+}
+
+.promo-arrow {
+  font-size: 1.5rem;
+  color: var(--white);
+  margin-left: 8px;
+}
+
+/* ==========================================
+   COMING SOON MODAL
+   ========================================== */
+
+.coming-soon-modal {
+  background: var(--yellow-primary);
+  border: 5px solid var(--black);
+  padding: 2rem;
+  max-width: 350px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 8px 0 var(--black);
+  border-radius: 8px;
+}
+
+.coming-soon-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.coming-soon-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--red-primary);
+  margin-bottom: 0.5rem;
+}
+
+.coming-soon-text {
+  color: var(--black);
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ==========================================
+   MERCHANDISE MODAL
+   ========================================== */
+
+.merch-modal {
+  background: var(--yellow-primary);
+  border: 5px solid var(--black);
+  padding: 1.5rem;
+  max-width: 400px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 0 var(--black);
+  border-radius: 8px;
+  position: relative;
+}
+
+.merch-modal-title {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  color: var(--red-primary);
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.merch-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+
+.merch-item {
+  background: var(--white);
+  border: 3px solid var(--black);
+  padding: 12px;
+  text-align: center;
+  border-radius: 4px;
+}
+
+.merch-item-icon {
+  font-size: 2.5rem;
+  margin-bottom: 8px;
+}
+
+.merch-item-name {
+  font-weight: bold;
+  color: var(--black);
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.merch-item-price {
+  color: var(--red-primary);
+  font-family: var(--font-display);
+  font-size: 1rem;
+}
+
+.merch-contact {
+  text-align: center;
+  color: var(--black);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+/* ==========================================
+   SPECIAL BUTTONS (SIDE QUEST & EVENTS)
+   ========================================== */
+
+.special-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 8px 12px;
+}
+
+.special-btn {
+  padding: 20px;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  text-align: center;
+  border: 4px solid var(--black);
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--black);
+  transition: transform 0.1s, box-shadow 0.1s;
+  text-transform: uppercase;
+}
+
+.special-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--black);
+}
+
+.special-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--black);
+}
+
+.special-btn.green {
+  background: var(--green-primary);
+  color: var(--white);
+}
+
+.special-btn.red {
+  background: var(--yellow-primary);
+  color: var(--red-primary);
+  border: 4px solid var(--black);
+  box-shadow: 4px 4px 0 var(--black);
+}
+
+.special-btn.red:hover {
+  box-shadow: 6px 6px 0 var(--black);
+}
+
+.special-btn.red:active {
+  box-shadow: 2px 2px 0 var(--black);
+}
+/* ==========================================
+   EVENTS MODAL
+   ========================================== */
+
+.events-modal {
+  background: var(--yellow-primary);
+  border: 5px solid var(--black);
+  padding: 1.5rem;
+  max-width: 450px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 0 var(--black);
+  border-radius: 8px;
+  position: relative;
+}
+
+.events-modal-title {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  color: var(--red-primary);
+  text-align: center;
+  margin-bottom: 1rem;
+  padding-right: 30px;
+}
+
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 1rem;
+}
+
+.event-card {
+  background: var(--white);
+  border: 3px solid var(--black);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 3px 3px 0 var(--black);
+}
+
+.event-date-badge {
+  display: inline-flex;
+  flex-direction: column;
+  background: var(--red-primary);
+  color: var(--white);
+  padding: 6px 12px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.event-date {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+}
+
+.event-time {
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
+.event-details {
+  margin-bottom: 8px;
+}
+
+.event-title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  color: var(--red-primary);
+  margin-bottom: 4px;
+}
+
+.event-venue {
+  font-size: 0.9rem;
+  color: var(--black);
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.event-description {
+  font-size: 0.85rem;
+  color: var(--gray);
+  line-height: 1.4;
+}
+
+.event-link-btn {
+  display: inline-block;
+  background: var(--yellow-primary);
+  color: var(--red-primary);
+  padding: 8px 16px;
+  border: 2px solid var(--black);
+  border-radius: 4px;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  text-decoration: none;
+  box-shadow: 2px 2px 0 var(--black);
+  transition: transform 0.1s;
+}
+
+.event-link-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--black);
+}
+
+/* Special button yellow variant */
+.special-btn.yellow {
+  background: var(--yellow-primary);
+  color: var(--red-primary);
+  border: 4px solid var(--black);
+  box-shadow: 4px 4px 0 var(--black);
+}
+
+.special-btn.yellow:hover {
+  box-shadow: 6px 6px 0 var(--black);
+}
+
+.special-btn.yellow:active {
+  box-shadow: 2px 2px 0 var(--black);
+}
+
+/* ==========================================
+   BREWERY EVENTS SECTION
+   ========================================== */
+
+.brewery-events-section {
+  background: var(--white);
+  border: 4px solid var(--black);
+  padding: 1rem;
+  margin: 1rem 0;
+  box-shadow: 4px 4px 0 var(--black);
+}
+
+.brewery-events-title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  color: var(--red-primary);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 3px solid var(--yellow-primary);
+}
+
+.brewery-event-item {
+  background: rgba(255, 209, 0, 0.1);
+  border: 2px solid var(--yellow-primary);
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.brewery-event-item:last-child {
+  margin-bottom: 0;
+}
+
+.brewery-event-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
+.brewery-event-name {
+  font-weight: bold;
+  color: var(--red-primary);
+  font-size: 1rem;
+}
+
+.brewery-event-date {
+  font-size: 0.8rem;
+  color: var(--white);
+  background: var(--red-primary);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.brewery-event-time {
+  font-size: 0.85rem;
+  color: var(--black);
+  margin-bottom: 4px;
+}
+
+.brewery-event-desc {
+  font-size: 0.85rem;
+  color: var(--gray);
+}
+
+.no-events {
+  color: var(--gray);
+  font-style: italic;
+  text-align: center;
+  padding: 1rem;
+}
+/* ==========================================
+   RETRO ARCADE FAQ STYLES
+   ========================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+.faq-content.retro {
+  background: #1a1a2e;
+  border: 6px solid #FFD100;
+  box-shadow: 
+    0 0 0 3px #000,
+    0 0 20px rgba(255, 209, 0, 0.3);
+  padding: 1.5rem;
+  max-width: 420px;
+  position: relative;
+}
+
+.modal-close.retro {
+  background: #E31E24;
+  border: 3px solid #FFD100;
+  color: #FFD100;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.8rem;
+}
+
+.retro-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.retro-title-box {
+  border: 4px solid #FFD100;
+  padding: 16px 24px;
+  display: inline-block;
+  background: linear-gradient(180deg, #E31E24 0%, #a01010 100%);
+  box-shadow: 4px 4px 0 #000;
+}
+
+.retro-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1.3rem;
+  color: #FFD100;
+  text-shadow: 2px 2px 0 #000;
+  margin: 0;
+}
+
+.retro-subtitle {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.65rem;
+  color: #FFD100;
+  margin-top: 16px;
+  animation: blink 1s infinite;
+}
+
+.retro-steps {
+  margin: 1rem 0;
+}
+
+.retro-step {
+  background: rgba(0, 0, 0, 0.4);
+  border: 3px solid #444;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+
+.retro-step:hover {
+  border-color: #FFD100;
+  background: rgba(255, 209, 0, 0.1);
+}
+
+.retro-step.bonus {
+  border-color: #00B050;
+  background: rgba(0, 176, 80, 0.2);
+}
+
+.retro-step-number {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1rem;
+  color: #FFD100;
+  margin-bottom: 8px;
+}
+
+.retro-step.bonus .retro-step-number {
+  color: #00FF00;
+}
+
+.retro-step-text {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: #FFFFFF;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.retro-step-subtext {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  color: #FFD100;
+  margin-top: 6px;
+  padding-left: 12px;
+}
+
+.retro-dots {
+  display: none;
+}
+
+.retro-prize {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.7rem;
+  color: #00FF00;
+  margin-top: 10px;
+  animation: pulse 0.5s infinite alternate;
+}
+
+.retro-banner {
+  background: #E31E24;
+  border: 3px solid #FFD100;
+  padding: 14px;
+  text-align: center;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.8rem;
+  color: #FFFFFF;
+  margin: 1rem 0;
+  box-shadow: 4px 4px 0 #000;
+}
+
+.retro-score {
+  text-align: center;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.65rem;
+  color: #FFD100;
+  margin: 1rem 0;
+}
+
+.retro-btn {
+  display: block;
+  width: 100%;
+  background: linear-gradient(180deg, #00B050 0%, #007030 100%);
+  border: 4px solid #FFD100;
+  padding: 18px;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 #000;
+  transition: all 0.1s;
+}
+
+.retro-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 #000;
+}
+
+.retro-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #000;
+}
+
+.retro-btn .btn-text {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.9rem;
+  color: #FFFFFF;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.retro-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.5rem;
+  color: #666;
+}
+
+.retro-lives {
+  letter-spacing: 4px;
+}
+
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.blink {
+  animation: blink 0.8s infinite;
+  color: #FFD100;
+}
+
+@keyframes pulse {
+  from { text-shadow: 0 0 5px #00FF00; }
+  to { text-shadow: 0 0 15px #00FF00; }
 }

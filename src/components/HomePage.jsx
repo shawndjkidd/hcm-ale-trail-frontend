@@ -1,8 +1,54 @@
 import { useState, useEffect } from 'react'
 import translations from '../translations'
 
+// Sample events data (will come from Supabase later)
+const SAMPLE_EVENTS = [
+  {
+    id: 1,
+    title: 'Tap Takeover Night',
+    date: 'Feb 28, 2025',
+    time: '7:00 PM',
+    breweryId: 1,
+    breweryName: 'BiaCraft',
+    description: 'Special guest taps from local breweries',
+    link: 'https://facebook.com/events/123'
+  },
+  {
+    id: 2,
+    title: 'IPA Festival',
+    date: 'Mar 5, 2025',
+    time: '6:00 PM',
+    breweryId: 2,
+    breweryName: 'Heart of Darkness',
+    description: '10+ IPAs on tap, live music',
+    link: 'https://facebook.com/events/456'
+  },
+  {
+    id: 3,
+    title: 'Brew & Quiz Night',
+    date: 'Mar 8, 2025',
+    time: '8:00 PM',
+    breweryId: 5,
+    breweryName: 'East West Brewing',
+    description: 'Trivia night with beer prizes',
+    link: null
+  },
+  {
+    id: 4,
+    title: 'St. Patrick\'s Day Party',
+    date: 'Mar 17, 2025',
+    time: '5:00 PM',
+    breweryId: 8,
+    breweryName: 'Belgo Saigon',
+    description: 'Green beer, Irish food, live music all night',
+    link: 'https://facebook.com/events/789'
+  },
+]
+
 function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onNavigate, resetCard }) {
   const [showCompletionModal, setShowCompletionModal] = useState(false)
+  const [showSideQuestModal, setShowSideQuestModal] = useState(false)
+  const [showEventsModal, setShowEventsModal] = useState(false)
   const [hatClaimed, setHatClaimed] = useState(false)
   
   const t = translations[language]
@@ -35,7 +81,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
 
   return (
     <div className="home-page">
-      {/* Language Flags - Larger, Less Gap */}
+      {/* Language Flags */}
       <div className="language-toggle-large">
         <button 
           className={`flag-btn-large ${language === 'en' ? 'active' : ''}`}
@@ -63,19 +109,19 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         </button>
       </div>
 
-      {/* Logo Image Instead of Text */}
+      {/* Logo */}
       <div className="header-logo">
         <img 
-         src="/logos/HCM Logo-Ale-Trail-2023-BK.png"
+          src="/logos/HCM Logo-Ale-Trail-2023-BK.png"
           alt="HCM Ale Trail" 
           className="header-logo-img"
         />
       </div>
 
-      {/* Row 1: FAQ, Website, Google */}
+      {/* Row 1: Trail Guide, Website, Google Maps */}
       <div className="nav-row-full">
         <button className="nav-btn-third yellow" onClick={() => onNavigate('faq')}>
-          {t.faq}
+          {t.trailGuide || 'TRAIL GUIDE'}
         </button>
         <a 
           href="https://www.hochiminhaletrail.com/" 
@@ -85,7 +131,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         >
           {t.website}
         </a>
-       <a 
+        <a 
           href="https://www.google.com/maps/d/u/1/viewer?mid=1ZO-30TD2syibuwwqGF7wDxwHACOEsBQ&ll=10.77928527172877%2C106.69519550000001&z=15" 
           target="_blank" 
           rel="noopener noreferrer"
@@ -140,10 +186,10 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
       {/* Row 3: My Beers & Leaderboard */}
       <div className="nav-row-full">
         <button className="nav-btn-half yellow" onClick={() => onNavigate('mybeers')}>
-           {t.myBeers}
+          {t.myBeers}
         </button>
         <button className="nav-btn-half yellow" onClick={() => onNavigate('leaderboard')}>
-           {t.leaderboard || 'LEADERBOARD'}
+          {t.leaderboard}
         </button>
       </div>
 
@@ -184,6 +230,22 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         })}
       </div>
 
+      {/* Side Quest & Events - Clean Buttons */}
+      <div className="special-buttons">
+        <button 
+          className="special-btn green"
+          onClick={() => setShowSideQuestModal(true)}
+        >
+          {t.sideQuest || 'SIDE QUEST'}
+        </button>
+        <button 
+          className="special-btn yellow"
+          onClick={() => setShowEventsModal(true)}
+        >
+          {t.upcomingBeerEvents || 'UPCOMING BEER EVENTS'}
+        </button>
+      </div>
+
       <div className="footer">
         <div className="footer-year">HCM ALE TRAIL 2025</div>
         <button className="reset-btn" onClick={resetCard}>
@@ -191,41 +253,97 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         </button>
       </div>
 
+      {/* Side Quest Modal */}
+      {showSideQuestModal && (
+        <div className="modal-overlay" onClick={() => setShowSideQuestModal(false)}>
+          <div className="coming-soon-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="coming-soon-icon">🎯</div>
+            <h2 className="coming-soon-title">{t.sideQuest || 'SIDE QUEST'}</h2>
+            <p className="coming-soon-text">{t.comingSoon || 'Coming Soon!'}</p>
+            <button className="ok-btn" onClick={() => setShowSideQuestModal(false)}>
+              {t.ok}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Events Modal */}
+      {showEventsModal && (
+        <div className="modal-overlay" onClick={() => setShowEventsModal(false)}>
+          <div className="events-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setShowEventsModal(false)}>✕</button>
+            <h2 className="events-modal-title">{t.upcomingBeerEvents || 'UPCOMING BEER EVENTS'}</h2>
+            
+            <div className="events-list">
+              {SAMPLE_EVENTS.map(event => (
+                <div key={event.id} className="event-card">
+                  <div className="event-date-badge">
+                    <span className="event-date">{event.date}</span>
+                    <span className="event-time">{event.time}</span>
+                  </div>
+                  <div className="event-details">
+                    <h3 className="event-title">{event.title}</h3>
+                    <p className="event-venue">📍 {event.breweryName}</p>
+                    {event.description && (
+                      <p className="event-description">{event.description}</p>
+                    )}
+                  </div>
+                  {event.link && (
+                    <a 
+                      href={event.link} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="event-link-btn"
+                    >
+                      {t.moreInfo || 'MORE INFO'}
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <button className="ok-btn" onClick={() => setShowEventsModal(false)}>
+              {t.close || 'CLOSE'}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Completion Modal */}
       {showCompletionModal && (
         <div className="modal-overlay">
           <div className="completion-modal">
             <button className="modal-close" onClick={handleCloseCompletionModal}>✕</button>
             <div className="completion-icon">🎉</div>
-            <h2 className="completion-title">CONGRATULATIONS!</h2>
-            <p className="completion-subtitle">You've completed the HCM Ale Trail!</p>
+            <h2 className="completion-title">{t.congratulations}</h2>
+            <p className="completion-subtitle">{t.completedTrail}</p>
             
             <div className="completion-steps">
               <div className="completion-step">
                 <div className="step-number-circle">1</div>
-                <div className="step-text">Show your server, bartender, or staff your completed card</div>
+                <div className="step-text">{t.completionStep1}</div>
               </div>
               <div className="completion-step">
                 <div className="step-number-circle">2</div>
-                <div className="step-text">The staff will get you your free hat</div>
+                <div className="step-text">{t.completionStep2}</div>
               </div>
               <div className="completion-step">
                 <div className="step-number-circle">3</div>
-                <div className="step-text">Help us grow! Share your experience and tag us on social media. Thank you for supporting Saigon's craft beer scene! 🍺</div>
+                <div className="step-text">{t.completionStep3}</div>
               </div>
             </div>
 
             {!hatClaimed ? (
               <button className="completion-ok-btn" onClick={handleClaimHat}>
-                CLAIM MY FREE HAT!
+                {t.claimHat}
               </button>
             ) : (
               <>
                 <div className="hat-claimed-message">
-                  ✅ Hat already claimed! Thank you for participating!
+                  {t.hatClaimed}
                 </div>
                 <button className="completion-ok-btn claimed" onClick={handleCloseCompletionModal}>
-                  CLOSE
+                  {t.close}
                 </button>
               </>
             )}
