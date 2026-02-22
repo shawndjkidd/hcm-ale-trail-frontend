@@ -1,17 +1,70 @@
-// src/lib/api.js
 import { API_BASE, TRAIL_ID, AUTH_TOKEN_STORAGE_KEY } from "../config";
 
-// Adds Authorization header if you stored a Supabase access token in localStorage.
-function authHeaders(extra = {}) {
-  // localStorage only exists in browser
-  let token = null;
+const REFRESH_TOKEN_STORAGE_KEY = "hcm-refresh-token";
+
+// --- token helpers ---
+export function getAccessToken() {
   try {
-    token = localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
+    return localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function getRefreshToken() {
+  try {
+    return localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function setTokens({ access_token, refresh_token } = {}) {
+  try {
+    if (access_token) localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, access_token);
+    if (refresh_token) localStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, refresh_token);
   } catch {}
+}
+
+export function clearTokens() {
+  try {
+    localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+  } catch {}
+}
+
+function authHeaders(extra = {}) {
+  const token = getAccessToken();
   return token ? { ...extra, Authorization: `Bearer ${token}` } : { ...extra };
 }
 
-async function request(path, { method = "GET", body, headers } = {}) {
+async function safeJson(res) {
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { ok: false, error: text || "Non-JSON response" };
+  }
+}
+
+async function refreshIfPossible() {
+  const refresh_token = getRefreshToken();
+  if (!refresh_token) return { ok: false };
+
+  const res = await fetch(`${API_BASE}/auth/refresh`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ refresh_token }),
+  });
+
+  const data = await safeJson(res);
+  if (!res.ok || !data?.ok) return { ok: false, error: data?.error || "Refresh failed" };
+
+  setTokens({ access_token: data.access_token, refresh_token: data.refresh_token });
+  return { ok: true, access_token: data.access_token };
+}
+
+async function request(path, { method = "GET", body, headers } = {}, { retryOn401 = true } = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
     method,
     headers: authHeaders({
@@ -21,33 +74,45 @@ async function request(path, { method = "GET", body, headers } = {}) {
     body: body ? JSON.stringify(body) : undefined,
   });
 
-  // Try to parse JSON, but don’t explode if backend returns HTML
-  const text = await res.text();
-  let data;
-  try {
-    data = JSON.parse(text);
-  } catch {
-    data = { ok: false, error: text || "Non-JSON response" };
+  // If expired token, try refresh once then retry
+  if (res.status === 401 && retryOn401) {
+    const refreshed = await refreshIfPossible();
+    if (refreshed.ok) {
+      return request(path, { method, body, headers }, { retryOn401: false });
+    }
   }
 
+  const data = await safeJson(res);
   if (!res.ok) {
-    const msg = data?.error || data?.message || `HTTP ${res.status}`;
-    const err = new Error(msg);
-    err.status = res.status;
-    err.data = data;
-    throw err;
+    const msg = data?.error || `Request failed (${res.status})`;
+    return { ok: false, status: res.status, error: msg, data };
   }
 
   return data;
 }
 
-// -------------------------
-// Trail-level endpoints
-// -------------------------
-export function health() {
-  return request(`/health`);
+// --- auth ---
+export async function login(email, password) {
+  const res = await fetch(`${API_BASE}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: (email || "").trim(), password: password || "" }),
+  });
+
+  const data = await safeJson(res);
+  if (!res.ok || !data?.ok) {
+    return { ok: false, error: data?.error || "Login failed" };
+  }
+
+  setTokens({ access_token: data.access_token, refresh_token: data.refresh_token });
+  return data;
 }
 
+export function logout() {
+  clearTokens();
+}
+
+// --- trail endpoints ---
 export function getTrailQr(trailId = TRAIL_ID) {
   return request(`/trails/${trailId}/qr`);
 }
@@ -56,9 +121,14 @@ export function getBreweries(trailId = TRAIL_ID) {
   return request(`/trails/${trailId}/breweries`);
 }
 
-// -------------------------
-// Authenticated endpoints
-// -------------------------
+export function getEvents(trailId = TRAIL_ID) {
+  return request(`/trails/${trailId}/events`);
+}
+
+export function getLeaderboard(trailId = TRAIL_ID) {
+  return request(`/trails/${trailId}/leaderboard`);
+}
+
 export function getMe(trailId = TRAIL_ID) {
   return request(`/trails/${trailId}/me`);
 }
@@ -71,32 +141,20 @@ export function claimHat(trailId = TRAIL_ID) {
   return request(`/trails/${trailId}/me/claim-hat`, { method: "POST" });
 }
 
-// -------------------------
-// Brewery endpoints
-// -------------------------
-export function getBrewery(trailId = TRAIL_ID, breweryId) {
+export function getBreweryDetail(trailId = TRAIL_ID, breweryId) {
   return request(`/trails/${trailId}/breweries/${breweryId}`);
 }
 
-export function checkinWithManualCode(trailId = TRAIL_ID, breweryId, code) {
+export function postCheckin(trailId = TRAIL_ID, breweryId, payload) {
   return request(`/trails/${trailId}/breweries/${breweryId}/checkin`, {
     method: "POST",
-    body: { method: "manual_code", code },
+    body: payload || {},
   });
 }
 
-// If you later enable QR validation routes, you can swap this
-// to call /qr or /qr.png endpoints.
-export function checkinWithQr(trailId = TRAIL_ID, breweryId, payload = {}) {
-  return request(`/trails/${trailId}/breweries/${breweryId}/checkin`, {
-    method: "POST",
-    body: { method: "qr_scan", ...payload },
-  });
-}
-
-export function submitRating(trailId = TRAIL_ID, breweryId, { beer_name, rating, notes }) {
+export function postRating(trailId = TRAIL_ID, breweryId, payload) {
   return request(`/trails/${trailId}/breweries/${breweryId}/ratings`, {
     method: "POST",
-    body: { beer_name, rating, notes },
+    body: payload || {},
   });
 }
