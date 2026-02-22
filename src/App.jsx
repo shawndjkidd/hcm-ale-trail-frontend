@@ -9,118 +9,44 @@ import translations from './translations'
 import { recordCheckin } from './lib/supabase'
 import './styles/App.css'
 
-// Ho Chi Minh Ale Trail 2026 trail_id (Supabase UUID)
-const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a921'
-
 // IMPORTANT: These ids are UUIDs from your backend /breweries endpoint.
-// display_order matches stop #1..#8
 const BREWERIES = [
-  {
-    id: '8c3dc4f3-e100-4d63-be0e-ee8b65da8fee',
-    display_order: 1,
-    name: 'BiaCraft',
-    district: 'District 3',
-    address: '1 Le Ngo Cat, Phuong Vo Thi Sau, Quan 3',
-    description: 'Craft beer bar with a wide selection of local and international brews.',
-    logo_url: '/logos/biacraft.png',
-  },
-  {
-    id: '3f80a715-b664-423d-a04d-3d22fcdeb339',
-    display_order: 2,
-    name: 'Heart of Darkness',
-    district: 'District 1',
-    address: '31D Ly Tu Trong, Ben Nghe, Quan 1',
-    description: 'Award-winning craft brewery with bold, innovative beers.',
-    logo_url: '/logos/hod.png',
-  },
-  {
-    id: '6b29d3f2-6b0e-4404-af89-40d7bc7482c5',
-    display_order: 3,
-    name: 'Deme',
-    district: 'District 3',
-    address: '25 Ngo Thoi Nhiem, Ward 6, Quan 3',
-    description: 'Hidden gem serving unique craft beers in a cozy setting.',
-    logo_url: '/logos/deme.png',
-  },
-  {
-    id: 'c1fb805f-4010-4e8c-85cf-634f6a681308',
-    display_order: 4,
-    name: 'Steersman',
-    district: 'District 2',
-    address: '34 Nguyen Van Dau, Thao Dien, Quan 2',
-    description: 'Relaxed brewery with house-made beers and great food.',
-    logo_url: '/logos/steersman.png',
-  },
-  {
-    id: 'f094c3fc-e07d-4678-919a-923a6b80502a',
-    display_order: 5,
-    name: 'East West Brewing',
-    district: 'District 1',
-    address: '181-185 Ly Tu Trong, Ben Thanh, Quan 1',
-    description: 'Large brewpub with American-style craft beers brewed on-site.',
-    logo_url: '/logos/eastwest.png',
-  },
-  {
-    id: '1ba7a599-f91c-425d-98e7-275dd0efbb06',
-    display_order: 6,
-    name: 'Rooster Beers',
-    district: 'District 1',
-    address: '40 Bui Vien, Phuong Pham Ngu Lao, Quan 1',
-    description: 'Backpacker favorite with affordable craft beer options.',
-    logo_url: '/logos/rooster.png',
-  },
-  {
-    id: 'd098db66-258b-445e-ad92-c0e769b427c1',
-    display_order: 7,
-    name: '7 Bridges Brewing Co.',
-    district: 'District 1',
-    address: '38 Dong Du, Ben Nghe, Quan 1',
-    description: 'Cozy taproom with a focus on hop-forward beers.',
-    logo_url: '/logos/7bridges.png',
-  },
-  {
-    id: '64393821-1783-4892-8b18-019898d170ce',
-    display_order: 8,
-    name: 'Belgo Saigon',
-    district: 'District 1',
-    address: '29-31 Ton That Thiep, Ben Nghe, Quan 1',
-    description: 'Belgian-style brewery with classic and creative brews.',
-    logo_url: '/logos/belgo.png',
-  },
+  { id: '8c3dc4f3-e100-4d63-be0e-ee8b65da8fee', name: 'BiaCraft', district: 'District 3', address: '1 Le Ngo Cat, Phuong Vo Thi Sau, Quan 3', description: 'Craft beer bar with a wide selection of local and international brews.', logo_url: '/logos/biacraft.png' },
+  { id: '3f80a715-b664-423d-a04d-3d22fcdeb339', name: 'Heart of Darkness', district: 'District 1', address: '31D Ly Tu Trong, Ben Nghe, Quan 1', description: 'Award-winning craft brewery with bold, innovative beers.', logo_url: '/logos/hod.png' },
+  { id: '6b29d3f2-6b0e-4404-af89-40d7bc7482c5', name: 'Deme', district: 'District 3', address: '25 Ngo Thoi Nhiem, Ward 6, Quan 3', description: 'Hidden gem serving unique craft beers in a cozy setting.', logo_url: '/logos/deme.png' },
+  { id: 'c1fb805f-4010-4e8c-85cf-634f6a681308', name: 'Steersman', district: 'TBD', address: '34 Nguyen Van Dau, Thao Dien, Quan 2', description: 'Relaxed brewery with house-made beers and great food.', logo_url: '/logos/steersman.png' },
+  { id: 'f094c3fc-e07d-4678-919a-923a6b80502a', name: 'East West Brewing', district: 'TBD', address: '181-185 Ly Tu Trong, Ben Thanh, Quan 1', description: 'Large brewpub with American-style craft beers brewed on-site.', logo_url: '/logos/eastwest.png' },
+  { id: '1ba7a599-f91c-425d-98e7-275dd0efbb06', name: 'Rooster Beers', district: 'TBD', address: '40 Bui Vien, Phuong Pham Ngu Lao, Quan 1', description: 'Backpacker favorite with affordable craft beer options.', logo_url: '/logos/rooster.png' },
+  { id: 'd098db66-258b-445e-ad92-c0e769b427c1', name: '7 Bridges Brewing Co.', district: 'TBD', address: '38 Dong Du, Ben Nghe, Quan 1', description: 'Cozy taproom with a focus on hop-forward beers.', logo_url: '/logos/7bridges.png' },
+  { id: '64393821-1783-4892-8b18-019898d170ce', name: 'Belgo Saigon', district: 'TBD', address: '29-31 Ton That Thiep, Ben Nghe, Quan 1', description: 'Belgian-style brewery with classic and creative brews.', logo_url: '/logos/belgo.png' }
 ]
 
-// map 1..8 -> UUID (for legacy ?brewery=1 QR style)
-const ORDER_TO_ID = Object.fromEntries(BREWERIES.map(b => [String(b.display_order), b.id]))
-
+// Accepts BOTH:
+// - /brewery/<uuid>
+// - ?brewery=<uuid> (legacy)
 function parseBreweryFromUrl() {
-  // Supports:
-  // 1) /brewery/<uuid>
-  // 2) /brewery/<1-8>  (legacy numeric)
-  // 3) ?brewery=<uuid> or ?brewery=<1-8>
-  const pathname = window.location.pathname || '/'
-  const qs = new URLSearchParams(window.location.search)
+  try {
+    const path = window.location.pathname || '/'
+    const parts = path.split('/').filter(Boolean)
 
-  // Path: /brewery/:id
-  const m = pathname.match(/^\/brewery\/([^/]+)\/?$/i)
-  if (m && m[1]) {
-    const raw = decodeURIComponent(m[1]).trim()
-    if (ORDER_TO_ID[raw]) return ORDER_TO_ID[raw] // numeric -> uuid
-    return raw // uuid
+    // /brewery/<uuid>
+    if (parts.length >= 2 && parts[0] === 'brewery') {
+      const id = parts[1]
+      if (id && id.length >= 10) return id
+    }
+
+    // legacy: ?brewery=<uuid>
+    const urlParams = new URLSearchParams(window.location.search)
+    const q = urlParams.get('brewery')
+    if (q && q.length >= 10) return q
+
+    return null
+  } catch {
+    return null
   }
-
-  // Query: ?brewery=
-  const q = qs.get('brewery')
-  if (q) {
-    const raw = q.trim()
-    if (ORDER_TO_ID[raw]) return ORDER_TO_ID[raw]
-    return raw
-  }
-
-  return null
 }
 
 function App() {
-  // stamps now store UUID strings
   const [stamps, setStamps] = useState([])
   const [beers, setBeers] = useState([])
   const [selectedBrewery, setSelectedBrewery] = useState(null)
@@ -136,6 +62,18 @@ function App() {
   const pendingQR = useRef(null)
   const t = translations[language]
 
+  // HARD "go home" (state + URL)
+  const goHome = () => {
+    setSelectedBrewery(null)
+    setQrValidated(false)
+    setView('home')
+
+    // Reset URL so refresh doesn't stick you on a brewery
+    try {
+      window.history.pushState({}, '', '/')
+    } catch {}
+  }
+
   useEffect(() => {
     const savedStamps = localStorage.getItem('hcm-stamps')
     const savedBeers = localStorage.getItem('hcm-beers')
@@ -145,34 +83,17 @@ function App() {
     const savedTimerEnd = localStorage.getItem('hcm-timer-end')
     const savedLeaderboard = localStorage.getItem('hcm-leaderboard')
 
-    if (savedStamps) {
-      try {
-        const raw = JSON.parse(savedStamps)
-        // migrate old numeric stamps [1,2,...] -> uuid stamps
-        const migrated = (Array.isArray(raw) ? raw : [])
-          .map((x) => {
-            const s = String(x)
-            if (ORDER_TO_ID[s]) return ORDER_TO_ID[s]
-            return s
-          })
-          .filter(Boolean)
-        setStamps(migrated)
-      } catch {
-        setStamps([])
-      }
-    }
-
+    if (savedStamps) setStamps(JSON.parse(savedStamps))
     if (savedBeers) setBeers(JSON.parse(savedBeers))
     if (savedLang) setLanguage(savedLang)
     if (savedTimerStart) setTimerStart(parseInt(savedTimerStart))
     if (savedTimerEnd) setTimerEnd(parseInt(savedTimerEnd))
     if (savedLeaderboard) setLeaderboardData(JSON.parse(savedLeaderboard))
 
-    // NEW: accept deep links via /brewery/<uuid> OR ?brewery=<uuid|1-8>
     const breweryId = parseBreweryFromUrl()
 
     if (breweryId) {
-      const brewery = BREWERIES.find((b) => b.id === breweryId)
+      const brewery = BREWERIES.find(b => b.id === breweryId)
       if (brewery) {
         pendingQR.current = { brewery, breweryId }
 
@@ -186,9 +107,6 @@ function App() {
           setShowWelcome(true)
         }
       }
-
-      // Clean URL after processing (nice UX)
-      window.history.replaceState({}, '', '/')
     } else {
       if (savedUser) {
         setUser(JSON.parse(savedUser))
@@ -197,6 +115,24 @@ function App() {
         setShowWelcome(true)
       }
     }
+
+    // If user presses browser back/forward, keep UI in sync
+    const onPop = () => {
+      const id = parseBreweryFromUrl()
+      if (id) {
+        const b = BREWERIES.find(x => x.id === id)
+        if (b) {
+          setSelectedBrewery(b)
+          setView('brewery')
+          return
+        }
+      }
+      setSelectedBrewery(null)
+      setView('home')
+    }
+
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
   }, [])
 
   useEffect(() => {
@@ -229,14 +165,12 @@ function App() {
   }
 
   const addStamp = async (breweryId) => {
-    // breweryId should be UUID string
     if (!stamps.includes(breweryId)) {
       const newStamps = [...stamps, breweryId]
       setStamps(newStamps)
 
       if (user?.id) {
         try {
-          // keep your existing integration – now storing UUID brewery ids
           const { error } = await recordCheckin(user.id, breweryId, 'qr_scan')
           if (error) {
             console.log('Error saving check-in to Supabase:', error)
@@ -265,7 +199,7 @@ function App() {
             id: Date.now(),
             name: user.name,
             time: completionTime,
-            completedAt: new Date().toISOString(),
+            completedAt: new Date().toISOString()
           }
           const updatedLeaderboard = [...leaderboardData, newEntry]
           setLeaderboardData(updatedLeaderboard)
@@ -283,6 +217,11 @@ function App() {
     setSelectedBrewery(brewery)
     setQrValidated(false)
     setView('brewery')
+
+    // Put a nice URL in the bar (works with vercel rewrite)
+    try {
+      window.history.pushState({}, '', `/brewery/${brewery.id}`)
+    } catch {}
   }
 
   const handleNavigate = (newView) => {
@@ -290,6 +229,11 @@ function App() {
     if (newView !== 'brewery') {
       setSelectedBrewery(null)
       setQrValidated(false)
+      if (newView === 'home') {
+        try {
+          window.history.pushState({}, '', '/')
+        } catch {}
+      }
     }
   }
 
@@ -338,55 +282,56 @@ function App() {
         <HomePage
           breweries={BREWERIES}
           stamps={stamps}
-          beers={beers}
           onBreweryClick={handleBreweryClick}
           onNavigate={handleNavigate}
           onReset={resetCard}
           language={language}
           setLanguage={setLanguage}
-          completionTime={getUserCompletionTime()}
+          user={user}
+          timerStart={timerStart}
+          timerEnd={timerEnd}
         />
       )}
 
       {view === 'brewery' && selectedBrewery && (
         <BreweryDetail
           brewery={selectedBrewery}
+          breweries={BREWERIES}
           stamps={stamps}
           beers={beers}
-          onAddStamp={addStamp}
-          onAddBeer={addBeer}
-          onNavigate={handleNavigate}
+          addStamp={addStamp}
+          addBeer={addBeer}
           qrValidated={qrValidated}
+          setQrValidated={setQrValidated}
+          onBack={goHome}
           language={language}
-          setLanguage={setLanguage}
-          trailId={TRAIL_ID}
+          user={user}
         />
       )}
 
       {view === 'faq' && (
         <FAQ
-          onNavigate={handleNavigate}
+          onBack={() => handleNavigate('home')}
           language={language}
-          setLanguage={setLanguage}
+          user={user}
         />
       )}
 
-      {view === 'mybeers' && (
+      {view === 'beers' && (
         <MyBeers
           beers={beers}
-          breweries={BREWERIES}
-          onNavigate={handleNavigate}
+          onBack={() => handleNavigate('home')}
           language={language}
-          setLanguage={setLanguage}
         />
       )}
 
       {view === 'leaderboard' && (
         <Leaderboard
-          leaderboardData={leaderboardData}
-          onNavigate={handleNavigate}
+          leaderboard={leaderboardData}
+          user={user}
+          completionTime={getUserCompletionTime()}
+          onBack={() => handleNavigate('home')}
           language={language}
-          setLanguage={setLanguage}
         />
       )}
     </div>
