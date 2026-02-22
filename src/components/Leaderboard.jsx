@@ -1,13 +1,10 @@
 import translations from '../translations'
 
-function Leaderboard({ language, onBack, timerStart, completionTime }) {
+function Leaderboard({ language, onBack, timerStart, completionTime, leaderboard = [], user }) {
   const t = translations[language]
   
-  // Mock leaderboard data - will be replaced with Supabase data
-  const leaderboardData = [
-    // { rank: 1, name: 'John D.', time: '2:34:15' },
-    // { rank: 2, name: 'Sarah M.', time: '3:12:45' },
-  ]
+  // Use passed leaderboard data, or empty array
+  const leaderboardData = leaderboard || []
 
   const formatTime = (ms) => {
     if (!ms) return '--:--:--'
@@ -15,6 +12,13 @@ function Leaderboard({ language, onBack, timerStart, completionTime }) {
     const minutes = Math.floor((ms % 3600000) / 60000)
     const seconds = Math.floor((ms % 60000) / 1000)
     return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+  }
+
+  // Format time from either ms number or pre-formatted string
+  const formatEntryTime = (time) => {
+    if (typeof time === 'number') return formatTime(time)
+    if (typeof time === 'string') return time
+    return '--:--:--'
   }
 
   const getYourStatus = () => {
@@ -52,14 +56,14 @@ function Leaderboard({ language, onBack, timerStart, completionTime }) {
         ) : (
           leaderboardData.map((entry, index) => (
             <div 
-              key={index} 
+              key={entry.id || index} 
               className={`leaderboard-row ${index < 3 ? ['gold', 'silver', 'bronze'][index] : ''}`}
             >
               <span className="lb-rank">
-                {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : entry.rank}
+                {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
               </span>
-              <span className="lb-name">{entry.name}</span>
-              <span className="lb-time">{entry.time}</span>
+              <span className="lb-name">{entry.name || 'Anonymous'}</span>
+              <span className="lb-time">{formatEntryTime(entry.time)}</span>
             </div>
           ))
         )}

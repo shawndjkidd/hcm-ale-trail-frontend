@@ -78,13 +78,48 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
   const [showSharePrompt, setShowSharePrompt] = useState(false)
 
   const t = translations[language]
-  const isStamped = stamps.includes(brewery.id)
-  const breweryBeers = beers.filter(b => b.breweryId === brewery.id)
-  const breweryInfo = BREWERY_DATA[brewery.name] || {}
+  const isStamped = stamps.includes(brewery?.id)
+  const breweryBeers = beers.filter(b => b.breweryId === brewery?.id)
+  
+  // Merge backend data with hardcoded social links (until backend provides these)
+  const hardcodedInfo = BREWERY_DATA[brewery?.name] || {}
+  const breweryInfo = {
+    instagram: brewery?.instagram_url || hardcodedInfo.instagram,
+    facebook: brewery?.facebook_url || hardcodedInfo.facebook,
+    maps: brewery?.maps_url || hardcodedInfo.maps,
+    instagramHandle: brewery?.instagram_handle || hardcodedInfo.instagramHandle,
+    code: brewery?.manual_code || hardcodedInfo.code,
+  }
+  
   const isFirstStamp = stamps.length === 0
   
+  // Get description in current language (with fallbacks)
+  const getDescription = () => {
+    // 1. Try description_i18n for current language
+    if (brewery?.description_i18n?.[language]) {
+      return brewery.description_i18n[language]
+    }
+    // 2. Try description_i18n for English
+    if (brewery?.description_i18n?.en) {
+      return brewery.description_i18n.en
+    }
+    // 3. Try normalized description (already a string)
+    if (typeof brewery?.description === 'string') {
+      return brewery.description
+    }
+    // 4. Try description object directly (shouldn't happen after normalization)
+    if (typeof brewery?.description === 'object' && brewery.description?.[language]) {
+      return brewery.description[language]
+    }
+    if (typeof brewery?.description === 'object' && brewery.description?.en) {
+      return brewery.description.en
+    }
+    // 5. Final fallback
+    return ''
+  }
+  
   // Get events for this brewery
-  const breweryEvents = SAMPLE_EVENTS.filter(e => e.breweryId === brewery.id)
+  const breweryEvents = SAMPLE_EVENTS.filter(e => e.breweryId === brewery?.id)
 
   useEffect(() => {
     if (qrValidated && !isStamped) {
@@ -135,7 +170,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
   }
 
   const copyInstagramHandle = () => {
-    const handle = breweryInfo.instagramHandle || `@${brewery.name.toLowerCase().replace(/\s/g, '')}`
+    const handle = breweryInfo.instagramHandle || `@${(brewery?.name || 'brewery').toLowerCase().replace(/\s/g, '')}`
     navigator.clipboard.writeText(handle)
     setMessage({ type: 'success', text: `✅ Copied: ${handle}` })
     setTimeout(() => setMessage(null), 3000)
@@ -188,9 +223,9 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
       )}
 
       <div className="brewery-info-card">
-        <h1 className="brewery-title">{brewery.name}</h1>
-        <p className="brewery-address">📍 {brewery.address}</p>
-        <p className="brewery-description">{t[`brewery${brewery.id}Desc`] || brewery.description}</p>
+        <h1 className="brewery-title">{brewery?.name || 'Brewery'}</h1>
+        <p className="brewery-address">📍 {brewery?.address || ''}</p>
+        <p className="brewery-description">{getDescription()}</p>
       </div>
 
       {/* Upcoming Events at this Brewery */}
@@ -279,7 +314,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
 
       {breweryBeers.length > 0 && (
         <div className="brewery-beers">
-          <h3>{t.beersAt} {brewery.name}:</h3>
+          <h3>{t.beersAt} {brewery?.name || 'this brewery'}:</h3>
           {breweryBeers.map(beer => (
             <div key={beer.id} className="beer-item">
               <div className="beer-name">{beer.name}</div>
