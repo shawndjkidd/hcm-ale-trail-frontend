@@ -170,3 +170,17 @@ export function postRating(trailId = TRAIL_ID, breweryId, payload) {
     body: payload || {},
   });
 }
+/**
+ * Back-compat helper (older AuthModal expects this).
+ * Stores tokens returned by /api/auth/login.
+ */
+export function storeLoginTokens(data) {
+  try {
+    if (!data) return;
+    setTokens({
+      access_token: data.access_token,
+      refresh_token: data.refresh_token,
+      expires_at: data.expires_at,
+    });
+  } catch {}
+}
