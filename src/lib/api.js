@@ -1,32 +1,58 @@
-import { API_BASE, TRAIL_ID, AUTH_TOKEN_STORAGE_KEY } from "../config";
+import { API_BASE, TRAIL_ID } from "../config";
 
-const REFRESH_TOKEN_KEY = "hcm-refresh-token";
-const EXPIRES_AT_KEY = "hcm-expires-at"; // unix seconds
+const ACCESS_KEY = "hcm-access-token";
+const REFRESH_KEY = "hcm-refresh-token";
+const EXPIRES_AT_KEY = "hcm-expires-at"; // unix seconds (optional)
 
-function getStoredAuth() {
+function safeJsonParse(text) {
   try {
-    const access_token = localStorage.getItem(AUTH_TOKEN_STORAGE_KEY) || "";
-    const refresh_token = localStorage.getItem(REFRESH_TOKEN_KEY) || "";
-    const expires_at_raw = localStorage.getItem(EXPIRES_AT_KEY) || "";
-    const expires_at = expires_at_raw ? Number(expires_at_raw) : null;
-    return { access_token, refresh_token, expires_at };
+    return JSON.parse(text);
   } catch {
-    return { access_token: "", refresh_token: "", expires_at: null };
+    return null;
   }
 }
 
-function setStoredAuth({ access_token, refresh_token, expires_at } = {}) {
+export function getAccessToken() {
   try {
-    if (access_token) localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, access_token);
-    if (refresh_token) localStorage.setItem(REFRESH_TOKEN_KEY, refresh_token);
-    if (typeof expires_at === "number" && Number.isFinite(expires_at)) {
-      localStorage.setItem(EXPIRES_AT_KEY, String(expires_at));
-    }
+    return localStorage.getItem(ACCESS_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function getRefreshToken() {
+  try {
+    return localStorage.getItem(REFRESH_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function setTokens({ access_token, refresh_token, expires_at } = {}) {
+  try {
+    if (access_token) localStorage.setItem(ACCESS_KEY, access_token);
+    if (refresh_token) localStorage.setItem(REFRESH_KEY, refresh_token);
+    if (expires_at) localStorage.setItem(EXPIRES_AT_KEY, String(expires_at));
   } catch {}
 }
 
-export async function refreshAccessToken() {
-  const { refresh_token } = getStoredAuth();
+export function clearTokens() {
+  try {
+    localStorage.removeItem(ACCESS_KEY);
+    localStorage.removeItem(REFRESH_KEY);
+    localStorage.removeItem(EXPIRES_AT_KEY);
+  } catch {}
+}
+
+/**
+ * Client-side logout: clears stored auth tokens.
+ */
+export function logout() {
+  clearTokens();
+}
+
+async function refreshAccessToken() {
+  const refresh_token = getRefreshToken();
   if (!refresh_token) return { ok: false, error: "Missing refresh token" };
 
   const res = await fetch(`${API_BASE}/auth/refresh`, {
@@ -35,10 +61,14 @@ export async function refreshAccessToken() {
     body: JSON.stringify({ refresh_token }),
   });
 
-  const data = await res.json().catch(() => null);
-  if (!res.ok || !data?.ok) return { ok: false, error: data?.error || "Refresh failed" };
+  const text = await res.text();
+  const data = safeJsonParse(text) || { ok: false, error: text || "Non-JSON response" };
 
-  setStoredAuth({
+  if (!res.ok || !data?.ok || !data?.access_token) {
+    return { ok: false, error: data?.error || `Refresh failed (${res.status})` };
+  }
+
+  setTokens({
     access_token: data.access_token,
     refresh_token: data.refresh_token,
     expires_at: data.expires_at,
@@ -47,63 +77,66 @@ export async function refreshAccessToken() {
   return { ok: true, access_token: data.access_token };
 }
 
-export async function getAccessToken({ forceRefresh = false } = {}) {
-  const { access_token, refresh_token, expires_at } = getStoredAuth();
-  if (!refresh_token) return access_token || "";
-
-  const nowSec = Math.floor(Date.now() / 1000);
-  if (!forceRefresh && expires_at && nowSec < expires_at - 60) return access_token || "";
-
-  const r = await refreshAccessToken();
-  if (r.ok && r.access_token) return r.access_token;
-  return access_token || "";
+// Adds Authorization header if you stored a Supabase access token in localStorage.
+function authHeaders(extra = {}) {
+  const token = getAccessToken();
+  return token ? { ...extra, Authorization: `Bearer ${token}` } : { ...extra };
 }
 
-async function request(path, { method = "GET", body, headers } = {}) {
-  let token = await getAccessToken({ forceRefresh: false });
+async function request(path, { method = "GET", body, headers } = {}, _retry = false) {
+  const res = await fetch(`${API_BASE}${path}`, {
+    method,
+    headers: authHeaders({
+      "Content-Type": "application/json",
+      ...(headers || {}),
+    }),
+    body: body ? JSON.stringify(body) : undefined,
+  });
 
-  const doFetch = async (useToken) => {
-    const res = await fetch(`${API_BASE}${path}`, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        ...(headers || {}),
-        ...(useToken ? { Authorization: `Bearer ${useToken}` } : {}),
-      },
-      body: body ? JSON.stringify(body) : undefined,
-    });
+  const text = await res.text();
+  const data = safeJsonParse(text) || { ok: false, error: text || "Non-JSON response" };
 
-    const text = await res.text();
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch {
-      data = { ok: false, error: text || "Non-JSON response" };
-    }
-    return { res, data };
-  };
-
-  let { res, data } = await doFetch(token);
-
-  if (res.status === 401) {
-    const { refresh_token } = getStoredAuth();
-    if (refresh_token) {
-      const refreshed = await getAccessToken({ forceRefresh: true });
-      if (refreshed && refreshed !== token) {
-        token = refreshed;
-        ({ res, data } = await doFetch(token));
-      }
+  // If unauthorized, try refresh once and retry the original request
+  if (res.status === 401 && !_retry && getRefreshToken()) {
+    const refreshed = await refreshAccessToken();
+    if (refreshed?.ok) {
+      return request(path, { method, body, headers }, true);
+    } else {
+      clearTokens();
+      return { ok: false, error: "Unauthorized" };
     }
   }
 
   if (!res.ok) {
-    const msg = data?.error || data?.msg || data?.message || `Request failed (${res.status})`;
-    throw new Error(msg);
+    return { ok: false, error: data?.error || `Request failed (${res.status})`, status: res.status, data };
   }
 
   return data;
 }
 
+/**
+ * Auth helpers (optional, but handy)
+ */
+export async function login(email, password) {
+  const res = await request(`/auth/login`, {
+    method: "POST",
+    body: { email, password },
+  });
+
+  if (res?.ok && res?.access_token) {
+    setTokens({
+      access_token: res.access_token,
+      refresh_token: res.refresh_token,
+      expires_at: res.expires_at,
+    });
+  }
+
+  return res;
+}
+
+/**
+ * API endpoints
+ */
 export function getBreweries(trailId = TRAIL_ID) {
   return request(`/trails/${trailId}/breweries`);
 }
@@ -135,22 +168,5 @@ export function postRating(trailId = TRAIL_ID, breweryId, payload) {
   return request(`/trails/${trailId}/breweries/${breweryId}/ratings`, {
     method: "POST",
     body: payload || {},
-  });
-}
-
-export function logout() {
-  try {
-    localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-    localStorage.removeItem(EXPIRES_AT_KEY);
-  } catch {}
-}
-
-export function storeLoginTokens(loginResponse) {
-  if (!loginResponse?.ok) return;
-  setStoredAuth({
-    access_token: loginResponse.access_token,
-    refresh_token: loginResponse.refresh_token,
-    expires_at: loginResponse.expires_at,
   });
 }
