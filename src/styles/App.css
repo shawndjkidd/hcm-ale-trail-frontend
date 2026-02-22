@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
 /* ==========================================
    HCM ALE TRAIL - BOLD RED/YELLOW/BLACK DESIGN
    ========================================== */
@@ -2238,7 +2240,6 @@ body {
    RETRO ARCADE FAQ STYLES
    ========================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 .faq-content.retro {
   background: #1a1a2e;
