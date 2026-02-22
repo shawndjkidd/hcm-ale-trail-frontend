@@ -1,8 +1,12 @@
+// src/config.js
+
+// Keep this centralized so the app doesn’t have random hardcoded IDs everywhere.
 export const TRAIL_ID = "89e5e2d6-090b-448a-8e53-6d05b731a921";
 
-// For local dev:
-// - If you run frontend on Vite (usually :5173) and backend on :3000,
-//   this points directly at your local backend.
-// For Vercel prod, you can set VITE_API_BASE in Vercel env vars later.
-export const API_BASE =
-  import.meta.env.VITE_API_BASE || "http://localhost:3000";
+// We’re using Vercel rewrites so frontend can call backend via same-origin /api.
+export const API_BASE = "/api";
+
+// Optional: store a Supabase JWT access token here for “real mode” /me + checkins.
+// Set it in browser DevTools console:
+// localStorage.setItem('hcm-access-token', '<PASTE_TOKEN>')
+export const AUTH_TOKEN_STORAGE_KEY = "hcm-access-token";
