@@ -93,28 +93,47 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
   
   const isFirstStamp = stamps.length === 0
   
+  // Map brewery names to order numbers (fallback if order field missing)
+  const BREWERY_ORDER = {
+    'BiaCraft': 1,
+    'Heart of Darkness': 2,
+    'Deme': 3,
+    'Steersman': 4,
+    'East West Brewing': 5,
+    'Rooster Beers': 6,
+    '7 Bridges Brewing Co.': 7,
+    'Belgo Saigon': 8
+  }
+  
   // Get description in current language (with fallbacks)
   const getDescription = () => {
-    // 1. Try description_i18n for current language
+    // Get order number (from field or name mapping)
+    const orderKey = brewery?.order || BREWERY_ORDER[brewery?.name]
+    
+    // 1. Try translation key first (brewery1Desc, brewery2Desc, etc.)
+    if (orderKey && t[`brewery${orderKey}Desc`]) {
+      return t[`brewery${orderKey}Desc`]
+    }
+    // 2. Try description_i18n for current language
     if (brewery?.description_i18n?.[language]) {
       return brewery.description_i18n[language]
     }
-    // 2. Try description_i18n for English
+    // 3. Try description_i18n for English
     if (brewery?.description_i18n?.en) {
       return brewery.description_i18n.en
     }
-    // 3. Try normalized description (already a string)
+    // 4. Try normalized description (already a string)
     if (typeof brewery?.description === 'string') {
       return brewery.description
     }
-    // 4. Try description object directly (shouldn't happen after normalization)
+    // 5. Try description object directly (shouldn't happen after normalization)
     if (typeof brewery?.description === 'object' && brewery.description?.[language]) {
       return brewery.description[language]
     }
     if (typeof brewery?.description === 'object' && brewery.description?.en) {
       return brewery.description.en
     }
-    // 5. Final fallback
+    // 6. Final fallback
     return ''
   }
   
