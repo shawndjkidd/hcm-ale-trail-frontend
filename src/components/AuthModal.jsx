@@ -1,8 +1,5 @@
 import { useState } from "react";
-
-// Stores tokens for api.js to use automatically
-const ACCESS_KEY = "hcm-access-token";
-const REFRESH_KEY = "hcm-refresh-token";
+import { storeLoginTokens } from "../lib/api";
 
 export default function AuthModal({ onSuccess }) {
   const [email, setEmail] = useState("");
@@ -26,21 +23,14 @@ export default function AuthModal({ onSuccess }) {
 
       if (!res.ok || !data?.ok) {
         setErr(data?.error || "Login failed");
-        setBusy(false);
         return;
       }
 
-      // ✅ Save tokens so /me, checkins, ratings work
-      if (data?.access_token) localStorage.setItem(ACCESS_KEY, data.access_token);
-      if (data?.refresh_token) localStorage.setItem(REFRESH_KEY, data.refresh_token);
-
-      // Optional callback if App wants to do something fancy
+      storeLoginTokens(data);
       onSuccess?.(data);
-
-      // ✅ Easiest “always works” finish: reload so App boots with tokens
-      window.location.reload();
-    } catch (e2) {
-      setErr(e2?.message || "Login failed");
+    } catch (e) {
+      setErr(e?.message || "Login failed");
+    } finally {
       setBusy(false);
     }
   };
@@ -70,7 +60,9 @@ export default function AuthModal({ onSuccess }) {
               required
             />
 
-            {err ? <div style={{ color: "#ff6b6b", fontSize: 14 }}>{err}</div> : null}
+            {err ? (
+              <div style={{ color: "#ff6b6b", fontSize: 14 }}>{err}</div>
+            ) : null}
 
             <button className="btn-primary" type="submit" disabled={busy}>
               {busy ? "Signing in..." : "Sign in"}

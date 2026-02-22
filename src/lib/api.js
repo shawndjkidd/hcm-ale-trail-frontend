@@ -1,107 +1,107 @@
 import { API_BASE, TRAIL_ID, AUTH_TOKEN_STORAGE_KEY } from "../config";
 
-const REFRESH_TOKEN_STORAGE_KEY = "hcm-refresh-token";
+const REFRESH_TOKEN_KEY = "hcm-refresh-token";
+const EXPIRES_AT_KEY = "hcm-expires-at"; // unix seconds
 
-export function getAccessToken() {
-  return localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
-}
-
-export function getRefreshToken() {
-  return localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY);
-}
-
-export function setTokens({ access_token, refresh_token } = {}) {
-  if (access_token) localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, access_token);
-  if (refresh_token) localStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, refresh_token);
-}
-
-export function clearTokens() {
-  localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
-  localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
-}
-
-function authHeaders(extra = {}) {
-  const token = getAccessToken();
-  return token ? { ...extra, Authorization: `Bearer ${token}` } : { ...extra };
-}
-
-async function rawRequest(path, { method = "GET", body, headers } = {}) {
-  const res = await fetch(`${API_BASE}${path}`, {
-    method,
-    headers: authHeaders({
-      ...(body ? { "Content-Type": "application/json" } : {}),
-      ...(headers || {}),
-    }),
-    body: body ? JSON.stringify(body) : undefined,
-  });
-
-  const text = await res.text();
-  let data;
+function getStoredAuth() {
   try {
-    data = JSON.parse(text);
+    const access_token = localStorage.getItem(AUTH_TOKEN_STORAGE_KEY) || "";
+    const refresh_token = localStorage.getItem(REFRESH_TOKEN_KEY) || "";
+    const expires_at_raw = localStorage.getItem(EXPIRES_AT_KEY) || "";
+    const expires_at = expires_at_raw ? Number(expires_at_raw) : null;
+    return { access_token, refresh_token, expires_at };
   } catch {
-    data = { ok: false, error: text || "Non-JSON response" };
+    return { access_token: "", refresh_token: "", expires_at: null };
   }
-
-  return { res, data };
 }
 
-export async function refreshAuth() {
-  const refresh_token = getRefreshToken();
-  if (!refresh_token) return { ok: false, error: "No refresh token" };
+function setStoredAuth({ access_token, refresh_token, expires_at } = {}) {
+  try {
+    if (access_token) localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, access_token);
+    if (refresh_token) localStorage.setItem(REFRESH_TOKEN_KEY, refresh_token);
+    if (typeof expires_at === "number" && Number.isFinite(expires_at)) {
+      localStorage.setItem(EXPIRES_AT_KEY, String(expires_at));
+    }
+  } catch {}
+}
 
-  const { res, data } = await rawRequest(`/auth/refresh`, {
+export async function refreshAccessToken() {
+  const { refresh_token } = getStoredAuth();
+  if (!refresh_token) return { ok: false, error: "Missing refresh token" };
+
+  const res = await fetch(`${API_BASE}/auth/refresh`, {
     method: "POST",
-    body: { refresh_token },
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ refresh_token }),
   });
 
+  const data = await res.json().catch(() => null);
   if (!res.ok || !data?.ok) return { ok: false, error: data?.error || "Refresh failed" };
 
-  setTokens({
+  setStoredAuth({
     access_token: data.access_token,
     refresh_token: data.refresh_token,
+    expires_at: data.expires_at,
   });
 
-  return data;
+  return { ok: true, access_token: data.access_token };
 }
 
-async function request(path, opts = {}) {
-  const first = await rawRequest(path, opts);
+export async function getAccessToken({ forceRefresh = false } = {}) {
+  const { access_token, refresh_token, expires_at } = getStoredAuth();
+  if (!refresh_token) return access_token || "";
 
-  if (first.res.status !== 401) {
-    if (!first.res.ok) throw new Error(first.data?.error || `Request failed (${first.res.status})`);
-    return first.data;
+  const nowSec = Math.floor(Date.now() / 1000);
+  if (!forceRefresh && expires_at && nowSec < expires_at - 60) return access_token || "";
+
+  const r = await refreshAccessToken();
+  if (r.ok && r.access_token) return r.access_token;
+  return access_token || "";
+}
+
+async function request(path, { method = "GET", body, headers } = {}) {
+  let token = await getAccessToken({ forceRefresh: false });
+
+  const doFetch = async (useToken) => {
+    const res = await fetch(`${API_BASE}${path}`, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        ...(headers || {}),
+        ...(useToken ? { Authorization: `Bearer ${useToken}` } : {}),
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { ok: false, error: text || "Non-JSON response" };
+    }
+    return { res, data };
+  };
+
+  let { res, data } = await doFetch(token);
+
+  if (res.status === 401) {
+    const { refresh_token } = getStoredAuth();
+    if (refresh_token) {
+      const refreshed = await getAccessToken({ forceRefresh: true });
+      if (refreshed && refreshed !== token) {
+        token = refreshed;
+        ({ res, data } = await doFetch(token));
+      }
+    }
   }
 
-  const refreshed = await refreshAuth();
-  if (!refreshed?.ok) {
-    clearTokens();
-    throw new Error(refreshed?.error || "Unauthorized");
+  if (!res.ok) {
+    const msg = data?.error || data?.msg || data?.message || `Request failed (${res.status})`;
+    throw new Error(msg);
   }
 
-  const second = await rawRequest(path, opts);
-  if (!second.res.ok) throw new Error(second.data?.error || `Request failed (${second.res.status})`);
-  return second.data;
-}
-
-export async function apiLogin(email, password) {
-  const { res, data } = await rawRequest(`/auth/login`, {
-    method: "POST",
-    body: { email, password },
-  });
-
-  if (!res.ok || !data?.ok) throw new Error(data?.error || "Login failed");
-
-  setTokens({
-    access_token: data.access_token,
-    refresh_token: data.refresh_token,
-  });
-
   return data;
-}
-
-export function apiLogout() {
-  clearTokens();
 }
 
 export function getBreweries(trailId = TRAIL_ID) {
@@ -138,12 +138,19 @@ export function postRating(trailId = TRAIL_ID, breweryId, payload) {
   });
 }
 
-/**
- * Client-side logout: clears stored auth tokens.
- */
 export function logout() {
   try {
-    localStorage.removeItem("hcm-access-token");
-    localStorage.removeItem("hcm-refresh-token");
+    localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(EXPIRES_AT_KEY);
   } catch {}
+}
+
+export function storeLoginTokens(loginResponse) {
+  if (!loginResponse?.ok) return;
+  setStoredAuth({
+    access_token: loginResponse.access_token,
+    refresh_token: loginResponse.refresh_token,
+    expires_at: loginResponse.expires_at,
+  });
 }
