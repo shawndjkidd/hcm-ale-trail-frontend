@@ -137,3 +137,13 @@ export function postRating(trailId = TRAIL_ID, breweryId, payload) {
     body: payload || {},
   });
 }
+
+/**
+ * Client-side logout: clears stored auth tokens.
+ */
+export function logout() {
+  try {
+    localStorage.removeItem("hcm-access-token");
+    localStorage.removeItem("hcm-refresh-token");
+  } catch {}
+}
