@@ -1,12 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
+import { TRAIL_ID } from '../config';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Trail ID for HCM Ale Trail
-export const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a92e';
+// Re-export TRAIL_ID for backwards compatibility
+export { TRAIL_ID };
 
 // Map frontend brewery IDs (1-8) to Supabase UUIDs
 const BREWERY_MAP = {
