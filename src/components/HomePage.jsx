@@ -64,25 +64,25 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
           className={`flag-btn-large ${language === 'en' ? 'active' : ''}`}
           onClick={() => setLanguage('en')}
         >
-          <img src="https://flagcdn.com/w40/us.png" alt="English" className="flag-img" />
+          <img src="https://flagcdn.com/w80/us.png" alt="English" className="flag-img" />
         </button>
         <button 
           className={`flag-btn-large ${language === 'vn' ? 'active' : ''}`}
           onClick={() => setLanguage('vn')}
         >
-          <img src="https://flagcdn.com/w40/vn.png" alt="Tiếng Việt" className="flag-img" />
+          <img src="https://flagcdn.com/w80/vn.png" alt="Tiếng Việt" className="flag-img" />
         </button>
         <button 
           className={`flag-btn-large ${language === 'kr' ? 'active' : ''}`}
           onClick={() => setLanguage('kr')}
         >
-          <img src="https://flagcdn.com/w40/kr.png" alt="한국어" className="flag-img" />
+          <img src="https://flagcdn.com/w80/kr.png" alt="한국어" className="flag-img" />
         </button>
         <button 
           className={`flag-btn-large ${language === 'jp' ? 'active' : ''}`}
           onClick={() => setLanguage('jp')}
         >
-          <img src="https://flagcdn.com/w40/jp.png" alt="日本語" className="flag-img" />
+          <img src="https://flagcdn.com/w80/jp.png" alt="日本語" className="flag-img" />
         </button>
       </div>
 

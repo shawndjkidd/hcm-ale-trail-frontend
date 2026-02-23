@@ -80,7 +80,8 @@ body {
 
 .progress-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 16px;
   align-items: center;
   margin-bottom: 0.5rem;
 }
@@ -425,7 +426,8 @@ body {
 
 .beer-item {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 16px;
   align-items: center;
   padding: 0.5rem;
   border-bottom: 2px solid var(--gray);
@@ -583,7 +585,7 @@ body {
   background: rgba(255, 255, 255, 0.2);
   border: 2px solid white;
   color: white;
-  width: 40px;
+  width: 56px;
   height: 40px;
   border-radius: 50%;
   cursor: pointer;
@@ -743,7 +745,7 @@ body {
   background: var(--red-primary);
   color: var(--white);
   border: 3px solid var(--black);
-  width: 40px;
+  width: 56px;
   height: 40px;
   font-size: 1.5rem;
   cursor: pointer;
@@ -1114,7 +1116,8 @@ body {
 
 .grouped-beer-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 16px;
   align-items: center;
   margin-bottom: 0.25rem;
 }
@@ -1218,7 +1221,7 @@ body {
 }
 
 .step-number-circle {
-  width: 40px;
+  width: 56px;
   height: 40px;
   background: var(--red-primary);
   color: var(--white);
@@ -1541,8 +1544,10 @@ body {
 /* Larger flags - fill full width */
 .language-toggle-large {
   display: flex;
-  justify-content: space-between;
-  padding: 12px 12px 4px;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
 }
 
 .flag-btn-large {
@@ -1566,7 +1571,7 @@ body {
 
 /* Flat flag images */
 .flag-img {
-  width: 40px;
+  width: 56px;
   height: auto;
   border-radius: 4px;
   border: 2px solid var(--black);
@@ -1574,7 +1579,7 @@ body {
 }
 
 .flag-img-sm {
-  width: 32px;
+  width: 40px;
   height: auto;
   border-radius: 3px;
   border: 2px solid var(--black);
@@ -1738,7 +1743,8 @@ body {
 
 .top-beer-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 16px;
   align-items: center;
 }
 
@@ -1776,7 +1782,8 @@ body {
   padding: 12px 16px;
   margin-bottom: 1rem;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 16px;
   align-items: center;
 }
 
@@ -2216,7 +2223,8 @@ body {
 
 .brewery-event-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 16px;
   align-items: flex-start;
   margin-bottom: 4px;
 }
@@ -2415,7 +2423,8 @@ body {
 
 .retro-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 16px;
   margin-top: 1rem;
   font-family: 'Press Start 2P', monospace;
   font-size: 0.5rem;
