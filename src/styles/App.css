@@ -1547,7 +1547,7 @@ body {
   justify-content: center;
   gap: 16px;
   padding: 16px;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .flag-btn-large {
