@@ -13,8 +13,9 @@ function MyBeers({ beers, breweries, language, onBack }) {
   // Group beers by brewery
   const beersByBrewery = {}
   beers.forEach(beer => {
-    const brewery = breweries.find(b => b.id === beer.breweryId)
-    const breweryName = brewery?.name || 'Unknown'
+    // Match by ID or name (fallback for old localStorage data with numeric IDs)
+    const brewery = breweries.find(b => b.id === beer.breweryId || b.name === beer.breweryName)
+    const breweryName = brewery?.name || beer.breweryName || 'Unknown'
     if (!beersByBrewery[breweryName]) {
       beersByBrewery[breweryName] = []
     }
@@ -53,14 +54,14 @@ function MyBeers({ beers, breweries, language, onBack }) {
               <h2 className="section-title">🏆 {t.topRatedBeers}</h2>
               <div className="top-rated-list-compact">
                 {topRated.map(beer => {
-                  const brewery = breweries.find(b => b.id === beer.breweryId)
+                  const brewery = breweries.find(b => b.id === beer.breweryId || b.name === beer.breweryName)
                   return (
                     <div key={beer.id} className="top-beer-compact">
                       <div className="top-beer-header">
                         <span className="top-beer-name">{beer.name}</span>
                         <span className="top-beer-stars">{'⭐'.repeat(beer.rating)}</span>
                       </div>
-                      <div className="top-beer-brewery">{brewery?.name}</div>
+                      <div className="top-beer-brewery">{brewery?.name || beer.breweryName}</div>
                     </div>
                   )
                 })}

@@ -371,7 +371,7 @@ export default function App() {
 
       {view === "faq" && <FAQ onBack={() => handleNavigate("home")} language={language} user={user} />}
 
-      {view === "beers" && <MyBeers beers={beers} onBack={() => handleNavigate("home")} language={language} />}
+      {view === "mybeers" && <MyBeers beers={beers} breweries={breweries} onBack={() => handleNavigate("home")} language={language} />}
 
       {view === "leaderboard" && (
         <Leaderboard

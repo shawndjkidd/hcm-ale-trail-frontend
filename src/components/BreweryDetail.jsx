@@ -79,7 +79,10 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
 
   const t = translations[language]
   const isStamped = stamps.includes(brewery?.id)
-  const breweryBeers = beers.filter(b => b.breweryId === brewery?.id)
+  // Match beers by ID or name (fallback for old localStorage data with numeric IDs)
+  const breweryBeers = beers.filter(b => 
+    b.breweryId === brewery?.id || b.breweryName === brewery?.name
+  )
   
   // Merge backend data with hardcoded social links (until backend provides these)
   const hardcodedInfo = BREWERY_DATA[brewery?.name] || {}
