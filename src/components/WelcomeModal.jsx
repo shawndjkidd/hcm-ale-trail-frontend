@@ -119,25 +119,25 @@ function WelcomeModal({ language, setLanguage, onComplete }) {
             className={`flag-btn ${language === 'en' ? 'active' : ''}`}
             onClick={() => setLanguage('en')}
           >
-            <img src="https://flagcdn.com/w32/us.png" alt="EN" className="flag-img-sm" />
+            <img src="https://flagcdn.com/w80/us.png" alt="EN" className="flag-img-sm" />
           </button>
           <button 
             className={`flag-btn ${language === 'vn' ? 'active' : ''}`}
             onClick={() => setLanguage('vn')}
           >
-            <img src="https://flagcdn.com/w32/vn.png" alt="VN" className="flag-img-sm" />
+            <img src="https://flagcdn.com/w80/vn.png" alt="VN" className="flag-img-sm" />
           </button>
           <button 
             className={`flag-btn ${language === 'kr' ? 'active' : ''}`}
             onClick={() => setLanguage('kr')}
           >
-            <img src="https://flagcdn.com/w32/kr.png" alt="KR" className="flag-img-sm" />
+            <img src="https://flagcdn.com/w80/kr.png" alt="KR" className="flag-img-sm" />
           </button>
           <button 
             className={`flag-btn ${language === 'jp' ? 'active' : ''}`}
             onClick={() => setLanguage('jp')}
           >
-            <img src="https://flagcdn.com/w32/jp.png" alt="JP" className="flag-img-sm" />
+            <img src="https://flagcdn.com/w80/jp.png" alt="JP" className="flag-img-sm" />
           </button>
         </div>
 
