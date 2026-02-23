@@ -353,7 +353,7 @@ export default function App() {
         <WelcomeModal language={language} setLanguage={setLanguage} onComplete={handleUserRegistration} />
       )}
 
-      {showAuth && <AuthModal onSuccess={onAuthSuccess} />}
+      {showAuth && <AuthModal onSuccess={onAuthSuccess} language={language} />}
 
       {view === "home" && (
         <HomePage

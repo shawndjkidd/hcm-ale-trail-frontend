@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { storeLoginTokens } from "../lib/api";
+import translations from "../translations";
 
-export default function AuthModal({ onSuccess }) {
+export default function AuthModal({ onSuccess, language = "en" }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+
+  const t = translations[language] || translations.en;
 
   const submit = async (e) => {
     e?.preventDefault?.();
@@ -22,14 +25,14 @@ export default function AuthModal({ onSuccess }) {
       const data = await res.json().catch(() => null);
 
       if (!res.ok || !data?.ok) {
-        setErr(data?.error || "Login failed");
+        setErr(data?.error || t.loginFailed || "Login failed");
         return;
       }
 
       storeLoginTokens(data);
       onSuccess?.(data);
     } catch (e) {
-      setErr(e?.message || "Login failed");
+      setErr(e?.message || t.loginFailed || "Login failed");
     } finally {
       setBusy(false);
     }
@@ -38,37 +41,57 @@ export default function AuthModal({ onSuccess }) {
   return (
     <div className="modal-overlay">
       <div className="welcome-modal">
-        <h2 style={{ marginBottom: 8 }}>Sign in</h2>
-        <p style={{ marginTop: 0, opacity: 0.9 }}>Use your email + password</p>
+        {/* Logo */}
+        <img 
+          src="/logos/HCM Logo-Ale-Trail-2023-BK.png" 
+          alt="HCM Ale Trail" 
+          className="welcome-logo"
+        />
+        
+        <h2 className="welcome-title">{t.signIn || "SIGN IN"}</h2>
+        <p className="welcome-subtitle">{t.signInSubtitle || "Welcome back! Enter your details."}</p>
 
         <form onSubmit={submit}>
-          <div style={{ display: "grid", gap: 10 }}>
+          <div className="form-group">
+            <label>{t.yourEmail || "Email"} *</label>
             <input
               type="email"
-              placeholder="Email"
+              className="text-input"
+              placeholder="you@example.com"
               value={email}
               autoComplete="email"
               onChange={(e) => setEmail(e.target.value)}
               required
             />
+          </div>
+
+          <div className="form-group">
+            <label>{t.password || "Password"} *</label>
             <input
               type="password"
-              placeholder="Password"
+              className="text-input"
+              placeholder="••••••••"
               value={password}
               autoComplete="current-password"
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-
-            {err ? (
-              <div style={{ color: "#ff6b6b", fontSize: 14 }}>{err}</div>
-            ) : null}
-
-            <button className="btn-primary" type="submit" disabled={busy}>
-              {busy ? "Signing in..." : "Sign in"}
-            </button>
           </div>
+
+          {err && <div className="form-error">{err}</div>}
+
+          <button 
+            className="welcome-btn" 
+            type="submit" 
+            disabled={busy}
+          >
+            {busy ? (t.signingIn || "Signing in...") : (t.signIn || "SIGN IN")}
+          </button>
         </form>
+
+        <p className="welcome-disclaimer">
+          🍺 {t.signInDisclaimer || "Ready to continue your ale trail adventure?"}
+        </p>
       </div>
     </div>
   );
