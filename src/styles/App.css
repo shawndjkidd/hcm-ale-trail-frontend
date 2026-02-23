@@ -1546,7 +1546,6 @@ body {
 }
 
 .flag-btn-large {
-  font-size: 3.5rem;
   background: none;
   border: none;
   cursor: pointer;
@@ -1563,6 +1562,23 @@ body {
   background: var(--yellow-primary);
   transform: scale(1.1);
   box-shadow: 4px 4px 0 var(--black);
+}
+
+/* Flat flag images */
+.flag-img {
+  width: 40px;
+  height: auto;
+  border-radius: 4px;
+  border: 2px solid var(--black);
+  display: block;
+}
+
+.flag-img-sm {
+  width: 32px;
+  height: auto;
+  border-radius: 3px;
+  border: 2px solid var(--black);
+  display: block;
 }
 
 /* Header logo in box */

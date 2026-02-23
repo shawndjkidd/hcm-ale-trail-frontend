@@ -4,6 +4,24 @@ import translations from '../translations'
 // Events will come from backend API once dashboard is built
 const SAMPLE_EVENTS = []
 
+// Brewery logo mapping (local files in /public/logos/)
+const BREWERY_LOGOS = {
+  'BiaCraft': '/logos/biacraft.png',
+  'Heart of Darkness': '/logos/hod.png',
+  'Deme': '/logos/deme.png',
+  'Steersman': '/logos/steersman.png',
+  'East West Brewing': '/logos/eastwest.png',
+  'Rooster Beers': '/logos/rooster.png',
+  '7 Bridges Brewing Co.': '/logos/7bridges.png',
+  'Belgo Saigon': '/logos/belgo.png',
+}
+
+// Get brewery logo URL (backend logo_url or fallback to local)
+const getBreweryLogo = (brewery) => {
+  if (brewery?.logo_url) return brewery.logo_url
+  return BREWERY_LOGOS[brewery?.name] || null
+}
+
 function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onNavigate, resetCard }) {
   const [showCompletionModal, setShowCompletionModal] = useState(false)
   const [showSideQuestModal, setShowSideQuestModal] = useState(false)
@@ -40,31 +58,31 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
 
   return (
     <div className="home-page">
-      {/* Language Flags */}
+      {/* Language Flags - Flat rectangular */}
       <div className="language-toggle-large">
         <button 
           className={`flag-btn-large ${language === 'en' ? 'active' : ''}`}
           onClick={() => setLanguage('en')}
         >
-          🇺🇸
+          <img src="https://flagcdn.com/w40/us.png" alt="English" className="flag-img" />
         </button>
         <button 
           className={`flag-btn-large ${language === 'vn' ? 'active' : ''}`}
           onClick={() => setLanguage('vn')}
         >
-          🇻🇳
+          <img src="https://flagcdn.com/w40/vn.png" alt="Tiếng Việt" className="flag-img" />
         </button>
         <button 
           className={`flag-btn-large ${language === 'kr' ? 'active' : ''}`}
           onClick={() => setLanguage('kr')}
         >
-          🇰🇷
+          <img src="https://flagcdn.com/w40/kr.png" alt="한국어" className="flag-img" />
         </button>
         <button 
           className={`flag-btn-large ${language === 'jp' ? 'active' : ''}`}
           onClick={() => setLanguage('jp')}
         >
-          🇯🇵
+          <img src="https://flagcdn.com/w40/jp.png" alt="日本語" className="flag-img" />
         </button>
       </div>
 
@@ -168,9 +186,9 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
                 <div className="brewery-district">{brewery.district}</div>
               </div>
               <div className="brewery-logo">
-                {brewery.logo_url ? (
+                {getBreweryLogo(brewery) ? (
                   <img 
-                    src={brewery.logo_url} 
+                    src={getBreweryLogo(brewery)} 
                     alt={brewery.name}
                     className="color"
                   />
