@@ -4,12 +4,12 @@ import AddBeerModal from './AddBeerModal'
 
 // Sample events data (will come from Supabase later)
 const SAMPLE_EVENTS = [
-  { id: 1, title: 'Tap Takeover Night', date: 'Feb 28', time: '7:00 PM', breweryId: 1, description: 'Special guest taps from local breweries', link: 'https://facebook.com/events/123' },
-  { id: 2, title: 'IPA Festival', date: 'Mar 5', time: '6:00 PM', breweryId: 2, description: '10+ IPAs on tap, live music', link: 'https://facebook.com/events/456' },
-  { id: 3, title: 'Brew & Quiz Night', date: 'Mar 8', time: '8:00 PM', breweryId: 5, description: 'Trivia night with beer prizes', link: null },
-  { id: 4, title: 'St. Patrick\'s Day Party', date: 'Mar 17', time: '5:00 PM', breweryId: 8, description: 'Green beer, Irish food, live music all night', link: 'https://facebook.com/events/789' },
-  { id: 5, title: 'Meet the Brewer', date: 'Mar 1', time: '6:00 PM', breweryId: 1, description: 'Chat with our head brewer', link: null },
-  { id: 6, title: 'Stout Day', date: 'Mar 15', time: '4:00 PM', breweryId: 2, description: 'All stouts 20% off', link: null },
+  { id: 1, title: 'Tap Takeover Night', date: 'Feb 28', time: '7:00 PM', breweryName: 'BiaCraft', description: 'Special guest taps from local breweries', link: 'https://facebook.com/events/123' },
+  { id: 2, title: 'IPA Festival', date: 'Mar 5', time: '6:00 PM', breweryName: 'Heart of Darkness', description: '10+ IPAs on tap, live music', link: 'https://facebook.com/events/456' },
+  { id: 3, title: 'Brew & Quiz Night', date: 'Mar 8', time: '8:00 PM', breweryName: 'East West Brewing', description: 'Trivia night with beer prizes', link: null },
+  { id: 4, title: 'St. Patrick\'s Day Party', date: 'Mar 17', time: '5:00 PM', breweryName: 'Belgo Saigon', description: 'Green beer, Irish food, live music all night', link: 'https://facebook.com/events/789' },
+  { id: 5, title: 'Meet the Brewer', date: 'Mar 1', time: '6:00 PM', breweryName: 'BiaCraft', description: 'Chat with our head brewer', link: null },
+  { id: 6, title: 'Stout Day', date: 'Mar 15', time: '4:00 PM', breweryName: 'Heart of Darkness', description: 'All stouts 20% off', link: null },
 ]
 
 const BREWERY_DATA = {
@@ -140,8 +140,8 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     return ''
   }
   
-  // Get events for this brewery
-  const breweryEvents = SAMPLE_EVENTS.filter(e => e.breweryId === brewery?.id)
+  // Get events for this brewery (match by name since events use names, not UUIDs)
+  const breweryEvents = SAMPLE_EVENTS.filter(e => e.breweryName === brewery?.name)
 
   useEffect(() => {
     if (qrValidated && !isStamped) {
