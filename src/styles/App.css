@@ -81,7 +81,7 @@ body {
 .progress-header {
   display: flex;
   justify-content: center;
-  gap: 16px;
+  gap: 12px;
   align-items: center;
   margin-bottom: 0.5rem;
 }
@@ -427,7 +427,7 @@ body {
 .beer-item {
   display: flex;
   justify-content: center;
-  gap: 16px;
+  gap: 12px;
   align-items: center;
   padding: 0.5rem;
   border-bottom: 2px solid var(--gray);
@@ -585,7 +585,7 @@ body {
   background: rgba(255, 255, 255, 0.2);
   border: 2px solid white;
   color: white;
-  width: 84px;
+  width: 64px;
   height: 40px;
   border-radius: 50%;
   cursor: pointer;
@@ -745,7 +745,7 @@ body {
   background: var(--red-primary);
   color: var(--white);
   border: 3px solid var(--black);
-  width: 84px;
+  width: 64px;
   height: 40px;
   font-size: 1.5rem;
   cursor: pointer;
@@ -1117,7 +1117,7 @@ body {
 .grouped-beer-header {
   display: flex;
   justify-content: center;
-  gap: 16px;
+  gap: 12px;
   align-items: center;
   margin-bottom: 0.25rem;
 }
@@ -1221,7 +1221,7 @@ body {
 }
 
 .step-number-circle {
-  width: 84px;
+  width: 64px;
   height: 40px;
   background: var(--red-primary);
   color: var(--white);
@@ -1545,8 +1545,8 @@ body {
 .language-toggle-large {
   display: flex;
   justify-content: center;
-  gap: 16px;
-  padding: 16px;
+  gap: 12px;
+  padding: 16px 12px;
   margin-bottom: 8px;
 }
 
@@ -1571,7 +1571,7 @@ body {
 
 /* Flat flag images */
 .flag-img {
-  width: 84px;
+  width: 64px;
   height: auto;
   border-radius: 4px;
   border: 4px solid var(--black);
@@ -1744,7 +1744,7 @@ body {
 .top-beer-header {
   display: flex;
   justify-content: center;
-  gap: 16px;
+  gap: 12px;
   align-items: center;
 }
 
@@ -1783,7 +1783,7 @@ body {
   margin-bottom: 1rem;
   display: flex;
   justify-content: center;
-  gap: 16px;
+  gap: 12px;
   align-items: center;
 }
 
@@ -2224,7 +2224,7 @@ body {
 .brewery-event-header {
   display: flex;
   justify-content: center;
-  gap: 16px;
+  gap: 12px;
   align-items: flex-start;
   margin-bottom: 4px;
 }
@@ -2424,7 +2424,7 @@ body {
 .retro-footer {
   display: flex;
   justify-content: center;
-  gap: 16px;
+  gap: 12px;
   margin-top: 1rem;
   font-family: 'Press Start 2P', monospace;
   font-size: 0.5rem;
