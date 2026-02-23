@@ -344,7 +344,7 @@ export default function App() {
           stamps={stamps}
           onBreweryClick={handleBreweryClick}
           onNavigate={handleNavigate}
-          onReset={resetCard}
+          resetCard={resetCard}
           language={language}
           setLanguage={setLanguage}
           user={user}
