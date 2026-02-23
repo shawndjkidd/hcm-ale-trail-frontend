@@ -2,15 +2,8 @@ import { useState, useEffect } from 'react'
 import translations from '../translations'
 import AddBeerModal from './AddBeerModal'
 
-// Sample events data (will come from Supabase later)
-const SAMPLE_EVENTS = [
-  { id: 1, title: 'Tap Takeover Night', date: 'Feb 28', time: '7:00 PM', breweryName: 'BiaCraft', description: 'Special guest taps from local breweries', link: 'https://facebook.com/events/123' },
-  { id: 2, title: 'IPA Festival', date: 'Mar 5', time: '6:00 PM', breweryName: 'Heart of Darkness', description: '10+ IPAs on tap, live music', link: 'https://facebook.com/events/456' },
-  { id: 3, title: 'Brew & Quiz Night', date: 'Mar 8', time: '8:00 PM', breweryName: 'East West Brewing', description: 'Trivia night with beer prizes', link: null },
-  { id: 4, title: 'St. Patrick\'s Day Party', date: 'Mar 17', time: '5:00 PM', breweryName: 'Belgo Saigon', description: 'Green beer, Irish food, live music all night', link: 'https://facebook.com/events/789' },
-  { id: 5, title: 'Meet the Brewer', date: 'Mar 1', time: '6:00 PM', breweryName: 'BiaCraft', description: 'Chat with our head brewer', link: null },
-  { id: 6, title: 'Stout Day', date: 'Mar 15', time: '4:00 PM', breweryName: 'Heart of Darkness', description: 'All stouts 20% off', link: null },
-]
+// Events will come from backend API once dashboard is built
+const SAMPLE_EVENTS = []
 
 const BREWERY_DATA = {
   'BiaCraft': {

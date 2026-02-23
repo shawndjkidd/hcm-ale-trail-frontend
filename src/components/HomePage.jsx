@@ -1,49 +1,8 @@
 import { useState, useEffect } from 'react'
 import translations from '../translations'
 
-// Sample events data (will come from Supabase later)
-const SAMPLE_EVENTS = [
-  {
-    id: 1,
-    title: 'Tap Takeover Night',
-    date: 'Feb 28, 2025',
-    time: '7:00 PM',
-    breweryId: 1,
-    breweryName: 'BiaCraft',
-    description: 'Special guest taps from local breweries',
-    link: 'https://facebook.com/events/123'
-  },
-  {
-    id: 2,
-    title: 'IPA Festival',
-    date: 'Mar 5, 2025',
-    time: '6:00 PM',
-    breweryId: 2,
-    breweryName: 'Heart of Darkness',
-    description: '10+ IPAs on tap, live music',
-    link: 'https://facebook.com/events/456'
-  },
-  {
-    id: 3,
-    title: 'Brew & Quiz Night',
-    date: 'Mar 8, 2025',
-    time: '8:00 PM',
-    breweryId: 5,
-    breweryName: 'East West Brewing',
-    description: 'Trivia night with beer prizes',
-    link: null
-  },
-  {
-    id: 4,
-    title: 'St. Patrick\'s Day Party',
-    date: 'Mar 17, 2025',
-    time: '5:00 PM',
-    breweryId: 8,
-    breweryName: 'Belgo Saigon',
-    description: 'Green beer, Irish food, live music all night',
-    link: 'https://facebook.com/events/789'
-  },
-]
+// Events will come from backend API once dashboard is built
+const SAMPLE_EVENTS = []
 
 function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onNavigate, resetCard }) {
   const [showCompletionModal, setShowCompletionModal] = useState(false)
