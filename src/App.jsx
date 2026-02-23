@@ -10,7 +10,7 @@ import AuthModal from "./components/AuthModal";
 import translations from "./translations";
 import { recordCheckin } from "./lib/supabase";
 import { TRAIL_ID } from "./config";
-import { getBreweries, getMe, logout as apiLogout } from "./lib/api";
+import { getBreweries, getMe, logout as apiLogout, startNewRun } from "./lib/api";
 
 import "./styles/App.css";
 
@@ -274,19 +274,36 @@ export default function App() {
     }
   };
 
-  const resetCard = () => {
-    if (window.confirm(t.resetConfirm)) {
-      setStamps([]);
-      setBeers([]);
-      setTimerStart(null);
-      setTimerEnd(null);
-      localStorage.removeItem("hcm-stamps");
-      localStorage.removeItem("hcm-beers");
-      localStorage.removeItem("hcm-hat-claimed");
-      localStorage.removeItem("hcm-timer-start");
-      localStorage.removeItem("hcm-timer-end");
-      alert(t.resetSuccess);
+  const resetCard = async () => {
+    if (!window.confirm(t.resetConfirm)) return;
+    
+    // If user is logged in, archive their run on the backend
+    if (user?.id) {
+      try {
+        const result = await startNewRun();
+        if (!result?.ok) {
+          console.error("Failed to start new run:", result?.error);
+          // Continue with local reset anyway
+        }
+      } catch (err) {
+        console.error("Error starting new run:", err);
+        // Continue with local reset anyway
+      }
     }
+    
+    // Clear local state
+    setStamps([]);
+    setBeers([]);
+    setTimerStart(null);
+    setTimerEnd(null);
+    localStorage.removeItem("hcm-stamps");
+    localStorage.removeItem("hcm-beers");
+    localStorage.removeItem("hcm-hat-claimed");
+    localStorage.removeItem("hcm-timer-start");
+    localStorage.removeItem("hcm-timer-end");
+    localStorage.removeItem("hcm-completion-modal-shown");
+    
+    alert(t.resetSuccess);
   };
 
   const getUserCompletionTime = () => {

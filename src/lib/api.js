@@ -170,6 +170,14 @@ export function postRating(trailId = TRAIL_ID, breweryId, payload) {
     body: payload || {},
   });
 }
+
+/**
+ * Start a new run - archives current progress and creates fresh participant
+ */
+export function startNewRun(trailId = TRAIL_ID) {
+  return request(`/trails/${trailId}/me/new-run`, { method: "POST" });
+}
+
 /**
  * Back-compat helper (older AuthModal expects this).
  * Stores tokens returned by /api/auth/login.
