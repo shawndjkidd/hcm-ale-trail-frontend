@@ -284,6 +284,9 @@ export default function App() {
         if (!result?.ok) {
           console.error("Failed to start new run:", result?.error);
           // Continue with local reset anyway
+        } else {
+          // Refresh from backend to get new participant state
+          await loadMe();
         }
       } catch (err) {
         console.error("Error starting new run:", err);
