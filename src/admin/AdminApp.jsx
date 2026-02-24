@@ -69,7 +69,7 @@ export default function AdminApp() {
     <div className="admin-app">
       <header className="admin-header">
         <div className="admin-header-left">
-          <span className="admin-logo">🍺 Ale Trail Admin</span>
+          <span className="admin-logo">Ho Chi Minh Ale Trail Admin</span>
           
           {isHQ && (
             <div style={{ display: 'flex', gap: 8 }}>
