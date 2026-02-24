@@ -6,7 +6,7 @@ import {
 
 const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a921';
 
-const COLORS = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444'];
+const CHART_COLORS = ['#f97316', '#4d5a3c', '#64748b', '#84cc16'];
 
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -17,6 +17,11 @@ export default function BreweryDashboard({ breweryId: initialBreweryId, isHQ = f
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [dateRange, setDateRange] = useState('7d');
+  
+  // PIN code state (ready for backend integration)
+  const [pinCode, setPinCode] = useState('');
+  const [editingPin, setEditingPin] = useState(false);
+  const [newPin, setNewPin] = useState('');
 
   useEffect(() => {
     if (isHQ) {
@@ -53,6 +58,10 @@ export default function BreweryDashboard({ breweryId: initialBreweryId, isHQ = f
     
     if (result.ok) {
       setData(result);
+      // Load PIN from response when backend supports it
+      if (result.manualCode) {
+        setPinCode(result.manualCode);
+      }
     } else {
       setError(result.error || 'Failed to load data');
     }
@@ -63,6 +72,21 @@ export default function BreweryDashboard({ breweryId: initialBreweryId, isHQ = f
   useEffect(() => {
     loadData();
   }, [breweryId, dateRange]);
+
+  const handleSavePin = async () => {
+    if (newPin.length !== 4 || !/^\d{4}$/.test(newPin)) {
+      alert('PIN must be exactly 4 digits');
+      return;
+    }
+    
+    // TODO: Call backend API to save PIN
+    // await updateBreweryPin(breweryId, newPin);
+    
+    setPinCode(newPin);
+    setEditingPin(false);
+    setNewPin('');
+    alert('PIN updated! (Note: Backend integration pending)');
+  };
 
   if (loading && !data) {
     return (
@@ -135,6 +159,52 @@ export default function BreweryDashboard({ breweryId: initialBreweryId, isHQ = f
         </button>
       </div>
 
+      {/* Manual Check-in PIN */}
+      <div className="admin-card">
+        <h3 className="admin-card-title">Manual Check-in Code</h3>
+        <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12, fontSize: 14 }}>
+          Give this code to customers if QR scanning isn't working
+        </p>
+        <div className="admin-pin-display">
+          {editingPin ? (
+            <>
+              <input
+                type="text"
+                className="admin-pin-input"
+                value={newPin}
+                onChange={(e) => setNewPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                placeholder="0000"
+                maxLength={4}
+                autoFocus
+              />
+              <button 
+                className="admin-btn admin-btn-primary admin-btn-small"
+                onClick={handleSavePin}
+              >
+                Save
+              </button>
+              <button 
+                className="admin-btn admin-btn-small"
+                style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }}
+                onClick={() => { setEditingPin(false); setNewPin(''); }}
+              >
+                Cancel
+              </button>
+            </>
+          ) : (
+            <>
+              <span className="admin-pin-code">{pinCode || '----'}</span>
+              <button 
+                className="admin-btn admin-btn-secondary admin-btn-small"
+                onClick={() => { setEditingPin(true); setNewPin(pinCode); }}
+              >
+                Change PIN
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
       <div className="admin-kpi-grid">
         <div className="admin-kpi-card">
           <div className="admin-kpi-label">Today's Check-ins</div>
@@ -183,7 +253,7 @@ export default function BreweryDashboard({ breweryId: initialBreweryId, isHQ = f
                     dataKey="value"
                   >
                     {methodData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                     ))}
                   </Pie>
                   <Tooltip />

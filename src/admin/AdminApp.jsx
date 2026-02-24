@@ -91,7 +91,7 @@ export default function AdminApp() {
         
         <div className="admin-header-right">
           <span className="admin-user-info">{adminUser.email}</span>
-          <span className="admin-user-role">{adminUser.primaryRole}</span>
+          <span className="admin-user-role">{adminUser.primaryRole.replace('_', ' ')}</span>
           <button className="admin-theme-toggle" onClick={toggleTheme}>
             {theme === 'light' ? '🌙' : '☀️'}
           </button>

@@ -7,7 +7,7 @@ import {
 
 const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a921';
 
-const COLORS = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899', '#84cc16'];
+const CHART_COLORS = ['#f97316', '#4d5a3c', '#64748b', '#84cc16', '#fb923c', '#94a3b8'];
 
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -142,7 +142,7 @@ export default function HQDashboard() {
         </div>
         <div className="admin-kpi-card">
           <div className="admin-kpi-label">New Participants</div>
-          <div className="admin-kpi-value">{totals.newParticipants || 0}</div>
+          <div className="admin-kpi-value primary">{totals.newParticipants || 0}</div>
         </div>
         <div className="admin-kpi-card">
           <div className="admin-kpi-label">Hat Claims</div>
@@ -212,13 +212,19 @@ export default function HQDashboard() {
                   tickFormatter={(d) => new Date(d).toLocaleDateString('en', { month: 'short', day: 'numeric' })}
                 />
                 <YAxis tick={{ fill: 'var(--admin-text-muted)', fontSize: 12 }} />
-                <Tooltip />
+                <Tooltip 
+                  contentStyle={{ 
+                    background: 'var(--admin-card-bg)', 
+                    border: '1px solid var(--admin-border)',
+                    borderRadius: 8
+                  }}
+                />
                 <Line 
                   type="monotone" 
                   dataKey="count" 
-                  stroke="var(--admin-primary)" 
+                  stroke="#f97316" 
                   strokeWidth={2}
-                  dot={{ fill: 'var(--admin-primary)' }}
+                  dot={{ fill: '#f97316' }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -242,8 +248,14 @@ export default function HQDashboard() {
                   tick={{ fill: 'var(--admin-text-muted)', fontSize: 12 }}
                   width={80}
                 />
-                <Tooltip />
-                <Bar dataKey="value" fill="var(--admin-primary)" radius={[0, 4, 4, 0]} />
+                <Tooltip 
+                  contentStyle={{ 
+                    background: 'var(--admin-card-bg)', 
+                    border: '1px solid var(--admin-border)',
+                    borderRadius: 8
+                  }}
+                />
+                <Bar dataKey="value" fill="#4d5a3c" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -269,9 +281,7 @@ export default function HQDashboard() {
                   .map((brewery) => (
                     <tr key={brewery.breweryId}>
                       <td>{brewery.breweryName}</td>
-                      <td>
-                        {brewery.avgRating?.toFixed(1)} stars
-                      </td>
+                      <td>{brewery.avgRating?.toFixed(1)} stars</td>
                       <td>{brewery.ratingsCount}</td>
                     </tr>
                   ))}
@@ -303,7 +313,7 @@ export default function HQDashboard() {
                     nameKey="country"
                   >
                     {participantsByCountry.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                     ))}
                   </Pie>
                   <Tooltip />

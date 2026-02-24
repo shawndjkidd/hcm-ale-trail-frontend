@@ -1,15 +1,16 @@
-/* Admin Dashboard Styles - Clean Modern Design */
+/* Admin Dashboard Styles - Slate Gray + Orange/Green Accents */
 
 :root {
-  /* Light mode (default) */
+  /* Light mode */
   --admin-bg: #f8fafc;
   --admin-card-bg: #ffffff;
-  --admin-text: #1e293b;
+  --admin-text: #334155;
   --admin-text-muted: #64748b;
   --admin-border: #e2e8f0;
-  --admin-primary: #3b82f6;
-  --admin-primary-hover: #2563eb;
-  --admin-success: #22c55e;
+  --admin-primary: #f97316;
+  --admin-primary-hover: #ea580c;
+  --admin-success: #4d5a3c;
+  --admin-success-light: #6b8e6b;
   --admin-warning: #f59e0b;
   --admin-danger: #ef4444;
   --admin-shadow: 0 1px 3px rgba(0,0,0,0.1);
@@ -17,11 +18,15 @@
 }
 
 [data-theme="dark"] {
-  --admin-bg: #0f172a;
-  --admin-card-bg: #1e293b;
+  --admin-bg: #1a1f1a;
+  --admin-card-bg: #2a302a;
   --admin-text: #f1f5f9;
   --admin-text-muted: #94a3b8;
-  --admin-border: #334155;
+  --admin-border: #3f463f;
+  --admin-primary: #f97316;
+  --admin-primary-hover: #fb923c;
+  --admin-success: #6b8e6b;
+  --admin-success-light: #84cc16;
   --admin-shadow: 0 1px 3px rgba(0,0,0,0.3);
   --admin-shadow-lg: 0 4px 6px rgba(0,0,0,0.3);
 }
@@ -91,7 +96,7 @@
 .admin-form-input:focus {
   outline: none;
   border-color: var(--admin-primary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
 }
 
 .admin-btn {
@@ -117,6 +122,21 @@
 .admin-btn-primary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.admin-btn-secondary {
+  background: var(--admin-success);
+  color: white;
+}
+
+.admin-btn-secondary:hover {
+  background: var(--admin-success-light);
+}
+
+.admin-btn-small {
+  width: auto;
+  padding: 8px 16px;
+  font-size: 14px;
 }
 
 .admin-error {
@@ -147,9 +167,9 @@
 }
 
 .admin-logo {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
-  color: var(--admin-primary);
+  color: var(--admin-text);
 }
 
 .admin-header-right {
@@ -164,7 +184,7 @@
 }
 
 .admin-user-role {
-  background: var(--admin-primary);
+  background: var(--admin-success);
   color: white;
   padding: 4px 8px;
   border-radius: 4px;
@@ -267,9 +287,9 @@
   color: var(--admin-text);
 }
 
+.admin-kpi-value.primary { color: var(--admin-primary); }
 .admin-kpi-value.success { color: var(--admin-success); }
 .admin-kpi-value.warning { color: var(--admin-warning); }
-.admin-kpi-value.primary { color: var(--admin-primary); }
 
 .admin-kpi-subtext {
   font-size: 12px;
@@ -389,8 +409,42 @@
   color: var(--admin-text-muted);
 }
 
-.admin-stars {
-  color: #fbbf24;
+/* PIN Code Display */
+.admin-pin-display {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--admin-bg);
+  border-radius: 8px;
+  margin-top: 12px;
+}
+
+.admin-pin-code {
+  font-size: 32px;
+  font-weight: 700;
+  font-family: 'Monaco', 'Consolas', monospace;
+  letter-spacing: 8px;
+  color: var(--admin-primary);
+}
+
+.admin-pin-input {
+  width: 120px;
+  font-size: 24px;
+  font-weight: 700;
+  font-family: 'Monaco', 'Consolas', monospace;
+  letter-spacing: 4px;
+  text-align: center;
+  padding: 8px;
+  border: 2px solid var(--admin-border);
+  border-radius: 8px;
+  background: var(--admin-card-bg);
+  color: var(--admin-text);
+}
+
+.admin-pin-input:focus {
+  outline: none;
+  border-color: var(--admin-primary);
 }
 
 @media (max-width: 768px) {
