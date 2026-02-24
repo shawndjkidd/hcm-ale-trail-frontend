@@ -95,7 +95,7 @@ export default function BreweryDashboard({ breweryId: initialBreweryId, isHQ = f
   return (
     <div className="admin-content">
       <h1 className="admin-page-title">
-        🍺 {brewery.name || 'Brewery'} Dashboard
+        {brewery.name || 'Brewery'} Dashboard
       </h1>
 
       {isHQ && breweries.length > 0 && (
