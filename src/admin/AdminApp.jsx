@@ -9,7 +9,8 @@ export default function AdminApp() {
   const [loading, setLoading] = useState(true);
   const [adminUser, setAdminUser] = useState(null);
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('admin-theme') || 'light';
+    // Default to dark mode
+    return localStorage.getItem('admin-theme') || 'dark';
   });
   const [currentView, setCurrentView] = useState('dashboard');
 

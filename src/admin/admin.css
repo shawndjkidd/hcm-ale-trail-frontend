@@ -1,4 +1,5 @@
 /* Admin Dashboard Styles - Slate Gray + Orange/Green Accents */
+/* Dark mode is DEFAULT */
 
 :root {
   /* Light mode */
@@ -15,6 +16,7 @@
   --admin-danger: #ef4444;
   --admin-shadow: 0 1px 3px rgba(0,0,0,0.1);
   --admin-shadow-lg: 0 4px 6px rgba(0,0,0,0.1);
+  --admin-logo-filter: none;
 }
 
 [data-theme="dark"] {
@@ -29,6 +31,7 @@
   --admin-success-light: #84cc16;
   --admin-shadow: 0 1px 3px rgba(0,0,0,0.3);
   --admin-shadow-lg: 0 4px 6px rgba(0,0,0,0.3);
+  --admin-logo-filter: brightness(0) invert(1);
 }
 
 .admin-app {
@@ -99,6 +102,11 @@
   box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
 }
 
+textarea.admin-form-input {
+  resize: vertical;
+  min-height: 60px;
+}
+
 .admin-btn {
   width: 100%;
   padding: 12px 20px;
@@ -137,6 +145,20 @@
   width: auto;
   padding: 8px 16px;
   font-size: 14px;
+}
+
+.admin-btn-danger {
+  background: var(--admin-danger);
+  color: white;
+  padding: 6px 12px;
+  font-size: 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.admin-btn-danger:hover {
+  opacity: 0.9;
 }
 
 .admin-error {
@@ -226,6 +248,37 @@
   font-size: 28px;
   font-weight: 700;
   margin-bottom: 24px;
+}
+
+/* Tabs */
+.admin-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid var(--admin-border);
+  padding-bottom: 0;
+}
+
+.admin-tab {
+  padding: 12px 20px;
+  border: none;
+  background: transparent;
+  color: var(--admin-text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.admin-tab:hover {
+  color: var(--admin-text);
+}
+
+.admin-tab.active {
+  color: var(--admin-primary);
+  border-bottom-color: var(--admin-primary);
 }
 
 .admin-filters {
@@ -355,6 +408,24 @@
 .admin-rank.bronze { background: #fed7aa; color: #9a3412; }
 .admin-rank.default { background: var(--admin-bg); color: var(--admin-text-muted); }
 
+.admin-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.admin-badge.active {
+  background: rgba(107, 142, 107, 0.2);
+  color: var(--admin-success);
+}
+
+.admin-badge.inactive {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--admin-danger);
+}
+
 .admin-chart-container {
   height: 300px;
   margin-top: 16px;
@@ -368,8 +439,9 @@
 
 .admin-grid-3 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
 .admin-brewery-select {
@@ -410,26 +482,7 @@
 }
 
 /* PIN Code Display */
-.admin-pin-display {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-  background: var(--admin-bg);
-  border-radius: 8px;
-  margin-top: 12px;
-}
-
-.admin-pin-code {
-  font-size: 32px;
-  font-weight: 700;
-  font-family: 'Monaco', 'Consolas', monospace;
-  letter-spacing: 8px;
-  color: var(--admin-primary);
-}
-
 .admin-pin-input {
-  width: 120px;
   font-size: 24px;
   font-weight: 700;
   font-family: 'Monaco', 'Consolas', monospace;
@@ -445,6 +498,31 @@
 .admin-pin-input:focus {
   outline: none;
   border-color: var(--admin-primary);
+}
+
+/* Modal */
+.admin-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.admin-modal {
+  background: var(--admin-card-bg);
+  border-radius: 12px;
+  padding: 24px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 @media (max-width: 768px) {
@@ -470,5 +548,9 @@
   .admin-filters {
     flex-direction: column;
     align-items: stretch;
+  }
+  
+  .admin-tabs {
+    overflow-x: auto;
   }
 }

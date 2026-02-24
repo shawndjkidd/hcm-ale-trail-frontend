@@ -26,8 +26,21 @@ export default function AdminLogin({ onLoginSuccess }) {
   return (
     <div className="admin-login">
       <div className="admin-login-card">
+        {/* HCM Ale Trail Logo */}
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <img 
+            src="/logos/HCM Logo-Ale-Trail-2023-BK.png" 
+            alt="HCM Ale Trail" 
+            style={{ 
+              maxWidth: 200, 
+              height: 'auto',
+              filter: 'var(--admin-logo-filter, none)'
+            }}
+          />
+        </div>
+        
         <h1 className="admin-login-title">Admin Dashboard</h1>
-        <p className="admin-login-subtitle">Sign in to access the dashboard</p>
+        <p className="admin-login-subtitle">Sign in to manage the trail</p>
 
         <form onSubmit={handleSubmit}>
           {error && <div className="admin-error">{error}</div>}

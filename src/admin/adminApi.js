@@ -1,5 +1,6 @@
 // Admin API functions
 const API_BASE = '/api';
+const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a921';
 
 function getAccessToken() {
   try {
@@ -94,3 +95,48 @@ export function updateBreweryPin(breweryId, pin) {
     body: JSON.stringify({ pin }),
   });
 }
+
+// Events - HQ (all events for trail)
+export function getTrailEvents(trailId) {
+  return request(`/admin/trails/${trailId}/events?v=${Date.now()}`);
+}
+
+// Events - Brewery specific
+export function getBreweryEvents(breweryId) {
+  return request(`/admin/breweries/${breweryId}/events?v=${Date.now()}`);
+}
+
+export function createEvent(breweryId, eventData) {
+  return request(`/admin/breweries/${breweryId}/events`, {
+    method: 'POST',
+    body: JSON.stringify(eventData),
+  });
+}
+
+export function updateEvent(eventId, eventData) {
+  return request(`/admin/events/${eventId}`, {
+    method: 'PUT',
+    body: JSON.stringify(eventData),
+  });
+}
+
+export function deleteEvent(eventId) {
+  return request(`/admin/events/${eventId}`, {
+    method: 'DELETE',
+  });
+}
+
+// Admin Leaderboard (with emails)
+export function getAdminLeaderboard(trailId, limit = 50) {
+  return request(`/admin/trails/${trailId}/leaderboard?limit=${limit}`);
+}
+
+// Participant Export
+export function exportParticipants(trailId, format = 'json', from, to) {
+  let url = `/admin/trails/${trailId}/participants/export?format=${format}`;
+  if (from) url += `&from=${from}`;
+  if (to) url += `&to=${to}`;
+  return request(url);
+}
+
+export { TRAIL_ID };
