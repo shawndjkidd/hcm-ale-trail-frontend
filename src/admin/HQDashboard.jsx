@@ -96,7 +96,7 @@ export default function HQDashboard() {
 
   return (
     <div className="admin-content">
-      <h1 className="admin-page-title">📊 HQ Dashboard</h1>
+      <h1 className="admin-page-title">HQ Dashboard</h1>
 
       {/* Date Filters */}
       <div className="admin-filters">
@@ -152,7 +152,7 @@ export default function HQDashboard() {
           <div className="admin-kpi-label">Ratings</div>
           <div className="admin-kpi-value">{totals.ratingsCount || 0}</div>
           <div className="admin-kpi-subtext">
-            Avg: {totals.ratingsAvg?.toFixed(1) || '--'} ⭐
+            Avg: {totals.ratingsAvg?.toFixed(1) || '--'} stars
           </div>
         </div>
         <div className="admin-kpi-card">
@@ -172,7 +172,7 @@ export default function HQDashboard() {
       <div className="admin-grid-2">
         {/* Check-ins by Brewery */}
         <div className="admin-card">
-          <h3 className="admin-card-title">🍺 Check-ins by Brewery</h3>
+          <h3 className="admin-card-title">Check-ins by Brewery</h3>
           <table className="admin-table">
             <thead>
               <tr>
@@ -201,7 +201,7 @@ export default function HQDashboard() {
 
         {/* Daily Trend */}
         <div className="admin-card">
-          <h3 className="admin-card-title">📈 Daily Check-ins</h3>
+          <h3 className="admin-card-title">Daily Check-ins</h3>
           <div className="admin-chart-container">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={checkinsTrend}>
@@ -230,7 +230,7 @@ export default function HQDashboard() {
       <div className="admin-grid-2">
         {/* Drop-off Funnel */}
         <div className="admin-card">
-          <h3 className="admin-card-title">📉 Drop-off Funnel</h3>
+          <h3 className="admin-card-title">Drop-off Funnel</h3>
           <div className="admin-chart-container">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={funnelData} layout="vertical">
@@ -251,7 +251,7 @@ export default function HQDashboard() {
 
         {/* Avg Rating by Brewery */}
         <div className="admin-card">
-          <h3 className="admin-card-title">⭐ Ratings by Brewery</h3>
+          <h3 className="admin-card-title">Ratings by Brewery</h3>
           {avgRatingByBrewery.length === 0 ? (
             <div className="admin-empty">No ratings yet</div>
           ) : (
@@ -270,12 +270,7 @@ export default function HQDashboard() {
                     <tr key={brewery.breweryId}>
                       <td>{brewery.breweryName}</td>
                       <td>
-                        <span className="admin-stars">
-                          {'⭐'.repeat(Math.round(brewery.avgRating))}
-                        </span>
-                        <span style={{ marginLeft: 8, color: 'var(--admin-text-muted)' }}>
-                          {brewery.avgRating?.toFixed(1)}
-                        </span>
+                        {brewery.avgRating?.toFixed(1)} stars
                       </td>
                       <td>{brewery.ratingsCount}</td>
                     </tr>
@@ -290,7 +285,7 @@ export default function HQDashboard() {
       <div className="admin-grid-3">
         {/* Participants by Country */}
         <div className="admin-card">
-          <h3 className="admin-card-title">🌍 By Country</h3>
+          <h3 className="admin-card-title">By Country</h3>
           {participantsByCountry.length === 0 ? (
             <div className="admin-empty">No data</div>
           ) : (
@@ -320,7 +315,7 @@ export default function HQDashboard() {
 
         {/* Busiest Times */}
         <div className="admin-card">
-          <h3 className="admin-card-title">⏰ Busiest Times</h3>
+          <h3 className="admin-card-title">Busiest Times</h3>
           <div style={{ padding: '20px 0' }}>
             <div style={{ marginBottom: 16 }}>
               <div className="admin-kpi-label">Busiest Day</div>
@@ -341,7 +336,7 @@ export default function HQDashboard() {
 
         {/* Top Rated Beers */}
         <div className="admin-card">
-          <h3 className="admin-card-title">🏆 Top Rated Beers</h3>
+          <h3 className="admin-card-title">Top Rated Beers</h3>
           {data?.topRatedBeers?.length === 0 ? (
             <div className="admin-empty">
               <p>Not enough ratings yet</p>
@@ -361,7 +356,7 @@ export default function HQDashboard() {
                   <tr key={i}>
                     <td>{beer.beerName}</td>
                     <td style={{ color: 'var(--admin-text-muted)' }}>{beer.breweryName}</td>
-                    <td>⭐ {beer.avgRating?.toFixed(1)}</td>
+                    <td>{beer.avgRating?.toFixed(1)} stars</td>
                   </tr>
                 ))}
               </tbody>

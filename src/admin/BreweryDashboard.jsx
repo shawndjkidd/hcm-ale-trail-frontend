@@ -156,17 +156,17 @@ export default function BreweryDashboard({ breweryId: initialBreweryId, isHQ = f
         <div className="admin-kpi-card">
           <div className="admin-kpi-label">Your Avg Rating</div>
           <div className="admin-kpi-value">
-            {ratings.avgRatingVenue?.toFixed(1) || '--'} ⭐
+            {ratings.avgRatingVenue?.toFixed(1) || '--'} stars
           </div>
           <div className="admin-kpi-subtext">
-            Trail avg: {ratings.avgRatingTrail?.toFixed(1) || '--'} ⭐
+            Trail avg: {ratings.avgRatingTrail?.toFixed(1) || '--'} stars
           </div>
         </div>
       </div>
 
       <div className="admin-grid-2">
         <div className="admin-card">
-          <h3 className="admin-card-title">📱 Check-in Methods</h3>
+          <h3 className="admin-card-title">Check-in Methods</h3>
           {methodData.length === 0 ? (
             <div className="admin-empty">No check-ins yet</div>
           ) : (
@@ -194,7 +194,7 @@ export default function BreweryDashboard({ breweryId: initialBreweryId, isHQ = f
         </div>
 
         <div className="admin-card">
-          <h3 className="admin-card-title">⏰ Busiest Times</h3>
+          <h3 className="admin-card-title">Busiest Times</h3>
           <div style={{ padding: '20px 0' }}>
             <div style={{ marginBottom: 24 }}>
               <div className="admin-kpi-label">Busiest Day</div>
@@ -215,7 +215,7 @@ export default function BreweryDashboard({ breweryId: initialBreweryId, isHQ = f
       </div>
 
       <div className="admin-card">
-        <h3 className="admin-card-title">⭐ Recent Ratings ({ratings.countVenue || 0} total)</h3>
+        <h3 className="admin-card-title">Recent Ratings ({ratings.countVenue || 0} total)</h3>
         {(ratings.latest || []).length === 0 ? (
           <div className="admin-empty">No ratings yet</div>
         ) : (
@@ -240,11 +240,7 @@ export default function BreweryDashboard({ breweryId: initialBreweryId, isHQ = f
                     })}
                   </td>
                   <td><strong>{rating.beer_name}</strong></td>
-                  <td>
-                    <span className="admin-stars">
-                      {'⭐'.repeat(rating.rating)}
-                    </span>
-                  </td>
+                  <td>{rating.rating} stars</td>
                   <td style={{ color: 'var(--admin-text-muted)', maxWidth: 300 }}>
                     {rating.notes || '--'}
                   </td>
@@ -257,7 +253,7 @@ export default function BreweryDashboard({ breweryId: initialBreweryId, isHQ = f
 
       {today.participantIds?.length > 0 && (
         <div className="admin-card">
-          <h3 className="admin-card-title">👥 Today's Visitors</h3>
+          <h3 className="admin-card-title">Today's Visitors</h3>
           <div style={{ color: 'var(--admin-text-muted)' }}>
             {today.participantIds.length} participant(s) checked in today
           </div>
@@ -266,7 +262,7 @@ export default function BreweryDashboard({ breweryId: initialBreweryId, isHQ = f
 
       {ratings.topRatedBeers?.length > 0 && (
         <div className="admin-card">
-          <h3 className="admin-card-title">🏆 Your Top Beers</h3>
+          <h3 className="admin-card-title">Your Top Beers</h3>
           <table className="admin-table">
             <thead>
               <tr>
@@ -279,7 +275,7 @@ export default function BreweryDashboard({ breweryId: initialBreweryId, isHQ = f
               {ratings.topRatedBeers.slice(0, 5).map((beer, i) => (
                 <tr key={i}>
                   <td><strong>{beer.beerName}</strong></td>
-                  <td>⭐ {beer.avgRating?.toFixed(1)}</td>
+                  <td>{beer.avgRating?.toFixed(1)} stars</td>
                   <td>{beer.count}</td>
                 </tr>
               ))}
