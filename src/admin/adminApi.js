@@ -86,3 +86,11 @@ export function getBreweryDashboard(breweryId, from, to) {
 export function getBreweries(trailId) {
   return request(`/trails/${trailId}/breweries`);
 }
+
+// Update brewery PIN code
+export function updateBreweryPin(breweryId, pin) {
+  return request(`/admin/breweries/${breweryId}/pin`, {
+    method: 'PUT',
+    body: JSON.stringify({ pin }),
+  });
+}

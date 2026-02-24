@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getBreweryDashboard, getBreweries } from './adminApi';
+import { getBreweryDashboard, getBreweries, updateBreweryPin } from './adminApi';
 import {
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip
 } from 'recharts';
@@ -18,7 +18,7 @@ export default function BreweryDashboard({ breweryId: initialBreweryId, isHQ = f
   const [error, setError] = useState('');
   const [dateRange, setDateRange] = useState('7d');
   
-  // PIN code state (ready for backend integration)
+  // PIN code state
   const [pinCode, setPinCode] = useState('');
   const [editingPin, setEditingPin] = useState(false);
   const [newPin, setNewPin] = useState('');
@@ -58,9 +58,9 @@ export default function BreweryDashboard({ breweryId: initialBreweryId, isHQ = f
     
     if (result.ok) {
       setData(result);
-      // Load PIN from response when backend supports it
-      if (result.manualCode) {
-        setPinCode(result.manualCode);
+      // Load PIN from response
+      if (result.brewery?.pinCode) {
+        setPinCode(result.brewery.pinCode);
       }
     } else {
       setError(result.error || 'Failed to load data');
@@ -79,13 +79,15 @@ export default function BreweryDashboard({ breweryId: initialBreweryId, isHQ = f
       return;
     }
     
-    // TODO: Call backend API to save PIN
-    // await updateBreweryPin(breweryId, newPin);
+    const result = await updateBreweryPin(breweryId, newPin);
     
-    setPinCode(newPin);
-    setEditingPin(false);
-    setNewPin('');
-    alert('PIN updated! (Note: Backend integration pending)');
+    if (result.ok) {
+      setPinCode(newPin);
+      setEditingPin(false);
+      setNewPin('');
+    } else {
+      alert(result.error || 'Failed to update PIN');
+    }
   };
 
   if (loading && !data) {
@@ -157,52 +159,6 @@ export default function BreweryDashboard({ breweryId: initialBreweryId, isHQ = f
         >
           Last 30 days
         </button>
-      </div>
-
-      {/* Manual Check-in PIN */}
-      <div className="admin-card">
-        <h3 className="admin-card-title">Manual Check-in Code</h3>
-        <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12, fontSize: 14 }}>
-          Give this code to customers if QR scanning isn't working
-        </p>
-        <div className="admin-pin-display">
-          {editingPin ? (
-            <>
-              <input
-                type="text"
-                className="admin-pin-input"
-                value={newPin}
-                onChange={(e) => setNewPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                placeholder="0000"
-                maxLength={4}
-                autoFocus
-              />
-              <button 
-                className="admin-btn admin-btn-primary admin-btn-small"
-                onClick={handleSavePin}
-              >
-                Save
-              </button>
-              <button 
-                className="admin-btn admin-btn-small"
-                style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }}
-                onClick={() => { setEditingPin(false); setNewPin(''); }}
-              >
-                Cancel
-              </button>
-            </>
-          ) : (
-            <>
-              <span className="admin-pin-code">{pinCode || '----'}</span>
-              <button 
-                className="admin-btn admin-btn-secondary admin-btn-small"
-                onClick={() => { setEditingPin(true); setNewPin(pinCode); }}
-              >
-                Change PIN
-              </button>
-            </>
-          )}
-        </div>
       </div>
 
       <div className="admin-kpi-grid">
@@ -353,6 +309,63 @@ export default function BreweryDashboard({ breweryId: initialBreweryId, isHQ = f
           </table>
         </div>
       )}
+
+      {/* Manual Check-in PIN - Small box at bottom */}
+      <div className="admin-card" style={{ maxWidth: 400 }}>
+        <h3 className="admin-card-title" style={{ fontSize: 16 }}>Manual Check-in Code</h3>
+        <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12, fontSize: 13 }}>
+          Backup code if QR scanning fails
+        </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {editingPin ? (
+            <>
+              <input
+                type="text"
+                className="admin-pin-input"
+                style={{ width: 80, fontSize: 18, padding: 6 }}
+                value={newPin}
+                onChange={(e) => setNewPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                placeholder="0000"
+                maxLength={4}
+                autoFocus
+              />
+              <button 
+                className="admin-btn admin-btn-primary admin-btn-small"
+                style={{ padding: '6px 12px', fontSize: 13 }}
+                onClick={handleSavePin}
+              >
+                Save
+              </button>
+              <button 
+                className="admin-btn admin-btn-small"
+                style={{ padding: '6px 12px', fontSize: 13, background: 'var(--admin-border)', color: 'var(--admin-text)' }}
+                onClick={() => { setEditingPin(false); setNewPin(''); }}
+              >
+                Cancel
+              </button>
+            </>
+          ) : (
+            <>
+              <span style={{ 
+                fontSize: 24, 
+                fontWeight: 700, 
+                fontFamily: 'Monaco, Consolas, monospace',
+                letterSpacing: 4,
+                color: 'var(--admin-primary)'
+              }}>
+                {pinCode || '----'}
+              </span>
+              <button 
+                className="admin-btn admin-btn-small"
+                style={{ padding: '6px 12px', fontSize: 13, background: 'var(--admin-border)', color: 'var(--admin-text)' }}
+                onClick={() => { setEditingPin(true); setNewPin(pinCode); }}
+              >
+                Change
+              </button>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
