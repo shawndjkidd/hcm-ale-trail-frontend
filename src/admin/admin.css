@@ -308,6 +308,10 @@ textarea.admin-form-input {
   font-size: 14px;
 }
 
+.admin-quick-filter:hover {
+  background: var(--admin-bg);
+}
+
 .admin-quick-filter.active {
   background: var(--admin-primary);
   color: white;
@@ -435,6 +439,7 @@ textarea.admin-form-input {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   gap: 24px;
+  margin-bottom: 24px;
 }
 
 .admin-grid-3 {
@@ -523,6 +528,64 @@ textarea.admin-form-input {
   max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
+}
+
+/* Brewery Competition Grid */
+.admin-brewery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.admin-brewery-card {
+  background: var(--admin-bg);
+  border: 2px solid var(--admin-border);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.admin-brewery-card.highlight {
+  border-color: var(--admin-primary);
+  background: rgba(249, 115, 22, 0.05);
+}
+
+.admin-brewery-rank {
+  margin-bottom: 8px;
+}
+
+.admin-brewery-name {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.admin-you-badge {
+  background: var(--admin-primary);
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.admin-brewery-count {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--admin-primary);
+  line-height: 1;
+}
+
+.admin-brewery-label {
+  font-size: 12px;
+  color: var(--admin-text-muted);
+  margin-top: 4px;
 }
 
 @media (max-width: 768px) {
