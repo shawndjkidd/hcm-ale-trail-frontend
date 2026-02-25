@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
 import translations from '../translations'
-
-// Events will come from backend API once dashboard is built
-const SAMPLE_EVENTS = []
+import EventsPage from './EventsPage'
 
 // Brewery logo mapping (local files in /public/logos/)
 const BREWERY_LOGOS = {
@@ -25,7 +23,7 @@ const getBreweryLogo = (brewery) => {
 function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onNavigate, resetCard }) {
   const [showCompletionModal, setShowCompletionModal] = useState(false)
   const [showSideQuestModal, setShowSideQuestModal] = useState(false)
-  const [showEventsModal, setShowEventsModal] = useState(false)
+  const [showEventsPage, setShowEventsPage] = useState(false)
   const [hatClaimed, setHatClaimed] = useState(false)
   
   const t = translations[language]
@@ -54,6 +52,16 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
     localStorage.setItem('hcm-hat-claimed', 'true')
     setHatClaimed(true)
     setShowCompletionModal(false)
+  }
+
+  // Show Events Page
+  if (showEventsPage) {
+    return (
+      <EventsPage 
+        language={language} 
+        onClose={() => setShowEventsPage(false)} 
+      />
+    )
   }
 
   return (
@@ -217,7 +225,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         </button>
         <button 
           className="special-btn yellow"
-          onClick={() => setShowEventsModal(true)}
+          onClick={() => setShowEventsPage(true)}
         >
           {t.upcomingBeerEvents || 'UPCOMING BEER EVENTS'}
         </button>
@@ -239,48 +247,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
             <p className="coming-soon-text">{t.comingSoon || 'Coming Soon!'}</p>
             <button className="ok-btn" onClick={() => setShowSideQuestModal(false)}>
               {t.ok}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Events Modal */}
-      {showEventsModal && (
-        <div className="modal-overlay" onClick={() => setShowEventsModal(false)}>
-          <div className="events-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setShowEventsModal(false)}>✕</button>
-            <h2 className="events-modal-title">{t.upcomingBeerEvents || 'UPCOMING BEER EVENTS'}</h2>
-            
-            <div className="events-list">
-              {SAMPLE_EVENTS.map(event => (
-                <div key={event.id} className="event-card">
-                  <div className="event-date-badge">
-                    <span className="event-date">{event.date}</span>
-                    <span className="event-time">{event.time}</span>
-                  </div>
-                  <div className="event-details">
-                    <h3 className="event-title">{event.title}</h3>
-                    <p className="event-venue">📍 {event.breweryName}</p>
-                    {event.description && (
-                      <p className="event-description">{event.description}</p>
-                    )}
-                  </div>
-                  {event.link && (
-                    <a 
-                      href={event.link} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="event-link-btn"
-                    >
-                      {t.moreInfo || 'MORE INFO'}
-                    </a>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            <button className="ok-btn" onClick={() => setShowEventsModal(false)}>
-              {t.close || 'CLOSE'}
             </button>
           </div>
         </div>

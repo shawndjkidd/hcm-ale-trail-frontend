@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react'
 import translations from '../translations'
 import AddBeerModal from './AddBeerModal'
 
-// Events will come from backend API once dashboard is built
-const SAMPLE_EVENTS = []
+const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a921'
+const API_BASE = 'https://hcm-ale-trail-backend-flm8.vercel.app'
 
 const BREWERY_DATA = {
   'BiaCraft': {
@@ -64,20 +64,28 @@ const BREWERY_DATA = {
   }
 }
 
+const DAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+const DAY_LABELS = {
+  en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+  vn: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'],
+  kr: ['일', '월', '화', '수', '목', '금', '토'],
+  jp: ['日', '月', '火', '水', '木', '金', '土']
+}
+
 function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, onBack, qrValidated, timerStart, user }) {
   const [showAddBeer, setShowAddBeer] = useState(false)
   const [message, setMessage] = useState(null)
   const [manualCode, setManualCode] = useState('')
   const [showSharePrompt, setShowSharePrompt] = useState(false)
+  const [breweryEvents, setBreweryEvents] = useState([])
+  const [eventsLoading, setEventsLoading] = useState(true)
 
   const t = translations[language]
   const isStamped = stamps.includes(brewery?.id)
-  // Match beers by ID or name (fallback for old localStorage data with numeric IDs)
   const breweryBeers = beers.filter(b => 
     b.breweryId === brewery?.id || b.breweryName === brewery?.name
   )
   
-  // Merge backend data with hardcoded social links (until backend provides these)
   const hardcodedInfo = BREWERY_DATA[brewery?.name] || {}
   const breweryInfo = {
     instagram: brewery?.instagram_url || hardcodedInfo.instagram,
@@ -89,7 +97,6 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
   
   const isFirstStamp = stamps.length === 0
   
-  // Map brewery names to order numbers (fallback if order field missing)
   const BREWERY_ORDER = {
     'BiaCraft': 1,
     'Heart of Darkness': 2,
@@ -101,40 +108,124 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     'Belgo Saigon': 8
   }
   
-  // Get description in current language (with fallbacks)
   const getDescription = () => {
-    // Get order number (from field or name mapping)
     const orderKey = brewery?.order || BREWERY_ORDER[brewery?.name]
-    
-    // 1. Try translation key first (brewery1Desc, brewery2Desc, etc.)
     if (orderKey && t[`brewery${orderKey}Desc`]) {
       return t[`brewery${orderKey}Desc`]
     }
-    // 2. Try description_i18n for current language
     if (brewery?.description_i18n?.[language]) {
       return brewery.description_i18n[language]
     }
-    // 3. Try description_i18n for English
     if (brewery?.description_i18n?.en) {
       return brewery.description_i18n.en
     }
-    // 4. Try normalized description (already a string)
     if (typeof brewery?.description === 'string') {
       return brewery.description
     }
-    // 5. Try description object directly (shouldn't happen after normalization)
     if (typeof brewery?.description === 'object' && brewery.description?.[language]) {
       return brewery.description[language]
     }
     if (typeof brewery?.description === 'object' && brewery.description?.en) {
       return brewery.description.en
     }
-    // 6. Final fallback
     return ''
   }
-  
-  // Get events for this brewery (match by name since events use names, not UUIDs)
-  const breweryEvents = SAMPLE_EVENTS.filter(e => e.breweryName === brewery?.name)
+
+  // Fetch events for this brewery
+  useEffect(() => {
+    if (brewery?.id) {
+      fetchBreweryEvents()
+    }
+  }, [brewery?.id])
+
+  const fetchBreweryEvents = async () => {
+    setEventsLoading(true)
+    try {
+      const res = await fetch(`${API_BASE}/api/trails/${TRAIL_ID}/events?v=${Date.now()}`)
+      const data = await res.json()
+      if (data.ok && data.events) {
+        // Filter events for this brewery
+        const filtered = data.events.filter(e => e.breweryId === brewery.id)
+        setBreweryEvents(filtered)
+      }
+    } catch (err) {
+      console.error('Failed to fetch brewery events:', err)
+    }
+    setEventsLoading(false)
+  }
+
+  // Check if brewery is open now
+  const isOpenNow = () => {
+    const hours = brewery?.operatingHours || brewery?.operating_hours
+    if (!hours) return null
+    
+    const now = new Date()
+    const dayName = DAY_NAMES[now.getDay()]
+    const todayHours = hours[dayName]
+    
+    if (!todayHours || todayHours.closed) return false
+    
+    const currentTime = now.getHours() * 60 + now.getMinutes()
+    const [openHour, openMin] = (todayHours.open || '00:00').split(':').map(Number)
+    const [closeHour, closeMin] = (todayHours.close || '23:59').split(':').map(Number)
+    
+    const openTime = openHour * 60 + openMin
+    let closeTime = closeHour * 60 + closeMin
+    
+    // Handle midnight crossover (e.g., closes at 01:00)
+    if (closeTime < openTime) {
+      closeTime += 24 * 60
+      if (currentTime < openTime) {
+        return currentTime + 24 * 60 >= openTime && currentTime + 24 * 60 <= closeTime
+      }
+    }
+    
+    return currentTime >= openTime && currentTime <= closeTime
+  }
+
+  // Format hours for display
+  const formatHours = () => {
+    const hours = brewery?.operatingHours || brewery?.operating_hours
+    if (!hours) return null
+    
+    const dayLabels = DAY_LABELS[language] || DAY_LABELS.en
+    const result = []
+    
+    DAY_NAMES.forEach((day, index) => {
+      const dayHours = hours[day]
+      if (dayHours) {
+        if (dayHours.closed) {
+          result.push({ day: dayLabels[index], hours: t.closed || 'Closed' })
+        } else {
+          result.push({ day: dayLabels[index], hours: `${dayHours.open} - ${dayHours.close}` })
+        }
+      }
+    })
+    
+    return result
+  }
+
+  const getEventTitle = (event) => {
+    if (!event.title) return 'Event'
+    if (typeof event.title === 'string') return event.title
+    return event.title[language] || event.title.en || 'Event'
+  }
+
+  const getEventDescription = (event) => {
+    if (!event.description) return null
+    if (typeof event.description === 'string') return event.description
+    return event.description[language] || event.description.en || null
+  }
+
+  const formatEventDate = (dateStr) => {
+    const date = new Date(dateStr)
+    return date.toLocaleDateString('en', { month: 'short', day: 'numeric' })
+  }
+
+  const formatEventTime = (dateStr) => {
+    const date = new Date(dateStr)
+    return date.toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' })
+  }
 
   useEffect(() => {
     if (qrValidated && !isStamped) {
@@ -191,6 +282,9 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     setTimeout(() => setMessage(null), 3000)
   }
 
+  const openStatus = isOpenNow()
+  const hoursData = formatHours()
+
   return (
     <div className="brewery-detail">
       <button className="back-btn" onClick={onBack}>← {t.back || 'BACK'}</button>
@@ -240,22 +334,47 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
       <div className="brewery-info-card">
         <h1 className="brewery-title">{brewery?.name || 'Brewery'}</h1>
         <p className="brewery-address">📍 {brewery?.address || ''}</p>
+        
+        {/* Open/Closed Status */}
+        {openStatus !== null && (
+          <div className={`brewery-open-status ${openStatus ? 'open' : 'closed'}`}>
+            {openStatus ? (t.openNow || '🟢 Open Now') : (t.closedNow || '🔴 Closed')}
+          </div>
+        )}
+        
         <p className="brewery-description">{getDescription()}</p>
       </div>
+
+      {/* Operating Hours */}
+      {hoursData && hoursData.length > 0 && (
+        <div className="brewery-hours-section">
+          <h3 className="brewery-hours-title">{t.hours || 'HOURS'}</h3>
+          <div className="brewery-hours-grid">
+            {hoursData.map((item, index) => (
+              <div key={index} className="brewery-hours-row">
+                <span className="brewery-hours-day">{item.day}</span>
+                <span className="brewery-hours-time">{item.hours}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Upcoming Events at this Brewery */}
       <div className="brewery-events-section">
         <h3 className="brewery-events-title">{t.upcomingEvents || 'UPCOMING EVENTS'}</h3>
-        {breweryEvents.length > 0 ? (
+        {eventsLoading ? (
+          <p className="events-loading-text">{t.loading || 'Loading...'}</p>
+        ) : breweryEvents.length > 0 ? (
           breweryEvents.map(event => (
             <div key={event.id} className="brewery-event-item">
               <div className="brewery-event-header">
-                <span className="brewery-event-name">{event.title}</span>
-                <span className="brewery-event-date">{event.date}</span>
+                <span className="brewery-event-name">{getEventTitle(event)}</span>
+                <span className="brewery-event-date">{formatEventDate(event.startsAt)}</span>
               </div>
-              <div className="brewery-event-time">🕐 {event.time}</div>
-              {event.description && (
-                <div className="brewery-event-desc">{event.description}</div>
+              <div className="brewery-event-time">🕐 {formatEventTime(event.startsAt)}</div>
+              {getEventDescription(event) && (
+                <div className="brewery-event-desc">{getEventDescription(event)}</div>
               )}
               {event.link && (
                 <a 
