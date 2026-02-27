@@ -3,6 +3,10 @@
     {
       "source": "/api/(.*)",
       "destination": "https://hcm-ale-trail-backend-flm8.vercel.app/api/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
