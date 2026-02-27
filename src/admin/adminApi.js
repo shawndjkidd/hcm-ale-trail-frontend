@@ -1,142 +1,273 @@
-// Admin API functions
-const API_BASE = '/api';
-const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a921';
+export const API_BASE = 'https://hcm-ale-trail-backend-flm8.vercel.app';
+export const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a921';
 
-function getAccessToken() {
-  try {
-    return localStorage.getItem('hcm-access-token');
-  } catch {
-    return null;
-  }
+function getToken() {
+  return localStorage.getItem('hcm-admin-token') || localStorage.getItem('admin_token') || localStorage.getItem('token') || localStorage.getItem('access_token');
 }
 
 function authHeaders() {
-  const token = getAccessToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  const token = getToken();
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': token ? `Bearer ${token}` : ''
+  };
 }
 
-async function request(path, options = {}) {
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...authHeaders(),
-      ...(options.headers || {}),
-    },
-  });
-  
-  const data = await res.json().catch(() => ({ ok: false, error: 'Invalid response' }));
-  
-  if (!res.ok) {
-    return { ok: false, error: data?.error || `Request failed (${res.status})`, status: res.status };
+// ==================== AUTH ====================
+
+export async function getAdminMe() {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/me`, { headers: authHeaders() });
+    return res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
   }
-  
-  return data;
 }
 
-// Auth
-export async function adminLogin(email, password) {
-  const res = await fetch(`${API_BASE}/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
-  });
-  
-  const data = await res.json().catch(() => null);
-  
-  if (res.ok && data?.ok && data?.access_token) {
-    localStorage.setItem('hcm-access-token', data.access_token);
-    if (data.refresh_token) {
-      localStorage.setItem('hcm-refresh-token', data.refresh_token);
+// ==================== HQ DASHBOARD ====================
+
+export async function getTrailOverview(trailId, from, to) {
+  try {
+    let url = `${API_BASE}/api/admin/trails/${trailId}/overview`;
+    const params = new URLSearchParams();
+    if (from) params.append('from', from);
+    if (to) params.append('to', to);
+    if (params.toString()) url += `?${params.toString()}`;
+    const res = await fetch(url, { headers: authHeaders() });
+    return res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function getAdminLeaderboard(trailId, limit = 50) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/leaderboard?limit=${limit}`, { headers: authHeaders() });
+    return res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function exportParticipants(trailId, format = 'json', from, to) {
+  try {
+    let url = `${API_BASE}/api/admin/trails/${trailId}/participants/export?format=${format}`;
+    if (from) url += `&from=${from}`;
+    if (to) url += `&to=${to}`;
+    const res = await fetch(url, { headers: authHeaders() });
+    if (format === 'csv') {
+      const text = await res.text();
+      const blob = new Blob([text], { type: 'text/csv' });
+      const downloadUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = `participants-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      return { ok: true };
     }
-    return { ok: true, ...data };
+    return res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
   }
-  
-  return { ok: false, error: data?.error || 'Login failed' };
 }
 
-export function adminLogout() {
-  localStorage.removeItem('hcm-access-token');
-  localStorage.removeItem('hcm-refresh-token');
+// ==================== EVENTS ====================
+
+export async function getTrailEvents(trailId) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/events`, { headers: authHeaders() });
+    return res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
 }
 
-// Admin endpoints
-export function getAdminMe() {
-  return request('/admin/me');
+export async function createTrailEvent(trailId, eventData) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/events`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify(eventData)
+    });
+    return res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
 }
 
-export function getTrailOverview(trailId, from, to) {
-  let url = `/admin/trails/${trailId}/overview`;
-  const params = new URLSearchParams();
-  if (from) params.set('from', from);
-  if (to) params.set('to', to);
-  if (params.toString()) url += `?${params.toString()}`;
-  return request(url);
+export async function getBreweryEvents(breweryId) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/events`, { headers: authHeaders() });
+    return res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
 }
 
-export function getBreweryDashboard(breweryId, from, to) {
-  let url = `/admin/breweries/${breweryId}/dashboard`;
-  const params = new URLSearchParams();
-  if (from) params.set('from', from);
-  if (to) params.set('to', to);
-  if (params.toString()) url += `?${params.toString()}`;
-  return request(url);
+export async function createBreweryEvent(breweryId, eventData) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/events`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify(eventData)
+    });
+    return res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
 }
 
-// Get list of breweries for dropdown
-export function getBreweries(trailId) {
-  return request(`/trails/${trailId}/breweries`);
+export async function deleteEvent(eventId) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/events/${eventId}`, {
+      method: 'DELETE',
+      headers: authHeaders()
+    });
+    return res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
 }
 
-// Update brewery PIN code
-export function updateBreweryPin(breweryId, pin) {
-  return request(`/admin/breweries/${breweryId}/pin`, {
-    method: 'PUT',
-    body: JSON.stringify({ pin }),
-  });
+// ==================== BREWERY DASHBOARD ====================
+
+export async function getBreweryDashboard(breweryId, from, to) {
+  try {
+    let url = `${API_BASE}/api/admin/breweries/${breweryId}/dashboard`;
+    const params = new URLSearchParams();
+    if (from) params.append('from', from);
+    if (to) params.append('to', to);
+    if (params.toString()) url += `?${params.toString()}`;
+    const res = await fetch(url, { headers: authHeaders() });
+    return res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
 }
 
-// Events - HQ (all events for trail)
-export function getTrailEvents(trailId) {
-  return request(`/admin/trails/${trailId}/events?v=${Date.now()}`);
+export async function updateBreweryPin(breweryId, pin) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/pin`, {
+      method: 'PUT',
+      headers: authHeaders(),
+      body: JSON.stringify({ pin })
+    });
+    return res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
 }
 
-// Events - Brewery specific
-export function getBreweryEvents(breweryId) {
-  return request(`/admin/breweries/${breweryId}/events?v=${Date.now()}`);
+export async function updateBreweryHours(breweryId, operatingHours) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/hours`, {
+      method: 'PUT',
+      headers: authHeaders(),
+      body: JSON.stringify({ operating_hours: operatingHours })
+    });
+    return res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
 }
 
-export function createEvent(breweryId, eventData) {
-  return request(`/admin/breweries/${breweryId}/events`, {
-    method: 'POST',
-    body: JSON.stringify(eventData),
-  });
+// ==================== BREWERY MANAGEMENT (HQ) ====================
+
+export async function getTrailBreweries(trailId) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/breweries`, { headers: authHeaders() });
+    return res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
 }
 
-export function updateEvent(eventId, eventData) {
-  return request(`/admin/events/${eventId}`, {
-    method: 'PUT',
-    body: JSON.stringify(eventData),
-  });
+export async function createBrewery(trailId, breweryData) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/breweries`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify(breweryData)
+    });
+    return res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
 }
 
-export function deleteEvent(eventId) {
-  return request(`/admin/events/${eventId}`, {
-    method: 'DELETE',
-  });
+export async function updateBrewery(breweryId, breweryData) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}`, {
+      method: 'PUT',
+      headers: authHeaders(),
+      body: JSON.stringify(breweryData)
+    });
+    return res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
 }
 
-// Admin Leaderboard (with emails)
-export function getAdminLeaderboard(trailId, limit = 50) {
-  return request(`/admin/trails/${trailId}/leaderboard?limit=${limit}`);
+export async function deleteBrewery(breweryId, hard = false) {
+  try {
+    const url = hard 
+      ? `${API_BASE}/api/admin/breweries/${breweryId}?hard=1`
+      : `${API_BASE}/api/admin/breweries/${breweryId}`;
+    const res = await fetch(url, {
+      method: 'DELETE',
+      headers: authHeaders()
+    });
+    return res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
 }
 
-// Participant Export
-export function exportParticipants(trailId, format = 'json', from, to) {
-  let url = `/admin/trails/${trailId}/participants/export?format=${format}`;
-  if (from) url += `&from=${from}`;
-  if (to) url += `&to=${to}`;
-  return request(url);
+// ==================== SIDE QUESTS ====================
+
+export async function getSideQuests(trailId) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/side-quests`, { headers: authHeaders() });
+    return res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
 }
 
-export { TRAIL_ID };
+export async function createSideQuest(trailId, questData) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/side-quests`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify(questData)
+    });
+    return res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function updateSideQuest(questId, questData) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/side-quests/${questId}`, {
+      method: 'PUT',
+      headers: authHeaders(),
+      body: JSON.stringify(questData)
+    });
+    return res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function deleteSideQuest(questId) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/side-quests/${questId}`, {
+      method: 'DELETE',
+      headers: authHeaders()
+    });
+    return res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
