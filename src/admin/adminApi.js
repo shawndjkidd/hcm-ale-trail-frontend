@@ -1,4 +1,4 @@
-export const API_BASE = 'https://hcm-ale-trail-backend-flm8.vercel.app';
+export const API_BASE = '';
 export const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a921';
 
 function getToken() {
