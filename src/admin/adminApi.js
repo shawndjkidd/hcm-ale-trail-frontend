@@ -273,6 +273,14 @@ export async function deleteSideQuest(questId) {
 }
 // ==================== LOGIN ====================
 
+
+export function adminLogout() {
+  localStorage.removeItem('hcm-admin-token');
+  localStorage.removeItem('admin_token');
+  localStorage.removeItem('token');
+  localStorage.removeItem('access_token');
+}
+
 export async function adminLogin(email, password) {
   try {
     const res = await fetch(`${API_BASE}/api/auth/login`, {
@@ -280,15 +288,12 @@ export async function adminLogin(email, password) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
     });
-    return res.json();
+    const data = await res.json();
+    if (data.ok && data.access_token) {
+      localStorage.setItem('hcm-admin-token', data.access_token);
+    }
+    return data;
   } catch (err) {
     return { ok: false, error: err.message };
   }
-}
-
-export function adminLogout() {
-  localStorage.removeItem('hcm-admin-token');
-  localStorage.removeItem('admin_token');
-  localStorage.removeItem('token');
-  localStorage.removeItem('access_token');
 }
