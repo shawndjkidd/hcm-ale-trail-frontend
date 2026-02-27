@@ -271,3 +271,24 @@ export async function deleteSideQuest(questId) {
     return { ok: false, error: err.message };
   }
 }
+// ==================== LOGIN ====================
+
+export async function adminLogin(email, password) {
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    return res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export function adminLogout() {
+  localStorage.removeItem('hcm-admin-token');
+  localStorage.removeItem('admin_token');
+  localStorage.removeItem('token');
+  localStorage.removeItem('access_token');
+}
