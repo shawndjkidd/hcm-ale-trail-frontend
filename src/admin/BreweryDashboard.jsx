@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateBreweryPin, updateBreweryHours } from './adminApi';
+import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateBreweryPin, updateBreweryHours, getTrailBreweries, TRAIL_ID } from './adminApi';
 
 const DAY_NAMES = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 const DAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-
 const DEFAULT_HOURS = {
   monday: { open: '11:00', close: '23:00', closed: false },
   tuesday: { open: '11:00', close: '23:00', closed: false },
@@ -14,7 +13,9 @@ const DEFAULT_HOURS = {
   sunday: { open: '12:00', close: '22:00', closed: false }
 };
 
-export default function BreweryDashboard({ breweryId }) {
+export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = false }) {
+  const [selectedBreweryId, setSelectedBreweryId] = useState(propBreweryId || '');
+  const [breweries, setBreweries] = useState([]);
   const [data, setData] = useState(null);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,23 +23,39 @@ export default function BreweryDashboard({ breweryId }) {
   const [dateRange, setDateRange] = useState('7d');
   const [activeTab, setActiveTab] = useState('overview');
 
-  // PIN settings
   const [pinCode, setPinCode] = useState('');
   const [savingPin, setSavingPin] = useState(false);
   const [pinMessage, setPinMessage] = useState('');
 
-  // Hours settings
   const [operatingHours, setOperatingHours] = useState(DEFAULT_HOURS);
   const [savingHours, setSavingHours] = useState(false);
   const [hoursMessage, setHoursMessage] = useState('');
 
-  // Event form
   const [showEventForm, setShowEventForm] = useState(false);
   const [eventForm, setEventForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '' });
   const [savingEvent, setSavingEvent] = useState(false);
 
+  const breweryId = propBreweryId || selectedBreweryId;
+
+  // Load brewery list for HQ selector
+  useEffect(() => {
+    if (isHQ) {
+      getTrailBreweries(TRAIL_ID).then(result => {
+        if (result.ok) {
+          setBreweries(result.breweries || []);
+          if (!selectedBreweryId && result.breweries?.length > 0) {
+            setSelectedBreweryId(result.breweries[0].id);
+          }
+        }
+      });
+    }
+  }, [isHQ]);
+
   const loadData = async (from, to) => {
-    if (!breweryId) return;
+    if (!breweryId) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError('');
     const [dashResult, eventsResult] = await Promise.all([
@@ -60,6 +77,7 @@ export default function BreweryDashboard({ breweryId }) {
   };
 
   useEffect(() => {
+    if (!breweryId) return;
     let from, to;
     const now = new Date();
     to = now.toISOString();
@@ -68,8 +86,6 @@ export default function BreweryDashboard({ breweryId }) {
     else if (dateRange === '30d') from = new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString();
     loadData(from, to);
   }, [breweryId, dateRange]);
-
-  // ==================== PIN HANDLERS ====================
 
   const handleSavePin = async () => {
     if (pinCode.length !== 4 || !/^\d{4}$/.test(pinCode)) {
@@ -87,8 +103,6 @@ export default function BreweryDashboard({ breweryId }) {
     }
     setSavingPin(false);
   };
-
-  // ==================== HOURS HANDLERS ====================
 
   const handleHoursChange = (day, field, value) => {
     setOperatingHours(prev => ({
@@ -117,7 +131,12 @@ export default function BreweryDashboard({ breweryId }) {
     setSavingHours(false);
   };
 
-  // ==================== EVENT HANDLERS ====================
+  const handleDeleteEvent = async (eventId) => {
+    if (!confirm('Delete this event?')) return;
+    const result = await deleteEvent(eventId);
+    if (result.ok) setEvents(events.filter(e => e.id !== eventId));
+    else alert(result.error || 'Failed to delete');
+  };
 
   const handleCreateEvent = async () => {
     if (!eventForm.titleEn || !eventForm.startsAt) {
@@ -126,6 +145,7 @@ export default function BreweryDashboard({ breweryId }) {
     }
     setSavingEvent(true);
     const eventData = {
+      trail_id: TRAIL_ID,
       title: { en: eventForm.titleEn, vn: eventForm.titleVn || eventForm.titleEn },
       description: eventForm.descriptionEn ? { en: eventForm.descriptionEn, vn: eventForm.descriptionVn || eventForm.descriptionEn } : null,
       starts_at: new Date(eventForm.startsAt).toISOString(),
@@ -144,50 +164,62 @@ export default function BreweryDashboard({ breweryId }) {
     setSavingEvent(false);
   };
 
-  const handleDeleteEvent = async (eventId) => {
-    if (!confirm('Delete this event?')) return;
-    const result = await deleteEvent(eventId);
-    if (result.ok) setEvents(events.filter(e => e.id !== eventId));
-    else alert(result.error || 'Failed to delete');
-  };
-
-  // ==================== RENDER ====================
+  // HQ brewery selector
+  if (isHQ && !breweryId && breweries.length === 0) {
+    return (
+      <div className="admin-content">
+        <div className="admin-loading"><div className="admin-spinner" /></div>
+      </div>
+    );
+  }
 
   if (loading && !data) {
     return (
-      <div className="admin-loading">
-        <div className="admin-spinner" />
+      <div className="admin-content">
+        {isHQ && (
+          <div style={{ marginBottom: 20 }}>
+            <label className="admin-form-label">Select Brewery</label>
+            <select className="admin-form-input" style={{ maxWidth: 300 }} value={selectedBreweryId} onChange={(e) => setSelectedBreweryId(e.target.value)}>
+              {breweries.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+            </select>
+          </div>
+        )}
+        <div className="admin-loading"><div className="admin-spinner" /></div>
       </div>
     );
   }
 
   if (error && !data) {
-    return (
-      <div className="admin-content">
-        <div className="admin-error">{error}</div>
-      </div>
-    );
+    return <div className="admin-content"><div className="admin-error">{error}</div></div>;
   }
 
   const brewery = data?.brewery || {};
-  const today = data?.today || {};
   const totals = data?.totals || {};
   const ratings = data?.ratings || {};
-  const journeyStats = data?.journeyStats || {};
+  const ranking = data?.ranking || {};
   const checkinsByBrewery = data?.checkinsByBrewery || [];
+  const journeyStats = data?.journeyStats || {};
 
   return (
     <div className="admin-content">
+      {isHQ && (
+        <div style={{ marginBottom: 20 }}>
+          <label className="admin-form-label">Select Brewery</label>
+          <select className="admin-form-input" style={{ maxWidth: 300 }} value={selectedBreweryId} onChange={(e) => setSelectedBreweryId(e.target.value)}>
+            {breweries.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+          </select>
+        </div>
+      )}
+
       <h1 className="admin-page-title">{brewery.name || 'Brewery'} Dashboard</h1>
 
       <div className="admin-tabs">
         <button className={`admin-tab ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>Overview</button>
-        <button className={`admin-tab ${activeTab === 'allbreweries' ? 'active' : ''}`} onClick={() => setActiveTab('allbreweries')}>All Breweries</button>
+        <button className={`admin-tab ${activeTab === 'competition' ? 'active' : ''}`} onClick={() => setActiveTab('competition')}>All Breweries</button>
         <button className={`admin-tab ${activeTab === 'events' ? 'active' : ''}`} onClick={() => setActiveTab('events')}>Events ({events.length})</button>
         <button className={`admin-tab ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>Settings</button>
       </div>
 
-      {/* ==================== OVERVIEW TAB ==================== */}
       {activeTab === 'overview' && (
         <>
           <div className="admin-filters">
@@ -197,265 +229,114 @@ export default function BreweryDashboard({ breweryId }) {
           </div>
 
           <div className="admin-kpi-grid">
-            <div className="admin-kpi-card">
-              <div className="admin-kpi-label">Today's Check-ins</div>
-              <div className="admin-kpi-value primary">{today.checkins || 0}</div>
-            </div>
-            <div className="admin-kpi-card">
-              <div className="admin-kpi-label">Total Check-ins</div>
-              <div className="admin-kpi-value">{totals.checkins || 0}</div>
-            </div>
-            <div className="admin-kpi-card">
-              <div className="admin-kpi-label">Avg Rating</div>
-              <div className="admin-kpi-value success">{ratings.avgRatingVenue?.toFixed(1) || '--'}</div>
-              <div className="admin-kpi-subtext">{ratings.countVenue || 0} ratings</div>
-            </div>
-            <div className="admin-kpi-card">
-              <div className="admin-kpi-label">Started Here</div>
-              <div className="admin-kpi-value">{journeyStats.startedHere || 0}</div>
-            </div>
-            <div className="admin-kpi-card">
-              <div className="admin-kpi-label">Ended Here</div>
-              <div className="admin-kpi-value">{journeyStats.endedHere || 0}</div>
-            </div>
-            <div className="admin-kpi-card">
-              <div className="admin-kpi-label">Hat Claims Here</div>
-              <div className="admin-kpi-value success">{journeyStats.hatClaimsHere || 0}</div>
-            </div>
+            <div className="admin-kpi-card"><div className="admin-kpi-label">Total Check-ins</div><div className="admin-kpi-value primary">{totals.checkins || 0}</div></div>
+            <div className="admin-kpi-card"><div className="admin-kpi-label">Unique Visitors</div><div className="admin-kpi-value primary">{totals.uniqueVisitors || 0}</div></div>
+            <div className="admin-kpi-card"><div className="admin-kpi-label">Trail Rank</div><div className="admin-kpi-value">{ranking.rank || '--'}<span style={{ fontSize: 14, color: 'var(--admin-text-muted)' }}> / {ranking.total || '--'}</span></div></div>
+            <div className="admin-kpi-card"><div className="admin-kpi-label">Avg Rating</div><div className="admin-kpi-value">{ratings.avgRating?.toFixed(1) || '--'}</div><div className="admin-kpi-subtext">{ratings.count || 0} ratings</div></div>
           </div>
 
-          <div className="admin-grid-2">
-            <div className="admin-card">
-              <h3 className="admin-card-title">Check-ins by Method</h3>
-              {!totals.checkinsByMethod ? (
-                <div className="admin-empty">No data yet</div>
-              ) : (
-                <table className="admin-table">
-                  <thead><tr><th>Method</th><th>Count</th></tr></thead>
-                  <tbody>
-                    {Object.entries(totals.checkinsByMethod || {}).map(([method, count]) => (
-                      <tr key={method}>
-                        <td style={{ textTransform: 'capitalize' }}>{method}</td>
-                        <td><strong>{count}</strong></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
+          <div className="admin-grid-3">
+            <div className="admin-card"><h3 className="admin-card-title">Started Here</h3><div className="admin-kpi-value" style={{ fontSize: 48 }}>{journeyStats.startedHere || 0}</div><div className="admin-kpi-subtext">participants began their trail here</div></div>
+            <div className="admin-card"><h3 className="admin-card-title">Ended Here</h3><div className="admin-kpi-value" style={{ fontSize: 48 }}>{journeyStats.endedHere || 0}</div><div className="admin-kpi-subtext">participants finished their trail here</div></div>
+            <div className="admin-card"><h3 className="admin-card-title">Hat Claims</h3><div className="admin-kpi-value success" style={{ fontSize: 48 }}>{journeyStats.hatClaimsHere || 0}</div><div className="admin-kpi-subtext">hats claimed at this location</div></div>
+          </div>
+
+          {ratings.latest && ratings.latest.length > 0 && (
             <div className="admin-card">
               <h3 className="admin-card-title">Latest Ratings</h3>
-              {!ratings.latest?.length ? (
-                <div className="admin-empty">No ratings yet</div>
-              ) : (
-                <table className="admin-table">
-                  <thead><tr><th>Beer</th><th>Rating</th><th>Date</th></tr></thead>
-                  <tbody>
-                    {(ratings.latest || []).slice(0, 10).map((r, i) => (
-                      <tr key={i}>
-                        <td>{r.beerName || '--'}</td>
-                        <td>{'⭐'.repeat(r.rating)}</td>
-                        <td style={{ color: 'var(--admin-text-muted)' }}>{new Date(r.createdAt).toLocaleDateString()}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+              <table className="admin-table"><thead><tr><th>Beer</th><th>Rating</th><th>Date</th></tr></thead><tbody>
+                {ratings.latest.slice(0, 5).map((r, i) => (
+                  <tr key={i}><td>{r.beerName || 'Unknown'}</td><td>{r.rating} stars</td><td style={{ color: 'var(--admin-text-muted)' }}>{new Date(r.createdAt).toLocaleDateString()}</td></tr>
+                ))}
+              </tbody></table>
             </div>
-          </div>
+          )}
         </>
       )}
 
-      {/* ==================== ALL BREWERIES TAB ==================== */}
-      {activeTab === 'allbreweries' && (
-        <>
-          <div className="admin-filters">
-            <button className={`admin-quick-filter ${dateRange === '24h' ? 'active' : ''}`} onClick={() => setDateRange('24h')}>Last 24h</button>
-            <button className={`admin-quick-filter ${dateRange === '7d' ? 'active' : ''}`} onClick={() => setDateRange('7d')}>Last 7 days</button>
-            <button className={`admin-quick-filter ${dateRange === '30d' ? 'active' : ''}`} onClick={() => setDateRange('30d')}>Last 30 days</button>
-          </div>
-
-          <div className="admin-card">
-            <h3 className="admin-card-title">Trail-Wide Check-ins (Friendly Competition)</h3>
-            <p style={{ color: 'var(--admin-text-muted)', marginBottom: 16, fontSize: 14 }}>See how all breweries are performing across the trail.</p>
-
-            {checkinsByBrewery.length === 0 ? (
-              <div className="admin-empty">No check-in data yet</div>
-            ) : (
-              <div className="admin-brewery-grid">
-                {checkinsByBrewery.sort((a, b) => b.count - a.count).map((b, index) => {
-                  const isYou = b.breweryId === breweryId;
-                  return (
-                    <div key={b.breweryId} className={`admin-brewery-card ${isYou ? 'highlight' : ''}`}>
-                      <div className="admin-brewery-rank">
-                        <span className={`admin-rank ${index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : 'default'}`}>
-                          #{index + 1}
-                        </span>
-                      </div>
-                      <div className="admin-brewery-info">
-                        <div className="admin-brewery-name">
-                          {b.breweryName}
-                          {isYou && <span className="admin-you-badge">You</span>}
-                        </div>
-                        <div className="admin-brewery-count">{b.count} check-ins</div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </>
+      {activeTab === 'competition' && (
+        <div className="admin-card">
+          <h3 className="admin-card-title">Trail Competition</h3>
+          {checkinsByBrewery.length === 0 ? (<div className="admin-empty">No data yet</div>) : (
+            <table className="admin-table"><thead><tr><th>Rank</th><th>Brewery</th><th>Check-ins</th></tr></thead><tbody>
+              {checkinsByBrewery.sort((a, b) => b.count - a.count).map((b, index) => (
+                <tr key={b.breweryId} style={b.breweryId === breweryId ? { background: 'var(--admin-primary)', color: 'white' } : {}}>
+                  <td><span className={`admin-rank ${index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : 'default'}`}>{index + 1}</span></td>
+                  <td><strong>{b.breweryName}</strong>{b.breweryId === breweryId && ' (You)'}</td>
+                  <td><strong>{b.count}</strong></td>
+                </tr>
+              ))}
+            </tbody></table>
+          )}
+        </div>
       )}
 
-      {/* ==================== EVENTS TAB ==================== */}
       {activeTab === 'events' && (
         <>
           {showEventForm && (
             <div className="admin-modal-overlay" onClick={() => setShowEventForm(false)}>
               <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
                 <h3 style={{ marginBottom: 20 }}>Create Event</h3>
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Title (English) *</label>
-                  <input type="text" className="admin-form-input" value={eventForm.titleEn} onChange={(e) => setEventForm({...eventForm, titleEn: e.target.value})} placeholder="Happy Hour Special" />
-                </div>
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Title (Vietnamese)</label>
-                  <input type="text" className="admin-form-input" value={eventForm.titleVn} onChange={(e) => setEventForm({...eventForm, titleVn: e.target.value})} placeholder="Giờ vui vẻ" />
-                </div>
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Description (English)</label>
-                  <textarea className="admin-form-input" value={eventForm.descriptionEn} onChange={(e) => setEventForm({...eventForm, descriptionEn: e.target.value})} placeholder="50% off all craft beers!" rows={2} />
-                </div>
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Start Date/Time *</label>
-                  <input type="datetime-local" className="admin-form-input" value={eventForm.startsAt} onChange={(e) => setEventForm({...eventForm, startsAt: e.target.value})} />
-                </div>
-                <div className="admin-form-group">
-                  <label className="admin-form-label">End Date/Time</label>
-                  <input type="datetime-local" className="admin-form-input" value={eventForm.endsAt} onChange={(e) => setEventForm({...eventForm, endsAt: e.target.value})} />
-                </div>
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Link (optional)</label>
-                  <input type="url" className="admin-form-input" value={eventForm.link} onChange={(e) => setEventForm({...eventForm, link: e.target.value})} placeholder="https://..." />
-                </div>
-                <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
-                  <button className="admin-btn admin-btn-primary" onClick={handleCreateEvent} disabled={savingEvent}>{savingEvent ? 'Creating...' : 'Create Event'}</button>
-                  <button className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={() => setShowEventForm(false)}>Cancel</button>
-                </div>
+                <div className="admin-form-group"><label className="admin-form-label">Title (English) *</label><input type="text" className="admin-form-input" value={eventForm.titleEn} onChange={(e) => setEventForm({...eventForm, titleEn: e.target.value})} /></div>
+                <div className="admin-form-group"><label className="admin-form-label">Title (Vietnamese)</label><input type="text" className="admin-form-input" value={eventForm.titleVn} onChange={(e) => setEventForm({...eventForm, titleVn: e.target.value})} /></div>
+                <div className="admin-form-group"><label className="admin-form-label">Description</label><textarea className="admin-form-input" value={eventForm.descriptionEn} onChange={(e) => setEventForm({...eventForm, descriptionEn: e.target.value})} rows={2} /></div>
+                <div className="admin-form-group"><label className="admin-form-label">Start Date/Time *</label><input type="datetime-local" className="admin-form-input" value={eventForm.startsAt} onChange={(e) => setEventForm({...eventForm, startsAt: e.target.value})} /></div>
+                <div className="admin-form-group"><label className="admin-form-label">End Date/Time</label><input type="datetime-local" className="admin-form-input" value={eventForm.endsAt} onChange={(e) => setEventForm({...eventForm, endsAt: e.target.value})} /></div>
+                <div className="admin-form-group"><label className="admin-form-label">Link</label><input type="url" className="admin-form-input" value={eventForm.link} onChange={(e) => setEventForm({...eventForm, link: e.target.value})} /></div>
+                <div style={{ display: 'flex', gap: 12, marginTop: 20 }}><button className="admin-btn admin-btn-primary" onClick={handleCreateEvent} disabled={savingEvent}>{savingEvent ? 'Creating...' : 'Create Event'}</button><button className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={() => setShowEventForm(false)}>Cancel</button></div>
               </div>
             </div>
           )}
-
           <div className="admin-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 className="admin-card-title" style={{ marginBottom: 0 }}>Your Events</h3>
-              <button className="admin-btn admin-btn-primary admin-btn-small" onClick={() => setShowEventForm(true)}>+ Create Event</button>
-            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}><h3 className="admin-card-title" style={{ marginBottom: 0 }}>Events</h3><button className="admin-btn admin-btn-primary admin-btn-small" onClick={() => setShowEventForm(true)}>+ Create Event</button></div>
             {events.length === 0 ? (<div className="admin-empty">No events yet</div>) : (
-              <table className="admin-table">
-                <thead><tr><th>Event</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
-                <tbody>
-                  {events.map((event) => (
-                    <tr key={event.id}>
-                      <td>
-                        <strong>{event.title?.en || event.title}</strong>
-                        {event.description?.en && <div style={{ fontSize: 12, color: 'var(--admin-text-muted)' }}>{event.description.en}</div>}
-                      </td>
-                      <td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
-                      <td><span className={`admin-badge ${event.status === 'active' ? 'active' : 'inactive'}`}>{event.status}</span></td>
-                      <td><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <table className="admin-table"><thead><tr><th>Event</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+                {events.map((event) => (
+                  <tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><span className={`admin-badge ${event.status === 'active' ? 'active' : 'inactive'}`}>{event.status}</span></td><td><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></td></tr>
+                ))}
+              </tbody></table>
             )}
           </div>
         </>
       )}
 
-      {/* ==================== SETTINGS TAB ==================== */}
       {activeTab === 'settings' && (
         <>
-          {/* PIN Code Section */}
           <div className="admin-card">
-            <h3 className="admin-card-title">Manual Check-in PIN</h3>
-            <p style={{ color: 'var(--admin-text-muted)', marginBottom: 16, fontSize: 14 }}>
-              This 4-digit PIN can be given to customers when QR scanning isn't working.
-            </p>
-            <div style={{ display: 'flex', gap: 12, alignItems: 'center', maxWidth: 300 }}>
-              <input
-                type="text"
-                className="admin-form-input"
-                value={pinCode}
-                onChange={(e) => setPinCode(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                placeholder="1234"
-                maxLength="4"
-                style={{ width: 120, textAlign: 'center', fontSize: 24, letterSpacing: 8, fontFamily: 'monospace' }}
-              />
-              <button className="admin-btn admin-btn-primary" onClick={handleSavePin} disabled={savingPin}>
-                {savingPin ? 'Saving...' : 'Save PIN'}
-              </button>
+            <h3 className="admin-card-title">Fallback PIN Code</h3>
+            <p style={{ color: 'var(--admin-text-muted)', marginBottom: 16 }}>4-digit PIN for manual check-ins when QR fails.</p>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+              <input type="text" className="admin-form-input" style={{ width: 120, fontSize: 24, textAlign: 'center', letterSpacing: 8 }} value={pinCode} onChange={(e) => setPinCode(e.target.value.replace(/\D/g, '').slice(0, 4))} maxLength="4" placeholder="1234" />
+              <button className="admin-btn admin-btn-primary" onClick={handleSavePin} disabled={savingPin}>{savingPin ? 'Saving...' : 'Save PIN'}</button>
+              {pinMessage && <span style={{ color: pinMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{pinMessage}</span>}
             </div>
-            {pinMessage && (
-              <div style={{ marginTop: 12, color: pinMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>
-                {pinMessage}
-              </div>
-            )}
           </div>
 
-          {/* Operating Hours Section */}
           <div className="admin-card" style={{ marginTop: 20 }}>
             <h3 className="admin-card-title">Operating Hours</h3>
-            <p style={{ color: 'var(--admin-text-muted)', marginBottom: 16, fontSize: 14 }}>
-              Set your opening hours. These will be displayed to users in the app.
-            </p>
-
+            <p style={{ color: 'var(--admin-text-muted)', marginBottom: 16 }}>Set your weekly operating hours.</p>
             <div className="admin-hours-grid">
               {DAY_NAMES.map((day, index) => (
                 <div key={day} className="admin-hours-row">
                   <div className="admin-hours-day">{DAY_LABELS[index]}</div>
                   <div className="admin-hours-inputs">
                     {operatingHours[day]?.closed ? (
-                      <span style={{ color: 'var(--admin-text-muted)', fontStyle: 'italic' }}>Closed</span>
+                      <span style={{ color: 'var(--admin-text-muted)' }}>Closed</span>
                     ) : (
                       <>
-                        <input
-                          type="time"
-                          className="admin-form-input admin-time-input"
-                          value={operatingHours[day]?.open || '11:00'}
-                          onChange={(e) => handleHoursChange(day, 'open', e.target.value)}
-                        />
-                        <span style={{ color: 'var(--admin-text-muted)' }}>to</span>
-                        <input
-                          type="time"
-                          className="admin-form-input admin-time-input"
-                          value={operatingHours[day]?.close || '23:00'}
-                          onChange={(e) => handleHoursChange(day, 'close', e.target.value)}
-                        />
+                        <input type="time" className="admin-time-input" value={operatingHours[day]?.open || '11:00'} onChange={(e) => handleHoursChange(day, 'open', e.target.value)} />
+                        <span>to</span>
+                        <input type="time" className="admin-time-input" value={operatingHours[day]?.close || '23:00'} onChange={(e) => handleHoursChange(day, 'close', e.target.value)} />
                       </>
                     )}
                   </div>
-                  <button
-                    className={`admin-btn-small ${operatingHours[day]?.closed ? 'admin-btn-success' : ''}`}
-                    onClick={() => handleToggleClosed(day)}
-                    style={{ minWidth: 80 }}
-                  >
-                    {operatingHours[day]?.closed ? 'Open' : 'Close'}
-                  </button>
+                  <button className={`admin-btn-small ${operatingHours[day]?.closed ? 'admin-btn-danger' : 'admin-btn-success'}`} onClick={() => handleToggleClosed(day)}>{operatingHours[day]?.closed ? 'Closed' : 'Open'}</button>
                 </div>
               ))}
             </div>
-
-            <div style={{ marginTop: 20 }}>
-              <button className="admin-btn admin-btn-primary" onClick={handleSaveHours} disabled={savingHours}>
-                {savingHours ? 'Saving...' : 'Save Hours'}
-              </button>
-              {hoursMessage && (
-                <span style={{ marginLeft: 12, color: hoursMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>
-                  {hoursMessage}
-                </span>
-              )}
+            <div style={{ marginTop: 16, display: 'flex', gap: 12, alignItems: 'center' }}>
+              <button className="admin-btn admin-btn-primary" onClick={handleSaveHours} disabled={savingHours}>{savingHours ? 'Saving...' : 'Save Hours'}</button>
+              {hoursMessage && <span style={{ color: hoursMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{hoursMessage}</span>}
             </div>
           </div>
         </>
