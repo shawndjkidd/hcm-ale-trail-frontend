@@ -37,7 +37,6 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
 
   const breweryId = propBreweryId || selectedBreweryId;
 
-  // Load brewery list for HQ selector
   useEffect(() => {
     if (isHQ) {
       getTrailBreweries(TRAIL_ID).then(result => {
@@ -164,13 +163,31 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
     setSavingEvent(false);
   };
 
-  // HQ brewery selector
+  // Aggregate beer ratings from latest ratings
+  const getBeerRatings = () => {
+    const latest = data?.ratings?.latest || [];
+    const beerMap = {};
+    latest.forEach(r => {
+      const name = r.beer_name || r.beerName || 'Unknown Beer';
+      if (!beerMap[name]) {
+        beerMap[name] = { totalRating: 0, count: 0, ratings: [] };
+      }
+      beerMap[name].totalRating += r.rating;
+      beerMap[name].count += 1;
+      beerMap[name].ratings.push(r);
+    });
+    return Object.entries(beerMap)
+      .map(([name, data]) => ({
+        beerName: name,
+        avgRating: data.totalRating / data.count,
+        count: data.count,
+        ratings: data.ratings
+      }))
+      .sort((a, b) => b.avgRating - a.avgRating);
+  };
+
   if (isHQ && !breweryId && breweries.length === 0) {
-    return (
-      <div className="admin-content">
-        <div className="admin-loading"><div className="admin-spinner" /></div>
-      </div>
-    );
+    return <div className="admin-content"><div className="admin-loading"><div className="admin-spinner" /></div></div>;
   }
 
   if (loading && !data) {
@@ -199,6 +216,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   const ranking = data?.ranking || {};
   const checkinsByBrewery = data?.checkinsByBrewery || [];
   const journeyStats = data?.journeyStats || {};
+  const beerRatings = getBeerRatings();
 
   return (
     <div className="admin-content">
@@ -215,7 +233,8 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
 
       <div className="admin-tabs">
         <button className={`admin-tab ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>Overview</button>
-        <button className={`admin-tab ${activeTab === 'competition' ? 'active' : ''}`} onClick={() => setActiveTab('competition')}>All Breweries</button>
+        <button className={`admin-tab ${activeTab === 'ratings' ? 'active' : ''}`} onClick={() => setActiveTab('ratings')}>Beer Ratings</button>
+        <button className={`admin-tab ${activeTab === 'competition' ? 'active' : ''}`} onClick={() => setActiveTab('competition')}>Trail Competition</button>
         <button className={`admin-tab ${activeTab === 'events' ? 'active' : ''}`} onClick={() => setActiveTab('events')}>Events ({events.length})</button>
         <button className={`admin-tab ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>Settings</button>
       </div>
@@ -230,23 +249,23 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
 
           <div className="admin-kpi-grid">
             <div className="admin-kpi-card"><div className="admin-kpi-label">Total Check-ins</div><div className="admin-kpi-value primary">{totals.checkins || 0}</div></div>
-            <div className="admin-kpi-card"><div className="admin-kpi-label">Unique Visitors</div><div className="admin-kpi-value primary">{totals.uniqueVisitors || 0}</div></div>
-            <div className="admin-kpi-card"><div className="admin-kpi-label">Trail Rank</div><div className="admin-kpi-value">{ranking.rank || '--'}<span style={{ fontSize: 14, color: 'var(--admin-text-muted)' }}> / {ranking.total || '--'}</span></div></div>
-            <div className="admin-kpi-card"><div className="admin-kpi-label">Avg Rating</div><div className="admin-kpi-value">{ratings.avgRating?.toFixed(1) || '--'}</div><div className="admin-kpi-subtext">{ratings.count || 0} ratings</div></div>
+            <div className="admin-kpi-card"><div className="admin-kpi-label">Trail Rank</div><div className="admin-kpi-value primary">{ranking.rank || '--'}<span style={{ fontSize: 14, color: 'var(--admin-text-muted)' }}> / {ranking.totalBreweriesWithCheckins || '--'}</span></div></div>
+            <div className="admin-kpi-card"><div className="admin-kpi-label">Avg Beer Rating</div><div className="admin-kpi-value">{ratings.avgRatingVenue?.toFixed(1) || '--'}★</div><div className="admin-kpi-subtext">{ratings.countVenue || 0} ratings</div></div>
+            <div className="admin-kpi-card"><div className="admin-kpi-label">Hat Claims Here</div><div className="admin-kpi-value success">{journeyStats.hatClaimsHere || 0}</div></div>
           </div>
 
           <div className="admin-grid-3">
-            <div className="admin-card"><h3 className="admin-card-title">Started Here</h3><div className="admin-kpi-value" style={{ fontSize: 48 }}>{journeyStats.startedHere || 0}</div><div className="admin-kpi-subtext">participants began their trail here</div></div>
-            <div className="admin-card"><h3 className="admin-card-title">Ended Here</h3><div className="admin-kpi-value" style={{ fontSize: 48 }}>{journeyStats.endedHere || 0}</div><div className="admin-kpi-subtext">participants finished their trail here</div></div>
-            <div className="admin-card"><h3 className="admin-card-title">Hat Claims</h3><div className="admin-kpi-value success" style={{ fontSize: 48 }}>{journeyStats.hatClaimsHere || 0}</div><div className="admin-kpi-subtext">hats claimed at this location</div></div>
+            <div className="admin-card"><h3 className="admin-card-title">Started Here</h3><div className="admin-kpi-value" style={{ fontSize: 48, textAlign: 'center' }}>{journeyStats.startedHere || 0}</div><div className="admin-kpi-subtext" style={{ textAlign: 'center' }}>participants began their trail here</div></div>
+            <div className="admin-card"><h3 className="admin-card-title">Ended Here</h3><div className="admin-kpi-value" style={{ fontSize: 48, textAlign: 'center' }}>{journeyStats.endedHere || 0}</div><div className="admin-kpi-subtext" style={{ textAlign: 'center' }}>participants finished their trail here</div></div>
+            <div className="admin-card"><h3 className="admin-card-title">Hat Claims</h3><div className="admin-kpi-value success" style={{ fontSize: 48, textAlign: 'center' }}>{journeyStats.hatClaimsHere || 0}</div><div className="admin-kpi-subtext" style={{ textAlign: 'center' }}>hats claimed at this location</div></div>
           </div>
 
-          {ratings.latest && ratings.latest.length > 0 && (
+          {beerRatings.length > 0 && (
             <div className="admin-card">
-              <h3 className="admin-card-title">Latest Ratings</h3>
-              <table className="admin-table"><thead><tr><th>Beer</th><th>Rating</th><th>Date</th></tr></thead><tbody>
-                {ratings.latest.slice(0, 5).map((r, i) => (
-                  <tr key={i}><td>{r.beerName || 'Unknown'}</td><td>{r.rating} stars</td><td style={{ color: 'var(--admin-text-muted)' }}>{new Date(r.createdAt).toLocaleDateString()}</td></tr>
+              <h3 className="admin-card-title">Top Rated Beers</h3>
+              <table className="admin-table"><thead><tr><th>Beer</th><th>Avg Rating</th><th># Ratings</th></tr></thead><tbody>
+                {beerRatings.slice(0, 5).map((beer, i) => (
+                  <tr key={i}><td><strong>{beer.beerName}</strong></td><td>{beer.avgRating.toFixed(2)}★</td><td>{beer.count}</td></tr>
                 ))}
               </tbody></table>
             </div>
@@ -254,20 +273,99 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
         </>
       )}
 
+      {activeTab === 'ratings' && (
+        <>
+          <div className="admin-grid-2">
+            <div className="admin-card">
+              <h3 className="admin-card-title">Rating Summary</h3>
+              <div className="admin-kpi-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
+                <div className="admin-kpi-card"><div className="admin-kpi-label">Overall Avg</div><div className="admin-kpi-value primary">{ratings.avgRatingVenue?.toFixed(1) || '--'}★</div></div>
+                <div className="admin-kpi-card"><div className="admin-kpi-label">Total Ratings</div><div className="admin-kpi-value">{ratings.countVenue || 0}</div></div>
+              </div>
+              {beerRatings.length > 0 && (
+                <div style={{ marginTop: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--admin-border)' }}>
+                    <span style={{ color: 'var(--admin-text-muted)' }}>Highest Rated</span>
+                    <span><strong>{beerRatings[0].beerName}</strong> ({beerRatings[0].avgRating.toFixed(2)}★)</span>
+                  </div>
+                  {beerRatings.length > 1 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
+                      <span style={{ color: 'var(--admin-text-muted)' }}>Lowest Rated</span>
+                      <span><strong>{beerRatings[beerRatings.length - 1].beerName}</strong> ({beerRatings[beerRatings.length - 1].avgRating.toFixed(2)}★)</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            <div className="admin-card">
+              <h3 className="admin-card-title">Trail Comparison</h3>
+              <div className="admin-kpi-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
+                <div className="admin-kpi-card"><div className="admin-kpi-label">Your Avg</div><div className="admin-kpi-value">{ratings.avgRatingVenue?.toFixed(1) || '--'}★</div></div>
+                <div className="admin-kpi-card"><div className="admin-kpi-label">Trail Avg</div><div className="admin-kpi-value">{ratings.avgRatingTrail?.toFixed(1) || '--'}★</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="admin-card">
+            <h3 className="admin-card-title">All Beer Ratings</h3>
+            {beerRatings.length === 0 ? (<div className="admin-empty">No beer ratings yet</div>) : (
+              <table className="admin-table"><thead><tr><th>Beer</th><th>Avg Rating</th><th># Ratings</th></tr></thead><tbody>
+                {beerRatings.map((beer, i) => (
+                  <tr key={i}>
+                    <td><strong>{beer.beerName}</strong></td>
+                    <td><span style={{ color: beer.avgRating >= 4 ? 'var(--admin-success)' : beer.avgRating >= 3 ? 'var(--admin-warning)' : 'var(--admin-danger)' }}>{beer.avgRating.toFixed(2)}★</span></td>
+                    <td>{beer.count}</td>
+                  </tr>
+                ))}
+              </tbody></table>
+            )}
+          </div>
+
+          <div className="admin-card">
+            <h3 className="admin-card-title">Recent Reviews</h3>
+            {(ratings.latest || []).length === 0 ? (<div className="admin-empty">No reviews yet</div>) : (
+              <div>
+                {(ratings.latest || []).map((r, i) => (
+                  <div key={i} style={{ padding: '12px 0', borderBottom: i < ratings.latest.length - 1 ? '1px solid var(--admin-border)' : 'none' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <strong>{r.beer_name || r.beerName}</strong>
+                      <span style={{ color: r.rating >= 4 ? 'var(--admin-success)' : 'var(--admin-text-muted)' }}>{r.rating}★</span>
+                    </div>
+                    {r.notes && <div style={{ color: 'var(--admin-text-muted)', fontSize: 14, fontStyle: 'italic' }}>"{r.notes}"</div>}
+                    <div style={{ color: 'var(--admin-text-muted)', fontSize: 12, marginTop: 4 }}>{new Date(r.created_at || r.createdAt).toLocaleDateString()}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
       {activeTab === 'competition' && (
         <div className="admin-card">
           <h3 className="admin-card-title">Trail Competition</h3>
+          <p style={{ color: 'var(--admin-text-muted)', marginBottom: 16 }}>See how you rank against other breweries on the trail.</p>
           {checkinsByBrewery.length === 0 ? (<div className="admin-empty">No data yet</div>) : (
             <table className="admin-table"><thead><tr><th>Rank</th><th>Brewery</th><th>Check-ins</th></tr></thead><tbody>
-              {checkinsByBrewery.sort((a, b) => b.count - a.count).map((b, index) => (
-                <tr key={b.breweryId} style={b.breweryId === breweryId ? { background: 'var(--admin-primary)', color: 'white' } : {}}>
-                  <td><span className={`admin-rank ${index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : 'default'}`}>{index + 1}</span></td>
-                  <td><strong>{b.breweryName}</strong>{b.breweryId === breweryId && ' (You)'}</td>
-                  <td><strong>{b.count}</strong></td>
-                </tr>
-              ))}
+              {checkinsByBrewery.sort((a, b) => b.count - a.count).map((b, index) => {
+                const isYou = b.breweryId === breweryId;
+                return (
+                  <tr key={b.breweryId} style={isYou ? { background: 'rgba(249, 115, 22, 0.15)' } : {}}>
+                    <td>
+                      <span className={`admin-rank ${index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : 'default'}`}>
+                        {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
+                      </span>
+                    </td>
+                    <td><strong>{b.breweryName}</strong>{isYou && <span style={{ marginLeft: 8, color: 'var(--admin-primary)', fontSize: 12 }}>(You)</span>}</td>
+                    <td><strong>{b.count}</strong></td>
+                  </tr>
+                );
+              })}
             </tbody></table>
           )}
+          <p style={{ color: 'var(--admin-text-muted)', fontSize: 12, marginTop: 16 }}>
+            💡 More stats coming soon: Hat Claims, Avg Rating, Top Beer per brewery
+          </p>
         </div>
       )}
 
