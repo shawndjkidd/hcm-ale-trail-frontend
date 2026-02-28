@@ -6,7 +6,7 @@ const DEFAULT_TRAIL_ID = "89e5e2d6-090b-448a-8e53-6d05b731a921";
 function getToken() {
   try {
     return (
-      localStorage.getItem("admin_token") ||
+      localStorage.getItem("hcm-admin-token") || localStorage.getItem("admin_token") ||
       localStorage.getItem("token") ||
       localStorage.getItem("access_token") ||
       ""
