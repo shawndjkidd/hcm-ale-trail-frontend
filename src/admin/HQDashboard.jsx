@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   getTrailOverview, getTrailEvents, getAdminLeaderboard, exportParticipants,
-  deleteEvent, createTrailEvent, getTrailBreweries, createBrewery, updateBrewery,
-  deleteBrewery, getSideQuests, createSideQuest, updateSideQuest, deleteSideQuest, TRAIL_ID
+  deleteEvent, createTrailEvent, TRAIL_ID
 } from './adminApi';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -16,8 +15,6 @@ export default function HQDashboard() {
   const [data, setData] = useState(null);
   const [events, setEvents] = useState([]);
   const [leaderboard, setLeaderboard] = useState([]);
-  const [breweries, setBreweries] = useState([]);
-  const [sideQuests, setSideQuests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [dateRange, setDateRange] = useState('7d');
@@ -26,39 +23,26 @@ export default function HQDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [exporting, setExporting] = useState(false);
 
-  // Event form
   const [showEventForm, setShowEventForm] = useState(false);
   const [eventForm, setEventForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '' });
   const [savingEvent, setSavingEvent] = useState(false);
 
-  // Brewery form
-  const [showBreweryForm, setShowBreweryForm] = useState(false);
-  const [editingBrewery, setEditingBrewery] = useState(null);
-  const [breweryForm, setBreweryForm] = useState({ name: '', address: '', district: '', pinCode: '', logoUrl: '', status: 'active' });
-  const [savingBrewery, setSavingBrewery] = useState(false);
-
-  // Side Quest form
-  const [showQuestForm, setShowQuestForm] = useState(false);
-  const [editingQuest, setEditingQuest] = useState(null);
-  const [questForm, setQuestForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', reward: '', status: 'active' });
-  const [savingQuest, setSavingQuest] = useState(false);
-
   const loadData = async (from, to) => {
     setLoading(true);
     setError('');
-    const [overviewResult, eventsResult, leaderboardResult, breweriesResult, questsResult] = await Promise.all([
-      getTrailOverview(TRAIL_ID, from, to),
-      getTrailEvents(TRAIL_ID),
-      getAdminLeaderboard(TRAIL_ID, 50),
-      getTrailBreweries(TRAIL_ID),
-      getSideQuests(TRAIL_ID)
-    ]);
-    if (overviewResult.ok) setData(overviewResult);
-    else setError(overviewResult.error || 'Failed to load data');
-    if (eventsResult.ok) setEvents(eventsResult.events || []);
-    if (leaderboardResult.ok) setLeaderboard(leaderboardResult.leaderboard || []);
-    if (breweriesResult.ok) setBreweries(breweriesResult.breweries || []);
-    if (questsResult.ok) setSideQuests(questsResult.sideQuests || questsResult.side_quests || []);
+    try {
+      const [overviewResult, eventsResult, leaderboardResult] = await Promise.all([
+        getTrailOverview(TRAIL_ID, from, to),
+        getTrailEvents(TRAIL_ID),
+        getAdminLeaderboard(TRAIL_ID, 50)
+      ]);
+      if (overviewResult.ok) setData(overviewResult);
+      else setError(overviewResult.error || 'Failed to load data');
+      if (eventsResult.ok) setEvents(eventsResult.events || []);
+      if (leaderboardResult.ok) setLeaderboard(leaderboardResult.leaderboard || []);
+    } catch (err) {
+      setError(err.message || 'Failed to load data');
+    }
     setLoading(false);
   };
 
@@ -99,8 +83,6 @@ export default function HQDashboard() {
     setExporting(false);
   };
 
-  // ==================== EVENT HANDLERS ====================
-
   const handleDeleteEvent = async (eventId) => {
     if (!confirm('Delete this event?')) return;
     const result = await deleteEvent(eventId);
@@ -133,142 +115,6 @@ export default function HQDashboard() {
     setSavingEvent(false);
   };
 
-  // ==================== BREWERY HANDLERS ====================
-
-  const openBreweryForm = (brewery = null) => {
-    if (brewery) {
-      setEditingBrewery(brewery);
-      setBreweryForm({
-        name: brewery.name || '',
-        address: brewery.address || '',
-        district: brewery.district || '',
-        pinCode: brewery.pinCode || brewery.pin_code || '',
-        logoUrl: brewery.logoUrl || brewery.logo_url || '',
-        status: brewery.status || 'active'
-      });
-    } else {
-      setEditingBrewery(null);
-      setBreweryForm({ name: '', address: '', district: '', pinCode: '', logoUrl: '', status: 'active' });
-    }
-    setShowBreweryForm(true);
-  };
-
-  const handleSaveBrewery = async () => {
-    if (!breweryForm.name) {
-      alert('Name is required');
-      return;
-    }
-    setSavingBrewery(true);
-    const breweryData = {
-      name: breweryForm.name,
-      address: breweryForm.address,
-      district: breweryForm.district,
-      pin_code: breweryForm.pinCode,
-      logo_url: breweryForm.logoUrl,
-      status: breweryForm.status
-    };
-
-    let result;
-    if (editingBrewery) {
-      result = await updateBrewery(editingBrewery.id, breweryData);
-      if (result.ok) {
-        setBreweries(breweries.map(b => b.id === editingBrewery.id ? { ...b, ...result.brewery } : b));
-      }
-    } else {
-      result = await createBrewery(TRAIL_ID, breweryData);
-      if (result.ok) {
-        setBreweries([...breweries, result.brewery]);
-      }
-    }
-
-    if (result.ok) {
-      setShowBreweryForm(false);
-      setEditingBrewery(null);
-    } else {
-      alert(result.error || 'Failed to save brewery');
-    }
-    setSavingBrewery(false);
-  };
-
-  const handleDeleteBrewery = async (breweryId) => {
-    if (!confirm('Delete this brewery? This will soft-delete it (set status to inactive).')) return;
-    const result = await deleteBrewery(breweryId, false);
-    if (result.ok) {
-      setBreweries(breweries.map(b => b.id === breweryId ? { ...b, status: 'inactive' } : b));
-    } else {
-      alert(result.error || 'Failed to delete');
-    }
-  };
-
-  // ==================== SIDE QUEST HANDLERS ====================
-
-  const openQuestForm = (quest = null) => {
-    if (quest) {
-      setEditingQuest(quest);
-      const title = quest.title || {};
-      const desc = quest.description || {};
-      setQuestForm({
-        titleEn: typeof title === 'string' ? title : (title.en || ''),
-        titleVn: typeof title === 'string' ? '' : (title.vn || ''),
-        descriptionEn: typeof desc === 'string' ? desc : (desc.en || ''),
-        descriptionVn: typeof desc === 'string' ? '' : (desc.vn || ''),
-        reward: quest.reward || '',
-        status: quest.status || 'active'
-      });
-    } else {
-      setEditingQuest(null);
-      setQuestForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', reward: '', status: 'active' });
-    }
-    setShowQuestForm(true);
-  };
-
-  const handleSaveQuest = async () => {
-    if (!questForm.titleEn) {
-      alert('Title (English) is required');
-      return;
-    }
-    setSavingQuest(true);
-    const questData = {
-      title: { en: questForm.titleEn, vn: questForm.titleVn || questForm.titleEn },
-      description: { en: questForm.descriptionEn, vn: questForm.descriptionVn || questForm.descriptionEn },
-      reward: questForm.reward,
-      status: questForm.status
-    };
-
-    let result;
-    if (editingQuest) {
-      result = await updateSideQuest(editingQuest.id, questData);
-      if (result.ok) {
-        setSideQuests(sideQuests.map(q => q.id === editingQuest.id ? { ...q, ...result.sideQuest } : q));
-      }
-    } else {
-      result = await createSideQuest(TRAIL_ID, questData);
-      if (result.ok) {
-        setSideQuests([...sideQuests, result.sideQuest]);
-      }
-    }
-
-    if (result.ok) {
-      setShowQuestForm(false);
-      setEditingQuest(null);
-    } else {
-      alert(result.error || 'Failed to save side quest');
-    }
-    setSavingQuest(false);
-  };
-
-  const handleDeleteQuest = async (questId) => {
-    if (!confirm('Delete this side quest?')) return;
-    const result = await deleteSideQuest(questId);
-    if (result.ok) {
-      setSideQuests(sideQuests.filter(q => q.id !== questId));
-    } else {
-      alert(result.error || 'Failed to delete');
-    }
-  };
-
-  // ==================== RENDER ====================
-
   if (loading && !data) {
     return (
       <div className="admin-loading">
@@ -297,8 +143,6 @@ export default function HQDashboard() {
   const funnelData = dropoffFunnel.map(d => ({ name: `${d.stamps} stamps`, value: d.count }));
   const trailEvents = events.filter(e => !e.breweryId);
   const breweryEvents = events.filter(e => e.breweryId);
-  const activeBreweries = breweries.filter(b => b.status !== 'inactive');
-  const inactiveBreweries = breweries.filter(b => b.status === 'inactive');
 
   return (
     <div className="admin-content">
@@ -306,14 +150,11 @@ export default function HQDashboard() {
 
       <div className="admin-tabs">
         <button className={`admin-tab ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>Overview</button>
-        <button className={`admin-tab ${activeTab === 'breweries' ? 'active' : ''}`} onClick={() => setActiveTab('breweries')}>Breweries ({breweries.length})</button>
         <button className={`admin-tab ${activeTab === 'events' ? 'active' : ''}`} onClick={() => setActiveTab('events')}>Events ({events.length})</button>
-        <button className={`admin-tab ${activeTab === 'sidequests' ? 'active' : ''}`} onClick={() => setActiveTab('sidequests')}>Side Quests ({sideQuests.length})</button>
         <button className={`admin-tab ${activeTab === 'leaderboard' ? 'active' : ''}`} onClick={() => setActiveTab('leaderboard')}>Leaderboard</button>
         <button className={`admin-tab ${activeTab === 'export' ? 'active' : ''}`} onClick={() => setActiveTab('export')}>Export</button>
       </div>
 
-      {/* ==================== OVERVIEW TAB ==================== */}
       {activeTab === 'overview' && (
         <>
           <div className="admin-filters">
@@ -327,90 +168,43 @@ export default function HQDashboard() {
           </div>
 
           <div className="admin-kpi-grid">
-            <div className="admin-kpi-card">
-              <div className="admin-kpi-label">Total Check-ins</div>
-              <div className="admin-kpi-value primary">{totals.checkins || 0}</div>
-            </div>
-            <div className="admin-kpi-card">
-              <div className="admin-kpi-label">New Participants</div>
-              <div className="admin-kpi-value primary">{totals.newParticipants || 0}</div>
-            </div>
-            <div className="admin-kpi-card">
-              <div className="admin-kpi-label">Hat Claims</div>
-              <div className="admin-kpi-value success">{totals.hatClaims || 0}</div>
-            </div>
-            <div className="admin-kpi-card">
-              <div className="admin-kpi-label">Ratings</div>
-              <div className="admin-kpi-value">{totals.ratingsCount || 0}</div>
-              <div className="admin-kpi-subtext">Avg: {totals.ratingsAvg?.toFixed(1) || '--'} stars</div>
-            </div>
-            <div className="admin-kpi-card">
-              <div className="admin-kpi-label">Completed Trails</div>
-              <div className="admin-kpi-value success">{completion.completedCount || 0}</div>
-              <div className="admin-kpi-subtext">{completion.completionRatePercent?.toFixed(1) || 0}% completion rate</div>
-            </div>
-            <div className="admin-kpi-card">
-              <div className="admin-kpi-label">Avg Completion Time</div>
-              <div className="admin-kpi-value">{formatTime(completion.avgTimeToCompleteMs)}</div>
-            </div>
+            <div className="admin-kpi-card"><div className="admin-kpi-label">Total Check-ins</div><div className="admin-kpi-value primary">{totals.checkins || 0}</div></div>
+            <div className="admin-kpi-card"><div className="admin-kpi-label">New Participants</div><div className="admin-kpi-value primary">{totals.newParticipants || 0}</div></div>
+            <div className="admin-kpi-card"><div className="admin-kpi-label">Hat Claims</div><div className="admin-kpi-value success">{totals.hatClaims || 0}</div></div>
+            <div className="admin-kpi-card"><div className="admin-kpi-label">Ratings</div><div className="admin-kpi-value">{totals.ratingsCount || 0}</div><div className="admin-kpi-subtext">Avg: {totals.ratingsAvg?.toFixed(1) || '--'} stars</div></div>
+            <div className="admin-kpi-card"><div className="admin-kpi-label">Completed Trails</div><div className="admin-kpi-value success">{completion.completedCount || 0}</div><div className="admin-kpi-subtext">{completion.completionRatePercent?.toFixed(1) || 0}% completion rate</div></div>
+            <div className="admin-kpi-card"><div className="admin-kpi-label">Avg Completion Time</div><div className="admin-kpi-value">{formatTime(completion.avgTimeToCompleteMs)}</div></div>
           </div>
 
           <div className="admin-grid-3">
             <div className="admin-card">
               <h3 className="admin-card-title">Top Starting Breweries</h3>
-              {(journeyStats.topStartingBreweries || []).length === 0 ? (
-                <div className="admin-empty">No data yet</div>
-              ) : (
-                <table className="admin-table">
-                  <thead><tr><th>Rank</th><th>Brewery</th><th>Count</th></tr></thead>
-                  <tbody>
-                    {(journeyStats.topStartingBreweries || []).map((b, i) => (
-                      <tr key={b.breweryId}>
-                        <td><span className={`admin-rank ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'default'}`}>{b.rank}</span></td>
-                        <td>{b.breweryName}</td>
-                        <td><strong>{b.count}</strong></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              {(journeyStats.topStartingBreweries || []).length === 0 ? (<div className="admin-empty">No data yet</div>) : (
+                <table className="admin-table"><thead><tr><th>Rank</th><th>Brewery</th><th>Count</th></tr></thead><tbody>
+                  {(journeyStats.topStartingBreweries || []).map((b, i) => (
+                    <tr key={b.breweryId}><td><span className={`admin-rank ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'default'}`}>{b.rank}</span></td><td>{b.breweryName}</td><td><strong>{b.count}</strong></td></tr>
+                  ))}
+                </tbody></table>
               )}
             </div>
             <div className="admin-card">
               <h3 className="admin-card-title">Top Ending Breweries</h3>
-              {(journeyStats.topEndingBreweries || []).length === 0 ? (
-                <div className="admin-empty">No data yet</div>
-              ) : (
-                <table className="admin-table">
-                  <thead><tr><th>Rank</th><th>Brewery</th><th>Count</th></tr></thead>
-                  <tbody>
-                    {(journeyStats.topEndingBreweries || []).map((b, i) => (
-                      <tr key={b.breweryId}>
-                        <td><span className={`admin-rank ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'default'}`}>{b.rank}</span></td>
-                        <td>{b.breweryName}</td>
-                        <td><strong>{b.count}</strong></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              {(journeyStats.topEndingBreweries || []).length === 0 ? (<div className="admin-empty">No data yet</div>) : (
+                <table className="admin-table"><thead><tr><th>Rank</th><th>Brewery</th><th>Count</th></tr></thead><tbody>
+                  {(journeyStats.topEndingBreweries || []).map((b, i) => (
+                    <tr key={b.breweryId}><td><span className={`admin-rank ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'default'}`}>{b.rank}</span></td><td>{b.breweryName}</td><td><strong>{b.count}</strong></td></tr>
+                  ))}
+                </tbody></table>
               )}
             </div>
             <div className="admin-card">
               <h3 className="admin-card-title">Top Hat Claim Locations</h3>
-              {(journeyStats.topHatClaimLocations || []).length === 0 ? (
-                <div className="admin-empty">No data yet</div>
-              ) : (
-                <table className="admin-table">
-                  <thead><tr><th>Rank</th><th>Brewery</th><th>Count</th></tr></thead>
-                  <tbody>
-                    {(journeyStats.topHatClaimLocations || []).map((b, i) => (
-                      <tr key={b.breweryId}>
-                        <td><span className={`admin-rank ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'default'}`}>{b.rank}</span></td>
-                        <td>{b.breweryName}</td>
-                        <td><strong>{b.count}</strong></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              {(journeyStats.topHatClaimLocations || []).length === 0 ? (<div className="admin-empty">No data yet</div>) : (
+                <table className="admin-table"><thead><tr><th>Rank</th><th>Brewery</th><th>Count</th></tr></thead><tbody>
+                  {(journeyStats.topHatClaimLocations || []).map((b, i) => (
+                    <tr key={b.breweryId}><td><span className={`admin-rank ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'default'}`}>{b.rank}</span></td><td>{b.breweryName}</td><td><strong>{b.count}</strong></td></tr>
+                  ))}
+                </tbody></table>
               )}
             </div>
           </div>
@@ -418,18 +212,11 @@ export default function HQDashboard() {
           <div className="admin-grid-2">
             <div className="admin-card">
               <h3 className="admin-card-title">Check-ins by Brewery</h3>
-              <table className="admin-table">
-                <thead><tr><th>Rank</th><th>Brewery</th><th>Check-ins</th></tr></thead>
-                <tbody>
-                  {checkinsByBrewery.sort((a, b) => b.count - a.count).map((brewery, index) => (
-                    <tr key={brewery.breweryId}>
-                      <td><span className={`admin-rank ${index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : 'default'}`}>{index + 1}</span></td>
-                      <td>{brewery.breweryName}</td>
-                      <td><strong>{brewery.count}</strong></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <table className="admin-table"><thead><tr><th>Rank</th><th>Brewery</th><th>Check-ins</th></tr></thead><tbody>
+                {checkinsByBrewery.sort((a, b) => b.count - a.count).map((brewery, index) => (
+                  <tr key={brewery.breweryId}><td><span className={`admin-rank ${index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : 'default'}`}>{index + 1}</span></td><td>{brewery.breweryName}</td><td><strong>{brewery.count}</strong></td></tr>
+                ))}
+              </tbody></table>
             </div>
             <div className="admin-card">
               <h3 className="admin-card-title">Daily Check-ins</h3>
@@ -464,21 +251,12 @@ export default function HQDashboard() {
             </div>
             <div className="admin-card">
               <h3 className="admin-card-title">Ratings by Brewery</h3>
-              {avgRatingByBrewery.length === 0 ? (
-                <div className="admin-empty">No ratings yet</div>
-              ) : (
-                <table className="admin-table">
-                  <thead><tr><th>Brewery</th><th>Avg Rating</th><th>Count</th></tr></thead>
-                  <tbody>
-                    {avgRatingByBrewery.sort((a, b) => b.avgRating - a.avgRating).map((brewery) => (
-                      <tr key={brewery.breweryId}>
-                        <td>{brewery.breweryName}</td>
-                        <td>{brewery.avgRating?.toFixed(1)} stars</td>
-                        <td>{brewery.ratingsCount}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              {avgRatingByBrewery.length === 0 ? (<div className="admin-empty">No ratings yet</div>) : (
+                <table className="admin-table"><thead><tr><th>Brewery</th><th>Avg Rating</th><th>Count</th></tr></thead><tbody>
+                  {avgRatingByBrewery.sort((a, b) => b.avgRating - a.avgRating).map((brewery) => (
+                    <tr key={brewery.breweryId}><td>{brewery.breweryName}</td><td>{brewery.avgRating?.toFixed(1)} stars</td><td>{brewery.ratingsCount}</td></tr>
+                  ))}
+                </tbody></table>
               )}
             </div>
           </div>
@@ -486,17 +264,12 @@ export default function HQDashboard() {
           <div className="admin-grid-3">
             <div className="admin-card">
               <h3 className="admin-card-title">By Country</h3>
-              {participantsByCountry.length === 0 ? (
-                <div className="admin-empty">No data</div>
-              ) : (
+              {participantsByCountry.length === 0 ? (<div className="admin-empty">No data</div>) : (
                 <div className="admin-chart-container">
                   <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie data={participantsByCountry} cx="50%" cy="50%" labelLine={false} label={({ country, count }) => `${country}: ${count}`} outerRadius={80} dataKey="count" nameKey="country">
-                        {participantsByCountry.map((entry, index) => (<Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
+                    <PieChart><Pie data={participantsByCountry} cx="50%" cy="50%" labelLine={false} label={({ country, count }) => `${country}: ${count}`} outerRadius={80} dataKey="count" nameKey="country">
+                      {participantsByCountry.map((entry, index) => (<Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />))}
+                    </Pie><Tooltip /></PieChart>
                   </ResponsiveContainer>
                 </div>
               )}
@@ -504,158 +277,36 @@ export default function HQDashboard() {
             <div className="admin-card">
               <h3 className="admin-card-title">Busiest Times</h3>
               <div style={{ padding: '20px 0' }}>
-                <div style={{ marginBottom: 16 }}>
-                  <div className="admin-kpi-label">Busiest Day</div>
-                  <div style={{ fontSize: 24, fontWeight: 600 }}>{DAY_NAMES[busiest.busiestDayOfWeek] || '--'}</div>
-                </div>
-                <div>
-                  <div className="admin-kpi-label">Peak Hour</div>
-                  <div style={{ fontSize: 24, fontWeight: 600 }}>{busiest.busiestHourOfDay !== undefined ? `${busiest.busiestHourOfDay}:00 - ${busiest.busiestHourOfDay + 1}:00` : '--'}</div>
-                </div>
+                <div style={{ marginBottom: 16 }}><div className="admin-kpi-label">Busiest Day</div><div style={{ fontSize: 24, fontWeight: 600 }}>{DAY_NAMES[busiest.busiestDayOfWeek] || '--'}</div></div>
+                <div><div className="admin-kpi-label">Peak Hour</div><div style={{ fontSize: 24, fontWeight: 600 }}>{busiest.busiestHourOfDay !== undefined ? `${busiest.busiestHourOfDay}:00 - ${busiest.busiestHourOfDay + 1}:00` : '--'}</div></div>
               </div>
             </div>
             <div className="admin-card">
               <h3 className="admin-card-title">Top Rated Beers</h3>
-              {!data?.topRatedBeers?.length ? (
-                <div className="admin-empty"><p>Not enough ratings yet</p><p style={{ fontSize: 12, marginTop: 8 }}>Needs 3+ ratings per beer</p></div>
-              ) : (
-                <table className="admin-table">
-                  <thead><tr><th>Beer</th><th>Brewery</th><th>Rating</th></tr></thead>
-                  <tbody>
-                    {(data?.topRatedBeers || []).slice(0, 5).map((beer, i) => (
-                      <tr key={i}><td>{beer.beerName}</td><td style={{ color: 'var(--admin-text-muted)' }}>{beer.breweryName}</td><td>{beer.avgRating?.toFixed(1)} stars</td></tr>
-                    ))}
-                  </tbody>
-                </table>
+              {!data?.topRatedBeers?.length ? (<div className="admin-empty"><p>Not enough ratings yet</p><p style={{ fontSize: 12, marginTop: 8 }}>Needs 3+ ratings per beer</p></div>) : (
+                <table className="admin-table"><thead><tr><th>Beer</th><th>Brewery</th><th>Rating</th></tr></thead><tbody>
+                  {(data?.topRatedBeers || []).slice(0, 5).map((beer, i) => (
+                    <tr key={i}><td>{beer.beerName}</td><td style={{ color: 'var(--admin-text-muted)' }}>{beer.breweryName}</td><td>{beer.avgRating?.toFixed(1)} stars</td></tr>
+                  ))}
+                </tbody></table>
               )}
             </div>
           </div>
         </>
       )}
 
-      {/* ==================== BREWERIES TAB ==================== */}
-      {activeTab === 'breweries' && (
-        <>
-          {showBreweryForm && (
-            <div className="admin-modal-overlay" onClick={() => setShowBreweryForm(false)}>
-              <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
-                <h3 style={{ marginBottom: 20 }}>{editingBrewery ? 'Edit Brewery' : 'Add Brewery'}</h3>
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Name *</label>
-                  <input type="text" className="admin-form-input" value={breweryForm.name} onChange={(e) => setBreweryForm({...breweryForm, name: e.target.value})} placeholder="Brewery Name" />
-                </div>
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Address</label>
-                  <input type="text" className="admin-form-input" value={breweryForm.address} onChange={(e) => setBreweryForm({...breweryForm, address: e.target.value})} placeholder="123 Beer Street, District 1" />
-                </div>
-                <div className="admin-form-group">
-                  <label className="admin-form-label">District</label>
-                  <input type="text" className="admin-form-input" value={breweryForm.district} onChange={(e) => setBreweryForm({...breweryForm, district: e.target.value})} placeholder="District 1" />
-                </div>
-                <div className="admin-form-group">
-                  <label className="admin-form-label">PIN Code (4 digits)</label>
-                  <input type="text" className="admin-form-input" value={breweryForm.pinCode} onChange={(e) => setBreweryForm({...breweryForm, pinCode: e.target.value.replace(/\D/g, '').slice(0, 4)})} placeholder="1234" maxLength="4" />
-                </div>
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Logo URL</label>
-                  <input type="text" className="admin-form-input" value={breweryForm.logoUrl} onChange={(e) => setBreweryForm({...breweryForm, logoUrl: e.target.value})} placeholder="https://..." />
-                </div>
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Status</label>
-                  <select className="admin-form-input" value={breweryForm.status} onChange={(e) => setBreweryForm({...breweryForm, status: e.target.value})}>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                </div>
-                <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
-                  <button className="admin-btn admin-btn-primary" onClick={handleSaveBrewery} disabled={savingBrewery}>{savingBrewery ? 'Saving...' : 'Save Brewery'}</button>
-                  <button className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={() => setShowBreweryForm(false)}>Cancel</button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="admin-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 className="admin-card-title" style={{ marginBottom: 0 }}>Active Breweries ({activeBreweries.length})</h3>
-              <button className="admin-btn admin-btn-primary admin-btn-small" onClick={() => openBreweryForm()}>+ Add Brewery</button>
-            </div>
-            {activeBreweries.length === 0 ? (<div className="admin-empty">No active breweries</div>) : (
-              <table className="admin-table">
-                <thead><tr><th>Name</th><th>District</th><th>PIN</th><th>Status</th><th>Actions</th></tr></thead>
-                <tbody>
-                  {activeBreweries.map((brewery) => (
-                    <tr key={brewery.id}>
-                      <td><strong>{brewery.name}</strong></td>
-                      <td>{brewery.district || '--'}</td>
-                      <td><code>{brewery.pinCode || brewery.pin_code || '--'}</code></td>
-                      <td><span className="admin-badge active">{brewery.status}</span></td>
-                      <td>
-                        <button className="admin-btn-small" style={{ marginRight: 8 }} onClick={() => openBreweryForm(brewery)}>Edit</button>
-                        <button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteBrewery(brewery.id)}>Delete</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-
-          {inactiveBreweries.length > 0 && (
-            <div className="admin-card" style={{ marginTop: 20 }}>
-              <h3 className="admin-card-title">Inactive Breweries ({inactiveBreweries.length})</h3>
-              <table className="admin-table">
-                <thead><tr><th>Name</th><th>District</th><th>Status</th><th>Actions</th></tr></thead>
-                <tbody>
-                  {inactiveBreweries.map((brewery) => (
-                    <tr key={brewery.id} style={{ opacity: 0.6 }}>
-                      <td>{brewery.name}</td>
-                      <td>{brewery.district || '--'}</td>
-                      <td><span className="admin-badge inactive">{brewery.status}</span></td>
-                      <td>
-                        <button className="admin-btn-small" onClick={() => openBreweryForm(brewery)}>Reactivate</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </>
-      )}
-
-      {/* ==================== EVENTS TAB ==================== */}
       {activeTab === 'events' && (
         <>
           {showEventForm && (
             <div className="admin-modal-overlay" onClick={() => setShowEventForm(false)}>
               <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
                 <h3 style={{ marginBottom: 20 }}>Create Trail Event</h3>
-                <p style={{ color: 'var(--admin-text-muted)', marginBottom: 20, fontSize: 14 }}>This event will appear on the main Events page (not tied to any brewery).</p>
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Title (English) *</label>
-                  <input type="text" className="admin-form-input" value={eventForm.titleEn} onChange={(e) => setEventForm({...eventForm, titleEn: e.target.value})} placeholder="Ale Trail Kickoff Party" />
-                </div>
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Title (Vietnamese)</label>
-                  <input type="text" className="admin-form-input" value={eventForm.titleVn} onChange={(e) => setEventForm({...eventForm, titleVn: e.target.value})} placeholder="Tiệc khai mạc Ale Trail" />
-                </div>
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Description (English)</label>
-                  <textarea className="admin-form-input" value={eventForm.descriptionEn} onChange={(e) => setEventForm({...eventForm, descriptionEn: e.target.value})} placeholder="Join us for the official launch!" rows={2} />
-                </div>
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Start Date/Time *</label>
-                  <input type="datetime-local" className="admin-form-input" value={eventForm.startsAt} onChange={(e) => setEventForm({...eventForm, startsAt: e.target.value})} />
-                </div>
-                <div className="admin-form-group">
-                  <label className="admin-form-label">End Date/Time</label>
-                  <input type="datetime-local" className="admin-form-input" value={eventForm.endsAt} onChange={(e) => setEventForm({...eventForm, endsAt: e.target.value})} />
-                </div>
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Link (optional)</label>
-                  <input type="url" className="admin-form-input" value={eventForm.link} onChange={(e) => setEventForm({...eventForm, link: e.target.value})} placeholder="https://facebook.com/events/..." />
-                </div>
+                <div className="admin-form-group"><label className="admin-form-label">Title (English) *</label><input type="text" className="admin-form-input" value={eventForm.titleEn} onChange={(e) => setEventForm({...eventForm, titleEn: e.target.value})} placeholder="Ale Trail Kickoff Party" /></div>
+                <div className="admin-form-group"><label className="admin-form-label">Title (Vietnamese)</label><input type="text" className="admin-form-input" value={eventForm.titleVn} onChange={(e) => setEventForm({...eventForm, titleVn: e.target.value})} /></div>
+                <div className="admin-form-group"><label className="admin-form-label">Description (English)</label><textarea className="admin-form-input" value={eventForm.descriptionEn} onChange={(e) => setEventForm({...eventForm, descriptionEn: e.target.value})} rows={2} /></div>
+                <div className="admin-form-group"><label className="admin-form-label">Start Date/Time *</label><input type="datetime-local" className="admin-form-input" value={eventForm.startsAt} onChange={(e) => setEventForm({...eventForm, startsAt: e.target.value})} /></div>
+                <div className="admin-form-group"><label className="admin-form-label">End Date/Time</label><input type="datetime-local" className="admin-form-input" value={eventForm.endsAt} onChange={(e) => setEventForm({...eventForm, endsAt: e.target.value})} /></div>
+                <div className="admin-form-group"><label className="admin-form-label">Link (optional)</label><input type="url" className="admin-form-input" value={eventForm.link} onChange={(e) => setEventForm({...eventForm, link: e.target.value})} /></div>
                 <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
                   <button className="admin-btn admin-btn-primary" onClick={handleCreateTrailEvent} disabled={savingEvent}>{savingEvent ? 'Creating...' : 'Create Event'}</button>
                   <button className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={() => setShowEventForm(false)}>Cancel</button>
@@ -669,147 +320,43 @@ export default function HQDashboard() {
               <button className="admin-btn admin-btn-primary admin-btn-small" onClick={() => setShowEventForm(true)}>+ Create Trail Event</button>
             </div>
             {trailEvents.length === 0 ? (<div className="admin-empty">No trail-wide events yet</div>) : (
-              <table className="admin-table">
-                <thead><tr><th>Event</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
-                <tbody>
-                  {trailEvents.map((event) => (
-                    <tr key={event.id}>
-                      <td><strong>{event.title?.en || event.title}</strong>{event.description?.en && <div style={{ fontSize: 12, color: 'var(--admin-text-muted)' }}>{event.description.en}</div>}</td>
-                      <td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
-                      <td><span className={`admin-badge ${event.status === 'active' ? 'active' : 'inactive'}`}>{event.status}</span></td>
-                      <td><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <table className="admin-table"><thead><tr><th>Event</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+                {trailEvents.map((event) => (
+                  <tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><span className={`admin-badge ${event.status === 'active' ? 'active' : 'inactive'}`}>{event.status}</span></td><td><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></td></tr>
+                ))}
+              </tbody></table>
             )}
           </div>
           <div className="admin-card" style={{ marginTop: 20 }}>
             <h3 className="admin-card-title">Brewery Events ({breweryEvents.length})</h3>
             {breweryEvents.length === 0 ? (<div className="admin-empty">No brewery events yet</div>) : (
-              <table className="admin-table">
-                <thead><tr><th>Event</th><th>Brewery</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
-                <tbody>
-                  {breweryEvents.map((event) => (
-                    <tr key={event.id}>
-                      <td><strong>{event.title?.en || event.title}</strong></td>
-                      <td>{event.breweryName}</td>
-                      <td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
-                      <td><span className={`admin-badge ${event.status === 'active' ? 'active' : 'inactive'}`}>{event.status}</span></td>
-                      <td><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <table className="admin-table"><thead><tr><th>Event</th><th>Brewery</th><th>Date</th><th>Actions</th></tr></thead><tbody>
+                {breweryEvents.map((event) => (
+                  <tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td>{event.breweryName}</td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></td></tr>
+                ))}
+              </tbody></table>
             )}
           </div>
         </>
       )}
 
-      {/* ==================== SIDE QUESTS TAB ==================== */}
-      {activeTab === 'sidequests' && (
-        <>
-          {showQuestForm && (
-            <div className="admin-modal-overlay" onClick={() => setShowQuestForm(false)}>
-              <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
-                <h3 style={{ marginBottom: 20 }}>{editingQuest ? 'Edit Side Quest' : 'Create Side Quest'}</h3>
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Title (English) *</label>
-                  <input type="text" className="admin-form-input" value={questForm.titleEn} onChange={(e) => setQuestForm({...questForm, titleEn: e.target.value})} placeholder="Visit all 8 breweries in one day" />
-                </div>
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Title (Vietnamese)</label>
-                  <input type="text" className="admin-form-input" value={questForm.titleVn} onChange={(e) => setQuestForm({...questForm, titleVn: e.target.value})} placeholder="Ghé thăm cả 8 nhà máy bia trong một ngày" />
-                </div>
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Description (English)</label>
-                  <textarea className="admin-form-input" value={questForm.descriptionEn} onChange={(e) => setQuestForm({...questForm, descriptionEn: e.target.value})} placeholder="Complete the entire trail in a single day!" rows={2} />
-                </div>
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Description (Vietnamese)</label>
-                  <textarea className="admin-form-input" value={questForm.descriptionVn} onChange={(e) => setQuestForm({...questForm, descriptionVn: e.target.value})} placeholder="Hoàn thành toàn bộ chuyến đi trong một ngày!" rows={2} />
-                </div>
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Reward</label>
-                  <input type="text" className="admin-form-input" value={questForm.reward} onChange={(e) => setQuestForm({...questForm, reward: e.target.value})} placeholder="Special badge + free beer" />
-                </div>
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Status</label>
-                  <select className="admin-form-input" value={questForm.status} onChange={(e) => setQuestForm({...questForm, status: e.target.value})}>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                </div>
-                <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
-                  <button className="admin-btn admin-btn-primary" onClick={handleSaveQuest} disabled={savingQuest}>{savingQuest ? 'Saving...' : 'Save Quest'}</button>
-                  <button className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={() => setShowQuestForm(false)}>Cancel</button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="admin-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 className="admin-card-title" style={{ marginBottom: 0 }}>Side Quests</h3>
-              <button className="admin-btn admin-btn-primary admin-btn-small" onClick={() => openQuestForm()}>+ Create Quest</button>
-            </div>
-            {sideQuests.length === 0 ? (<div className="admin-empty">No side quests yet</div>) : (
-              <table className="admin-table">
-                <thead><tr><th>Title</th><th>Reward</th><th>Status</th><th>Actions</th></tr></thead>
-                <tbody>
-                  {sideQuests.map((quest) => {
-                    const title = typeof quest.title === 'string' ? quest.title : (quest.title?.en || 'Untitled');
-                    const desc = typeof quest.description === 'string' ? quest.description : (quest.description?.en || '');
-                    return (
-                      <tr key={quest.id}>
-                        <td>
-                          <strong>{title}</strong>
-                          {desc && <div style={{ fontSize: 12, color: 'var(--admin-text-muted)' }}>{desc}</div>}
-                        </td>
-                        <td>{quest.reward || '--'}</td>
-                        <td><span className={`admin-badge ${quest.status === 'active' ? 'active' : 'inactive'}`}>{quest.status}</span></td>
-                        <td>
-                          <button className="admin-btn-small" style={{ marginRight: 8 }} onClick={() => openQuestForm(quest)}>Edit</button>
-                          <button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteQuest(quest.id)}>Delete</button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            )}
-          </div>
-        </>
-      )}
-
-      {/* ==================== LEADERBOARD TAB ==================== */}
       {activeTab === 'leaderboard' && (
         <div className="admin-card">
           <h3 className="admin-card-title">Leaderboard (with Contact Info)</h3>
           {leaderboard.length === 0 ? (<div className="admin-empty">No completions yet</div>) : (
-            <table className="admin-table">
-              <thead><tr><th>Rank</th><th>Name</th><th>Email</th><th>Time</th><th>Completed</th></tr></thead>
-              <tbody>
-                {leaderboard.map((entry) => (
-                  <tr key={entry.participantId}>
-                    <td><span className={`admin-rank ${entry.rank === 1 ? 'gold' : entry.rank === 2 ? 'silver' : entry.rank === 3 ? 'bronze' : 'default'}`}>{entry.rank}</span></td>
-                    <td><strong>{entry.displayName || entry.name || '--'}</strong></td>
-                    <td><a href={`mailto:${entry.email}`} style={{ color: 'var(--admin-primary)' }}>{entry.email}</a></td>
-                    <td>{formatTime(entry.completionTimeMs)}</td>
-                    <td style={{ color: 'var(--admin-text-muted)' }}>{new Date(entry.completedAt).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <table className="admin-table"><thead><tr><th>Rank</th><th>Name</th><th>Email</th><th>Time</th><th>Completed</th></tr></thead><tbody>
+              {leaderboard.map((entry) => (
+                <tr key={entry.participantId}><td><span className={`admin-rank ${entry.rank === 1 ? 'gold' : entry.rank === 2 ? 'silver' : entry.rank === 3 ? 'bronze' : 'default'}`}>{entry.rank}</span></td><td><strong>{entry.displayName || entry.name || '--'}</strong></td><td><a href={`mailto:${entry.email}`} style={{ color: 'var(--admin-primary)' }}>{entry.email}</a></td><td>{formatTime(entry.completionTimeMs)}</td><td style={{ color: 'var(--admin-text-muted)' }}>{new Date(entry.completedAt).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })}</td></tr>
+              ))}
+            </tbody></table>
           )}
         </div>
       )}
 
-      {/* ==================== EXPORT TAB ==================== */}
       {activeTab === 'export' && (
         <div className="admin-card">
           <h3 className="admin-card-title">Export Participants</h3>
-          <p style={{ color: 'var(--admin-text-muted)', marginBottom: 20 }}>Download a list of all participants with their email, name, country, and progress.</p>
+          <p style={{ color: 'var(--admin-text-muted)', marginBottom: 20 }}>Download participant data.</p>
           <div style={{ display: 'flex', gap: 12 }}>
             <button className="admin-btn admin-btn-primary" style={{ width: 'auto' }} onClick={() => handleExport('json')} disabled={exporting}>{exporting ? 'Exporting...' : 'Export JSON'}</button>
             <button className="admin-btn admin-btn-secondary" style={{ width: 'auto' }} onClick={() => handleExport('csv')} disabled={exporting}>{exporting ? 'Exporting...' : 'Export CSV'}</button>
