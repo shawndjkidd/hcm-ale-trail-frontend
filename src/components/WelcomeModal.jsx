@@ -143,7 +143,7 @@ function WelcomeModal({ language, setLanguage, onComplete }) {
 
         {/* Logo */}
         <img 
-          src="/Logo-Ale-Trail-2023-04.png" 
+          src="/logos/HCM Logo-Ale-Trail-2023-BK.png" 
           alt="HCM Ale Trail" 
           className="welcome-logo"
         />
