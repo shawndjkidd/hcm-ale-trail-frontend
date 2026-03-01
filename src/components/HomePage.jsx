@@ -20,9 +20,8 @@ const getBreweryLogo = (brewery) => {
   return BREWERY_LOGOS[brewery?.name] || null
 }
 
-function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onNavigate, resetCard }) {
+function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onSideQuestClick, sideQuestCheckins = [], onNavigate, resetCard }) {
   const [showCompletionModal, setShowCompletionModal] = useState(false)
-  const [showSideQuestModal, setShowSideQuestModal] = useState(false)
   const [showEventsPage, setShowEventsPage] = useState(false)
   const [hatClaimed, setHatClaimed] = useState(false)
   const [sideQuests, setSideQuests] = useState([])
@@ -73,11 +72,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
   const getQuestTitle = (quest) => {
     if (typeof quest.title === 'string') return quest.title
     return quest.title?.[language] || quest.title?.en || 'Side Quest'
-  }
-
-  const getQuestDescription = (quest) => {
-    if (typeof quest.description === 'string') return quest.description
-    return quest.description?.[language] || quest.description?.en || ''
   }
 
   if (showEventsPage) {
@@ -232,13 +226,34 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         })}
       </div>
 
+      {/* Side Quests Section */}
+      {sideQuests.length > 0 && (
+        <div className="side-quests-section">
+          <h3 className="section-title">🎯 {t.sideQuests || 'SIDE QUESTS'}</h3>
+          <div className="side-quest-list-home">
+            {sideQuests.map((quest) => {
+              const isCompleted = sideQuestCheckins.includes(quest.id)
+              return (
+                <div 
+                  key={quest.id}
+                  className={`side-quest-item-home ${isCompleted ? 'completed' : ''}`}
+                  onClick={() => onSideQuestClick(quest)}
+                >
+                  <div className="side-quest-icon-home">{isCompleted ? '✅' : '🎯'}</div>
+                  <div className="side-quest-info-home">
+                    <div className="side-quest-name-home">{getQuestTitle(quest)}</div>
+                    {quest.reward && <div className="side-quest-reward-home">🎁 {quest.reward}</div>}
+                  </div>
+                  <div className="side-quest-arrow-home">→</div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Events Button */}
       <div className="special-buttons">
-        <button 
-          className="special-btn green"
-          onClick={() => setShowSideQuestModal(true)}
-        >
-          {t.sideQuest || 'SIDE QUEST'}
-        </button>
         <button 
           className="special-btn yellow"
           onClick={() => setShowEventsPage(true)}
@@ -254,42 +269,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         </button>
       </div>
 
-      {showSideQuestModal && (
-        <div className="modal-overlay" onClick={() => setShowSideQuestModal(false)}>
-          <div className="side-quest-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setShowSideQuestModal(false)}>✕</button>
-            <div className="side-quest-header">
-              <div className="side-quest-icon">🎯</div>
-              <h2 className="side-quest-title">{t.sideQuest || 'SIDE QUESTS'}</h2>
-            </div>
-            {sideQuests.length === 0 ? (
-              <div className="side-quest-empty">
-                <p>{t.noSideQuests || 'No active side quests right now. Check back soon!'}</p>
-              </div>
-            ) : (
-              <div className="side-quest-list">
-                {sideQuests.map((quest) => (
-                  <div key={quest.id} className="side-quest-item">
-                    <div className="side-quest-item-title">{getQuestTitle(quest)}</div>
-                    {getQuestDescription(quest) && (
-                      <div className="side-quest-item-desc">{getQuestDescription(quest)}</div>
-                    )}
-                    {quest.reward && (
-                      <div className="side-quest-item-reward">
-                        🎁 {t.reward || 'Reward'}: {quest.reward}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-            <button className="ok-btn" onClick={() => setShowSideQuestModal(false)}>
-              {t.ok || 'OK'}
-            </button>
-          </div>
-        </div>
-      )}
-
+      {/* Completion Modal */}
       {showCompletionModal && (
         <div className="modal-overlay">
           <div className="completion-modal">
