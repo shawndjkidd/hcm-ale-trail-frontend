@@ -4,7 +4,6 @@ import EventsPage from './EventsPage'
 
 const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a921'
 
-// Brewery logo mapping (local files in /public/logos/)
 const BREWERY_LOGOS = {
   'BiaCraft': '/logos/biacraft.png',
   'Heart of Darkness': '/logos/hod.png',
@@ -16,7 +15,6 @@ const BREWERY_LOGOS = {
   'Belgo Saigon': '/logos/belgo.png',
 }
 
-// Get brewery logo URL (backend logo_url or fallback to local)
 const getBreweryLogo = (brewery) => {
   if (brewery?.logo_url) return brewery.logo_url
   return BREWERY_LOGOS[brewery?.name] || null
@@ -32,7 +30,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
   const progress = (stamps.length / breweries.length) * 100
   const isComplete = stamps.length === 8
 
-  // Fetch side quests
   useEffect(() => {
     const fetchSideQuests = async () => {
       try {
@@ -77,7 +74,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
     return quest.title?.[language] || quest.title?.en || 'Side Quest'
   }
 
-  // Show Events Page
   if (showEventsPage) {
     return (
       <EventsPage 
@@ -89,7 +85,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
 
   return (
     <div className="home-page">
-      {/* Language Flags - Flat rectangular */}
       <div className="language-toggle-large">
         <button 
           className={`flag-btn-large ${language === 'en' ? 'active' : ''}`}
@@ -117,7 +112,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         </button>
       </div>
 
-      {/* Logo */}
       <div className="header-logo">
         <img 
           src="/logos/HCM Logo-Ale-Trail-2023-BK.png"
@@ -126,7 +120,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         />
       </div>
 
-      {/* Row 1: Trail Guide, Website, Google Maps */}
       <div className="nav-row-full">
         <button className="nav-btn-third yellow" onClick={() => onNavigate('faq')}>
           {t.trailGuide || 'TRAIL GUIDE'}
@@ -149,7 +142,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         </a>
       </div>
 
-      {/* Row 2: Social Media */}
       <div className="nav-row-full">
         <a 
           href="https://www.instagram.com/hcm.aletrail/" 
@@ -177,7 +169,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         </a>
       </div>
 
-      {/* Stamps Progress */}
       <div className="progress-section">
         <div className="progress-header">
           <div className="progress-label">{t.stamps}</div>
@@ -191,7 +182,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         </div>
       </div>
 
-      {/* Row 3: My Beers & Leaderboard */}
       <div className="nav-row-full">
         <button className="nav-btn-half yellow" onClick={() => onNavigate('mybeers')}>
           {t.myBeers}
@@ -201,7 +191,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         </button>
       </div>
 
-      {/* Brewery List */}
       <div className="brewery-list">
         {breweries.map((brewery, index) => {
           const isStamped = stamps.includes(brewery.id)
@@ -227,7 +216,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
                   <span className="logo-placeholder">🍺</span>
                 )}
               </div>
-              
               {isStamped && (
                 <div className="completed-stamp">
                   <div className="stamp-text">COMPLETED!</div>
@@ -238,10 +226,8 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         })}
       </div>
 
-      {/* Side Quests Section */}
       {sideQuests.length > 0 && (
         <div className="side-quests-section">
-          <h3 className="section-title">🎯 {t.sideQuests || 'SIDE QUESTS'}</h3>
           <div className="side-quest-list-home">
             {sideQuests.map((quest) => {
               const isCompleted = sideQuestCheckins.includes(quest.id)
@@ -264,7 +250,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         </div>
       )}
 
-      {/* Events Button */}
       <div className="special-buttons">
         <button 
           className="special-btn yellow"
@@ -281,7 +266,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         </button>
       </div>
 
-      {/* Completion Modal */}
       {showCompletionModal && (
         <div className="modal-overlay">
           <div className="completion-modal">
@@ -289,7 +273,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
             <div className="completion-icon">🎉</div>
             <h2 className="completion-title">{t.congratulations}</h2>
             <p className="completion-subtitle">{t.completedTrail}</p>
-            
             <div className="completion-steps">
               <div className="completion-step">
                 <div className="step-number-circle">1</div>
@@ -304,7 +287,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
                 <div className="step-text">{t.completionStep3}</div>
               </div>
             </div>
-
             {!hatClaimed ? (
               <button className="completion-ok-btn" onClick={handleClaimHat}>
                 {t.claimHat}
