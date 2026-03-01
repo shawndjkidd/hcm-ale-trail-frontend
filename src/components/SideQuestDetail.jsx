@@ -1,8 +1,6 @@
 import { useState } from 'react'
 import translations from '../translations'
 
-const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a921'
-
 function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, user }) {
   const [message, setMessage] = useState(null)
   const [manualCode, setManualCode] = useState('')
@@ -48,37 +46,6 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
         setManualCode('')
       } else {
         setMessage({ type: 'error', text: data.error || t.invalidCode || 'Invalid code' })
-        setTimeout(() => setMessage(null), 3000)
-      }
-    } catch (err) {
-      console.error('Check-in error:', err)
-      setMessage({ type: 'error', text: 'Connection error. Try again.' })
-      setTimeout(() => setMessage(null), 3000)
-    }
-
-    setIsChecking(false)
-  }
-
-  const handleQRCheckin = async () => {
-    setIsChecking(true)
-
-    try {
-      const res = await fetch(`/api/side-quests/${quest.id}/checkin`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          participant_id: user?.id,
-          method: 'qr_scan'
-        })
-      })
-
-      const data = await res.json()
-
-      if (data.ok) {
-        setMessage({ type: 'success', text: `🎉 ${t.questCompleted || 'Side Quest Completed!'}` })
-        onComplete(quest.id)
-      } else {
-        setMessage({ type: 'error', text: data.error || 'Check-in failed' })
         setTimeout(() => setMessage(null), 3000)
       }
     } catch (err) {
