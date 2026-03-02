@@ -1,10 +1,15 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import translations from '../translations'
 
-function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, user }) {
+function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, user, qrValidated }) {
   const [message, setMessage] = useState(null)
   const [manualCode, setManualCode] = useState('')
   const [isChecking, setIsChecking] = useState(false)
+  const [showRatingModal, setShowRatingModal] = useState(false)
+  const [itemName, setItemName] = useState('')
+  const [rating, setRating] = useState(0)
+  const [notes, setNotes] = useState('')
+  const [hasCheckedIn, setHasCheckedIn] = useState(isCompleted)
 
   const t = translations[language]
 
@@ -18,15 +23,52 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
     return quest?.description?.[language] || quest?.description?.en || ''
   }
 
+  // Auto check-in when QR scanned
+  useEffect(() => {
+    if (qrValidated && !isCompleted && !hasCheckedIn) {
+      handleQRCheckin()
+    }
+  }, [qrValidated])
+
+  const handleQRCheckin = async () => {
+    setIsChecking(true)
+    try {
+      const res = await fetch(`/api/side-quests/${quest.id}/checkin`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          participant_id: user?.id,
+          method: 'qr_scan'
+        })
+      })
+      const data = await res.json()
+      if (data.ok) {
+        setHasCheckedIn(true)
+        onComplete(quest.id)
+        setShowRatingModal(true)
+      } else if (data.error === 'Already checked in to this side quest') {
+        setHasCheckedIn(true)
+        setMessage({ type: 'info', text: t.alreadyCheckedIn || 'Already checked in!' })
+        setTimeout(() => setMessage(null), 3000)
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Check-in failed' })
+        setTimeout(() => setMessage(null), 3000)
+      }
+    } catch (err) {
+      console.error('Check-in error:', err)
+      setMessage({ type: 'error', text: 'Connection error. Try again.' })
+      setTimeout(() => setMessage(null), 3000)
+    }
+    setIsChecking(false)
+  }
+
   const handleManualCode = async () => {
     if (!manualCode.trim()) {
       setMessage({ type: 'error', text: t.enterCode || 'Please enter a code' })
       setTimeout(() => setMessage(null), 3000)
       return
     }
-
     setIsChecking(true)
-
     try {
       const res = await fetch(`/api/side-quests/${quest.id}/checkin`, {
         method: 'POST',
@@ -37,13 +79,12 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
           pin: manualCode.trim()
         })
       })
-
       const data = await res.json()
-
       if (data.ok) {
-        setMessage({ type: 'success', text: `🎉 ${t.questCompleted || 'Side Quest Completed!'}` })
+        setHasCheckedIn(true)
         onComplete(quest.id)
         setManualCode('')
+        setShowRatingModal(true)
       } else {
         setMessage({ type: 'error', text: data.error || t.invalidCode || 'Invalid code' })
         setTimeout(() => setMessage(null), 3000)
@@ -53,8 +94,32 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
       setMessage({ type: 'error', text: 'Connection error. Try again.' })
       setTimeout(() => setMessage(null), 3000)
     }
-
     setIsChecking(false)
+  }
+
+  const handleSubmitRating = async () => {
+    if (!itemName.trim()) {
+      setMessage({ type: 'error', text: t.enterItemName || 'Please enter what you tried' })
+      setTimeout(() => setMessage(null), 3000)
+      return
+    }
+    if (rating === 0) {
+      setMessage({ type: 'error', text: t.selectRating || 'Please select a rating' })
+      setTimeout(() => setMessage(null), 3000)
+      return
+    }
+    
+    // For now, just close the modal and show success
+    // Rating storage can be added later
+    setShowRatingModal(false)
+    setMessage({ type: 'success', text: `🎉 ${t.questCompleted || 'Side Quest Completed!'}` })
+    setTimeout(() => setMessage(null), 5000)
+  }
+
+  const handleSkipRating = () => {
+    setShowRatingModal(false)
+    setMessage({ type: 'success', text: `🎉 ${t.questCompleted || 'Side Quest Completed!'}` })
+    setTimeout(() => setMessage(null), 5000)
   }
 
   return (
@@ -93,7 +158,7 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
         </div>
       )}
 
-      {isCompleted ? (
+      {(hasCheckedIn || isCompleted) ? (
         <div className="side-quest-completed-box">
           <div className="completed-icon">✅</div>
           <div className="completed-text">{t.questAlreadyCompleted || 'Quest Completed!'}</div>
@@ -129,6 +194,62 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
             >
               {isChecking ? '...' : t.submit || 'SUBMIT'}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Rating Modal */}
+      {showRatingModal && (
+        <div className="modal-overlay">
+          <div className="add-beer-modal">
+            <button className="modal-close" onClick={handleSkipRating}>✕</button>
+            <h2 className="modal-title">{t.rateExperience || 'Rate Your Experience'}</h2>
+            
+            <div className="beer-input-group">
+              <label>{t.whatDidYouTry || 'What did you try?'}</label>
+              <input
+                type="text"
+                className="beer-name-input"
+                placeholder={t.itemNamePlaceholder || 'e.g., Sake Flight, Ramen...'}
+                value={itemName}
+                onChange={(e) => setItemName(e.target.value)}
+              />
+            </div>
+
+            <div className="beer-rating-group">
+              <label>{t.rating || 'Rating'}</label>
+              <div className="star-rating">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    className={`star-btn ${rating >= star ? 'active' : ''}`}
+                    onClick={() => setRating(star)}
+                  >
+                    ⭐
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="beer-input-group">
+              <label>{t.notes || 'Notes'} ({t.optional || 'optional'})</label>
+              <textarea
+                className="beer-notes-input"
+                placeholder={t.notesPlaceholder || 'Any thoughts?'}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={3}
+              />
+            </div>
+
+            <div className="modal-buttons">
+              <button className="skip-btn" onClick={handleSkipRating}>
+                {t.skip || 'SKIP'}
+              </button>
+              <button className="submit-btn" onClick={handleSubmitRating}>
+                {t.submit || 'SUBMIT'}
+              </button>
+            </div>
           </div>
         </div>
       )}
