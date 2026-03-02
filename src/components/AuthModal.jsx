@@ -3,16 +3,30 @@ import { storeLoginTokens } from "../lib/api";
 import translations from "../translations";
 
 export default function AuthModal({ onSuccess, language = "en" }) {
+  const [mode, setMode] = useState("login"); // "login" | "register" | "forgot"
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [info, setInfo] = useState("");
 
   const t = translations[language] || translations.en;
 
-  const submit = async (e) => {
-    e?.preventDefault?.();
+  const resetMessages = () => {
     setErr("");
+    setInfo("");
+  };
+
+  const switchMode = (newMode) => {
+    resetMessages();
+    setMode(newMode);
+  };
+
+  // ── Login ────────────────────────────────────────────────────────────────
+  const submitLogin = async (e) => {
+    e?.preventDefault?.();
+    resetMessages();
     setBusy(true);
 
     try {
@@ -38,56 +52,182 @@ export default function AuthModal({ onSuccess, language = "en" }) {
     }
   };
 
+  // ── Register ─────────────────────────────────────────────────────────────
+  // TODO: wire to POST /api/auth/register when available
+  // Body: { email, password, name }
+  const submitRegister = async (e) => {
+    e?.preventDefault?.();
+    resetMessages();
+    // Placeholder until backend endpoint is ready
+    setInfo("Coming soon — contact us to create an account!");
+  };
+
+  // ── Forgot password ───────────────────────────────────────────────────────
+  // TODO: wire to POST /api/auth/forgot-password when available
+  // Body: { email }
+  const submitForgot = async (e) => {
+    e?.preventDefault?.();
+    resetMessages();
+    // Placeholder until backend endpoint is ready
+    setInfo("Check your email for a reset link.");
+  };
+
+  // ── Shared field components ───────────────────────────────────────────────
+  const EmailField = () => (
+    <div className="form-group">
+      <label>{t.yourEmail || "Email"} *</label>
+      <input
+        type="email"
+        className="text-input"
+        placeholder="you@example.com"
+        value={email}
+        autoComplete="email"
+        onChange={(e) => setEmail(e.target.value)}
+        required
+      />
+    </div>
+  );
+
+  const PasswordField = ({ autoComplete = "current-password" }) => (
+    <div className="form-group">
+      <label>{t.password || "Password"} *</label>
+      <input
+        type="password"
+        className="text-input"
+        placeholder="••••••••"
+        value={password}
+        autoComplete={autoComplete}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+      />
+    </div>
+  );
+
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="modal-overlay">
       <div className="welcome-modal">
-        {/* Logo */}
-        <img 
-          src="/logos/HCM Logo-Ale-Trail-2023-BK.png" 
-          alt="HCM Ale Trail" 
+        <img
+          src="/logos/HCM Logo-Ale-Trail-2023-BK.png"
+          alt="HCM Ale Trail"
           className="welcome-logo"
         />
-        
-        <h2 className="welcome-title">{t.signIn || "SIGN IN"}</h2>
-        <p className="welcome-subtitle">{t.signInSubtitle || "Welcome back! Enter your details."}</p>
 
-        <form onSubmit={submit}>
-          <div className="form-group">
-            <label>{t.yourEmail || "Email"} *</label>
-            <input
-              type="email"
-              className="text-input"
-              placeholder="you@example.com"
-              value={email}
-              autoComplete="email"
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
+        {/* ── Login mode ── */}
+        {mode === "login" && (
+          <>
+            <h2 className="welcome-title">{t.signIn || "SIGN IN"}</h2>
+            <p className="welcome-subtitle">
+              {t.signInSubtitle || "Welcome back! Enter your details."}
+            </p>
 
-          <div className="form-group">
-            <label>{t.password || "Password"} *</label>
-            <input
-              type="password"
-              className="text-input"
-              placeholder="••••••••"
-              value={password}
-              autoComplete="current-password"
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+            <form onSubmit={submitLogin}>
+              <EmailField />
+              <PasswordField autoComplete="current-password" />
 
-          {err && <div className="form-error">{err}</div>}
+              {err && <div className="form-error">{err}</div>}
 
-          <button 
-            className="welcome-btn" 
-            type="submit" 
-            disabled={busy}
-          >
-            {busy ? (t.signingIn || "Signing in...") : (t.signIn || "SIGN IN")}
-          </button>
-        </form>
+              <button className="welcome-btn" type="submit" disabled={busy}>
+                {busy ? (t.signingIn || "Signing in...") : (t.signIn || "SIGN IN")}
+              </button>
+            </form>
+
+            <p style={{ textAlign: "center", marginTop: "0.75rem" }}>
+              <button
+                className="auth-link-btn"
+                type="button"
+                onClick={() => switchMode("forgot")}
+              >
+                Forgot password?
+              </button>
+            </p>
+
+            <p style={{ textAlign: "center", marginTop: "0.5rem" }}>
+              <span style={{ opacity: 0.7, fontSize: "0.875rem" }}>No account? </span>
+              <button
+                className="auth-link-btn"
+                type="button"
+                onClick={() => switchMode("register")}
+              >
+                Create one
+              </button>
+            </p>
+          </>
+        )}
+
+        {/* ── Register mode ── */}
+        {mode === "register" && (
+          <>
+            <h2 className="welcome-title">CREATE ACCOUNT</h2>
+            <p className="welcome-subtitle">Join the HCM Ale Trail!</p>
+
+            <form onSubmit={submitRegister}>
+              <div className="form-group">
+                <label>Name *</label>
+                <input
+                  type="text"
+                  className="text-input"
+                  placeholder="Your name"
+                  value={name}
+                  autoComplete="name"
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </div>
+              <EmailField />
+              <PasswordField autoComplete="new-password" />
+
+              {err && <div className="form-error">{err}</div>}
+              {info && <div className="form-info">{info}</div>}
+
+              <button className="welcome-btn" type="submit" disabled={busy}>
+                {busy ? "Creating account..." : "CREATE ACCOUNT"}
+              </button>
+            </form>
+
+            <p style={{ textAlign: "center", marginTop: "0.75rem" }}>
+              <span style={{ opacity: 0.7, fontSize: "0.875rem" }}>Already have an account? </span>
+              <button
+                className="auth-link-btn"
+                type="button"
+                onClick={() => switchMode("login")}
+              >
+                Sign in
+              </button>
+            </p>
+          </>
+        )}
+
+        {/* ── Forgot password mode ── */}
+        {mode === "forgot" && (
+          <>
+            <h2 className="welcome-title">RESET PASSWORD</h2>
+            <p className="welcome-subtitle">
+              Enter your email and we'll send you a reset link.
+            </p>
+
+            <form onSubmit={submitForgot}>
+              <EmailField />
+
+              {err && <div className="form-error">{err}</div>}
+              {info && <div className="form-info">{info}</div>}
+
+              <button className="welcome-btn" type="submit" disabled={busy}>
+                {busy ? "Sending..." : "SEND RESET LINK"}
+              </button>
+            </form>
+
+            <p style={{ textAlign: "center", marginTop: "0.75rem" }}>
+              <button
+                className="auth-link-btn"
+                type="button"
+                onClick={() => switchMode("login")}
+              >
+                ← Back to sign in
+              </button>
+            </p>
+          </>
+        )}
 
         <p className="welcome-disclaimer">
           🍺 {t.signInDisclaimer || "Ready to continue your ale trail adventure?"}

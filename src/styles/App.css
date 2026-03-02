@@ -2928,3 +2928,30 @@ body {
 .side-quest-name-home { font-size: 14px; font-weight: 700; color: var(--black); }
 .side-quest-reward-home { font-size: 12px; color: #333; margin-top: 2px; }
 .side-quest-arrow-home { font-size: 18px; font-weight: 700; color: var(--black); }
+/* ── AuthModal: link-style toggle buttons ─────────────────────────────── */
+.auth-link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--primary, #e8a020);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.auth-link-btn:hover {
+  opacity: 0.8;
+}
+
+/* ── AuthModal: informational (non-error) message ─────────────────────── */
+.form-info {
+  background: rgba(232, 160, 32, 0.12);
+  border: 1px solid rgba(232, 160, 32, 0.4);
+  color: #c8861a;
+  border-radius: 6px;
+  padding: 0.6rem 0.85rem;
+  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
