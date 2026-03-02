@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { getAccessToken } from '../lib/api'
 import translations from '../translations'
 
 function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, user, qrValidated }) {
@@ -108,9 +109,29 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
       setTimeout(() => setMessage(null), 3000)
       return
     }
-    
-    // For now, just close the modal and show success
-    // Rating storage can be added later
+
+    try {
+      const token = getAccessToken()
+      const headers = { 'Content-Type': 'application/json' }
+      if (token) headers['Authorization'] = `Bearer ${token}`
+
+      const res = await fetch(`/api/side-quests/${quest.id}/ratings`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          rating,
+          item_name: itemName.trim(),
+          notes: notes.trim() || null,
+        }),
+      })
+      const data = await res.json().catch(() => null)
+      if (!data?.ok) {
+        console.error('Rating save failed:', data?.error)
+      }
+    } catch (err) {
+      console.error('Rating error:', err)
+    }
+
     setShowRatingModal(false)
     setMessage({ type: 'success', text: `🎉 ${t.questCompleted || 'Side Quest Completed!'}` })
     setTimeout(() => setMessage(null), 5000)
