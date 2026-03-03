@@ -257,7 +257,12 @@ export default function HQDashboard() {
       if (result.ok) setSideQuests(sideQuests.map(q => q.id === editingQuest.id ? { ...q, ...questData } : q));
     } else {
       result = await createSideQuest(TRAIL_ID, questData);
-      if (result.ok && result.sideQuest) setSideQuests([...sideQuests, result.sideQuest]);
+      if (result.ok) {
+        const refreshed = await getSideQuests(TRAIL_ID);
+        if (refreshed.ok) setSideQuests(refreshed.sideQuests || []);
+      } else {
+        console.error('Create side quest failed:', result.error);
+      }
     }
     if (result.ok) {
       if (!editingQuest && questForm.hasVenueDashboard) {
@@ -448,7 +453,7 @@ export default function HQDashboard() {
         <>
           {showQuestForm && (
             <div className="admin-modal-overlay" onClick={() => setShowQuestForm(false)}>
-              <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="admin-modal" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
                 <h3 style={{ marginBottom: 20 }}>{editingQuest ? 'Edit Side Quest' : 'Create Side Quest'}</h3>
                 <div className="admin-form-group"><label className="admin-form-label">Title (English) *</label><input type="text" className="admin-form-input" value={questForm.titleEn} onChange={(e) => setQuestForm(prev => ({...prev, titleEn: e.target.value}))} placeholder="Visit all 8 breweries in one day" /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Title (Vietnamese)</label><input type="text" className="admin-form-input" value={questForm.titleVn} onChange={(e) => setQuestForm(prev => ({...prev, titleVn: e.target.value}))} /></div>
