@@ -244,7 +244,7 @@ export default function HQDashboard() {
         title: { en: questForm.titleEn, vn: questForm.titleVn || questForm.titleEn },
         description: { en: questForm.descriptionEn, vn: questForm.descriptionVn || questForm.descriptionEn },
         reward: questForm.reward,
-        pin: questForm.pin,
+        pin_code: questForm.pin,
         address: questForm.address,
         district: questForm.district,
         maps_url: questForm.mapsUrl || null,
