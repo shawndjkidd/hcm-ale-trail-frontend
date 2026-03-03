@@ -151,6 +151,15 @@ function WelcomeModal({ language, setLanguage, onComplete, onSignIn }) {
         <h2 className="welcome-title">{t.welcome}</h2>
         <p className="welcome-subtitle">{t.welcomeSubtitle}</p>
 
+        {onSignIn && (
+          <p style={{ textAlign: 'center', marginBottom: '1rem', fontWeight: 'bold', color: '#000' }}>
+            Already have an account?{' '}
+            <button className="auth-link-btn" type="button" onClick={onSignIn} style={{ fontSize: 'inherit', fontWeight: 'bold', color: '#c0392b' }}>
+              Sign in
+            </button>
+          </p>
+        )}
+
         <div className="form-group">
           <label>{t.yourName} *</label>
           <input
@@ -235,14 +244,6 @@ function WelcomeModal({ language, setLanguage, onComplete, onSignIn }) {
           🔒 {t.disclaimer || 'Your data is securely stored and used only for the Ale Trail experience.'}
         </p>
 
-        {onSignIn && (
-          <p style={{ textAlign: 'center', marginTop: '0.75rem', fontSize: '0.9375rem' }}>
-            <span style={{ opacity: 0.9 }}>Already have an account? </span>
-            <button className="auth-link-btn" type="button" onClick={onSignIn} style={{ fontSize: '0.9375rem' }}>
-              Sign in
-            </button>
-          </p>
-        )}
       </div>
     </div>
   )
