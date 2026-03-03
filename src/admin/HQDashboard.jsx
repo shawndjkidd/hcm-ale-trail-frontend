@@ -239,49 +239,53 @@ export default function HQDashboard() {
       return;
     }
     setSavingQuest(true);
-    const questData = {
-      title: { en: questForm.titleEn, vn: questForm.titleVn || questForm.titleEn },
-      description: { en: questForm.descriptionEn, vn: questForm.descriptionVn || questForm.descriptionEn },
-      reward: questForm.reward,
-      pin: questForm.pin,
-      address: questForm.address,
-      district: questForm.district,
-      maps_url: questForm.mapsUrl || null,
-      instagram_url: questForm.instagramUrl || null,
-      facebook_url: questForm.facebookUrl || null,
-      status: questForm.status
-    };
-    let result;
-    if (editingQuest) {
-      result = await updateSideQuest(editingQuest.id, questData);
-      if (result.ok) setSideQuests(sideQuests.map(q => q.id === editingQuest.id ? { ...q, ...questData } : q));
-    } else {
-      result = await createSideQuest(TRAIL_ID, questData);
-      if (result.ok) {
-        const refreshed = await getSideQuests(TRAIL_ID);
-        if (refreshed.ok) setSideQuests(refreshed.sideQuests || []);
+    try {
+      const questData = {
+        title: { en: questForm.titleEn, vn: questForm.titleVn || questForm.titleEn },
+        description: { en: questForm.descriptionEn, vn: questForm.descriptionVn || questForm.descriptionEn },
+        reward: questForm.reward,
+        pin: questForm.pin,
+        address: questForm.address,
+        district: questForm.district,
+        maps_url: questForm.mapsUrl || null,
+        instagram_url: questForm.instagramUrl || null,
+        facebook_url: questForm.facebookUrl || null,
+        status: questForm.status
+      };
+      let result;
+      if (editingQuest) {
+        result = await updateSideQuest(editingQuest.id, questData);
+        if (result.ok) setSideQuests(sideQuests.map(q => q.id === editingQuest.id ? { ...q, ...questData } : q));
       } else {
-        console.error('Create side quest failed:', result.error);
+        result = await createSideQuest(TRAIL_ID, questData);
+        if (result.ok) {
+          const refreshed = await getSideQuests(TRAIL_ID);
+          if (refreshed.ok) setSideQuests(refreshed.sideQuests || []);
+        }
       }
-    }
-    if (result.ok) {
-      if (!editingQuest && questForm.hasVenueDashboard) {
-        await createBrewery(TRAIL_ID, {
-          name: questForm.titleEn,
-          address: questForm.address || '',
-          district: questForm.district || '',
-          pinCode: questForm.pin || '',
-          status: 'active',
-        });
-        const breweriesResult = await getTrailBreweries(TRAIL_ID);
-        if (breweriesResult.ok) setBreweries(breweriesResult.breweries || []);
+      if (result.ok) {
+        if (!editingQuest && questForm.hasVenueDashboard) {
+          await createBrewery(TRAIL_ID, {
+            name: questForm.titleEn,
+            address: questForm.address || '',
+            district: questForm.district || '',
+            pinCode: questForm.pin || '',
+            status: 'active',
+          });
+          const breweriesResult = await getTrailBreweries(TRAIL_ID);
+          if (breweriesResult.ok) setBreweries(breweriesResult.breweries || []);
+        }
+        setShowQuestForm(false);
+        setEditingQuest(null);
+      } else {
+        alert(result.error || 'Failed to save quest');
       }
-      setShowQuestForm(false);
-      setEditingQuest(null);
-    } else {
-      alert(result.error || 'Failed to save quest');
+    } catch (err) {
+      console.error('Save quest error:', err);
+      alert('Save failed: ' + (err.message || 'Unknown error'));
+    } finally {
+      setSavingQuest(false);
     }
-    setSavingQuest(false);
   };
 
   const handleDeleteQuest = async (questId) => {

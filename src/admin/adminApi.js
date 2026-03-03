@@ -18,7 +18,7 @@ function authHeaders() {
 export async function getAdminMe() {
   try {
     const res = await fetch(`${API_BASE}/api/admin/me`, { headers: authHeaders() });
-    return res.json();
+    return await res.json();
   } catch (err) {
     return { ok: false, error: err.message };
   }
@@ -34,7 +34,7 @@ export async function getTrailOverview(trailId, from, to) {
     if (to) params.append('to', to);
     if (params.toString()) url += `?${params.toString()}`;
     const res = await fetch(url, { headers: authHeaders() });
-    return res.json();
+    return await res.json();
   } catch (err) {
     return { ok: false, error: err.message };
   }
@@ -43,7 +43,7 @@ export async function getTrailOverview(trailId, from, to) {
 export async function getAdminLeaderboard(trailId, limit = 50) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/leaderboard?limit=${limit}`, { headers: authHeaders() });
-    return res.json();
+    return await res.json();
   } catch (err) {
     return { ok: false, error: err.message };
   }
@@ -65,7 +65,7 @@ export async function exportParticipants(trailId, format = 'json', from, to) {
       a.click();
       return { ok: true };
     }
-    return res.json();
+    return await res.json();
   } catch (err) {
     return { ok: false, error: err.message };
   }
@@ -76,7 +76,7 @@ export async function exportParticipants(trailId, format = 'json', from, to) {
 export async function getTrailEvents(trailId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/events`, { headers: authHeaders() });
-    return res.json();
+    return await res.json();
   } catch (err) {
     return { ok: false, error: err.message };
   }
@@ -89,7 +89,7 @@ export async function createTrailEvent(trailId, eventData) {
       headers: authHeaders(),
       body: JSON.stringify(eventData)
     });
-    return res.json();
+    return await res.json();
   } catch (err) {
     return { ok: false, error: err.message };
   }
@@ -98,7 +98,7 @@ export async function createTrailEvent(trailId, eventData) {
 export async function getBreweryEvents(breweryId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/events`, { headers: authHeaders() });
-    return res.json();
+    return await res.json();
   } catch (err) {
     return { ok: false, error: err.message };
   }
@@ -111,7 +111,7 @@ export async function createBreweryEvent(breweryId, eventData) {
       headers: authHeaders(),
       body: JSON.stringify(eventData)
     });
-    return res.json();
+    return await res.json();
   } catch (err) {
     return { ok: false, error: err.message };
   }
@@ -123,7 +123,7 @@ export async function deleteEvent(eventId) {
       method: 'DELETE',
       headers: authHeaders()
     });
-    return res.json();
+    return await res.json();
   } catch (err) {
     return { ok: false, error: err.message };
   }
@@ -139,7 +139,7 @@ export async function getBreweryDashboard(breweryId, from, to) {
     if (to) params.append('to', to);
     if (params.toString()) url += `?${params.toString()}`;
     const res = await fetch(url, { headers: authHeaders() });
-    return res.json();
+    return await res.json();
   } catch (err) {
     return { ok: false, error: err.message };
   }
@@ -152,7 +152,7 @@ export async function updateBreweryPin(breweryId, pin) {
       headers: authHeaders(),
       body: JSON.stringify({ pin })
     });
-    return res.json();
+    return await res.json();
   } catch (err) {
     return { ok: false, error: err.message };
   }
@@ -165,7 +165,7 @@ export async function updateBreweryHours(breweryId, operatingHours) {
       headers: authHeaders(),
       body: JSON.stringify({ operating_hours: operatingHours })
     });
-    return res.json();
+    return await res.json();
   } catch (err) {
     return { ok: false, error: err.message };
   }
@@ -176,7 +176,7 @@ export async function updateBreweryHours(breweryId, operatingHours) {
 export async function getTrailBreweries(trailId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/breweries`, { headers: authHeaders() });
-    return res.json();
+    return await res.json();
   } catch (err) {
     return { ok: false, error: err.message };
   }
@@ -189,7 +189,7 @@ export async function createBrewery(trailId, breweryData) {
       headers: authHeaders(),
       body: JSON.stringify(breweryData)
     });
-    return res.json();
+    return await res.json();
   } catch (err) {
     return { ok: false, error: err.message };
   }
@@ -202,7 +202,7 @@ export async function updateBrewery(breweryId, breweryData) {
       headers: authHeaders(),
       body: JSON.stringify(breweryData)
     });
-    return res.json();
+    return await res.json();
   } catch (err) {
     return { ok: false, error: err.message };
   }
@@ -217,7 +217,7 @@ export async function deleteBrewery(breweryId, hard = false) {
       method: 'DELETE',
       headers: authHeaders()
     });
-    return res.json();
+    return await res.json();
   } catch (err) {
     return { ok: false, error: err.message };
   }
@@ -228,7 +228,7 @@ export async function deleteBrewery(breweryId, hard = false) {
 export async function getSideQuests(trailId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/side-quests`, { headers: authHeaders() });
-    return res.json();
+    return await res.json();
   } catch (err) {
     return { ok: false, error: err.message };
   }
@@ -236,12 +236,12 @@ export async function getSideQuests(trailId) {
 
 export async function createSideQuest(trailId, questData) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/side-quests`, {
+    const res = await fetch(`${API_BASE}/api/admin/side-quests`, {
       method: 'POST',
       headers: authHeaders(),
-      body: JSON.stringify(questData)
+      body: JSON.stringify({ ...questData, trail_id: trailId })
     });
-    return res.json();
+    return await res.json();
   } catch (err) {
     return { ok: false, error: err.message };
   }
@@ -254,7 +254,7 @@ export async function updateSideQuest(questId, questData) {
       headers: authHeaders(),
       body: JSON.stringify(questData)
     });
-    return res.json();
+    return await res.json();
   } catch (err) {
     return { ok: false, error: err.message };
   }
@@ -266,7 +266,7 @@ export async function deleteSideQuest(questId) {
       method: 'DELETE',
       headers: authHeaders()
     });
-    return res.json();
+    return await res.json();
   } catch (err) {
     return { ok: false, error: err.message };
   }
