@@ -3068,3 +3068,27 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
+
+/* ==========================================
+   PIN ENTRY LAYOUT FIXES
+   ========================================== */
+
+/* Reset: the display:flex appended earlier affects both components */
+.manual-code-section { display: block; }
+
+/* SideQuestDetail: stack PIN input above button in a column */
+.side-quest-checkin-box .manual-code-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.manual-code-btn { width: 100%; }
+
+/* BreweryDetail: stack code input above GO button in a column */
+.code-input-row { flex-direction: column; }
+.code-btn { width: 100%; }
+
+/* ==========================================
+   SIDE QUEST SECTION WIDTH — MATCH BREWERY LIST
+   ========================================== */
+.side-quests-section { margin: 20px 12px; }

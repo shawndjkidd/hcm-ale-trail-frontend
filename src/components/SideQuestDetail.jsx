@@ -174,6 +174,26 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
         </div>
       )}
 
+      {(quest?.maps_url || quest?.instagram_url || quest?.facebook_url) && (
+        <div className="brewery-buttons-row">
+          {quest.maps_url && (
+            <a href={quest.maps_url} target="_blank" rel="noopener noreferrer" className="action-btn green">
+              {t.maps}
+            </a>
+          )}
+          {quest.instagram_url && (
+            <a href={quest.instagram_url} target="_blank" rel="noopener noreferrer" className="action-btn instagram-btn">
+              {t.instagram}
+            </a>
+          )}
+          {quest.facebook_url && (
+            <a href={quest.facebook_url} target="_blank" rel="noopener noreferrer" className="action-btn facebook-btn">
+              {t.facebook}
+            </a>
+          )}
+        </div>
+      )}
+
       {message && (
         <div className={`message ${message.type}`}>
           {message.text}
