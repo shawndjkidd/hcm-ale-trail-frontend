@@ -124,6 +124,20 @@ export async function getParticipantCheckins(participantId) {
   return { data: stamps, error: null };
 }
 
+// Reset password using a recovery token from a Supabase password-reset email
+export async function resetPassword(accessToken, refreshToken, newPassword) {
+  const { error: sessionError } = await supabase.auth.setSession({
+    access_token: accessToken,
+    refresh_token: refreshToken,
+  });
+  if (sessionError) return { ok: false, error: sessionError.message };
+
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
+  if (error) return { ok: false, error: error.message };
+
+  return { ok: true };
+}
+
 // Get participant by email
 export async function getParticipantByEmail(email) {
   const { data: participants, error } = await supabase
