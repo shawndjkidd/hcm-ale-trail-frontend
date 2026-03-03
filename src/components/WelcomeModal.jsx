@@ -152,7 +152,7 @@ function WelcomeModal({ language, setLanguage, onComplete, onSignIn }) {
         <p className="welcome-subtitle">{t.welcomeSubtitle}</p>
 
         {onSignIn && (
-          <p style={{ textAlign: 'center', marginBottom: '1rem', fontWeight: 'bold', color: '#000' }}>
+          <p style={{ textAlign: 'center', marginTop: '-1.25rem', marginBottom: '1rem', fontWeight: 'bold', color: '#000' }}>
             Already have an account?{' '}
             <button className="auth-link-btn" type="button" onClick={onSignIn} style={{ fontSize: 'inherit', fontWeight: 'bold', color: '#c0392b' }}>
               Sign in
