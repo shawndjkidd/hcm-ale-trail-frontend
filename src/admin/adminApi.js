@@ -236,10 +236,10 @@ export async function getSideQuests(trailId) {
 
 export async function createSideQuest(trailId, questData) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/side-quests`, {
+    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/side-quests`, {
       method: 'POST',
       headers: authHeaders(),
-      body: JSON.stringify({ ...questData, trail_id: trailId })
+      body: JSON.stringify(questData)
     });
     return await res.json();
   } catch (err) {
