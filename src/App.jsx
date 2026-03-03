@@ -73,6 +73,7 @@ export default function App() {
   const [timerStart, setTimerStart] = useState(null);
   const [timerEnd, setTimerEnd] = useState(null);
   const [leaderboardData, setLeaderboardData] = useState([]);
+  const [activeEvents, setActiveEvents] = useState([]);
 
   const pendingQR = useRef(null);
   const pendingSideQuestQR = useRef(null);
@@ -221,6 +222,22 @@ export default function App() {
     };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  useEffect(() => {
+    fetch(`/api/trails/${TRAIL_ID}/events`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.ok) {
+          const now = new Date();
+          setActiveEvents(
+            (data.events || []).filter(
+              (e) => new Date(e.startsAt) <= now && (!e.endsAt || new Date(e.endsAt) >= now)
+            )
+          );
+        }
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -422,6 +439,7 @@ export default function App() {
           user={user}
           timerStart={timerStart}
           timerEnd={timerEnd}
+          activeEvents={activeEvents}
         />
       )}
       {view === "brewery" && selectedBrewery && (

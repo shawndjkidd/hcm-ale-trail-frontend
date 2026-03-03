@@ -20,7 +20,7 @@ const getBreweryLogo = (brewery) => {
   return BREWERY_LOGOS[brewery?.name] || null
 }
 
-function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onSideQuestClick, sideQuestCheckins = [], onNavigate, resetCard }) {
+function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onSideQuestClick, sideQuestCheckins = [], onNavigate, resetCard, activeEvents = [] }) {
   const [showCompletionModal, setShowCompletionModal] = useState(false)
   const [showEventsPage, setShowEventsPage] = useState(false)
   const [hatClaimed, setHatClaimed] = useState(false)
@@ -194,8 +194,9 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
       <div className="brewery-list">
         {breweries.map((brewery, index) => {
           const isStamped = stamps.includes(brewery.id)
+          const breweryEvent = activeEvents.find(e => e.breweryId === brewery.id)
           return (
-            <div 
+            <div
               key={brewery.id}
               className={`brewery-item ${isStamped ? 'stamped' : ''}`}
               onClick={() => onBreweryClick(brewery)}
@@ -207,8 +208,8 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
               </div>
               <div className="brewery-logo">
                 {getBreweryLogo(brewery) ? (
-                  <img 
-                    src={getBreweryLogo(brewery)} 
+                  <img
+                    src={getBreweryLogo(brewery)}
                     alt={brewery.name}
                     className="color"
                   />
@@ -221,6 +222,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
                   <div className="stamp-text">COMPLETED!</div>
                 </div>
               )}
+              {breweryEvent && <div className="event-banner">🎉 Event happening now!</div>}
             </div>
           )
         })}
@@ -231,8 +233,9 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
           <div className="side-quest-list-home">
             {sideQuests.map((quest) => {
               const isCompleted = sideQuestCheckins.includes(quest.id)
+              const questEvent = activeEvents.find(e => e.sideQuestId === quest.id)
               return (
-                <div 
+                <div
                   key={quest.id}
                   className={`side-quest-item-home ${isCompleted ? 'completed' : ''}`}
                   onClick={() => onSideQuestClick(quest)}
@@ -243,6 +246,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
                     {quest.reward && <div className="side-quest-reward-home">🎁 {quest.reward}</div>}
                   </div>
                   <div className="side-quest-arrow-home">→</div>
+                  {questEvent && <div className="event-banner">🎉 Event happening now!</div>}
                 </div>
               )
             })}

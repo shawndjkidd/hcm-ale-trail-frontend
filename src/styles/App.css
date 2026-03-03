@@ -2955,3 +2955,116 @@ body {
   margin-bottom: 0.75rem;
   text-align: center;
 }
+
+/* ==========================================
+   SIDE QUEST CARDS — MATCH BREWERY CARD STYLE
+   ========================================== */
+
+.side-quest-list-home { display: flex; flex-direction: column; gap: 0; }
+
+.side-quest-item-home {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #00B050 0%, #008C41 100%);
+  border: 4px solid var(--black);
+  border-radius: 0;
+  padding: 0;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+  position: relative;
+  box-shadow: 4px 4px 0 var(--black);
+  gap: 0;
+}
+
+.side-quest-item-home:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--black);
+}
+
+.side-quest-item-home:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--black);
+}
+
+.side-quest-item-home.completed {
+  background: var(--white);
+  opacity: 0.8;
+}
+
+.side-quest-icon-home {
+  background: #007A38;
+  color: var(--yellow-primary);
+  font-size: 2rem;
+  width: 60px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-right: 4px solid var(--black);
+}
+
+.side-quest-item-home.completed .side-quest-icon-home {
+  background: #999;
+  color: var(--white);
+}
+
+.side-quest-info-home {
+  flex: 1;
+  padding: 0.5rem 1rem;
+}
+
+.side-quest-name-home {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--yellow-primary);
+  text-transform: uppercase;
+}
+
+.side-quest-item-home.completed .side-quest-name-home {
+  color: var(--red-primary);
+}
+
+.side-quest-reward-home {
+  font-size: 0.9rem;
+  color: var(--white);
+  font-weight: bold;
+  margin-top: 2px;
+}
+
+.side-quest-item-home.completed .side-quest-reward-home {
+  color: var(--red-primary);
+}
+
+.side-quest-arrow-home {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--yellow-primary);
+  padding: 0 1rem;
+  flex-shrink: 0;
+}
+
+.side-quest-item-home.completed .side-quest-arrow-home {
+  color: var(--black);
+}
+
+/* ==========================================
+   EVENT BANNER (on brewery / side quest cards)
+   ========================================== */
+
+.event-banner {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--yellow-primary);
+  color: var(--black);
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+  padding: 2px 6px;
+  border-top: 2px solid var(--black);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}

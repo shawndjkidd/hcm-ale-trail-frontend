@@ -10,6 +10,7 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
   const [itemName, setItemName] = useState('')
   const [rating, setRating] = useState(0)
   const [notes, setNotes] = useState('')
+  const [wasAlreadyCompleted] = useState(isCompleted)
   const [hasCheckedIn, setHasCheckedIn] = useState(isCompleted)
 
   const t = translations[language]
@@ -182,7 +183,7 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
       {(hasCheckedIn || isCompleted) ? (
         <div className="side-quest-completed-box">
           <div className="completed-icon">✅</div>
-          <div className="completed-text">{t.questAlreadyCompleted || 'Quest Completed!'}</div>
+          <div className="completed-text">{wasAlreadyCompleted ? 'Already Completed ✓' : (t.questAlreadyCompleted || 'Quest Completed!')}</div>
           {quest?.reward && (
             <div className="completed-reward">
               {t.claimReward || 'Show this screen to claim your reward:'} <strong>{quest.reward}</strong>

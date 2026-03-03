@@ -28,7 +28,7 @@ export default function HQDashboard() {
   const [exporting, setExporting] = useState(false);
 
   const [showEventForm, setShowEventForm] = useState(false);
-  const [eventForm, setEventForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '' });
+  const [eventForm, setEventForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '' });
   const [savingEvent, setSavingEvent] = useState(false);
 
   const [showBreweryForm, setShowBreweryForm] = useState(false);
@@ -38,7 +38,7 @@ export default function HQDashboard() {
 
   const [showQuestForm, setShowQuestForm] = useState(false);
   const [editingQuest, setEditingQuest] = useState(null);
-  const [questForm, setQuestForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', reward: '', pin: '', address: '', district: '', status: 'active' });
+  const [questForm, setQuestForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', reward: '', pin: '', address: '', district: '', hasVenueDashboard: false, status: 'active' });
   const [savingQuest, setSavingQuest] = useState(false);
 
   const [showQrModal, setShowQrModal] = useState(false);
@@ -125,13 +125,15 @@ export default function HQDashboard() {
       starts_at: new Date(eventForm.startsAt).toISOString(),
       ends_at: eventForm.endsAt ? new Date(eventForm.endsAt).toISOString() : null,
       link: eventForm.link || null,
-      status: 'active'
+      status: 'active',
+      ...(eventForm.linkedTo === 'brewery' && eventForm.linkedId ? { brewery_id: eventForm.linkedId } : {}),
+      ...(eventForm.linkedTo === 'side_quest' && eventForm.linkedId ? { side_quest_id: eventForm.linkedId } : {}),
     };
     const result = await createTrailEvent(TRAIL_ID, eventData);
     if (result.ok) {
       setEvents([...events, result.event]);
       setShowEventForm(false);
-      setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '' });
+      setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '' });
     } else {
       alert(result.error || 'Failed to create event');
     }
@@ -208,11 +210,12 @@ export default function HQDashboard() {
         pin: quest.pin || '',
         address: quest.address || '',
         district: quest.district || '',
+        hasVenueDashboard: quest.hasVenueDashboard || false,
         status: quest.status || 'active'
       });
     } else {
       setEditingQuest(null);
-      setQuestForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', reward: '', pin: '', address: '', district: '', status: 'active' });
+      setQuestForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', reward: '', pin: '', address: '', district: '', hasVenueDashboard: false, status: 'active' });
     }
     setShowQuestForm(true);
   };
@@ -241,6 +244,17 @@ export default function HQDashboard() {
       if (result.ok && result.sideQuest) setSideQuests([...sideQuests, result.sideQuest]);
     }
     if (result.ok) {
+      if (!editingQuest && questForm.hasVenueDashboard) {
+        await createBrewery(TRAIL_ID, {
+          name: questForm.titleEn,
+          address: questForm.address || '',
+          district: questForm.district || '',
+          pinCode: questForm.pin || '',
+          status: 'active',
+        });
+        const breweriesResult = await getTrailBreweries(TRAIL_ID);
+        if (breweriesResult.ok) setBreweries(breweriesResult.breweries || []);
+      }
       setShowQuestForm(false);
       setEditingQuest(null);
     } else {
@@ -289,8 +303,9 @@ export default function HQDashboard() {
   const checkinsTrend = data?.checkinsTrendDaily || [];
   const journeyStats = data?.journeyStats || {};
   const funnelData = dropoffFunnel.map(d => ({ name: `${d.stamps} stamps`, value: d.count }));
-  const trailEvents = events.filter(e => !e.breweryId);
+  const trailEvents = events.filter(e => !e.breweryId && !e.sideQuestId);
   const breweryEvents = events.filter(e => e.breweryId);
+  const sideQuestEvents = events.filter(e => e.sideQuestId);
   const activeBreweries = breweries.filter(b => b.status !== 'inactive');
   const inactiveBreweries = breweries.filter(b => b.status === 'inactive');
 
@@ -392,15 +407,19 @@ export default function HQDashboard() {
                 <div className="admin-form-group"><label className="admin-form-label">Start Date/Time *</label><input type="datetime-local" className="admin-form-input" value={eventForm.startsAt} onChange={(e) => setEventForm({...eventForm, startsAt: e.target.value})} /></div>
                 <div className="admin-form-group"><label className="admin-form-label">End Date/Time</label><input type="datetime-local" className="admin-form-input" value={eventForm.endsAt} onChange={(e) => setEventForm({...eventForm, endsAt: e.target.value})} /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Link (optional)</label><input type="url" className="admin-form-input" value={eventForm.link} onChange={(e) => setEventForm({...eventForm, link: e.target.value})} /></div>
+                <div className="admin-form-group"><label className="admin-form-label">Link to venue</label><select className="admin-form-input" value={eventForm.linkedTo} onChange={(e) => setEventForm({...eventForm, linkedTo: e.target.value, linkedId: ''})}><option value="none">None (trail-wide)</option><option value="brewery">Brewery</option><option value="side_quest">Side Quest</option></select></div>
+                {eventForm.linkedTo === 'brewery' && (<div className="admin-form-group"><label className="admin-form-label">Select brewery</label><select className="admin-form-input" value={eventForm.linkedId} onChange={(e) => setEventForm({...eventForm, linkedId: e.target.value})}><option value="">— choose —</option>{breweries.map(b => (<option key={b.id} value={b.id}>{b.name}</option>))}</select></div>)}
+                {eventForm.linkedTo === 'side_quest' && (<div className="admin-form-group"><label className="admin-form-label">Select side quest</label><select className="admin-form-input" value={eventForm.linkedId} onChange={(e) => setEventForm({...eventForm, linkedId: e.target.value})}><option value="">— choose —</option>{sideQuests.map(q => (<option key={q.id} value={q.id}>{typeof q.title === 'string' ? q.title : (q.title?.en || 'Untitled')}</option>))}</select></div>)}
                 <div style={{ display: 'flex', gap: 12, marginTop: 20 }}><button className="admin-btn admin-btn-primary" onClick={handleCreateTrailEvent} disabled={savingEvent}>{savingEvent ? 'Creating...' : 'Create Event'}</button><button className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={() => setShowEventForm(false)}>Cancel</button></div>
               </div>
             </div>
           )}
           <div className="admin-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}><h3 className="admin-card-title" style={{ marginBottom: 0 }}>Trail Events ({trailEvents.length})</h3><button className="admin-btn admin-btn-primary admin-btn-small" onClick={() => setShowEventForm(true)}>+ Create Trail Event</button></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}><h3 className="admin-card-title" style={{ marginBottom: 0 }}>Trail-Wide Events ({trailEvents.length})</h3><button className="admin-btn admin-btn-primary admin-btn-small" onClick={() => setShowEventForm(true)}>+ Create Event</button></div>
             {trailEvents.length === 0 ? (<div className="admin-empty">No trail-wide events yet</div>) : (<table className="admin-table"><thead><tr><th>Event</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>{trailEvents.map((event) => (<tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><span className={`admin-badge ${event.status === 'active' ? 'active' : 'inactive'}`}>{event.status}</span></td><td><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></td></tr>))}</tbody></table>)}
           </div>
           <div className="admin-card" style={{ marginTop: 20 }}><h3 className="admin-card-title">Brewery Events ({breweryEvents.length})</h3>{breweryEvents.length === 0 ? (<div className="admin-empty">No brewery events yet</div>) : (<table className="admin-table"><thead><tr><th>Event</th><th>Brewery</th><th>Date</th><th>Actions</th></tr></thead><tbody>{breweryEvents.map((event) => (<tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td>{event.breweryName}</td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></td></tr>))}</tbody></table>)}</div>
+          <div className="admin-card" style={{ marginTop: 20 }}><h3 className="admin-card-title">Side Quest Events ({sideQuestEvents.length})</h3>{sideQuestEvents.length === 0 ? (<div className="admin-empty">No side quest events yet</div>) : (<table className="admin-table"><thead><tr><th>Event</th><th>Side Quest</th><th>Date</th><th>Actions</th></tr></thead><tbody>{sideQuestEvents.map((event) => (<tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td>{event.sideQuestTitle || event.sideQuestId || '--'}</td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></td></tr>))}</tbody></table>)}</div>
         </>
       )}
 
@@ -418,6 +437,7 @@ export default function HQDashboard() {
                 <div className="admin-form-group"><label className="admin-form-label">PIN Code (4 digits) *</label><input type="text" className="admin-form-input" value={questForm.pin} onChange={(e) => setQuestForm({...questForm, pin: e.target.value.replace(/\D/g, '').slice(0, 4)})} placeholder="1234" maxLength="4" /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Address</label><input type="text" className="admin-form-input" value={questForm.address} onChange={(e) => setQuestForm({...questForm, address: e.target.value})} placeholder="123 Beer Street" /></div>
                 <div className="admin-form-group"><label className="admin-form-label">District</label><input type="text" className="admin-form-input" value={questForm.district} onChange={(e) => setQuestForm({...questForm, district: e.target.value})} placeholder="District 1" /></div>
+                {!editingQuest && (<div className="admin-form-group"><label className="admin-form-label">Has venue dashboard?</label><div style={{ display: 'flex', gap: 8, marginTop: 4 }}><button type="button" className="admin-btn admin-btn-small" style={{ width: 'auto', background: questForm.hasVenueDashboard ? '#f97316' : 'var(--admin-border)', color: questForm.hasVenueDashboard ? '#fff' : 'var(--admin-text)' }} onClick={() => setQuestForm({...questForm, hasVenueDashboard: true})}>Yes</button><button type="button" className="admin-btn admin-btn-small" style={{ width: 'auto', background: !questForm.hasVenueDashboard ? '#f97316' : 'var(--admin-border)', color: !questForm.hasVenueDashboard ? '#fff' : 'var(--admin-text)' }} onClick={() => setQuestForm({...questForm, hasVenueDashboard: false})}>No</button></div>{questForm.hasVenueDashboard && <p style={{ fontSize: 12, color: 'var(--admin-text-muted)', marginTop: 6 }}>A brewery dashboard entry will be created for this venue using the title, address, district, and PIN above.</p>}</div>)}
                 <div className="admin-form-group"><label className="admin-form-label">Status</label><select className="admin-form-input" value={questForm.status} onChange={(e) => setQuestForm({...questForm, status: e.target.value})}><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
                 <div style={{ display: 'flex', gap: 12, marginTop: 20 }}><button className="admin-btn admin-btn-primary" onClick={handleSaveQuest} disabled={savingQuest}>{savingQuest ? 'Saving...' : 'Save Quest'}</button><button className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={() => setShowQuestForm(false)}>Cancel</button></div>
               </div>
