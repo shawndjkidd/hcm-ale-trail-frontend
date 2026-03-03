@@ -58,3 +58,17 @@ Vanilla CSS in `src/styles/App.css` — no CSS framework. Mobile-first design.
 - Test Side Quest ID: a6230c02-e9e3-4dd0-9d37-4dc30393057d (PIN: 1234)
 - App.css is ~52KB — never replace it, only append new styles
 - Always provide full file contents, never partial edits
+
+## Feature Status
+
+### Done
+- **QR scan + check-in flow** — users scan brewery QR codes, stamps recorded to Supabase
+- **Side quest QR scan + rating flow** — scan PIN entry, 1–5 star rating, submitted to `/api/side-quests/:id/ratings`
+- **AuthModal** — login, create account, and forgot password views; mode defaults to `"login"`; input focus bug fixed (no inner component definitions)
+- **Forgot password** — `submitForgot` POSTs to `/api/auth/forgot-password`; button disabled after success
+- **Reset password page** — `/reset-password` route in `main.jsx` renders `ResetPassword` component; parses `access_token`/`refresh_token` from URL hash; calls `supabase.auth.setSession` + `supabase.auth.updateUser`; redirects home after 3s on success
+- **WelcomeModal "Already have an account? Sign in" link** — translatable via `alreadyHaveAccount`/`signInLink` keys in `translations.js`; passes `onSignIn` callback prop from App
+
+### Routing notes
+- `/reset-password` is handled in `main.jsx` (not `App.jsx`) to bypass the `showWelcome` guard that fires when no `hcm-user` is in localStorage
+- `resetPassword()` lives in `supabase.js` (not `api.js`) because it uses the Supabase JS client directly

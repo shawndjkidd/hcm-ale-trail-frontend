@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import {
   getTrailOverview, getTrailEvents, getAdminLeaderboard, exportParticipants,
   deleteEvent, createTrailEvent, getTrailBreweries, createBrewery, updateBrewery,
-  deleteBrewery, getSideQuests, createSideQuest, updateSideQuest, deleteSideQuest, TRAIL_ID
+  deleteBrewery, getSideQuests, createSideQuest, updateSideQuest, deleteSideQuest, getSideQuestQR, TRAIL_ID
 } from './adminApi';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -37,8 +37,13 @@ export default function HQDashboard() {
 
   const [showQuestForm, setShowQuestForm] = useState(false);
   const [editingQuest, setEditingQuest] = useState(null);
-  const [questForm, setQuestForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', reward: '', status: 'active' });
+  const [questForm, setQuestForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', reward: '', pin: '', address: '', district: '', status: 'active' });
   const [savingQuest, setSavingQuest] = useState(false);
+
+  const [showQrModal, setShowQrModal] = useState(false);
+  const [qrQuest, setQrQuest] = useState(null);
+  const [qrUrl, setQrUrl] = useState('');
+  const [loadingQr, setLoadingQr] = useState(false);
 
   const loadData = async (from, to) => {
     setLoading(true);
@@ -199,11 +204,14 @@ export default function HQDashboard() {
         descriptionEn: typeof desc === 'string' ? desc : (desc.en || ''),
         descriptionVn: typeof desc === 'string' ? '' : (desc.vn || ''),
         reward: quest.reward || '',
+        pin: quest.pin || '',
+        address: quest.address || '',
+        district: quest.district || '',
         status: quest.status || 'active'
       });
     } else {
       setEditingQuest(null);
-      setQuestForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', reward: '', status: 'active' });
+      setQuestForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', reward: '', pin: '', address: '', district: '', status: 'active' });
     }
     setShowQuestForm(true);
   };
@@ -218,6 +226,9 @@ export default function HQDashboard() {
       title: { en: questForm.titleEn, vn: questForm.titleVn || questForm.titleEn },
       description: { en: questForm.descriptionEn, vn: questForm.descriptionVn || questForm.descriptionEn },
       reward: questForm.reward,
+      pin: questForm.pin,
+      address: questForm.address,
+      district: questForm.district,
       status: questForm.status
     };
     let result;
@@ -242,6 +253,17 @@ export default function HQDashboard() {
     const result = await deleteSideQuest(questId);
     if (result.ok) setSideQuests(sideQuests.filter(q => q.id !== questId));
     else alert(result.error || 'Failed to delete');
+  };
+
+  const handleGenerateQR = async (quest) => {
+    setQrQuest(quest);
+    setQrUrl('');
+    setLoadingQr(true);
+    setShowQrModal(true);
+    const result = await getSideQuestQR(TRAIL_ID, quest.id);
+    setLoadingQr(false);
+    if (result.ok) setQrUrl(result.url);
+    else alert(result.error || 'Failed to load QR code');
   };
 
   if (loading && !data) {
@@ -388,14 +410,38 @@ export default function HQDashboard() {
                 <div className="admin-form-group"><label className="admin-form-label">Description (English)</label><textarea className="admin-form-input" value={questForm.descriptionEn} onChange={(e) => setQuestForm({...questForm, descriptionEn: e.target.value})} rows={2} /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Description (Vietnamese)</label><textarea className="admin-form-input" value={questForm.descriptionVn} onChange={(e) => setQuestForm({...questForm, descriptionVn: e.target.value})} rows={2} /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Reward</label><input type="text" className="admin-form-input" value={questForm.reward} onChange={(e) => setQuestForm({...questForm, reward: e.target.value})} placeholder="Free sticker" /></div>
+                <div className="admin-form-group"><label className="admin-form-label">PIN Code (4 digits) *</label><input type="text" className="admin-form-input" value={questForm.pin} onChange={(e) => setQuestForm({...questForm, pin: e.target.value.replace(/\D/g, '').slice(0, 4)})} placeholder="1234" maxLength="4" /></div>
+                <div className="admin-form-group"><label className="admin-form-label">Address</label><input type="text" className="admin-form-input" value={questForm.address} onChange={(e) => setQuestForm({...questForm, address: e.target.value})} placeholder="123 Beer Street" /></div>
+                <div className="admin-form-group"><label className="admin-form-label">District</label><input type="text" className="admin-form-input" value={questForm.district} onChange={(e) => setQuestForm({...questForm, district: e.target.value})} placeholder="District 1" /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Status</label><select className="admin-form-input" value={questForm.status} onChange={(e) => setQuestForm({...questForm, status: e.target.value})}><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
                 <div style={{ display: 'flex', gap: 12, marginTop: 20 }}><button className="admin-btn admin-btn-primary" onClick={handleSaveQuest} disabled={savingQuest}>{savingQuest ? 'Saving...' : 'Save Quest'}</button><button className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={() => setShowQuestForm(false)}>Cancel</button></div>
               </div>
             </div>
           )}
+          {showQrModal && qrQuest && (
+            <div className="admin-modal-overlay" onClick={() => setShowQrModal(false)}>
+              <div className="admin-modal" onClick={(e) => e.stopPropagation()} style={{ textAlign: 'center' }}>
+                <h3 style={{ marginBottom: 4 }}>QR Code</h3>
+                <p style={{ color: 'var(--admin-text-muted)', marginBottom: 20, fontSize: 14 }}>{typeof qrQuest.title === 'string' ? qrQuest.title : (qrQuest.title?.en || 'Side Quest')}</p>
+                {loadingQr ? (
+                  <div className="admin-spinner" style={{ margin: '40px auto' }} />
+                ) : qrUrl ? (
+                  <>
+                    <img src={qrUrl} alt="QR Code" style={{ width: 200, height: 200, imageRendering: 'pixelated', display: 'block', margin: '0 auto' }} />
+                    <div style={{ marginTop: 16 }}>
+                      <a href={qrUrl} download={`quest-qr-${qrQuest.id}.png`} className="admin-btn admin-btn-secondary" style={{ width: 'auto', display: 'inline-block', textDecoration: 'none' }}>Download PNG</a>
+                    </div>
+                  </>
+                ) : null}
+                <div style={{ marginTop: 16 }}>
+                  <button className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)', width: 'auto' }} onClick={() => setShowQrModal(false)}>Close</button>
+                </div>
+              </div>
+            </div>
+          )}
           <div className="admin-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}><h3 className="admin-card-title" style={{ marginBottom: 0 }}>Side Quests ({sideQuests.length})</h3><button className="admin-btn admin-btn-primary admin-btn-small" onClick={() => openQuestForm()}>+ Create Quest</button></div>
-            {sideQuests.length === 0 ? (<div className="admin-empty">No side quests yet</div>) : (<table className="admin-table"><thead><tr><th>Title</th><th>Reward</th><th>Status</th><th>Actions</th></tr></thead><tbody>{sideQuests.map((quest) => { const title = typeof quest.title === 'string' ? quest.title : (quest.title?.en || 'Untitled'); return (<tr key={quest.id}><td><strong>{title}</strong></td><td>{quest.reward || '--'}</td><td><span className={`admin-badge ${quest.status === 'active' ? 'active' : 'inactive'}`}>{quest.status}</span></td><td><button className="admin-btn-small" style={{ marginRight: 8 }} onClick={() => openQuestForm(quest)}>Edit</button><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteQuest(quest.id)}>Delete</button></td></tr>); })}</tbody></table>)}
+            {sideQuests.length === 0 ? (<div className="admin-empty">No side quests yet</div>) : (<table className="admin-table"><thead><tr><th>Title</th><th>Reward</th><th>PIN</th><th>District</th><th>Status</th><th>Actions</th></tr></thead><tbody>{sideQuests.map((quest) => { const title = typeof quest.title === 'string' ? quest.title : (quest.title?.en || 'Untitled'); return (<tr key={quest.id}><td><strong>{title}</strong>{quest.address && <div style={{ fontSize: 12, color: 'var(--admin-text-muted)' }}>{quest.address}</div>}</td><td>{quest.reward || '--'}</td><td><code>{quest.pin || '--'}</code></td><td>{quest.district || '--'}</td><td><span className={`admin-badge ${quest.status === 'active' ? 'active' : 'inactive'}`}>{quest.status}</span></td><td style={{ whiteSpace: 'nowrap' }}><button className="admin-btn-small admin-btn-secondary" style={{ marginRight: 6 }} onClick={() => handleGenerateQR(quest)}>QR</button><button className="admin-btn-small" style={{ marginRight: 6 }} onClick={() => openQuestForm(quest)}>Edit</button><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteQuest(quest.id)}>Delete</button></td></tr>); })}</tbody></table>)}
           </div>
         </>
       )}
