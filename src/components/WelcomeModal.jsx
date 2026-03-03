@@ -153,9 +153,9 @@ function WelcomeModal({ language, setLanguage, onComplete, onSignIn }) {
 
         {onSignIn && (
           <p style={{ textAlign: 'center', marginTop: '-1.25rem', marginBottom: '1rem', fontWeight: 'bold', color: '#000' }}>
-            Already have an account?{' '}
+            {t.alreadyHaveAccount}{' '}
             <button className="auth-link-btn" type="button" onClick={onSignIn} style={{ fontSize: 'inherit', fontWeight: 'bold', color: '#c0392b' }}>
-              Sign in
+              {t.signInLink}
             </button>
           </p>
         )}

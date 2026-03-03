@@ -119,6 +119,8 @@ const translations = {
     upcomingEvents: "UPCOMING EVENTS",
     noEvents: "No upcoming events",
     moreInfo: "MORE INFO",
+    alreadyHaveAccount: "Already have an account?",
+    signInLink: "Sign in",
   },
   
   vn: {
@@ -241,6 +243,8 @@ const translations = {
     upcomingEvents: "SỰ KIỆN SẮP TỚI",
     noEvents: "Không có sự kiện sắp tới",
     moreInfo: "THÊM THÔNG TIN",
+    alreadyHaveAccount: "Bạn đã có tài khoản?",
+    signInLink: "Đăng nhập",
   },
   
   kr: {
@@ -363,6 +367,8 @@ const translations = {
     upcomingEvents: "다가오는 이벤트",
     noEvents: "예정된 이벤트 없음",
     moreInfo: "더 알아보기",
+    alreadyHaveAccount: "이미 계정이 있으신가요?",
+    signInLink: "로그인",
   },
   
   jp: {
@@ -485,6 +491,8 @@ const translations = {
     upcomingEvents: "今後のイベント",
     noEvents: "予定されているイベントはありません",
     moreInfo: "詳細",
+    alreadyHaveAccount: "すでにアカウントをお持ちですか？",
+    signInLink: "ログイン",
   }
 }
 
