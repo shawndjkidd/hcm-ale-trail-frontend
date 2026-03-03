@@ -63,13 +63,31 @@ export default function AuthModal({ onSuccess, language = "en" }) {
   };
 
   // ── Forgot password ───────────────────────────────────────────────────────
-  // TODO: wire to POST /api/auth/forgot-password when available
-  // Body: { email }
   const submitForgot = async (e) => {
     e?.preventDefault?.();
     resetMessages();
-    // Placeholder until backend endpoint is ready
-    setInfo("Check your email for a reset link.");
+    setBusy(true);
+
+    try {
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok || !data?.ok) {
+        setErr(data?.error || "Failed to send reset email. Please try again.");
+        return;
+      }
+
+      setInfo("Check your email for a password reset link.");
+    } catch (e) {
+      setErr(e?.message || "Failed to send reset email. Please try again.");
+    } finally {
+      setBusy(false);
+    }
   };
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -236,7 +254,7 @@ export default function AuthModal({ onSuccess, language = "en" }) {
               {err && <div className="form-error">{err}</div>}
               {info && <div className="form-info">{info}</div>}
 
-              <button className="welcome-btn" type="submit" disabled={busy}>
+              <button className="welcome-btn" type="submit" disabled={busy || !!info}>
                 {busy ? "Sending..." : "SEND RESET LINK"}
               </button>
             </form>
