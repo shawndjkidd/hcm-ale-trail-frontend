@@ -405,7 +405,7 @@ export default function App() {
   return (
     <div className="app">
       {showWelcome && (
-        <WelcomeModal language={language} setLanguage={setLanguage} onComplete={handleUserRegistration} />
+        <WelcomeModal language={language} setLanguage={setLanguage} onComplete={handleUserRegistration} onSignIn={() => setShowAuth(true)} />
       )}
       {showAuth && <AuthModal onSuccess={onAuthSuccess} language={language} />}
       {view === "home" && (

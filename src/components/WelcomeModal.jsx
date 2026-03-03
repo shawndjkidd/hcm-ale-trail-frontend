@@ -11,7 +11,7 @@ const COUNTRIES = [
   "Brazil", "Mexico", "Argentina", "India", "Russia", "South Africa", "Other"
 ]
 
-function WelcomeModal({ language, setLanguage, onComplete }) {
+function WelcomeModal({ language, setLanguage, onComplete, onSignIn }) {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [dob, setDob] = useState('')
@@ -234,6 +234,15 @@ function WelcomeModal({ language, setLanguage, onComplete }) {
         <p className="welcome-disclaimer">
           🔒 {t.disclaimer || 'Your data is securely stored and used only for the Ale Trail experience.'}
         </p>
+
+        {onSignIn && (
+          <p style={{ textAlign: 'center', marginTop: '0.75rem' }}>
+            <span style={{ opacity: 0.7, fontSize: '0.875rem' }}>Already have an account? </span>
+            <button className="auth-link-btn" type="button" onClick={onSignIn}>
+              Sign in
+            </button>
+          </p>
+        )}
       </div>
     </div>
   )
