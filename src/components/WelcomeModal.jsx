@@ -236,9 +236,9 @@ function WelcomeModal({ language, setLanguage, onComplete, onSignIn }) {
         </p>
 
         {onSignIn && (
-          <p style={{ textAlign: 'center', marginTop: '0.75rem' }}>
-            <span style={{ opacity: 0.7, fontSize: '0.875rem' }}>Already have an account? </span>
-            <button className="auth-link-btn" type="button" onClick={onSignIn}>
+          <p style={{ textAlign: 'center', marginTop: '0.75rem', fontSize: '0.9375rem' }}>
+            <span style={{ opacity: 0.9 }}>Already have an account? </span>
+            <button className="auth-link-btn" type="button" onClick={onSignIn} style={{ fontSize: '0.9375rem' }}>
               Sign in
             </button>
           </p>
