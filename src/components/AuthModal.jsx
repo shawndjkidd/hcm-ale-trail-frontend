@@ -72,37 +72,6 @@ export default function AuthModal({ onSuccess, language = "en" }) {
     setInfo("Check your email for a reset link.");
   };
 
-  // ── Shared field components ───────────────────────────────────────────────
-  const EmailField = () => (
-    <div className="form-group">
-      <label>{t.yourEmail || "Email"} *</label>
-      <input
-        type="email"
-        className="text-input"
-        placeholder="you@example.com"
-        value={email}
-        autoComplete="email"
-        onChange={(e) => setEmail(e.target.value)}
-        required
-      />
-    </div>
-  );
-
-  const PasswordField = ({ autoComplete = "current-password" }) => (
-    <div className="form-group">
-      <label>{t.password || "Password"} *</label>
-      <input
-        type="password"
-        className="text-input"
-        placeholder="••••••••"
-        value={password}
-        autoComplete={autoComplete}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-      />
-    </div>
-  );
-
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="modal-overlay">
@@ -122,8 +91,30 @@ export default function AuthModal({ onSuccess, language = "en" }) {
             </p>
 
             <form onSubmit={submitLogin}>
-              <EmailField />
-              <PasswordField autoComplete="current-password" />
+              <div className="form-group">
+                <label>{t.yourEmail || "Email"} *</label>
+                <input
+                  type="email"
+                  className="text-input"
+                  placeholder="you@example.com"
+                  value={email}
+                  autoComplete="email"
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>{t.password || "Password"} *</label>
+                <input
+                  type="password"
+                  className="text-input"
+                  placeholder="••••••••"
+                  value={password}
+                  autoComplete="current-password"
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
 
               {err && <div className="form-error">{err}</div>}
 
@@ -174,8 +165,30 @@ export default function AuthModal({ onSuccess, language = "en" }) {
                   required
                 />
               </div>
-              <EmailField />
-              <PasswordField autoComplete="new-password" />
+              <div className="form-group">
+                <label>{t.yourEmail || "Email"} *</label>
+                <input
+                  type="email"
+                  className="text-input"
+                  placeholder="you@example.com"
+                  value={email}
+                  autoComplete="email"
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>{t.password || "Password"} *</label>
+                <input
+                  type="password"
+                  className="text-input"
+                  placeholder="••••••••"
+                  value={password}
+                  autoComplete="new-password"
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
 
               {err && <div className="form-error">{err}</div>}
               {info && <div className="form-info">{info}</div>}
@@ -207,7 +220,18 @@ export default function AuthModal({ onSuccess, language = "en" }) {
             </p>
 
             <form onSubmit={submitForgot}>
-              <EmailField />
+              <div className="form-group">
+                <label>{t.yourEmail || "Email"} *</label>
+                <input
+                  type="email"
+                  className="text-input"
+                  placeholder="you@example.com"
+                  value={email}
+                  autoComplete="email"
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
 
               {err && <div className="form-error">{err}</div>}
               {info && <div className="form-info">{info}</div>}
