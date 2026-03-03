@@ -33,12 +33,12 @@ export default function HQDashboard() {
 
   const [showBreweryForm, setShowBreweryForm] = useState(false);
   const [editingBrewery, setEditingBrewery] = useState(null);
-  const [breweryForm, setBreweryForm] = useState({ name: '', address: '', district: '', pinCode: '', logoUrl: '', status: 'active' });
+  const [breweryForm, setBreweryForm] = useState({ name: '', address: '', district: '', pinCode: '', logoUrl: '', mapsUrl: '', instagramUrl: '', facebookUrl: '', descriptionEn: '', descriptionVn: '', status: 'active' });
   const [savingBrewery, setSavingBrewery] = useState(false);
 
   const [showQuestForm, setShowQuestForm] = useState(false);
   const [editingQuest, setEditingQuest] = useState(null);
-  const [questForm, setQuestForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', reward: '', pin: '', address: '', district: '', hasVenueDashboard: false, status: 'active' });
+  const [questForm, setQuestForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', reward: '', pin: '', address: '', district: '', mapsUrl: '', instagramUrl: '', facebookUrl: '', hasVenueDashboard: false, status: 'active' });
   const [savingQuest, setSavingQuest] = useState(false);
 
   const [showQrModal, setShowQrModal] = useState(false);
@@ -143,17 +143,23 @@ export default function HQDashboard() {
   const openBreweryForm = (brewery = null) => {
     if (brewery) {
       setEditingBrewery(brewery);
+      const brewDesc = brewery.description || {};
       setBreweryForm({
         name: brewery.name || '',
         address: brewery.address || '',
         district: brewery.district || '',
         pinCode: brewery.pinCode || '',
         logoUrl: brewery.logoUrl || '',
+        mapsUrl: brewery.mapsUrl || '',
+        instagramUrl: brewery.instagramUrl || '',
+        facebookUrl: brewery.facebookUrl || '',
+        descriptionEn: typeof brewDesc === 'string' ? brewDesc : (brewDesc.en || ''),
+        descriptionVn: typeof brewDesc === 'string' ? '' : (brewDesc.vn || ''),
         status: brewery.status || 'active'
       });
     } else {
       setEditingBrewery(null);
-      setBreweryForm({ name: '', address: '', district: '', pinCode: '', logoUrl: '', status: 'active' });
+      setBreweryForm({ name: '', address: '', district: '', pinCode: '', logoUrl: '', mapsUrl: '', instagramUrl: '', facebookUrl: '', descriptionEn: '', descriptionVn: '', status: 'active' });
     }
     setShowBreweryForm(true);
   };
@@ -170,12 +176,16 @@ export default function HQDashboard() {
       district: breweryForm.district,
       pin_code: breweryForm.pinCode,
       logo_url: breweryForm.logoUrl,
+      maps_url: breweryForm.mapsUrl || null,
+      instagram_url: breweryForm.instagramUrl || null,
+      facebook_url: breweryForm.facebookUrl || null,
+      description: breweryForm.descriptionEn ? { en: breweryForm.descriptionEn, vn: breweryForm.descriptionVn || breweryForm.descriptionEn } : null,
       status: breweryForm.status
     };
     let result;
     if (editingBrewery) {
       result = await updateBrewery(editingBrewery.id, breweryData);
-      if (result.ok) setBreweries(breweries.map(b => b.id === editingBrewery.id ? { ...b, ...breweryData, pinCode: breweryData.pin_code, logoUrl: breweryData.logo_url } : b));
+      if (result.ok) setBreweries(breweries.map(b => b.id === editingBrewery.id ? { ...b, ...breweryData, pinCode: breweryData.pin_code, logoUrl: breweryData.logo_url, mapsUrl: breweryData.maps_url, instagramUrl: breweryData.instagram_url, facebookUrl: breweryData.facebook_url } : b));
     } else {
       result = await createBrewery(TRAIL_ID, breweryData);
       if (result.ok && result.brewery) setBreweries([...breweries, result.brewery]);
@@ -210,12 +220,15 @@ export default function HQDashboard() {
         pin: quest.pin || '',
         address: quest.address || '',
         district: quest.district || '',
+        mapsUrl: quest.mapsUrl || '',
+        instagramUrl: quest.instagramUrl || '',
+        facebookUrl: quest.facebookUrl || '',
         hasVenueDashboard: quest.hasVenueDashboard || false,
         status: quest.status || 'active'
       });
     } else {
       setEditingQuest(null);
-      setQuestForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', reward: '', pin: '', address: '', district: '', hasVenueDashboard: false, status: 'active' });
+      setQuestForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', reward: '', pin: '', address: '', district: '', mapsUrl: '', instagramUrl: '', facebookUrl: '', hasVenueDashboard: false, status: 'active' });
     }
     setShowQuestForm(true);
   };
@@ -233,6 +246,9 @@ export default function HQDashboard() {
       pin: questForm.pin,
       address: questForm.address,
       district: questForm.district,
+      maps_url: questForm.mapsUrl || null,
+      instagram_url: questForm.instagramUrl || null,
+      facebook_url: questForm.facebookUrl || null,
       status: questForm.status
     };
     let result;
@@ -378,6 +394,11 @@ export default function HQDashboard() {
                 <div className="admin-form-group"><label className="admin-form-label">District</label><input type="text" className="admin-form-input" value={breweryForm.district} onChange={(e) => setBreweryForm({...breweryForm, district: e.target.value})} placeholder="District 1" /></div>
                 <div className="admin-form-group"><label className="admin-form-label">PIN Code (4 digits)</label><input type="text" className="admin-form-input" value={breweryForm.pinCode} onChange={(e) => setBreweryForm({...breweryForm, pinCode: e.target.value.replace(/\D/g, '').slice(0, 4)})} placeholder="1234" maxLength="4" /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Logo URL</label><input type="text" className="admin-form-input" value={breweryForm.logoUrl} onChange={(e) => setBreweryForm({...breweryForm, logoUrl: e.target.value})} placeholder="https://..." /></div>
+                <div className="admin-form-group"><label className="admin-form-label">Maps URL</label><input type="text" className="admin-form-input" value={breweryForm.mapsUrl} onChange={(e) => setBreweryForm({...breweryForm, mapsUrl: e.target.value})} placeholder="https://maps.google.com/..." /></div>
+                <div className="admin-form-group"><label className="admin-form-label">Instagram URL</label><input type="text" className="admin-form-input" value={breweryForm.instagramUrl} onChange={(e) => setBreweryForm({...breweryForm, instagramUrl: e.target.value})} placeholder="https://instagram.com/..." /></div>
+                <div className="admin-form-group"><label className="admin-form-label">Facebook URL</label><input type="text" className="admin-form-input" value={breweryForm.facebookUrl} onChange={(e) => setBreweryForm({...breweryForm, facebookUrl: e.target.value})} placeholder="https://facebook.com/..." /></div>
+                <div className="admin-form-group"><label className="admin-form-label">Description (English)</label><textarea className="admin-form-input" value={breweryForm.descriptionEn} onChange={(e) => setBreweryForm({...breweryForm, descriptionEn: e.target.value})} rows={3} placeholder="Describe this brewery..." /></div>
+                <div className="admin-form-group"><label className="admin-form-label">Description (Vietnamese)</label><textarea className="admin-form-input" value={breweryForm.descriptionVn} onChange={(e) => setBreweryForm({...breweryForm, descriptionVn: e.target.value})} rows={3} /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Status</label><select className="admin-form-input" value={breweryForm.status} onChange={(e) => setBreweryForm({...breweryForm, status: e.target.value})}><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
                 <div style={{ display: 'flex', gap: 12, marginTop: 20 }}><button className="admin-btn admin-btn-primary" onClick={handleSaveBrewery} disabled={savingBrewery}>{savingBrewery ? 'Saving...' : 'Save Brewery'}</button><button className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={() => setShowBreweryForm(false)}>Cancel</button></div>
               </div>
@@ -437,6 +458,9 @@ export default function HQDashboard() {
                 <div className="admin-form-group"><label className="admin-form-label">PIN Code (4 digits) *</label><input type="text" className="admin-form-input" value={questForm.pin} onChange={(e) => setQuestForm({...questForm, pin: e.target.value.replace(/\D/g, '').slice(0, 4)})} placeholder="1234" maxLength="4" /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Address</label><input type="text" className="admin-form-input" value={questForm.address} onChange={(e) => setQuestForm({...questForm, address: e.target.value})} placeholder="123 Beer Street" /></div>
                 <div className="admin-form-group"><label className="admin-form-label">District</label><input type="text" className="admin-form-input" value={questForm.district} onChange={(e) => setQuestForm({...questForm, district: e.target.value})} placeholder="District 1" /></div>
+                <div className="admin-form-group"><label className="admin-form-label">Maps URL</label><input type="text" className="admin-form-input" value={questForm.mapsUrl} onChange={(e) => setQuestForm({...questForm, mapsUrl: e.target.value})} placeholder="https://maps.google.com/..." /></div>
+                <div className="admin-form-group"><label className="admin-form-label">Instagram URL</label><input type="text" className="admin-form-input" value={questForm.instagramUrl} onChange={(e) => setQuestForm({...questForm, instagramUrl: e.target.value})} placeholder="https://instagram.com/..." /></div>
+                <div className="admin-form-group"><label className="admin-form-label">Facebook URL</label><input type="text" className="admin-form-input" value={questForm.facebookUrl} onChange={(e) => setQuestForm({...questForm, facebookUrl: e.target.value})} placeholder="https://facebook.com/..." /></div>
                 {!editingQuest && (<div className="admin-form-group"><label className="admin-form-label">Has venue dashboard?</label><div style={{ display: 'flex', gap: 8, marginTop: 4 }}><button type="button" className="admin-btn admin-btn-small" style={{ width: 'auto', background: questForm.hasVenueDashboard ? '#f97316' : 'var(--admin-border)', color: questForm.hasVenueDashboard ? '#fff' : 'var(--admin-text)' }} onClick={() => setQuestForm({...questForm, hasVenueDashboard: true})}>Yes</button><button type="button" className="admin-btn admin-btn-small" style={{ width: 'auto', background: !questForm.hasVenueDashboard ? '#f97316' : 'var(--admin-border)', color: !questForm.hasVenueDashboard ? '#fff' : 'var(--admin-text)' }} onClick={() => setQuestForm({...questForm, hasVenueDashboard: false})}>No</button></div>{questForm.hasVenueDashboard && <p style={{ fontSize: 12, color: 'var(--admin-text-muted)', marginTop: 6 }}>A brewery dashboard entry will be created for this venue using the title, address, district, and PIN above.</p>}</div>)}
                 <div className="admin-form-group"><label className="admin-form-label">Status</label><select className="admin-form-input" value={questForm.status} onChange={(e) => setQuestForm({...questForm, status: e.target.value})}><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
                 <div style={{ display: 'flex', gap: 12, marginTop: 20 }}><button className="admin-btn admin-btn-primary" onClick={handleSaveQuest} disabled={savingQuest}>{savingQuest ? 'Saving...' : 'Save Quest'}</button><button className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={() => setShowQuestForm(false)}>Cancel</button></div>

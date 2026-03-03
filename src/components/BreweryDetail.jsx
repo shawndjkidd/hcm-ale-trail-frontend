@@ -88,9 +88,9 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
   
   const hardcodedInfo = BREWERY_DATA[brewery?.name] || {}
   const breweryInfo = {
-    instagram: brewery?.instagram_url || hardcodedInfo.instagram,
-    facebook: brewery?.facebook_url || hardcodedInfo.facebook,
-    maps: brewery?.maps_url || hardcodedInfo.maps,
+    instagram: brewery?.instagram_url || null,
+    facebook: brewery?.facebook_url || null,
+    maps: brewery?.maps_url || null,
     instagramHandle: brewery?.instagram_handle || hardcodedInfo.instagramHandle,
     code: brewery?.manual_code || hardcodedInfo.code,
   }
