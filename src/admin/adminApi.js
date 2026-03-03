@@ -272,19 +272,6 @@ export async function deleteSideQuest(questId) {
   }
 }
 
-export async function getSideQuestQR(trailId, questId) {
-  try {
-    const token = getToken();
-    const res = await fetch(`${API_BASE}/api/trails/${trailId}/side-quests/${questId}/qr`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {}
-    });
-    if (!res.ok) return { ok: false, error: 'Failed to load QR code' };
-    const blob = await res.blob();
-    return { ok: true, url: URL.createObjectURL(blob) };
-  } catch (err) {
-    return { ok: false, error: err.message };
-  }
-}
 // ==================== LOGIN ====================
 
 

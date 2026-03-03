@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
+import QRCode from 'qrcode';
 import {
   getTrailOverview, getTrailEvents, getAdminLeaderboard, exportParticipants,
   deleteEvent, createTrailEvent, getTrailBreweries, createBrewery, updateBrewery,
-  deleteBrewery, getSideQuests, createSideQuest, updateSideQuest, deleteSideQuest, getSideQuestQR, TRAIL_ID
+  deleteBrewery, getSideQuests, createSideQuest, updateSideQuest, deleteSideQuest, TRAIL_ID
 } from './adminApi';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -260,10 +261,14 @@ export default function HQDashboard() {
     setQrUrl('');
     setLoadingQr(true);
     setShowQrModal(true);
-    const result = await getSideQuestQR(TRAIL_ID, quest.id);
+    try {
+      const url = `${window.location.origin}/side-quest/${quest.id}`;
+      const dataUrl = await QRCode.toDataURL(url, { width: 400, margin: 2 });
+      setQrUrl(dataUrl);
+    } catch (err) {
+      alert('Failed to generate QR code');
+    }
     setLoadingQr(false);
-    if (result.ok) setQrUrl(result.url);
-    else alert(result.error || 'Failed to load QR code');
   };
 
   if (loading && !data) {
