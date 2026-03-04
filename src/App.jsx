@@ -420,7 +420,7 @@ export default function App() {
   }
 
   return (
-    <div className="app">
+    <div className="app" data-lang={language}>
       {showWelcome && (
         <WelcomeModal language={language} setLanguage={setLanguage} onComplete={handleUserRegistration} onSignIn={() => setShowAuth(true)} />
       )}
