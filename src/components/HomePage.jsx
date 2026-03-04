@@ -27,8 +27,10 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
   const [sideQuests, setSideQuests] = useState([])
   
   const t = translations[language]
-  const progress = (stamps.length / breweries.length) * 100
-  const isComplete = stamps.length === 8
+  const requiredBreweries = breweries.filter(b => b.status !== 'temporarily_closed')
+  const requiredCount = requiredBreweries.length || 8
+  const progress = Math.min((stamps.length / requiredCount) * 100, 100)
+  const isComplete = stamps.length >= requiredCount
 
   useEffect(() => {
     const fetchSideQuests = async () => {
@@ -183,7 +185,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
       <div className="progress-section">
         <div className="progress-header">
           <div className="progress-label">{t.stamps}</div>
-          <div className="progress-count">{stamps.length}/8</div>
+          <div className="progress-count">{stamps.length}/{requiredCount}</div>
         </div>
         <div className="progress-bar-container">
           <div 
@@ -232,6 +234,9 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
                 <div className="completed-stamp">
                   <div className="stamp-text">COMPLETED!</div>
                 </div>
+              )}
+              {brewery.status === 'temporarily_closed' && (
+                <div className="temp-closed-banner">TEMPORARILY CLOSED</div>
               )}
               {breweryEvent && <div className="event-banner">🎉 Event happening now!</div>}
             </div>

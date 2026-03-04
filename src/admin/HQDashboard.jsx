@@ -210,6 +210,16 @@ export default function HQDashboard() {
     else alert(result.error || 'Failed to delete');
   };
 
+  const handleToggleBreweryClosed = async (brewery) => {
+    const newStatus = brewery.status === 'temporarily_closed' ? 'active' : 'temporarily_closed';
+    const result = await updateBrewery(brewery.id, { status: newStatus });
+    if (result.ok) {
+      setBreweries(breweries.map(b => b.id === brewery.id ? { ...b, status: newStatus } : b));
+    } else {
+      alert(result.error || 'Failed to update status');
+    }
+  };
+
   const openQuestForm = (quest = null) => {
     if (quest) {
       setEditingQuest(quest);
@@ -418,7 +428,7 @@ export default function HQDashboard() {
                 <div className="admin-form-group"><label className="admin-form-label">Facebook URL</label><input type="text" className="admin-form-input" value={breweryForm.facebookUrl} onChange={(e) => setBreweryForm(prev => ({...prev, facebookUrl: e.target.value}))} placeholder="https://facebook.com/..." /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Description (English)</label><textarea className="admin-form-input" value={breweryForm.descriptionEn} onChange={(e) => setBreweryForm(prev => ({...prev, descriptionEn: e.target.value}))} rows={3} placeholder="Describe this brewery..." /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Description (Vietnamese)</label><textarea className="admin-form-input" value={breweryForm.descriptionVn} onChange={(e) => setBreweryForm(prev => ({...prev, descriptionVn: e.target.value}))} rows={3} /></div>
-                <div className="admin-form-group"><label className="admin-form-label">Status</label><select className="admin-form-input" value={breweryForm.status} onChange={(e) => setBreweryForm(prev => ({...prev, status: e.target.value}))}><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+                <div className="admin-form-group"><label className="admin-form-label">Status</label><select className="admin-form-input" value={breweryForm.status} onChange={(e) => setBreweryForm(prev => ({...prev, status: e.target.value}))}><option value="active">Active</option><option value="temporarily_closed">Temporarily Closed</option><option value="inactive">Inactive</option></select></div>
                 <div style={{ display: 'flex', gap: 12, marginTop: 20 }}><button type="button" className="admin-btn admin-btn-primary" onClick={handleSaveBrewery} disabled={savingBrewery}>{savingBrewery ? 'Saving...' : 'Save Brewery'}</button><button type="button" className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={() => setShowBreweryForm(false)}>Cancel</button></div>
               </div>
             </div>
@@ -426,8 +436,8 @@ export default function HQDashboard() {
           <div className="admin-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}><h3 className="admin-card-title" style={{ marginBottom: 0 }}>Active Breweries ({activeBreweries.length})</h3><button className="admin-btn admin-btn-primary admin-btn-small" onClick={() => openBreweryForm()}>+ Add Brewery</button></div>
             {activeBreweries.length === 0 ? (<div className="admin-empty">No active breweries</div>) : (
-              <table className="admin-table"><thead><tr><th>Name</th><th>District</th><th>PIN</th><th>Actions</th></tr></thead><tbody>
-                {activeBreweries.map((brewery) => (<tr key={brewery.id}><td><strong>{brewery.name}</strong><div style={{ fontSize: 12, color: 'var(--admin-text-muted)' }}>{brewery.address}</div></td><td>{brewery.district || '--'}</td><td><code>{brewery.pinCode || '--'}</code></td><td><button className="admin-btn-small" style={{ marginRight: 8 }} onClick={() => openBreweryForm(brewery)}>Edit</button><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteBrewery(brewery.id)}>Delete</button></td></tr>))}
+              <table className="admin-table"><thead><tr><th>Name</th><th>District</th><th>PIN</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+                {activeBreweries.map((brewery) => (<tr key={brewery.id}><td><strong>{brewery.name}</strong><div style={{ fontSize: 12, color: 'var(--admin-text-muted)' }}>{brewery.address}</div></td><td>{brewery.district || '--'}</td><td><code>{brewery.pinCode || '--'}</code></td><td><span className={`admin-badge ${brewery.status === 'temporarily_closed' ? 'inactive' : 'active'}`} style={{ cursor: 'pointer' }} onClick={() => handleToggleBreweryClosed(brewery)} title="Click to toggle">{brewery.status === 'temporarily_closed' ? '🔴 Temp Closed' : '🟢 Active'}</span></td><td><button className="admin-btn-small" style={{ marginRight: 8 }} onClick={() => openBreweryForm(brewery)}>Edit</button><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteBrewery(brewery.id)}>Delete</button></td></tr>))}
               </tbody></table>
             )}
           </div>

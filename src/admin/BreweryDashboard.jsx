@@ -35,6 +35,10 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   const [savingSocial, setSavingSocial] = useState(false);
   const [socialMessage, setSocialMessage] = useState('');
 
+  const [venueStatus, setVenueStatus] = useState('active');
+  const [savingVenueStatus, setSavingVenueStatus] = useState(false);
+  const [venueStatusMessage, setVenueStatusMessage] = useState('');
+
   const [showEventForm, setShowEventForm] = useState(false);
   const [eventForm, setEventForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '' });
   const [savingEvent, setSavingEvent] = useState(false);
@@ -77,6 +81,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
         instagramUrl: dashResult.brewery?.instagram_url || dashResult.brewery?.instagramUrl || '',
         facebookUrl: dashResult.brewery?.facebook_url || dashResult.brewery?.facebookUrl || '',
       });
+      setVenueStatus(dashResult.brewery?.status || 'active');
     } else {
       setError(dashResult.error || 'Failed to load data');
     }
@@ -154,6 +159,21 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       setHoursMessage(result.error || 'Failed to update hours');
     }
     setSavingHours(false);
+  };
+
+  const handleToggleVenueStatus = async () => {
+    const newStatus = venueStatus === 'temporarily_closed' ? 'active' : 'temporarily_closed';
+    setSavingVenueStatus(true);
+    setVenueStatusMessage('');
+    const result = await updateBrewery(breweryId, { status: newStatus });
+    if (result.ok) {
+      setVenueStatus(newStatus);
+      setVenueStatusMessage(newStatus === 'temporarily_closed' ? '✓ Marked as temporarily closed' : '✓ Marked as active');
+      setTimeout(() => setVenueStatusMessage(''), 3000);
+    } else {
+      setVenueStatusMessage(result.error || 'Failed to update status');
+    }
+    setSavingVenueStatus(false);
   };
 
   const handleDeleteEvent = async (eventId) => {
@@ -426,6 +446,25 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
 
       {activeTab === 'settings' && (
         <>
+          <div className="admin-card" style={{ borderLeft: venueStatus === 'temporarily_closed' ? '4px solid var(--admin-danger)' : '4px solid var(--admin-success)', marginBottom: 16 }}>
+            <h3 className="admin-card-title">Venue Status</h3>
+            <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>
+              {venueStatus === 'temporarily_closed'
+                ? '🔴 This venue is currently marked as temporarily closed. Visitors will see a closure notice in the app.'
+                : '🟢 This venue is active and accepting check-ins.'}
+            </p>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <button
+                className={`admin-btn ${venueStatus === 'temporarily_closed' ? 'admin-btn-primary' : 'admin-btn-danger'}`}
+                onClick={handleToggleVenueStatus}
+                disabled={savingVenueStatus}
+              >
+                {savingVenueStatus ? 'Saving...' : venueStatus === 'temporarily_closed' ? 'Mark as Active' : 'Mark as Temporarily Closed'}
+              </button>
+              {venueStatusMessage && <span style={{ fontSize: 13, color: venueStatusMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{venueStatusMessage}</span>}
+            </div>
+          </div>
+
           <div className="admin-card">
             <h3 className="admin-card-title">Fallback PIN Code</h3>
             <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>4-digit PIN for manual check-ins when QR fails.</p>

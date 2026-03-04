@@ -82,6 +82,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
 
   const t = translations[language]
   const isStamped = stamps.includes(brewery?.id)
+  const isTempClosed = brewery?.status === 'temporarily_closed'
   const breweryBeers = beers.filter(b => 
     b.breweryId === brewery?.id || b.breweryName === brewery?.name
   )
@@ -289,6 +290,12 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     <div className="brewery-detail">
       <button className="back-btn" onClick={onBack}>← {t.back || 'BACK'}</button>
 
+      {isTempClosed && (
+        <div className="brewery-closed-notice">
+          ⚠️ This brewery is temporarily closed. Check back soon!
+        </div>
+      )}
+
       {!isStamped && !qrValidated && (
         <div className="stamp-instruction-box">
           <div className="stamp-icon">🍺</div>
@@ -460,7 +467,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </div>
       )}
 
-      {!qrValidated && !isStamped && (
+      {!qrValidated && !isStamped && !isTempClosed && (
         <div className="manual-code-section">
           <p className="code-label">{t.codeBackup}</p>
           <p className="code-subtext">{t.codeBackupText}</p>

@@ -287,7 +287,8 @@ export default function App() {
         setTimerStart(startTime);
         localStorage.setItem("hcm-timer-start", startTime.toString());
       }
-      if (newStamps.length === 8 && timerStart && !timerEnd) {
+      const requiredCount = breweries.filter(b => b.status !== 'temporarily_closed').length || 8;
+      if (newStamps.length >= requiredCount && timerStart && !timerEnd) {
         const endTime = Date.now();
         setTimerEnd(endTime);
         localStorage.setItem("hcm-timer-end", endTime.toString());
