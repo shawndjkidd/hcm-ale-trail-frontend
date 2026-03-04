@@ -3104,9 +3104,9 @@ body {
    SIDE QUEST SECTION HEADER
    ========================================== */
 .side-quests-section-title {
-  font-family: var(--font-display);
+  font-family: 'Anton', sans-serif;
   font-size: 3rem;
-  font-weight: 900;
+  font-weight: 400;
   letter-spacing: 0.1em;
   color: var(--yellow-primary);
   -webkit-text-stroke: 2px var(--black);
