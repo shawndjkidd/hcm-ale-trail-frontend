@@ -183,7 +183,7 @@ export default function HQDashboard() {
       maps_url: breweryForm.mapsUrl || null,
       instagram_url: breweryForm.instagramUrl || null,
       facebook_url: breweryForm.facebookUrl || null,
-      description: breweryForm.descriptionEn ? { en: breweryForm.descriptionEn, vn: breweryForm.descriptionVn || breweryForm.descriptionEn } : null,
+      description: { en: breweryForm.descriptionEn || '', vn: breweryForm.descriptionVn || breweryForm.descriptionEn || '' },
       status: breweryForm.status
     };
     let result;

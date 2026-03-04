@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateBreweryPin, updateBreweryHours, getTrailBreweries, TRAIL_ID } from './adminApi';
+import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, TRAIL_ID } from './adminApi';
 
 const DAY_NAMES = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 const DAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -30,6 +30,10 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   const [operatingHours, setOperatingHours] = useState(DEFAULT_HOURS);
   const [savingHours, setSavingHours] = useState(false);
   const [hoursMessage, setHoursMessage] = useState('');
+
+  const [socialLinks, setSocialLinks] = useState({ mapsUrl: '', instagramUrl: '', facebookUrl: '' });
+  const [savingSocial, setSavingSocial] = useState(false);
+  const [socialMessage, setSocialMessage] = useState('');
 
   const [showEventForm, setShowEventForm] = useState(false);
   const [eventForm, setEventForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '' });
@@ -68,6 +72,11 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       if (hours) {
         setOperatingHours({ ...DEFAULT_HOURS, ...hours });
       }
+      setSocialLinks({
+        mapsUrl: dashResult.brewery?.maps_url || dashResult.brewery?.mapsUrl || '',
+        instagramUrl: dashResult.brewery?.instagram_url || dashResult.brewery?.instagramUrl || '',
+        facebookUrl: dashResult.brewery?.facebook_url || dashResult.brewery?.facebookUrl || '',
+      });
     } else {
       setError(dashResult.error || 'Failed to load data');
     }
@@ -115,6 +124,23 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       ...prev,
       [day]: { ...prev[day], closed: !prev[day].closed }
     }));
+  };
+
+  const handleSaveSocial = async () => {
+    setSavingSocial(true);
+    setSocialMessage('');
+    const result = await updateBrewery(breweryId, {
+      maps_url: socialLinks.mapsUrl || null,
+      instagram_url: socialLinks.instagramUrl || null,
+      facebook_url: socialLinks.facebookUrl || null,
+    });
+    if (result.ok) {
+      setSocialMessage('✓ Social links updated');
+      setTimeout(() => setSocialMessage(''), 3000);
+    } else {
+      setSocialMessage(result.error || 'Failed to update');
+    }
+    setSavingSocial(false);
   };
 
   const handleSaveHours = async () => {
@@ -402,39 +428,94 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
         <>
           <div className="admin-card">
             <h3 className="admin-card-title">Fallback PIN Code</h3>
-            <p style={{ color: 'var(--admin-text-muted)', marginBottom: 16 }}>4-digit PIN for manual check-ins when QR fails.</p>
-            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-              <input type="text" className="admin-form-input" style={{ width: 120, fontSize: 24, textAlign: 'center', letterSpacing: 8 }} value={pinCode} onChange={(e) => setPinCode(e.target.value.replace(/\D/g, '').slice(0, 4))} maxLength="4" placeholder="1234" />
-              <button className="admin-btn admin-btn-primary" onClick={handleSavePin} disabled={savingPin}>{savingPin ? 'Saving...' : 'Save PIN'}</button>
-              {pinMessage && <span style={{ color: pinMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{pinMessage}</span>}
+            <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>4-digit PIN for manual check-ins when QR fails.</p>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <input
+                type="text"
+                className="admin-form-input"
+                style={{ width: 90, textAlign: 'center', letterSpacing: 4, fontFamily: 'monospace', fontSize: 16 }}
+                value={pinCode}
+                onChange={(e) => setPinCode(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                maxLength="4"
+                placeholder="1234"
+              />
+              <button className="admin-btn admin-btn-primary admin-btn-small" onClick={handleSavePin} disabled={savingPin}>
+                {savingPin ? 'Saving...' : 'Save PIN'}
+              </button>
+              {pinMessage && <span style={{ fontSize: 13, color: pinMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{pinMessage}</span>}
             </div>
           </div>
 
-          <div className="admin-card" style={{ marginTop: 20 }}>
-            <h3 className="admin-card-title">Operating Hours</h3>
-            <p style={{ color: 'var(--admin-text-muted)', marginBottom: 16 }}>Set your weekly operating hours.</p>
-            <div className="admin-hours-grid">
-              {DAY_NAMES.map((day, index) => (
-                <div key={day} className="admin-hours-row">
-                  <div className="admin-hours-day">{DAY_LABELS[index]}</div>
-                  <div className="admin-hours-inputs">
-                    {operatingHours[day]?.closed ? (
-                      <span style={{ color: 'var(--admin-text-muted)' }}>Closed</span>
-                    ) : (
-                      <>
-                        <input type="time" className="admin-time-input" value={operatingHours[day]?.open || '11:00'} onChange={(e) => handleHoursChange(day, 'open', e.target.value)} />
-                        <span>to</span>
-                        <input type="time" className="admin-time-input" value={operatingHours[day]?.close || '23:00'} onChange={(e) => handleHoursChange(day, 'close', e.target.value)} />
-                      </>
-                    )}
-                  </div>
-                  <button className={`admin-btn-small ${operatingHours[day]?.closed ? 'admin-btn-danger' : 'admin-btn-success'}`} onClick={() => handleToggleClosed(day)}>{operatingHours[day]?.closed ? 'Closed' : 'Open'}</button>
-                </div>
-              ))}
+          <div className="admin-card" style={{ marginTop: 16 }}>
+            <h3 className="admin-card-title">Social Links</h3>
+            <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>These appear as buttons on your venue page in the app.</p>
+            <div className="admin-form-group">
+              <label className="admin-form-label">Google Maps URL</label>
+              <input type="url" className="admin-form-input" value={socialLinks.mapsUrl} onChange={(e) => setSocialLinks(prev => ({ ...prev, mapsUrl: e.target.value }))} placeholder="https://maps.google.com/..." />
             </div>
-            <div style={{ marginTop: 16, display: 'flex', gap: 12, alignItems: 'center' }}>
-              <button className="admin-btn admin-btn-primary" onClick={handleSaveHours} disabled={savingHours}>{savingHours ? 'Saving...' : 'Save Hours'}</button>
-              {hoursMessage && <span style={{ color: hoursMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{hoursMessage}</span>}
+            <div className="admin-form-group">
+              <label className="admin-form-label">Instagram URL</label>
+              <input type="url" className="admin-form-input" value={socialLinks.instagramUrl} onChange={(e) => setSocialLinks(prev => ({ ...prev, instagramUrl: e.target.value }))} placeholder="https://instagram.com/yourvenue" />
+            </div>
+            <div className="admin-form-group">
+              <label className="admin-form-label">Facebook URL</label>
+              <input type="url" className="admin-form-input" value={socialLinks.facebookUrl} onChange={(e) => setSocialLinks(prev => ({ ...prev, facebookUrl: e.target.value }))} placeholder="https://facebook.com/yourvenue" />
+            </div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 4 }}>
+              <button className="admin-btn admin-btn-primary admin-btn-small" onClick={handleSaveSocial} disabled={savingSocial}>
+                {savingSocial ? 'Saving...' : 'Save Links'}
+              </button>
+              {socialMessage && <span style={{ fontSize: 13, color: socialMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{socialMessage}</span>}
+            </div>
+          </div>
+
+          <div className="admin-card" style={{ marginTop: 16 }}>
+            <h3 className="admin-card-title">Operating Hours</h3>
+            <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>Set your weekly operating hours.</p>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <tbody>
+                {DAY_NAMES.map((day, index) => (
+                  <tr key={day} style={{ borderBottom: '1px solid var(--admin-border)' }}>
+                    <td style={{ padding: '8px 12px 8px 0', width: 100, fontWeight: 500, fontSize: 14 }}>{DAY_LABELS[index]}</td>
+                    <td style={{ padding: '8px 12px', fontSize: 14 }}>
+                      {operatingHours[day]?.closed ? (
+                        <span style={{ color: 'var(--admin-text-muted)' }}>Closed</span>
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <input
+                            type="time"
+                            value={operatingHours[day]?.open || '11:00'}
+                            onChange={(e) => handleHoursChange(day, 'open', e.target.value)}
+                            style={{ border: '1px solid var(--admin-border)', borderRadius: 4, padding: '3px 6px', fontSize: 13, background: 'var(--admin-bg)' }}
+                          />
+                          <span style={{ color: 'var(--admin-text-muted)', fontSize: 12 }}>to</span>
+                          <input
+                            type="time"
+                            value={operatingHours[day]?.close || '23:00'}
+                            onChange={(e) => handleHoursChange(day, 'close', e.target.value)}
+                            style={{ border: '1px solid var(--admin-border)', borderRadius: 4, padding: '3px 6px', fontSize: 13, background: 'var(--admin-bg)' }}
+                          />
+                        </div>
+                      )}
+                    </td>
+                    <td style={{ padding: '8px 0', width: 80, textAlign: 'right' }}>
+                      <button
+                        className={`admin-btn-small ${operatingHours[day]?.closed ? 'admin-btn-danger' : 'admin-btn-success'}`}
+                        onClick={() => handleToggleClosed(day)}
+                        style={{ fontSize: 11, padding: '3px 8px' }}
+                      >
+                        {operatingHours[day]?.closed ? 'Closed' : 'Open'}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div style={{ marginTop: 12, display: 'flex', gap: 8, alignItems: 'center' }}>
+              <button className="admin-btn admin-btn-primary admin-btn-small" onClick={handleSaveHours} disabled={savingHours}>
+                {savingHours ? 'Saving...' : 'Save Hours'}
+              </button>
+              {hoursMessage && <span style={{ fontSize: 13, color: hoursMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{hoursMessage}</span>}
             </div>
           </div>
         </>

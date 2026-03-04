@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react'
 import { getAccessToken } from '../lib/api'
 import translations from '../translations'
 
+const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a921'
+const API_BASE = 'https://hcm-ale-trail-backend-flm8.vercel.app'
+
 function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, user, qrValidated }) {
   const [message, setMessage] = useState(null)
   const [manualCode, setManualCode] = useState('')
@@ -12,21 +15,63 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
   const [notes, setNotes] = useState('')
   const [wasAlreadyCompleted] = useState(isCompleted)
   const [hasCheckedIn, setHasCheckedIn] = useState(isCompleted)
+  const [questDetail, setQuestDetail] = useState(quest)
+  const [questEvents, setQuestEvents] = useState([])
+  const [eventsLoading, setEventsLoading] = useState(true)
 
   const t = translations[language]
 
   const getTitle = () => {
-    if (typeof quest?.title === 'string' && quest.title.trim()) return quest.title.trim()
-    if (quest?.title && typeof quest.title === 'object') {
-      return quest.title[language] || quest.title.en || quest.title.vn || 'Untitled Quest'
+    const title = questDetail?.title
+    if (!title) return 'Untitled Quest'
+    if (typeof title === 'string') {
+      const trimmed = title.trim()
+      if (!trimmed || /^\d+$/.test(trimmed)) return 'Untitled Quest'
+      return trimmed
+    }
+    if (typeof title === 'object' && !Array.isArray(title)) {
+      const resolved = title[language] || title.en || title.vn
+      if (!resolved || typeof resolved !== 'string' || /^\d+$/.test(resolved.trim())) return 'Untitled Quest'
+      return resolved.trim()
     }
     return 'Untitled Quest'
   }
 
   const getDescription = () => {
-    if (typeof quest?.description === 'string') return quest.description
-    return quest?.description?.[language] || quest?.description?.en || ''
+    const desc = questDetail?.description
+    if (typeof desc === 'string') return desc
+    return desc?.[language] || desc?.en || ''
   }
+
+  // Fetch full quest detail (for social URLs) and events on mount
+  useEffect(() => {
+    if (!quest?.id) return
+
+    const fetchDetail = async () => {
+      try {
+        const res = await fetch(`/api/trails/${TRAIL_ID}/side-quests/${quest.id}/qr`)
+        const data = await res.json()
+        if (data.ok && data.sideQuest) {
+          setQuestDetail(prev => ({ ...prev, ...data.sideQuest }))
+        }
+      } catch {}
+    }
+
+    const fetchEvents = async () => {
+      setEventsLoading(true)
+      try {
+        const res = await fetch(`${API_BASE}/api/trails/${TRAIL_ID}/events?v=${Date.now()}`)
+        const data = await res.json()
+        if (data.ok && data.events) {
+          setQuestEvents(data.events.filter(e => e.sideQuestId === quest.id))
+        }
+      } catch {}
+      setEventsLoading(false)
+    }
+
+    fetchDetail()
+    fetchEvents()
+  }, [quest?.id])
 
   // Auto check-in when QR scanned
   useEffect(() => {
@@ -34,6 +79,28 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
       handleQRCheckin()
     }
   }, [qrValidated])
+
+  const getEventTitle = (event) => {
+    if (!event.title) return 'Event'
+    if (typeof event.title === 'string') return event.title
+    return event.title[language] || event.title.en || 'Event'
+  }
+
+  const getEventDescription = (event) => {
+    if (!event.description) return null
+    if (typeof event.description === 'string') return event.description
+    return event.description[language] || event.description.en || null
+  }
+
+  const formatEventDate = (dateStr) => {
+    const date = new Date(dateStr)
+    return date.toLocaleDateString('en', { month: 'short', day: 'numeric' })
+  }
+
+  const formatEventTime = (dateStr) => {
+    const date = new Date(dateStr)
+    return date.toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' })
+  }
 
   const handleQRCheckin = async () => {
     setIsChecking(true)
@@ -159,32 +226,67 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
 
       <div className="brewery-info-card">
         <h1 className="brewery-title">{getTitle()}</h1>
-        {quest?.address && (
+        {questDetail?.address && (
           <p className="brewery-address">
-            📍 {quest.address}{quest?.district ? `, ${quest.district}` : ''}
+            📍 {questDetail.address}{questDetail?.district ? `, ${questDetail.district}` : ''}
           </p>
         )}
-        {quest?.reward && (
-          <p className="brewery-description">🎁 {t.reward || 'Reward'}: <strong>{quest.reward}</strong></p>
+        {questDetail?.reward && (
+          <p className="brewery-description">🎁 {t.reward || 'Reward'}: <strong>{questDetail.reward}</strong></p>
         )}
         {getDescription() && (
           <p className="brewery-description">{getDescription()}</p>
         )}
       </div>
 
+      {/* Upcoming Events */}
+      <div className="brewery-events-section">
+        <h3 className="brewery-events-title">{t.upcomingEvents || 'UPCOMING EVENTS'}</h3>
+        {eventsLoading ? (
+          <p className="events-loading-text">{t.loading || 'Loading...'}</p>
+        ) : questEvents.length > 0 ? (
+          questEvents.map(event => (
+            <div key={event.id} className="brewery-event-item">
+              <div className="brewery-event-header">
+                <span className="brewery-event-name">{getEventTitle(event)}</span>
+                <span className="brewery-event-date">{formatEventDate(event.startsAt)}</span>
+              </div>
+              <div className="brewery-event-time">🕐 {formatEventTime(event.startsAt)}</div>
+              {getEventDescription(event) && (
+                <div className="brewery-event-desc">{getEventDescription(event)}</div>
+              )}
+              {event.link && (
+                <a
+                  href={event.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="event-link-btn"
+                  style={{ marginTop: '8px' }}
+                >
+                  {t.moreInfo || 'MORE INFO'}
+                </a>
+              )}
+            </div>
+          ))
+        ) : (
+          <p className="no-events">{t.noEvents || 'No upcoming events'}</p>
+        )}
+      </div>
+
+      {/* Social buttons */}
       <div className="brewery-buttons-row">
-        {(quest?.maps_url || quest?.mapsUrl) && (
-          <a href={quest.maps_url || quest.mapsUrl} target="_blank" rel="noopener noreferrer" className="action-btn green">
+        {(questDetail?.maps_url || questDetail?.mapsUrl) && (
+          <a href={questDetail.maps_url || questDetail.mapsUrl} target="_blank" rel="noopener noreferrer" className="action-btn green">
             {t.maps}
           </a>
         )}
-        {(quest?.instagram_url || quest?.instagramUrl) && (
-          <a href={quest.instagram_url || quest.instagramUrl} target="_blank" rel="noopener noreferrer" className="action-btn instagram-btn">
+        {(questDetail?.instagram_url || questDetail?.instagramUrl) && (
+          <a href={questDetail.instagram_url || questDetail.instagramUrl} target="_blank" rel="noopener noreferrer" className="action-btn instagram-btn">
             {t.instagram}
           </a>
         )}
-        {(quest?.facebook_url || quest?.facebookUrl) && (
-          <a href={quest.facebook_url || quest.facebookUrl} target="_blank" rel="noopener noreferrer" className="action-btn facebook-btn">
+        {(questDetail?.facebook_url || questDetail?.facebookUrl) && (
+          <a href={questDetail.facebook_url || questDetail.facebookUrl} target="_blank" rel="noopener noreferrer" className="action-btn facebook-btn">
             {t.facebook}
           </a>
         )}
@@ -194,9 +296,9 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
         <div className="side-quest-completed-box">
           <div className="completed-icon">✅</div>
           <div className="completed-text">{wasAlreadyCompleted ? 'Already Completed ✓' : (t.questAlreadyCompleted || 'Quest Completed!')}</div>
-          {quest?.reward && (
+          {questDetail?.reward && (
             <div className="completed-reward">
-              {t.claimReward || 'Show this screen to claim your reward:'} <strong>{quest.reward}</strong>
+              {t.claimReward || 'Show this screen to claim your reward:'} <strong>{questDetail.reward}</strong>
             </div>
           )}
         </div>
