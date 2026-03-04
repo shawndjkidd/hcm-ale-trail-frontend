@@ -237,7 +237,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
               )}
               {brewery.status === 'temporarily_closed' && (
                 <div className="temp-closed-overlay">
-                  <span>TEMPORARILY CLOSED</span>
+                  <span>{t.temporarilyClosed || 'TEMPORARILY CLOSED'}</span>
                 </div>
               )}
               {breweryEvent && <div className="event-banner">🎉 Event happening now!</div>}

@@ -292,8 +292,8 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
 
       {isTempClosed && (
         <div className="brewery-closed-notice">
-          <div className="brewery-closed-stamp">TEMPORARILY CLOSED</div>
-          <p className="brewery-closed-subtext">This venue is temporarily closed. Check back soon.</p>
+          <div className="brewery-closed-stamp">{t.temporarilyClosed || 'TEMPORARILY CLOSED'}</div>
+          <p className="brewery-closed-subtext">{t.temporarilyClosedSubtext || 'This venue is temporarily closed. Check back soon.'}</p>
         </div>
       )}
 
