@@ -3136,30 +3136,54 @@ body {
 /* ==========================================
    TEMPORARILY CLOSED
    ========================================== */
-.temp-closed-banner {
+/* Diagonal overlay on brewery list cards */
+.temp-closed-overlay {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(180, 0, 0, 0.88);
-  color: #fff;
-  font-family: var(--font-display);
-  font-size: 0.65rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-align: center;
-  padding: 3px 6px;
-  border-radius: 0 0 8px 8px;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.10);
 }
 
+.temp-closed-overlay span {
+  position: absolute;
+  left: -30%;
+  right: -30%;
+  top: 50%;
+  transform: translateY(-50%) rotate(-22deg);
+  background: rgba(180, 0, 0, 0.90);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-align: center;
+  padding: 6px 0;
+  white-space: nowrap;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* Prominent banner on brewery detail page */
 .brewery-closed-notice {
   background: #b40000;
   color: #fff;
-  font-family: var(--font-display);
-  font-size: 1rem;
-  font-weight: 700;
-  padding: 12px 16px;
+  border: 3px solid #7a0000;
   border-radius: 8px;
   margin-bottom: 12px;
+  padding: 16px;
   text-align: center;
+}
+
+.brewery-closed-stamp {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+.brewery-closed-subtext {
+  font-size: 0.85rem;
+  margin: 6px 0 0;
+  opacity: 0.85;
 }
