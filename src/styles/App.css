@@ -3092,3 +3092,23 @@ body {
    SIDE QUEST SECTION WIDTH — MATCH BREWERY LIST
    ========================================== */
 .side-quests-section { margin: 20px 12px; }
+
+/* ==========================================
+   SIDE QUEST SECTION HEADER
+   ========================================== */
+.side-quests-section-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  color: var(--black);
+  padding: 10px 0 8px;
+  margin: 0 0 10px;
+  border-bottom: 3px solid var(--black);
+}
+
+/* ==========================================
+   SIDE QUEST DETAIL — GREEN INFO CARD
+   ========================================== */
+.side-quest-detail .brewery-info-card {
+  background: #007A38;
+}

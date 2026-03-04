@@ -148,31 +148,26 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
     <div className="brewery-detail side-quest-detail">
       <button className="back-btn" onClick={onBack}>← {t.back || 'BACK'}</button>
 
-      <div className="side-quest-hero">
-        <div className="side-quest-hero-icon">🎯</div>
-        <h1 className="side-quest-hero-title">{getTitle()}</h1>
+      {message && (
+        <div className={`message ${message.type}`}>
+          {message.text}
+        </div>
+      )}
+
+      <div className="brewery-info-card">
+        <h1 className="brewery-title">{getTitle()}</h1>
+        {quest?.address && (
+          <p className="brewery-address">
+            📍 {quest.address}{quest?.district ? `, ${quest.district}` : ''}
+          </p>
+        )}
         {quest?.reward && (
-          <div className="side-quest-hero-reward">
-            🎁 {t.reward || 'Reward'}: {quest.reward}
-          </div>
+          <p className="brewery-description">🎁 {t.reward || 'Reward'}: <strong>{quest.reward}</strong></p>
+        )}
+        {getDescription() && (
+          <p className="brewery-description">{getDescription()}</p>
         )}
       </div>
-
-      {getDescription() && (
-        <div className="side-quest-description">
-          <p>{getDescription()}</p>
-        </div>
-      )}
-
-      {quest?.address && (
-        <div className="side-quest-location">
-          <div className="location-icon">📍</div>
-          <div className="location-text">
-            <div className="location-address">{quest.address}</div>
-            {quest?.district && <div className="location-district">{quest.district}</div>}
-          </div>
-        </div>
-      )}
 
       {(quest?.maps_url || quest?.instagram_url || quest?.facebook_url) && (
         <div className="brewery-buttons-row">
@@ -191,12 +186,6 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
               {t.facebook}
             </a>
           )}
-        </div>
-      )}
-
-      {message && (
-        <div className={`message ${message.type}`}>
-          {message.text}
         </div>
       )}
 
@@ -229,7 +218,7 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
               onChange={(e) => setManualCode(e.target.value.replace(/\D/g, '').slice(0, 4))}
               maxLength="4"
             />
-            <button 
+            <button
               className="manual-code-btn"
               onClick={handleManualCode}
               disabled={isChecking || manualCode.length !== 4}
@@ -246,7 +235,7 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
           <div className="add-beer-modal">
             <button className="modal-close" onClick={handleSkipRating}>✕</button>
             <h2 className="modal-title">{t.rateExperience || 'Rate Your Experience'}</h2>
-            
+
             <div className="beer-input-group">
               <label>{t.whatDidYouTry || 'What did you try?'}</label>
               <input

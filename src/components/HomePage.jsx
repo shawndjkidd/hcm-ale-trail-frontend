@@ -230,6 +230,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
 
       {sideQuests.length > 0 && (
         <div className="side-quests-section">
+          <h2 className="side-quests-section-title">{t.sideQuests || 'SIDE QUESTS'}</h2>
           <div className="side-quest-list-home">
             {sideQuests.map((quest) => {
               const isCompleted = sideQuestCheckins.includes(quest.id)
