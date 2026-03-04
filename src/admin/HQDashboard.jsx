@@ -150,9 +150,9 @@ export default function HQDashboard() {
         district: brewery.district || '',
         pinCode: brewery.pinCode || '',
         logoUrl: brewery.logoUrl || '',
-        mapsUrl: brewery.mapsUrl || '',
-        instagramUrl: brewery.instagramUrl || '',
-        facebookUrl: brewery.facebookUrl || '',
+        mapsUrl: brewery.maps_url || brewery.mapsUrl || '',
+        instagramUrl: brewery.instagram_url || brewery.instagramUrl || '',
+        facebookUrl: brewery.facebook_url || brewery.facebookUrl || '',
         descriptionEn: typeof brewDesc === 'string' ? brewDesc : (brewDesc.en || ''),
         descriptionVn: typeof brewDesc === 'string' ? '' : (brewDesc.vn || ''),
         status: brewery.status || 'active'
@@ -169,12 +169,16 @@ export default function HQDashboard() {
       alert('Name is required');
       return;
     }
+    if (breweryForm.pinCode && breweryForm.pinCode.length !== 4) {
+      alert('PIN must be exactly 4 digits');
+      return;
+    }
     setSavingBrewery(true);
     const breweryData = {
       name: breweryForm.name,
       address: breweryForm.address,
       district: breweryForm.district,
-      pin_code: breweryForm.pinCode,
+      ...(breweryForm.pinCode ? { pin_code: breweryForm.pinCode } : {}),
       logo_url: breweryForm.logoUrl,
       maps_url: breweryForm.mapsUrl || null,
       instagram_url: breweryForm.instagramUrl || null,
@@ -220,9 +224,9 @@ export default function HQDashboard() {
         pin: quest.pin || '',
         address: quest.address || '',
         district: quest.district || '',
-        mapsUrl: quest.mapsUrl || '',
-        instagramUrl: quest.instagramUrl || '',
-        facebookUrl: quest.facebookUrl || '',
+        mapsUrl: quest.maps_url || quest.mapsUrl || '',
+        instagramUrl: quest.instagram_url || quest.instagramUrl || '',
+        facebookUrl: quest.facebook_url || quest.facebookUrl || '',
         hasVenueDashboard: quest.hasVenueDashboard || false,
         status: quest.status || 'active'
       });
@@ -238,13 +242,17 @@ export default function HQDashboard() {
       alert('Title (English) is required');
       return;
     }
+    if (questForm.pin && questForm.pin.length !== 4) {
+      alert('PIN must be exactly 4 digits');
+      return;
+    }
     setSavingQuest(true);
     try {
       const questData = {
         title: { en: questForm.titleEn, vn: questForm.titleVn || questForm.titleEn },
         description: { en: questForm.descriptionEn, vn: questForm.descriptionVn || questForm.descriptionEn },
         reward: questForm.reward,
-        pin_code: questForm.pin,
+        ...(questForm.pin ? { pin_code: questForm.pin } : {}),
         address: questForm.address,
         district: questForm.district,
         maps_url: questForm.mapsUrl || null,
@@ -464,7 +472,7 @@ export default function HQDashboard() {
                 <div className="admin-form-group"><label className="admin-form-label">Description (English)</label><textarea className="admin-form-input" value={questForm.descriptionEn} onChange={(e) => setQuestForm(prev => ({...prev, descriptionEn: e.target.value}))} rows={2} /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Description (Vietnamese)</label><textarea className="admin-form-input" value={questForm.descriptionVn} onChange={(e) => setQuestForm(prev => ({...prev, descriptionVn: e.target.value}))} rows={2} /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Reward</label><input type="text" className="admin-form-input" value={questForm.reward} onChange={(e) => setQuestForm(prev => ({...prev, reward: e.target.value}))} placeholder="Free sticker" /></div>
-                <div className="admin-form-group"><label className="admin-form-label">PIN Code (4 digits) *</label><input type="text" className="admin-form-input" value={questForm.pin} onChange={(e) => setQuestForm(prev => ({...prev, pin: e.target.value.replace(/\D/g, '').slice(0, 4)}))} placeholder="1234" maxLength="4" /></div>
+                <div className="admin-form-group"><label className="admin-form-label">PIN Code (4 digits){editingQuest ? ' (leave blank to keep existing)' : ' *'}</label><input type="text" className="admin-form-input" value={questForm.pin} onChange={(e) => setQuestForm(prev => ({...prev, pin: e.target.value.replace(/\D/g, '').slice(0, 4)}))} placeholder="1234" maxLength="4" /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Address</label><input type="text" className="admin-form-input" value={questForm.address} onChange={(e) => setQuestForm(prev => ({...prev, address: e.target.value}))} placeholder="123 Beer Street" /></div>
                 <div className="admin-form-group"><label className="admin-form-label">District</label><input type="text" className="admin-form-input" value={questForm.district} onChange={(e) => setQuestForm(prev => ({...prev, district: e.target.value}))} placeholder="District 1" /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Maps URL</label><input type="text" className="admin-form-input" value={questForm.mapsUrl} onChange={(e) => setQuestForm(prev => ({...prev, mapsUrl: e.target.value}))} placeholder="https://maps.google.com/..." /></div>

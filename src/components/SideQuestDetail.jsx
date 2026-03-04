@@ -16,8 +16,11 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
   const t = translations[language]
 
   const getTitle = () => {
-    if (typeof quest?.title === 'string') return quest.title
-    return quest?.title?.[language] || quest?.title?.en || 'Side Quest'
+    if (typeof quest?.title === 'string' && quest.title.trim()) return quest.title.trim()
+    if (quest?.title && typeof quest.title === 'object') {
+      return quest.title[language] || quest.title.en || quest.title.vn || 'Untitled Quest'
+    }
+    return 'Untitled Quest'
   }
 
   const getDescription = () => {
@@ -169,25 +172,23 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
         )}
       </div>
 
-      {(quest?.maps_url || quest?.instagram_url || quest?.facebook_url) && (
-        <div className="brewery-buttons-row">
-          {quest.maps_url && (
-            <a href={quest.maps_url} target="_blank" rel="noopener noreferrer" className="action-btn green">
-              {t.maps}
-            </a>
-          )}
-          {quest.instagram_url && (
-            <a href={quest.instagram_url} target="_blank" rel="noopener noreferrer" className="action-btn instagram-btn">
-              {t.instagram}
-            </a>
-          )}
-          {quest.facebook_url && (
-            <a href={quest.facebook_url} target="_blank" rel="noopener noreferrer" className="action-btn facebook-btn">
-              {t.facebook}
-            </a>
-          )}
-        </div>
-      )}
+      <div className="brewery-buttons-row">
+        {(quest?.maps_url || quest?.mapsUrl) && (
+          <a href={quest.maps_url || quest.mapsUrl} target="_blank" rel="noopener noreferrer" className="action-btn green">
+            {t.maps}
+          </a>
+        )}
+        {(quest?.instagram_url || quest?.instagramUrl) && (
+          <a href={quest.instagram_url || quest.instagramUrl} target="_blank" rel="noopener noreferrer" className="action-btn instagram-btn">
+            {t.instagram}
+          </a>
+        )}
+        {(quest?.facebook_url || quest?.facebookUrl) && (
+          <a href={quest.facebook_url || quest.facebookUrl} target="_blank" rel="noopener noreferrer" className="action-btn facebook-btn">
+            {t.facebook}
+          </a>
+        )}
+      </div>
 
       {(hasCheckedIn || isCompleted) ? (
         <div className="side-quest-completed-box">

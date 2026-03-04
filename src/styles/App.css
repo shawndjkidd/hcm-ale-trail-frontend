@@ -3098,12 +3098,13 @@ body {
    ========================================== */
 .side-quests-section-title {
   font-family: var(--font-display);
-  font-size: 1rem;
-  letter-spacing: 0.08em;
-  color: var(--black);
-  padding: 10px 0 8px;
-  margin: 0 0 10px;
-  border-bottom: 3px solid var(--black);
+  font-size: 1.8rem;
+  letter-spacing: 0.05em;
+  color: var(--yellow-primary);
+  -webkit-text-stroke: 1.5px var(--black);
+  text-shadow: 2px 2px 0 var(--black);
+  padding: 8px 0 6px;
+  margin: 8px 0 12px;
 }
 
 /* ==========================================

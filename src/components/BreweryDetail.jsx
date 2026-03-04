@@ -88,11 +88,11 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
   
   const hardcodedInfo = BREWERY_DATA[brewery?.name] || {}
   const breweryInfo = {
-    instagram: brewery?.instagram_url || null,
-    facebook: brewery?.facebook_url || null,
-    maps: brewery?.maps_url || null,
-    instagramHandle: brewery?.instagram_handle || hardcodedInfo.instagramHandle,
-    code: brewery?.manual_code || hardcodedInfo.code,
+    instagram: brewery?.instagram_url || brewery?.instagramUrl || hardcodedInfo.instagram || null,
+    facebook: brewery?.facebook_url || brewery?.facebookUrl || hardcodedInfo.facebook || null,
+    maps: brewery?.maps_url || brewery?.mapsUrl || hardcodedInfo.maps || null,
+    instagramHandle: brewery?.instagram_handle || brewery?.instagramHandle || hardcodedInfo.instagramHandle,
+    code: brewery?.manual_code || brewery?.manualCode || hardcodedInfo.code,
   }
   
   const isFirstStamp = stamps.length === 0

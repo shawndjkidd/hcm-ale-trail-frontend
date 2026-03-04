@@ -70,8 +70,11 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
   }
 
   const getQuestTitle = (quest) => {
-    if (typeof quest.title === 'string') return quest.title
-    return quest.title?.[language] || quest.title?.en || 'Side Quest'
+    if (typeof quest?.title === 'string' && quest.title.trim()) return quest.title.trim()
+    if (quest?.title && typeof quest.title === 'object') {
+      return quest.title[language] || quest.title.en || quest.title.vn || 'Untitled Quest'
+    }
+    return 'Untitled Quest'
   }
 
   if (showEventsPage) {
