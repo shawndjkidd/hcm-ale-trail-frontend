@@ -3113,3 +3113,15 @@ body {
 .side-quest-detail .brewery-info-card {
   background: #007A38;
 }
+
+/* ==========================================
+   SIDE QUEST PIN ENTRY — GREEN LABEL + DISABLED STATE
+   ========================================== */
+.side-quest-code-label {
+  color: #007A38;
+}
+
+.code-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

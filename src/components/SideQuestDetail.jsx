@@ -209,6 +209,14 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
     setTimeout(() => setMessage(null), 5000)
   }
 
+  const copyInstagramHandle = () => {
+    const handle = questDetail?.instagram_handle || questDetail?.instagramHandle
+    if (!handle) return
+    navigator.clipboard.writeText(handle)
+    setMessage({ type: 'success', text: `✅ Copied: ${handle}` })
+    setTimeout(() => setMessage(null), 3000)
+  }
+
   const handleSkipRating = () => {
     setShowRatingModal(false)
     setMessage({ type: 'success', text: `🎉 ${t.questCompleted || 'Side Quest Completed!'}` })
@@ -293,6 +301,17 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
         )}
       </div>
 
+      {(questDetail?.instagram_handle || questDetail?.instagramHandle) && (
+        <div className="hashtag-section">
+          <div className="hashtag-text">
+            {t.tag || 'Tag'}: {questDetail.instagram_handle || questDetail.instagramHandle}
+          </div>
+          <button className="copy-btn" onClick={copyInstagramHandle}>
+            📋 {t.copyHandle || 'COPY HANDLE'}
+          </button>
+        </div>
+      )}
+
       {(hasCheckedIn || isCompleted) ? (
         <div className="side-quest-completed-box">
           <div className="completed-icon">✅</div>
@@ -304,30 +323,24 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
           )}
         </div>
       ) : (
-        <div className="side-quest-checkin-box">
-          <div className="checkin-instruction">
-            <div className="checkin-icon">🍻</div>
-            <div className="checkin-text">
-              <strong>{t.completeQuest || 'Complete this Side Quest'}</strong>
-              <p>{t.enterQuestCode || 'Enter the code from the venue to check in'}</p>
-            </div>
-          </div>
-
-          <div className="manual-code-section">
+        <div className="manual-code-section">
+          <p className="code-label side-quest-code-label">{t.completeQuest || 'Complete This Side Quest'}</p>
+          <p className="code-subtext">{t.enterQuestCode || 'Enter the code from the venue to check in'}</p>
+          <div className="code-input-row">
             <input
               type="text"
-              className="manual-code-input"
-              placeholder={t.enterCode || 'Enter 4-digit code'}
+              className="code-input"
+              placeholder={t.enterCode || 'Enter code'}
               value={manualCode}
               onChange={(e) => setManualCode(e.target.value.replace(/\D/g, '').slice(0, 4))}
               maxLength="4"
             />
             <button
-              className="manual-code-btn"
+              className="code-btn"
               onClick={handleManualCode}
               disabled={isChecking || manualCode.length !== 4}
             >
-              {isChecking ? '...' : t.submit || 'SUBMIT'}
+              {isChecking ? '...' : t.go || 'GO!'}
             </button>
           </div>
         </div>

@@ -38,7 +38,7 @@ export default function HQDashboard() {
 
   const [showQuestForm, setShowQuestForm] = useState(false);
   const [editingQuest, setEditingQuest] = useState(null);
-  const [questForm, setQuestForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', reward: '', pin: '', address: '', district: '', mapsUrl: '', instagramUrl: '', facebookUrl: '', hasVenueDashboard: false, status: 'active' });
+  const [questForm, setQuestForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', reward: '', pin: '', address: '', district: '', mapsUrl: '', instagramUrl: '', facebookUrl: '', instagramHandle: '', hasVenueDashboard: false, status: 'active' });
   const [savingQuest, setSavingQuest] = useState(false);
 
   const [showQrModal, setShowQrModal] = useState(false);
@@ -227,12 +227,13 @@ export default function HQDashboard() {
         mapsUrl: quest.maps_url || quest.mapsUrl || '',
         instagramUrl: quest.instagram_url || quest.instagramUrl || '',
         facebookUrl: quest.facebook_url || quest.facebookUrl || '',
+        instagramHandle: quest.instagram_handle || quest.instagramHandle || '',
         hasVenueDashboard: quest.hasVenueDashboard || false,
         status: quest.status || 'active'
       });
     } else {
       setEditingQuest(null);
-      setQuestForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', reward: '', pin: '', address: '', district: '', mapsUrl: '', instagramUrl: '', facebookUrl: '', hasVenueDashboard: false, status: 'active' });
+      setQuestForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', reward: '', pin: '', address: '', district: '', mapsUrl: '', instagramUrl: '', facebookUrl: '', instagramHandle: '', hasVenueDashboard: false, status: 'active' });
     }
     setShowQuestForm(true);
   };
@@ -258,6 +259,7 @@ export default function HQDashboard() {
         maps_url: questForm.mapsUrl || null,
         instagram_url: questForm.instagramUrl || null,
         facebook_url: questForm.facebookUrl || null,
+        instagram_handle: questForm.instagramHandle || null,
         status: questForm.status
       };
       let result;
@@ -478,6 +480,7 @@ export default function HQDashboard() {
                 <div className="admin-form-group"><label className="admin-form-label">Maps URL</label><input type="text" className="admin-form-input" value={questForm.mapsUrl} onChange={(e) => setQuestForm(prev => ({...prev, mapsUrl: e.target.value}))} placeholder="https://maps.google.com/..." /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Instagram URL</label><input type="text" className="admin-form-input" value={questForm.instagramUrl} onChange={(e) => setQuestForm(prev => ({...prev, instagramUrl: e.target.value}))} placeholder="https://instagram.com/..." /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Facebook URL</label><input type="text" className="admin-form-input" value={questForm.facebookUrl} onChange={(e) => setQuestForm(prev => ({...prev, facebookUrl: e.target.value}))} placeholder="https://facebook.com/..." /></div>
+                <div className="admin-form-group"><label className="admin-form-label">Instagram Handle</label><input type="text" className="admin-form-input" value={questForm.instagramHandle} onChange={(e) => setQuestForm(prev => ({...prev, instagramHandle: e.target.value}))} placeholder="@yourvenue" /></div>
                 {!editingQuest && (<div className="admin-form-group"><label className="admin-form-label">Has venue dashboard?</label><div style={{ display: 'flex', gap: 8, marginTop: 4 }}><button type="button" className="admin-btn admin-btn-small" style={{ width: 'auto', background: questForm.hasVenueDashboard ? '#f97316' : 'var(--admin-border)', color: questForm.hasVenueDashboard ? '#fff' : 'var(--admin-text)' }} onClick={() => setQuestForm(prev => ({...prev, hasVenueDashboard: true}))}>Yes</button><button type="button" className="admin-btn admin-btn-small" style={{ width: 'auto', background: !questForm.hasVenueDashboard ? '#f97316' : 'var(--admin-border)', color: !questForm.hasVenueDashboard ? '#fff' : 'var(--admin-text)' }} onClick={() => setQuestForm(prev => ({...prev, hasVenueDashboard: false}))}>No</button></div>{questForm.hasVenueDashboard && <p style={{ fontSize: 12, color: 'var(--admin-text-muted)', marginTop: 6 }}>A brewery dashboard entry will be created for this venue using the title, address, district, and PIN above.</p>}</div>)}
                 <div className="admin-form-group"><label className="admin-form-label">Status</label><select className="admin-form-input" value={questForm.status} onChange={(e) => setQuestForm(prev => ({...prev, status: e.target.value}))}><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
                 <div style={{ display: 'flex', gap: 12, marginTop: 20 }}><button type="button" className="admin-btn admin-btn-primary" onClick={handleSaveQuest} disabled={savingQuest}>{savingQuest ? 'Saving...' : 'Save Quest'}</button><button type="button" className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={() => setShowQuestForm(false)}>Cancel</button></div>
