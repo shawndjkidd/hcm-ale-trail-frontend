@@ -5,6 +5,7 @@
    ========================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@700;800;900&display=swap');
 
 :root {
   --red-primary: #E31E24;
@@ -17,7 +18,7 @@
   --gray: #808080;
   --instagram-pink: #E1306C;
   --facebook-blue: #1877F2;
-  --font-display: 'Impact', 'Arial Black', sans-serif;
+  --font-display: 'Be Vietnam Pro', sans-serif;
   --font-body: 'Arial', sans-serif;
 }
 

@@ -439,7 +439,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                 maxLength="4"
                 placeholder="1234"
               />
-              <button className="admin-btn admin-btn-primary admin-btn-small" style={{ width: 'auto' }} onClick={handleSavePin} disabled={savingPin}>
+              <button className="admin-btn admin-btn-primary settings-btn" onClick={handleSavePin} disabled={savingPin}>
                 {savingPin ? 'Saving...' : 'Save PIN'}
               </button>
               {pinMessage && <span style={{ fontSize: 13, color: pinMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{pinMessage}</span>}
@@ -462,7 +462,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
               <input type="url" className="admin-form-input" value={socialLinks.facebookUrl} onChange={(e) => setSocialLinks(prev => ({ ...prev, facebookUrl: e.target.value }))} placeholder="https://facebook.com/yourvenue" />
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 4 }}>
-              <button className="admin-btn admin-btn-primary admin-btn-small" style={{ width: 'auto' }} onClick={handleSaveSocial} disabled={savingSocial}>
+              <button className="admin-btn admin-btn-primary settings-btn" onClick={handleSaveSocial} disabled={savingSocial}>
                 {savingSocial ? 'Saving...' : 'Save Links'}
               </button>
               {socialMessage && <span style={{ fontSize: 13, color: socialMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{socialMessage}</span>}
@@ -512,7 +512,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
               </tbody>
             </table>
             <div style={{ marginTop: 12, display: 'flex', gap: 8, alignItems: 'center' }}>
-              <button className="admin-btn admin-btn-primary admin-btn-small" style={{ width: 'auto' }} onClick={handleSaveHours} disabled={savingHours}>
+              <button className="admin-btn admin-btn-primary settings-btn" onClick={handleSaveHours} disabled={savingHours}>
                 {savingHours ? 'Saving...' : 'Save Hours'}
               </button>
               {hoursMessage && <span style={{ fontSize: 13, color: hoursMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{hoursMessage}</span>}
