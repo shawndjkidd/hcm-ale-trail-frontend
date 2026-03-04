@@ -49,10 +49,11 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
 
     const fetchDetail = async () => {
       try {
-        const res = await fetch(`/api/trails/${TRAIL_ID}/side-quests/${quest.id}/qr`)
+        const res = await fetch(`/api/trails/${TRAIL_ID}/side-quests/${quest.id}`)
         const data = await res.json()
-        if (data.ok && data.sideQuest) {
-          setQuestDetail(prev => ({ ...prev, ...data.sideQuest }))
+        const questData = data.sideQuest || data.quest
+        if (data.ok && questData) {
+          setQuestDetail(prev => ({ ...prev, ...questData }))
         }
       } catch {}
     }
