@@ -468,7 +468,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       )}
 
       {activeTab === 'settings' && (
-        <>
+        <div style={{ maxWidth: 600 }}>
           <div className="admin-card" style={{ borderLeft: venueStatus === 'temporarily_closed' ? '4px solid var(--admin-danger)' : '4px solid var(--admin-success)', marginBottom: 16 }}>
             <h3 className="admin-card-title">Venue Status</h3>
             <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>
@@ -599,7 +599,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
               {hoursMessage && <span style={{ fontSize: 13, color: hoursMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{hoursMessage}</span>}
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
