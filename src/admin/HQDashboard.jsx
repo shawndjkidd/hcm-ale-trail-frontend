@@ -540,23 +540,21 @@ export default function HQDashboard() {
               <table className="admin-table">
                 <thead>
                   <tr>
+                    <th>#</th>
                     <th>Beer Name</th>
                     <th>Brewery</th>
-                    <th>User Email</th>
-                    <th>Rating</th>
-                    <th>Notes</th>
-                    <th>Date</th>
+                    <th>Avg Rating</th>
+                    <th># of Ratings</th>
                   </tr>
                 </thead>
                 <tbody>
                   {beerRatings.map((r, i) => (
-                    <tr key={r.id || i}>
-                      <td><strong>{r.beerName || r.beer_name || '--'}</strong></td>
-                      <td>{r.breweryName || r.brewery_name || '--'}</td>
-                      <td><a href={`mailto:${r.userEmail || r.user_email}`} style={{ color: 'var(--admin-primary)' }}>{r.userEmail || r.user_email || '--'}</a></td>
-                      <td>{'★'.repeat(Math.round(r.rating || 0))}{'☆'.repeat(5 - Math.round(r.rating || 0))} <span style={{ color: 'var(--admin-text-muted)', fontSize: 12 }}>({r.rating}/5)</span></td>
-                      <td style={{ color: 'var(--admin-text-muted)', maxWidth: 200 }}>{r.notes || r.note || '--'}</td>
-                      <td style={{ color: 'var(--admin-text-muted)' }}>{new Date(r.createdAt || r.created_at).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                    <tr key={i}>
+                      <td style={{ color: 'var(--admin-text-muted)' }}>{i + 1}</td>
+                      <td><strong>{r.beer_name || '--'}</strong></td>
+                      <td>{r.brewery_name || '--'}</td>
+                      <td>{'★'.repeat(Math.round(r.average_rating || 0))}{'☆'.repeat(5 - Math.round(r.average_rating || 0))} <span style={{ color: 'var(--admin-text-muted)', fontSize: 12 }}>{r.average_rating}/5</span></td>
+                      <td style={{ color: 'var(--admin-text-muted)' }}>{r.total_ratings}</td>
                     </tr>
                   ))}
                 </tbody>
