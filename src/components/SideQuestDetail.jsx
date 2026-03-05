@@ -227,6 +227,16 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
     <div className="brewery-detail side-quest-detail">
       <button className="back-btn" onClick={onBack}>← {t.back || 'BACK'}</button>
 
+      {!hasCheckedIn && !isCompleted && !qrValidated && (
+        <div className="stamp-instruction-box">
+          <div className="stamp-icon">🗺️</div>
+          <div className="stamp-instruction-text">
+            <strong>{t.scanQRToComplete || 'SCAN THE QR CODE'}</strong>
+            <p>{t.scanQRFirst || 'Scan the QR code at the venue to complete this quest'}</p>
+          </div>
+        </div>
+      )}
+
       {message && (
         <div className={`message ${message.type}`}>
           {message.text}
@@ -324,7 +334,7 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
         </div>
       ) : (
         <div className="manual-code-section">
-          <p className="code-label side-quest-code-label">{t.completeQuest || 'Complete This Side Quest'}</p>
+          <p className="code-label side-quest-code-label">{t.completeQuest || 'COMPLETE THIS QUEST'}</p>
           <p className="code-subtext">{t.enterQuestCode || 'Enter the code from the venue to check in'}</p>
           <div className="code-input-row">
             <input

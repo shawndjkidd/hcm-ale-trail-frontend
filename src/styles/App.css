@@ -3188,3 +3188,45 @@ body {
   margin: 6px 0 0;
   opacity: 0.85;
 }
+
+/* ==========================================
+   SIDE QUEST DETAIL — GREEN-THEMED OVERRIDES
+   ========================================== */
+
+/* QR prompt box: green border/shadow instead of red */
+.side-quest-detail .stamp-instruction-box {
+  border-color: var(--green-primary);
+  box-shadow: 0 6px 0 var(--green-primary);
+}
+
+.side-quest-detail .stamp-instruction-text strong {
+  color: #007A38;
+}
+
+/* Events section: green accents instead of red */
+.side-quest-detail .brewery-events-title {
+  color: #007A38;
+}
+
+.side-quest-detail .brewery-event-name {
+  color: #007A38;
+}
+
+.side-quest-detail .brewery-event-date {
+  background: #007A38;
+}
+
+/* Completed box: full width, no border-radius (matches brewery card weight) */
+.side-quest-completed-box {
+  border-radius: 0;
+  margin: 1rem 0;
+}
+
+/* Code entry section: ensure input + button lay out in a row on this page */
+.side-quest-detail .code-input-row {
+  flex-direction: row;
+}
+
+.side-quest-detail .code-btn {
+  width: auto;
+}
