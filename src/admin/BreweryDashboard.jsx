@@ -39,6 +39,11 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   const [savingVenueStatus, setSavingVenueStatus] = useState(false);
   const [venueStatusMessage, setVenueStatusMessage] = useState('');
 
+  const [descriptionEn, setDescriptionEn] = useState('');
+  const [descriptionVn, setDescriptionVn] = useState('');
+  const [savingDescription, setSavingDescription] = useState(false);
+  const [descriptionMessage, setDescriptionMessage] = useState('');
+
   const [showEventForm, setShowEventForm] = useState(false);
   const [eventForm, setEventForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '' });
   const [savingEvent, setSavingEvent] = useState(false);
@@ -82,6 +87,9 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
         facebookUrl: dashResult.brewery?.facebook_url || dashResult.brewery?.facebookUrl || '',
       });
       setVenueStatus(dashResult.brewery?.status || 'active');
+      const desc = dashResult.brewery?.description || {};
+      setDescriptionEn(typeof desc === 'string' ? desc : (desc.en || ''));
+      setDescriptionVn(typeof desc === 'string' ? '' : (desc.vn || ''));
     } else {
       setError(dashResult.error || 'Failed to load data');
     }
@@ -146,6 +154,21 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       setSocialMessage(result.error || 'Failed to update');
     }
     setSavingSocial(false);
+  };
+
+  const handleSaveDescription = async () => {
+    setSavingDescription(true);
+    setDescriptionMessage('');
+    const result = await updateBrewery(breweryId, {
+      description: { en: descriptionEn.trim(), vn: descriptionVn.trim() || descriptionEn.trim() },
+    });
+    if (result.ok) {
+      setDescriptionMessage('✓ Description updated');
+      setTimeout(() => setDescriptionMessage(''), 3000);
+    } else {
+      setDescriptionMessage(result.error || 'Failed to update');
+    }
+    setSavingDescription(false);
   };
 
   const handleSaveHours = async () => {
@@ -505,6 +528,25 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                 {savingSocial ? 'Saving...' : 'Save Links'}
               </button>
               {socialMessage && <span style={{ fontSize: 13, color: socialMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{socialMessage}</span>}
+            </div>
+          </div>
+
+          <div className="admin-card" style={{ marginTop: 16 }}>
+            <h3 className="admin-card-title">Venue Description</h3>
+            <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>Shown on your venue page in the app.</p>
+            <div className="admin-form-group">
+              <label className="admin-form-label">English</label>
+              <textarea className="admin-form-input" rows={3} value={descriptionEn} onChange={(e) => setDescriptionEn(e.target.value)} placeholder="Describe this venue..." />
+            </div>
+            <div className="admin-form-group">
+              <label className="admin-form-label">Vietnamese</label>
+              <textarea className="admin-form-input" rows={3} value={descriptionVn} onChange={(e) => setDescriptionVn(e.target.value)} placeholder="Mô tả địa điểm..." />
+            </div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 4 }}>
+              <button className="admin-btn admin-btn-primary settings-btn" onClick={handleSaveDescription} disabled={savingDescription}>
+                {savingDescription ? 'Saving...' : 'Save Description'}
+              </button>
+              {descriptionMessage && <span style={{ fontSize: 13, color: descriptionMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{descriptionMessage}</span>}
             </div>
           </div>
 
