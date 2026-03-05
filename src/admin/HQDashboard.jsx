@@ -3,7 +3,8 @@ import QRCode from 'qrcode';
 import {
   getTrailOverview, getTrailEvents, getAdminLeaderboard, exportParticipants,
   deleteEvent, createTrailEvent, getTrailBreweries, createBrewery, updateBrewery,
-  deleteBrewery, getSideQuests, createSideQuest, updateSideQuest, deleteSideQuest, TRAIL_ID
+  deleteBrewery, getSideQuests, createSideQuest, updateSideQuest, deleteSideQuest,
+  getTrailBeerRatings, TRAIL_ID
 } from './adminApi';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -19,6 +20,7 @@ export default function HQDashboard() {
   const [leaderboard, setLeaderboard] = useState([]);
   const [breweries, setBreweries] = useState([]);
   const [sideQuests, setSideQuests] = useState([]);
+  const [beerRatings, setBeerRatings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [dateRange, setDateRange] = useState('7d');
@@ -50,12 +52,13 @@ export default function HQDashboard() {
     setLoading(true);
     setError('');
     try {
-      const [overviewResult, eventsResult, leaderboardResult, breweriesResult, questsResult] = await Promise.all([
+      const [overviewResult, eventsResult, leaderboardResult, breweriesResult, questsResult, ratingsResult] = await Promise.all([
         getTrailOverview(TRAIL_ID, from, to),
         getTrailEvents(TRAIL_ID),
         getAdminLeaderboard(TRAIL_ID, 50),
         getTrailBreweries(TRAIL_ID).catch(() => ({ ok: false })),
-        getSideQuests(TRAIL_ID).catch(() => ({ ok: false }))
+        getSideQuests(TRAIL_ID).catch(() => ({ ok: false })),
+        getTrailBeerRatings(TRAIL_ID).catch(() => ({ ok: false }))
       ]);
       if (overviewResult.ok) setData(overviewResult);
       else setError(overviewResult.error || 'Failed to load data');
@@ -63,6 +66,7 @@ export default function HQDashboard() {
       if (leaderboardResult.ok) setLeaderboard(leaderboardResult.leaderboard || []);
       if (breweriesResult.ok) setBreweries(breweriesResult.breweries || []);
       if (questsResult.ok) setSideQuests(questsResult.sideQuests || []);
+      if (ratingsResult.ok) setBeerRatings([...(ratingsResult.ratings || [])].sort((a, b) => new Date(b.createdAt || b.created_at) - new Date(a.createdAt || a.created_at)));
     } catch (err) {
       setError(err.message || 'Failed to load data');
     }
@@ -526,7 +530,40 @@ export default function HQDashboard() {
       )}
 
       {activeTab === 'leaderboard' && (
-        <div className="admin-card"><h3 className="admin-card-title">Leaderboard (with Contact Info)</h3>{leaderboard.length === 0 ? (<div className="admin-empty">No completions yet</div>) : (<table className="admin-table"><thead><tr><th>Rank</th><th>Name</th><th>Email</th><th>Time</th><th>Completed</th></tr></thead><tbody>{leaderboard.map((entry) => (<tr key={entry.participantId}><td><span className={`admin-rank ${entry.rank === 1 ? 'gold' : entry.rank === 2 ? 'silver' : entry.rank === 3 ? 'bronze' : 'default'}`}>{entry.rank}</span></td><td><strong>{entry.displayName || entry.name || '--'}</strong></td><td><a href={`mailto:${entry.email}`} style={{ color: 'var(--admin-primary)' }}>{entry.email}</a></td><td>{formatTime(entry.completionTimeMs)}</td><td style={{ color: 'var(--admin-text-muted)' }}>{new Date(entry.completedAt).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })}</td></tr>))}</tbody></table>)}</div>
+        <>
+          <div className="admin-card"><h3 className="admin-card-title">Leaderboard (with Contact Info)</h3>{leaderboard.length === 0 ? (<div className="admin-empty">No completions yet</div>) : (<table className="admin-table"><thead><tr><th>Rank</th><th>Name</th><th>Email</th><th>Time</th><th>Completed</th></tr></thead><tbody>{leaderboard.map((entry) => (<tr key={entry.participantId}><td><span className={`admin-rank ${entry.rank === 1 ? 'gold' : entry.rank === 2 ? 'silver' : entry.rank === 3 ? 'bronze' : 'default'}`}>{entry.rank}</span></td><td><strong>{entry.displayName || entry.name || '--'}</strong></td><td><a href={`mailto:${entry.email}`} style={{ color: 'var(--admin-primary)' }}>{entry.email}</a></td><td>{formatTime(entry.completionTimeMs)}</td><td style={{ color: 'var(--admin-text-muted)' }}>{new Date(entry.completedAt).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })}</td></tr>))}</tbody></table>)}</div>
+          <div className="admin-card" style={{ marginTop: 24 }}>
+            <h3 className="admin-card-title">Beer Ratings</h3>
+            {beerRatings.length === 0 ? (
+              <div className="admin-empty">No ratings yet</div>
+            ) : (
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Beer Name</th>
+                    <th>Brewery</th>
+                    <th>User Email</th>
+                    <th>Rating</th>
+                    <th>Notes</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {beerRatings.map((r, i) => (
+                    <tr key={r.id || i}>
+                      <td><strong>{r.beerName || r.beer_name || '--'}</strong></td>
+                      <td>{r.breweryName || r.brewery_name || '--'}</td>
+                      <td><a href={`mailto:${r.userEmail || r.user_email}`} style={{ color: 'var(--admin-primary)' }}>{r.userEmail || r.user_email || '--'}</a></td>
+                      <td>{'★'.repeat(Math.round(r.rating || 0))}{'☆'.repeat(5 - Math.round(r.rating || 0))} <span style={{ color: 'var(--admin-text-muted)', fontSize: 12 }}>({r.rating}/5)</span></td>
+                      <td style={{ color: 'var(--admin-text-muted)', maxWidth: 200 }}>{r.notes || r.note || '--'}</td>
+                      <td style={{ color: 'var(--admin-text-muted)' }}>{new Date(r.createdAt || r.created_at).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </>
       )}
 
       {activeTab === 'export' && (

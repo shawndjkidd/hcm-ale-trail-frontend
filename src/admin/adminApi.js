@@ -272,6 +272,17 @@ export async function deleteSideQuest(questId) {
   }
 }
 
+// ==================== BEER RATINGS ====================
+
+export async function getTrailBeerRatings(trailId) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/ratings`, { headers: authHeaders() });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
 // ==================== LOGIN ====================
 
 
