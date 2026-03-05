@@ -468,8 +468,10 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       )}
 
       {activeTab === 'settings' && (
-        <div style={{ maxWidth: 600 }}>
-          <div className="admin-card" style={{ borderLeft: venueStatus === 'temporarily_closed' ? '4px solid var(--admin-danger)' : '4px solid var(--admin-success)', marginBottom: 16 }}>
+        <div className="admin-settings-grid">
+          {/* Left column: Venue Status, Social Links, Operating Hours */}
+          <div>
+          <div className="admin-card" style={{ borderLeft: venueStatus === 'temporarily_closed' ? '4px solid var(--admin-danger)' : '4px solid var(--admin-success)' }}>
             <h3 className="admin-card-title">Venue Status</h3>
             <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>
               {venueStatus === 'temporarily_closed'
@@ -489,26 +491,6 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
           </div>
 
           <div className="admin-card">
-            <h3 className="admin-card-title">Fallback PIN Code</h3>
-            <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>4-digit PIN for manual check-ins when QR fails.</p>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <input
-                type="text"
-                className="admin-form-input"
-                style={{ width: 90, textAlign: 'center', letterSpacing: 4, fontFamily: 'monospace', fontSize: 16 }}
-                value={pinCode}
-                onChange={(e) => setPinCode(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                maxLength="4"
-                placeholder="1234"
-              />
-              <button className="admin-btn admin-btn-primary settings-btn" onClick={handleSavePin} disabled={savingPin}>
-                {savingPin ? 'Saving...' : 'Save PIN'}
-              </button>
-              {pinMessage && <span style={{ fontSize: 13, color: pinMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{pinMessage}</span>}
-            </div>
-          </div>
-
-          <div className="admin-card" style={{ marginTop: 16 }}>
             <h3 className="admin-card-title">Social Links</h3>
             <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>These appear as buttons on your venue page in the app.</p>
             <div className="admin-form-group">
@@ -531,26 +513,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
             </div>
           </div>
 
-          <div className="admin-card" style={{ marginTop: 16 }}>
-            <h3 className="admin-card-title">Venue Description</h3>
-            <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>Shown on your venue page in the app.</p>
-            <div className="admin-form-group">
-              <label className="admin-form-label">English</label>
-              <textarea className="admin-form-input" rows={3} value={descriptionEn} onChange={(e) => setDescriptionEn(e.target.value)} placeholder="Describe this venue..." />
-            </div>
-            <div className="admin-form-group">
-              <label className="admin-form-label">Vietnamese</label>
-              <textarea className="admin-form-input" rows={3} value={descriptionVn} onChange={(e) => setDescriptionVn(e.target.value)} placeholder="Mô tả địa điểm..." />
-            </div>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 4 }}>
-              <button className="admin-btn admin-btn-primary settings-btn" onClick={handleSaveDescription} disabled={savingDescription}>
-                {savingDescription ? 'Saving...' : 'Save Description'}
-              </button>
-              {descriptionMessage && <span style={{ fontSize: 13, color: descriptionMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{descriptionMessage}</span>}
-            </div>
-          </div>
-
-          <div className="admin-card" style={{ marginTop: 16 }}>
+          <div className="admin-card">
             <h3 className="admin-card-title">Operating Hours</h3>
             <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>Set your weekly operating hours.</p>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -599,6 +562,49 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
               {hoursMessage && <span style={{ fontSize: 13, color: hoursMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{hoursMessage}</span>}
             </div>
           </div>
+          </div>{/* end left column */}
+
+          {/* Right column: Fallback PIN Code, Venue Description */}
+          <div>
+          <div className="admin-card">
+            <h3 className="admin-card-title">Fallback PIN Code</h3>
+            <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>4-digit PIN for manual check-ins when QR fails.</p>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <input
+                type="text"
+                className="admin-form-input"
+                style={{ width: 90, textAlign: 'center', letterSpacing: 4, fontFamily: 'monospace', fontSize: 16 }}
+                value={pinCode}
+                onChange={(e) => setPinCode(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                maxLength="4"
+                placeholder="1234"
+              />
+              <button className="admin-btn admin-btn-primary settings-btn" onClick={handleSavePin} disabled={savingPin}>
+                {savingPin ? 'Saving...' : 'Save PIN'}
+              </button>
+              {pinMessage && <span style={{ fontSize: 13, color: pinMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{pinMessage}</span>}
+            </div>
+          </div>
+
+          <div className="admin-card">
+            <h3 className="admin-card-title">Venue Description</h3>
+            <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>Shown on your venue page in the app.</p>
+            <div className="admin-form-group">
+              <label className="admin-form-label">English</label>
+              <textarea className="admin-form-input" rows={3} value={descriptionEn} onChange={(e) => setDescriptionEn(e.target.value)} placeholder="Describe this venue..." />
+            </div>
+            <div className="admin-form-group">
+              <label className="admin-form-label">Vietnamese</label>
+              <textarea className="admin-form-input" rows={3} value={descriptionVn} onChange={(e) => setDescriptionVn(e.target.value)} placeholder="Mô tả địa điểm..." />
+            </div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 4 }}>
+              <button className="admin-btn admin-btn-primary settings-btn" onClick={handleSaveDescription} disabled={savingDescription}>
+                {savingDescription ? 'Saving...' : 'Save Description'}
+              </button>
+              {descriptionMessage && <span style={{ fontSize: 13, color: descriptionMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{descriptionMessage}</span>}
+            </div>
+          </div>
+          </div>{/* end right column */}
         </div>
       )}
     </div>
