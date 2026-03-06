@@ -4072,3 +4072,38 @@ body.night-mode .night-mode-toggle:hover {
   background: #1a1a1a;
   border-color: #888888;
 }
+
+/* ==========================================
+   FLAG ROW — FIT WITHIN PAGE WIDTH
+   ========================================== */
+
+/* Match the nav rows' margin/padding so the flag row
+   doesn't exceed the page content width */
+.language-toggle-large {
+  margin: 0 12px 8px;
+  padding: 10px 0;
+  gap: 8px;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+/* Let flag buttons flex and shrink with the row */
+.flag-btn-large {
+  flex: 1;
+  min-width: 0;
+  padding: 4px;
+}
+
+/* Flag images fill their button up to a max */
+.flag-img {
+  width: 100%;
+  max-width: 56px;
+  margin: 0 auto;
+}
+
+/* Pill toggle: shrink slightly to fit alongside 4 flags */
+.night-mode-toggle {
+  width: 72px;
+  height: 40px;
+  flex-shrink: 0;
+}
