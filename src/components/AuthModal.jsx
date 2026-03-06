@@ -53,13 +53,57 @@ export default function AuthModal({ onSuccess, language = "en" }) {
   };
 
   // ── Register ─────────────────────────────────────────────────────────────
-  // TODO: wire to POST /api/auth/register when available
-  // Body: { email, password, name }
   const submitRegister = async (e) => {
     e?.preventDefault?.();
     resetMessages();
-    // Placeholder until backend endpoint is ready
-    setInfo("Coming soon — contact us to create an account!");
+
+    if (!name.trim() || !email.trim() || !password) {
+      setErr("Please fill in all fields.");
+      return;
+    }
+    if (password.length < 6) {
+      setErr("Password must be at least 6 characters.");
+      return;
+    }
+
+    setBusy(true);
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password, name: name.trim() }),
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok || !data?.ok) {
+        const msg = data?.error || "Registration failed.";
+        setErr(res.status === 409 ? "An account with that email already exists." : msg);
+        return;
+      }
+
+      // Auto sign in with the same credentials
+      const loginRes = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+      const loginData = await loginRes.json().catch(() => null);
+
+      if (!loginRes.ok || !loginData?.ok) {
+        // Account created but login failed — switch to login mode
+        setInfo("Account created! Please sign in.");
+        switchMode("login");
+        return;
+      }
+
+      storeLoginTokens(loginData);
+      onSuccess?.(loginData);
+    } catch (e) {
+      setErr(e?.message || "Registration failed.");
+    } finally {
+      setBusy(false);
+    }
   };
 
   // ── Forgot password ───────────────────────────────────────────────────────
