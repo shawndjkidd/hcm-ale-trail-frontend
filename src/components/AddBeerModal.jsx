@@ -1,15 +1,43 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import translations from '../translations'
+import { TRAIL_ID } from '../config'
 
 function AddBeerModal({ brewery, onSave, language, onClose }) {
-  const [beerName, setBeerName] = useState('')
+  const [selectedBeerId, setSelectedBeerId] = useState('')
+  const [customName, setCustomName] = useState('')
   const [rating, setRating] = useState(0)
   const [notes, setNotes] = useState('')
-  
+  const [menuBeers, setMenuBeers] = useState([])
+  const [loadingBeers, setLoadingBeers] = useState(true)
+
   const t = translations[language]
 
+  useEffect(() => {
+    const fetchBeers = async () => {
+      try {
+        const res = await fetch(`/api/trails/${TRAIL_ID}/breweries/${brewery.id}/beers`)
+        const data = await res.json()
+        if (data.ok) setMenuBeers(data.beers || [])
+      } catch {
+        // silently fall back to free-text only
+      }
+      setLoadingBeers(false)
+    }
+    fetchBeers()
+  }, [brewery.id])
+
+  const isOther = selectedBeerId === 'other'
+  const hasMenu = menuBeers.length > 0
+
+  const getBeerName = () => {
+    if (!hasMenu || isOther) return customName.trim()
+    const found = menuBeers.find(b => b.id === selectedBeerId)
+    return found ? found.name : customName.trim()
+  }
+
   const handleSubmit = () => {
-    if (!beerName.trim() || rating === 0) {
+    const beerName = getBeerName()
+    if (!beerName || rating === 0) {
       alert(t.pleaseComplete || 'Please enter a beer name and rating!')
       return
     }
@@ -17,7 +45,7 @@ function AddBeerModal({ brewery, onSave, language, onClose }) {
     const beer = {
       breweryId: brewery.id,
       breweryName: brewery.name,
-      name: beerName.trim(),
+      name: beerName,
       rating,
       notes: notes.trim()
     }
@@ -29,19 +57,44 @@ function AddBeerModal({ brewery, onSave, language, onClose }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>✕</button>
-        
+
         <h2>{t.addBeer}</h2>
         <p className="modal-subtitle">{brewery.name}</p>
 
         <div className="form-group">
           <label>{t.beerName}</label>
-          <input
-            type="text"
-            value={beerName}
-            onChange={(e) => setBeerName(e.target.value)}
-            placeholder="e.g. Saigon IPA"
-            className="text-input"
-          />
+          {loadingBeers ? (
+            <input type="text" className="text-input" value={customName} onChange={(e) => setCustomName(e.target.value)} placeholder="e.g. Saigon IPA" />
+          ) : hasMenu ? (
+            <>
+              <select
+                className="text-input"
+                value={selectedBeerId}
+                onChange={(e) => { setSelectedBeerId(e.target.value); setCustomName('') }}
+                style={{ marginBottom: isOther ? '0.5rem' : 0 }}
+              >
+                <option value="">— Select a beer —</option>
+                {menuBeers.map(b => (
+                  <option key={b.id} value={b.id}>
+                    {b.name}{b.style ? ` (${b.style})` : ''}{b.abv != null ? ` · ${b.abv}%` : ''}
+                  </option>
+                ))}
+                <option value="other">Other (type your own)</option>
+              </select>
+              {isOther && (
+                <input
+                  type="text"
+                  className="text-input"
+                  value={customName}
+                  onChange={(e) => setCustomName(e.target.value)}
+                  placeholder="e.g. Saigon IPA"
+                  autoFocus
+                />
+              )}
+            </>
+          ) : (
+            <input type="text" className="text-input" value={customName} onChange={(e) => setCustomName(e.target.value)} placeholder="e.g. Saigon IPA" />
+          )}
         </div>
 
         <div className="form-group">

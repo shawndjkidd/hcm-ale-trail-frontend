@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, TRAIL_ID } from './adminApi';
+import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, TRAIL_ID } from './adminApi';
 
 const DAY_NAMES = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 const DAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -47,6 +47,13 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   const [showEventForm, setShowEventForm] = useState(false);
   const [eventForm, setEventForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '' });
   const [savingEvent, setSavingEvent] = useState(false);
+
+  const [beers, setBeers] = useState([]);
+  const [beersLoading, setBeersLoading] = useState(false);
+  const [showBeerForm, setShowBeerForm] = useState(false);
+  const [beerForm, setBeerForm] = useState({ name: '', style: '', abv: '' });
+  const [savingBeer, setSavingBeer] = useState(false);
+  const [editingBeer, setEditingBeer] = useState(null); // beer object being edited
 
   const breweryId = propBreweryId || selectedBreweryId;
 
@@ -232,6 +239,83 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
     setSavingEvent(false);
   };
 
+  const loadBeers = async () => {
+    if (!breweryId) return;
+    setBeersLoading(true);
+    const result = await getBreweryBeers(breweryId);
+    if (result.ok) setBeers(result.beers || []);
+    setBeersLoading(false);
+  };
+
+  useEffect(() => {
+    if (activeTab === 'beers' && breweryId) loadBeers();
+  }, [activeTab, breweryId]);
+
+  const handleCreateBeer = async () => {
+    if (!beerForm.name.trim()) {
+      alert('Beer name is required');
+      return;
+    }
+    setSavingBeer(true);
+    const result = await createBreweryBeer(breweryId, {
+      name: beerForm.name.trim(),
+      style: beerForm.style.trim() || null,
+      abv: beerForm.abv !== '' ? parseFloat(beerForm.abv) : null,
+    });
+    if (result.ok) {
+      setBeers(prev => [...prev, result.beer].sort((a, b) => a.name.localeCompare(b.name)));
+      setShowBeerForm(false);
+      setBeerForm({ name: '', style: '', abv: '' });
+    } else {
+      alert(result.error || 'Failed to create beer');
+    }
+    setSavingBeer(false);
+  };
+
+  const handleUpdateBeer = async () => {
+    if (!beerForm.name.trim()) {
+      alert('Beer name is required');
+      return;
+    }
+    setSavingBeer(true);
+    const result = await updateBreweryBeer(breweryId, editingBeer.id, {
+      name: beerForm.name.trim(),
+      style: beerForm.style.trim() || null,
+      abv: beerForm.abv !== '' ? parseFloat(beerForm.abv) : null,
+    });
+    if (result.ok) {
+      setBeers(prev => prev.map(b => b.id === editingBeer.id ? result.beer : b).sort((a, b) => a.name.localeCompare(b.name)));
+      setEditingBeer(null);
+      setShowBeerForm(false);
+      setBeerForm({ name: '', style: '', abv: '' });
+    } else {
+      alert(result.error || 'Failed to update beer');
+    }
+    setSavingBeer(false);
+  };
+
+  const handleDeleteBeer = async (beer) => {
+    if (!confirm(`Remove "${beer.name}" from the menu?`)) return;
+    const result = await deleteBreweryBeer(breweryId, beer.id);
+    if (result.ok) {
+      setBeers(prev => prev.filter(b => b.id !== beer.id));
+    } else {
+      alert(result.error || 'Failed to remove beer');
+    }
+  };
+
+  const openEditBeer = (beer) => {
+    setEditingBeer(beer);
+    setBeerForm({ name: beer.name, style: beer.style || '', abv: beer.abv != null ? String(beer.abv) : '' });
+    setShowBeerForm(true);
+  };
+
+  const closeBeerForm = () => {
+    setShowBeerForm(false);
+    setEditingBeer(null);
+    setBeerForm({ name: '', style: '', abv: '' });
+  };
+
   // Aggregate beer ratings from latest ratings
   const getBeerRatings = () => {
     const latest = data?.ratings?.latest || [];
@@ -305,6 +389,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
         <button className={`admin-tab ${activeTab === 'ratings' ? 'active' : ''}`} onClick={() => setActiveTab('ratings')}>Beer Ratings</button>
         <button className={`admin-tab ${activeTab === 'competition' ? 'active' : ''}`} onClick={() => setActiveTab('competition')}>Trail Competition</button>
         <button className={`admin-tab ${activeTab === 'events' ? 'active' : ''}`} onClick={() => setActiveTab('events')}>Events ({events.length})</button>
+        <button className={`admin-tab ${activeTab === 'beers' ? 'active' : ''}`} onClick={() => setActiveTab('beers')}>Beer Menu</button>
         <button className={`admin-tab ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>Settings</button>
       </div>
 
@@ -462,6 +547,69 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                   <tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><span className={`admin-badge ${event.status === 'active' ? 'active' : 'inactive'}`}>{event.status}</span></td><td><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></td></tr>
                 ))}
               </tbody></table>
+            )}
+          </div>
+        </>
+      )}
+
+      {activeTab === 'beers' && (
+        <>
+          {showBeerForm && (
+            <div className="admin-modal-overlay" onClick={closeBeerForm}>
+              <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
+                <h3 style={{ marginBottom: 20 }}>{editingBeer ? 'Edit Beer' : 'Add Beer'}</h3>
+                <div className="admin-form-group">
+                  <label className="admin-form-label">Beer Name *</label>
+                  <input type="text" className="admin-form-input" value={beerForm.name} onChange={(e) => setBeerForm({ ...beerForm, name: e.target.value })} placeholder="e.g. Saigon IPA" />
+                </div>
+                <div className="admin-form-group">
+                  <label className="admin-form-label">Style</label>
+                  <input type="text" className="admin-form-input" value={beerForm.style} onChange={(e) => setBeerForm({ ...beerForm, style: e.target.value })} placeholder="e.g. IPA, Stout, Lager" />
+                </div>
+                <div className="admin-form-group">
+                  <label className="admin-form-label">ABV (%)</label>
+                  <input type="number" className="admin-form-input" style={{ maxWidth: 120 }} value={beerForm.abv} onChange={(e) => setBeerForm({ ...beerForm, abv: e.target.value })} placeholder="e.g. 5.5" step="0.1" min="0" max="100" />
+                </div>
+                <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
+                  <button className="admin-btn admin-btn-primary" onClick={editingBeer ? handleUpdateBeer : handleCreateBeer} disabled={savingBeer}>
+                    {savingBeer ? 'Saving...' : editingBeer ? 'Save Changes' : 'Add Beer'}
+                  </button>
+                  <button className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={closeBeerForm}>Cancel</button>
+                </div>
+              </div>
+            </div>
+          )}
+          <div className="admin-card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 className="admin-card-title" style={{ marginBottom: 0 }}>Beer Menu</h3>
+              <button className="admin-btn admin-btn-primary admin-btn-small" onClick={() => setShowBeerForm(true)}>+ Add Beer</button>
+            </div>
+            <p style={{ color: 'var(--admin-text-muted)', fontSize: 13, marginBottom: 16 }}>
+              These beers appear as options in the app's beer rating dropdown. Customers can still type a custom name if theirs isn't listed.
+            </p>
+            {beersLoading ? (
+              <div className="admin-loading"><div className="admin-spinner" /></div>
+            ) : beers.filter(b => b.active !== false).length === 0 ? (
+              <div className="admin-empty">No beers on the menu yet. Add your first beer!</div>
+            ) : (
+              <table className="admin-table">
+                <thead><tr><th>Beer</th><th>Style</th><th>ABV</th><th>Actions</th></tr></thead>
+                <tbody>
+                  {beers.filter(b => b.active !== false).map((beer) => (
+                    <tr key={beer.id}>
+                      <td><strong>{beer.name}</strong></td>
+                      <td style={{ color: 'var(--admin-text-muted)' }}>{beer.style || '—'}</td>
+                      <td style={{ color: 'var(--admin-text-muted)' }}>{beer.abv != null ? `${beer.abv}%` : '—'}</td>
+                      <td>
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <button className="admin-btn-small" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={() => openEditBeer(beer)}>Edit</button>
+                          <button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteBeer(beer)}>Remove</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             )}
           </div>
         </>

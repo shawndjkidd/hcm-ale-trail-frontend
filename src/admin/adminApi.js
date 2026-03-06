@@ -272,6 +272,55 @@ export async function deleteSideQuest(questId) {
   }
 }
 
+// ==================== BREWERY BEERS ====================
+
+export async function getBreweryBeers(breweryId) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/beers`, { headers: authHeaders() });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function createBreweryBeer(breweryId, beerData) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/beers`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify(beerData)
+    });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function updateBreweryBeer(breweryId, beerId, beerData) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/beers/${beerId}`, {
+      method: 'PUT',
+      headers: authHeaders(),
+      body: JSON.stringify(beerData)
+    });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function deleteBreweryBeer(breweryId, beerId) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/beers/${beerId}`, {
+      method: 'DELETE',
+      headers: authHeaders()
+    });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
 // ==================== BEER RATINGS ====================
 
 export async function getTrailBeerRatings(trailId) {
