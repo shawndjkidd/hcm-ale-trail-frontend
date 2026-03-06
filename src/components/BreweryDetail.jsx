@@ -183,25 +183,27 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     return currentTime >= openTime && currentTime <= closeTime
   }
 
+  const formatTime = (time) => time === '00:00' ? 'Midnight' : time
+
   // Format hours for display
   const formatHours = () => {
     const hours = brewery?.operatingHours || brewery?.operating_hours
     if (!hours) return null
-    
+
     const dayLabels = DAY_LABELS[language] || DAY_LABELS.en
     const result = []
-    
+
     DAY_NAMES.forEach((day, index) => {
       const dayHours = hours[day]
       if (dayHours) {
         if (dayHours.closed) {
           result.push({ day: dayLabels[index], hours: t.closed || 'Closed' })
         } else {
-          result.push({ day: dayLabels[index], hours: `${dayHours.open} - ${dayHours.close}` })
+          result.push({ day: dayLabels[index], hours: `${formatTime(dayHours.open)} - ${formatTime(dayHours.close)}` })
         }
       }
     })
-    
+
     return result
   }
 
