@@ -71,6 +71,7 @@ export default function App() {
   const toggleNightMode = () => setNightMode((m) => !m);
 
   const [stamps, setStamps] = useState([]);
+  const [beers, setBeers] = useState([]);
   const [breweries, setBreweries] = useState([]);
   const [selectedBrewery, setSelectedBrewery] = useState(null);
   const [selectedSideQuest, setSelectedSideQuest] = useState(null);
