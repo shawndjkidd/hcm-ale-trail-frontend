@@ -3567,6 +3567,9 @@ body.night-mode .header-logo {
   border-color: #333333;
   box-shadow: 4px 4px 0 #333333;
 }
+body.night-mode .header-logo-img {
+  filter: brightness(0) invert(1);
+}
 
 /* Flag active state */
 body.night-mode .flag-btn-large.active {
@@ -3650,7 +3653,7 @@ body.night-mode .brewery-district {
 }
 body.night-mode .brewery-logo {
   border-left-color: #333333;
-  background: #f5f5f5;
+  background: #3A3A3A;
   border-radius: 4px;
   padding: 4px;
 }
