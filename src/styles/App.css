@@ -3462,3 +3462,516 @@ body {
 .brewery-events-section {
   text-align: center;
 }
+
+/* ==========================================
+   NIGHT / DARK MODE TOGGLE BUTTON
+   ========================================== */
+
+.night-mode-toggle {
+  background: rgba(0, 0, 0, 0.25);
+  border: 3px solid rgba(0, 0, 0, 0.35);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  font-size: 1.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.2s;
+  flex-shrink: 0;
+  align-self: center;
+  line-height: 1;
+}
+
+.night-mode-toggle:hover {
+  transform: scale(1.12);
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* ==========================================
+   THEME VARIABLES — BRIGHT (default) + NIGHT
+   ========================================== */
+
+:root {
+  --theme-bg: #CC0000;
+  --theme-card-bg: #FFFFFF;
+  --theme-card-border: #1a1a1a;
+  --theme-title: #CC0000;
+  --theme-subtitle: #CC0000;
+  --theme-num-bg: #CC0000;
+  --theme-num-text: #FFCC00;
+  --theme-button-bg: #FFCC00;
+  --theme-button-text: #CC0000;
+  --theme-button-border: #1a1a1a;
+  --theme-shadow: #1a1a1a;
+  --theme-event-bg: #FFCC00;
+  --theme-event-text: #CC0000;
+  --theme-footer-text: #FFCC00;
+  --theme-link-bg-1: #FFCC00;
+  --theme-link-bg-2: #CC0000;
+  --theme-link-bg-3: #00AA44;
+  --theme-link-bg-4: #FF69B4;
+  --theme-link-bg-5: #2196F3;
+  --theme-link-bg-6: #00BCD4;
+}
+
+body.night-mode {
+  --theme-bg: #111111;
+  --theme-card-bg: #1E1E1E;
+  --theme-card-border: #333333;
+  --theme-title: #F5A623;
+  --theme-subtitle: #888888;
+  --theme-num-bg: #F5A623;
+  --theme-num-text: #111111;
+  --theme-button-bg: #2A2A2A;
+  --theme-button-text: #E8E8E8;
+  --theme-button-border: #444444;
+  --theme-shadow: rgba(0, 0, 0, 0.5);
+  --theme-event-bg: #F5A623;
+  --theme-event-text: #111111;
+  --theme-footer-text: #666666;
+  --theme-link-bg-1: #2A2A2A;
+  --theme-link-bg-2: #2A2A2A;
+  --theme-link-bg-3: #2A2A2A;
+  --theme-link-bg-4: #2A2A2A;
+  --theme-link-bg-5: #2A2A2A;
+  --theme-link-bg-6: #2A2A2A;
+}
+
+/* ==========================================
+   NIGHT MODE — ELEMENT OVERRIDES
+   ========================================== */
+
+/* Global backgrounds */
+body.night-mode,
+body.night-mode .app,
+body.night-mode .home-page,
+body.night-mode .loading {
+  background: #111111;
+  color: #E8E8E8;
+}
+
+/* Night mode toggle button */
+body.night-mode .night-mode-toggle {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+body.night-mode .night-mode-toggle:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Header logo box */
+body.night-mode .header-logo {
+  background: #1E1E1E;
+  border-color: #333333;
+  box-shadow: 4px 4px 0 #333333;
+}
+
+/* Flag active state */
+body.night-mode .flag-btn-large.active {
+  background: #2A2A2A;
+  box-shadow: 4px 4px 0 #444444;
+}
+
+/* Nav buttons — all variants unify to dark */
+body.night-mode .nav-btn-third,
+body.night-mode .nav-btn-third.yellow,
+body.night-mode .nav-btn-third.red,
+body.night-mode .nav-btn-third.green,
+body.night-mode .nav-btn-third.instagram,
+body.night-mode .nav-btn-third.facebook,
+body.night-mode .nav-btn-third.messenger {
+  background: #2A2A2A !important;
+  color: #E8E8E8 !important;
+  border-color: #444444;
+  box-shadow: 4px 4px 0 #333333;
+}
+body.night-mode .nav-btn-third:hover {
+  box-shadow: 6px 6px 0 #333333;
+}
+body.night-mode .nav-btn-third:active {
+  box-shadow: 2px 2px 0 #333333;
+}
+
+body.night-mode .nav-btn-half,
+body.night-mode .nav-btn-half.yellow {
+  background: #2A2A2A !important;
+  color: #E8E8E8 !important;
+  border-color: #444444;
+  box-shadow: 4px 4px 0 #333333;
+}
+body.night-mode .nav-btn-half:hover {
+  box-shadow: 6px 6px 0 #333333;
+}
+
+/* Progress section */
+body.night-mode .progress-section {
+  background: #1E1E1E;
+  border-color: #F5A623;
+  box-shadow: 4px 4px 0 #333333;
+}
+body.night-mode .progress-label {
+  color: #F5A623;
+}
+body.night-mode .progress-count {
+  color: #E8E8E8;
+}
+body.night-mode .progress-bar-container {
+  background: #2A2A2A;
+  border-color: #444444;
+}
+body.night-mode .progress-bar-fill {
+  background: #F5A623;
+}
+
+/* Brewery list cards */
+body.night-mode .brewery-item {
+  background: #1E1E1E;
+  border-color: #333333;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+}
+body.night-mode .brewery-item:hover {
+  box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.5);
+}
+body.night-mode .brewery-item:active {
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+}
+body.night-mode .brewery-number {
+  background: #F5A623;
+  color: #111111;
+  border-right-color: #333333;
+}
+body.night-mode .brewery-name {
+  color: #E8E8E8;
+}
+body.night-mode .brewery-district {
+  color: #888888;
+}
+body.night-mode .brewery-logo {
+  border-left-color: #333333;
+}
+body.night-mode .stamp-text {
+  background: rgba(30, 30, 30, 0.95);
+  color: #F5A623;
+  border-color: #F5A623;
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.3), 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Side quest list cards */
+body.night-mode .side-quest-item-home {
+  background: #1A3A25 !important;
+  border-color: #333333;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+}
+body.night-mode .side-quest-item-home:hover {
+  box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.5);
+}
+body.night-mode .side-quest-item-home.completed {
+  background: #2A2A2A !important;
+  opacity: 0.9;
+}
+body.night-mode .side-quest-icon-home {
+  background: #0D2B16;
+  color: #F5A623;
+  border-right-color: #333333;
+}
+body.night-mode .side-quest-item-home.completed .side-quest-icon-home {
+  background: #333333;
+}
+body.night-mode .side-quest-name-home {
+  color: #E8E8E8;
+}
+body.night-mode .side-quest-item-home.completed .side-quest-name-home {
+  color: #F5A623;
+}
+body.night-mode .side-quest-reward-home {
+  color: #aaaaaa;
+}
+body.night-mode .side-quest-arrow-home {
+  color: #F5A623;
+}
+body.night-mode .side-quest-item-home.completed .side-quest-reward-home,
+body.night-mode .side-quest-item-home.completed .side-quest-arrow-home {
+  color: #888888;
+}
+
+/* Side quests section title */
+body.night-mode .side-quests-section-title {
+  color: #F5A623;
+  -webkit-text-stroke-color: #333333;
+  text-shadow: 3px 3px 0 #333333;
+}
+
+/* Special buttons (Upcoming Events etc.) */
+body.night-mode .special-btn.yellow,
+body.night-mode .special-btn.green,
+body.night-mode .special-btn.red {
+  background: #2A2A2A !important;
+  color: #E8E8E8 !important;
+  border-color: #444444;
+  box-shadow: 4px 4px 0 #333333;
+}
+body.night-mode .special-btn:hover {
+  box-shadow: 6px 6px 0 #333333;
+}
+
+/* Footer */
+body.night-mode .footer-year {
+  color: #666666;
+}
+body.night-mode .reset-btn {
+  border-color: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.15);
+}
+
+/* Event banner on cards */
+body.night-mode .event-banner {
+  background: #F5A623;
+  color: #111111;
+  border-top-color: #333333;
+}
+
+/* ── Brewery detail page ─────────────────────────── */
+body.night-mode .brewery-detail {
+  background: #111111;
+}
+body.night-mode .back-btn {
+  background: #2A2A2A;
+  border-color: #444444;
+  box-shadow: 4px 4px 0 #333333;
+}
+body.night-mode .back-btn:hover {
+  box-shadow: 6px 6px 0 #333333;
+}
+body.night-mode .brewery-info-card {
+  background: #1E1E1E;
+  border-color: #333333;
+  box-shadow: 4px 4px 0 #333333;
+}
+body.night-mode .side-quest-detail .brewery-info-card {
+  background: #0D2B16;
+}
+body.night-mode .brewery-title {
+  color: #F5A623;
+}
+body.night-mode .brewery-address,
+body.night-mode .brewery-description {
+  color: #cccccc;
+}
+body.night-mode .stamp-instruction-box {
+  background: #1E1E1E;
+  border-color: #F5A623;
+  box-shadow: 0 6px 0 #F5A623;
+}
+body.night-mode .stamp-instruction-text strong {
+  color: #F5A623;
+}
+body.night-mode .stamp-instruction-text p {
+  color: #E8E8E8;
+}
+/* Keep green accent for side quest PIN box */
+body.night-mode .side-quest-detail .stamp-instruction-box {
+  border-color: var(--green-primary);
+  box-shadow: 0 6px 0 var(--green-primary);
+}
+body.night-mode .side-quest-detail .stamp-instruction-text strong {
+  color: var(--green-primary);
+}
+body.night-mode .code-label {
+  color: #F5A623;
+}
+body.night-mode .code-subtext {
+  color: #E8E8E8;
+}
+body.night-mode .code-input {
+  background: #2A2A2A;
+  border-color: #444444;
+  color: #E8E8E8;
+}
+body.night-mode .brewery-beers {
+  background: #1E1E1E;
+  border-color: #333333;
+  box-shadow: 4px 4px 0 #333333;
+}
+body.night-mode .brewery-beers h3 {
+  color: #F5A623;
+}
+body.night-mode .beer-item {
+  color: #E8E8E8;
+  border-bottom-color: #444444;
+}
+body.night-mode .action-btn {
+  border-color: #444444;
+  box-shadow: 4px 4px 0 #333333;
+}
+body.night-mode .action-btn:hover {
+  box-shadow: 6px 6px 0 #333333;
+}
+body.night-mode .action-btn.green,
+body.night-mode .action-btn.yellow {
+  background: #2A2A2A !important;
+  color: #E8E8E8 !important;
+  border-color: #444444;
+}
+
+/* Brewery events in detail page */
+body.night-mode .brewery-event-item {
+  background: #F5A623;
+  border-color: #333333;
+  box-shadow: 3px 3px 0 #333333;
+}
+body.night-mode .brewery-event-name {
+  color: #111111;
+}
+body.night-mode .brewery-event-date {
+  background: #111111;
+  color: #F5A623;
+}
+body.night-mode .brewery-event-time {
+  color: #111111;
+}
+body.night-mode .brewery-event-desc {
+  color: #333333;
+}
+body.night-mode .brewery-events-section h3,
+body.night-mode .brewery-events-title {
+  color: #F5A623;
+}
+
+/* Manual code section */
+body.night-mode .manual-code-section {
+  background: #1E1E1E;
+  border-color: #333333;
+  box-shadow: 4px 4px 0 #333333;
+}
+
+/* ── Events page ─────────────────────────────────── */
+body.night-mode .events-page .back-btn {
+  background: #2A2A2A;
+  color: #E8E8E8;
+  border-color: #444444;
+  box-shadow: 4px 4px 0 #333333;
+}
+body.night-mode .event-page-card {
+  background: #1E1E1E;
+  border-color: #333333;
+  box-shadow: 6px 6px 0 #333333;
+}
+body.night-mode .event-page-card-venue {
+  color: #F5A623;
+}
+body.night-mode .event-page-card-title {
+  color: #E8E8E8;
+}
+body.night-mode .event-page-card-description {
+  color: #888888;
+}
+body.night-mode .event-page-card-date {
+  background: #F5A623;
+  color: #111111;
+  border-color: #444444;
+}
+body.night-mode .event-page-card-time {
+  color: #E8E8E8;
+}
+body.night-mode .event-page-card-link {
+  background: #2A2A2A;
+  color: #E8E8E8;
+  border-color: #444444;
+  box-shadow: 3px 3px 0 #333333;
+}
+
+/* ── Auth / login modals ─────────────────────────── */
+body.night-mode .welcome-modal,
+body.night-mode .completion-modal,
+body.night-mode .modal-content,
+body.night-mode .faq-content {
+  background: #1E1E1E;
+  border-color: #333333;
+  box-shadow: 0 8px 0 #333333;
+  color: #E8E8E8;
+}
+body.night-mode .welcome-title,
+body.night-mode .completion-title,
+body.night-mode .modal-content h2,
+body.night-mode .faq-title {
+  color: #F5A623;
+}
+body.night-mode .welcome-subtitle,
+body.night-mode .completion-subtitle,
+body.night-mode .modal-subtitle {
+  color: #888888;
+}
+body.night-mode .form-group label {
+  color: #E8E8E8;
+}
+body.night-mode .text-input,
+body.night-mode .textarea-input,
+body.night-mode select.text-input {
+  background: #2A2A2A;
+  border-color: #444444;
+  color: #E8E8E8;
+}
+body.night-mode .modal-close {
+  background: #2A2A2A;
+  border-color: #444444;
+  color: #E8E8E8;
+}
+body.night-mode .welcome-disclaimer {
+  color: #555555;
+}
+body.night-mode .faq-tips {
+  background: #1E1E1E;
+  border-color: #333333;
+  color: #E8E8E8;
+}
+body.night-mode .faq-tips h3 {
+  color: #F5A623;
+}
+body.night-mode .faq-tips li {
+  color: #cccccc;
+}
+
+/* ── My Beers page ───────────────────────────────── */
+body.night-mode .my-beers-page {
+  background: #111111;
+}
+body.night-mode .page-title {
+  color: #F5A623;
+}
+body.night-mode .beer-card {
+  background: #1E1E1E;
+  border-color: #333333;
+  box-shadow: 4px 4px 0 #333333;
+  color: #E8E8E8;
+}
+body.night-mode .beer-card .beer-name {
+  color: #F5A623;
+}
+body.night-mode .empty-state {
+  background: #1E1E1E;
+  border-color: #333333;
+  color: #E8E8E8;
+}
+
+/* ── Leaderboard page ────────────────────────────── */
+body.night-mode .leaderboard-page {
+  background: #111111;
+}
+body.night-mode .leaderboard-list {
+  background: #1E1E1E;
+  border-color: #333333;
+  box-shadow: 4px 4px 0 #333333;
+}
+body.night-mode .leaderboard-header-row {
+  background: #2A2A2A;
+  color: #F5A623;
+}
+body.night-mode .leaderboard-row {
+  color: #E8E8E8;
+  border-bottom-color: #333333;
+}
+body.night-mode .leaderboard-footer {
+  color: #888888;
+}

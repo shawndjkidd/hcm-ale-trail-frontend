@@ -20,7 +20,7 @@ const getBreweryLogo = (brewery) => {
   return BREWERY_LOGOS[brewery?.name] || null
 }
 
-function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onSideQuestClick, sideQuestCheckins = [], onNavigate, resetCard, activeEvents = [] }) {
+function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onSideQuestClick, sideQuestCheckins = [], onNavigate, resetCard, activeEvents = [], nightMode, toggleNightMode }) {
   const [showCompletionModal, setShowCompletionModal] = useState(false)
   const [showEventsPage, setShowEventsPage] = useState(false)
   const [hatClaimed, setHatClaimed] = useState(false)
@@ -99,29 +99,37 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
   return (
     <div className="home-page">
       <div className="language-toggle-large">
-        <button 
+        <button
           className={`flag-btn-large ${language === 'en' ? 'active' : ''}`}
           onClick={() => setLanguage('en')}
         >
           <img src="https://flagcdn.com/w160/us.png" alt="English" className="flag-img" />
         </button>
-        <button 
+        <button
           className={`flag-btn-large ${language === 'vn' ? 'active' : ''}`}
           onClick={() => setLanguage('vn')}
         >
           <img src="https://flagcdn.com/w160/vn.png" alt="Tiếng Việt" className="flag-img" />
         </button>
-        <button 
+        <button
           className={`flag-btn-large ${language === 'kr' ? 'active' : ''}`}
           onClick={() => setLanguage('kr')}
         >
           <img src="https://flagcdn.com/w160/kr.png" alt="한국어" className="flag-img" />
         </button>
-        <button 
+        <button
           className={`flag-btn-large ${language === 'jp' ? 'active' : ''}`}
           onClick={() => setLanguage('jp')}
         >
           <img src="https://flagcdn.com/w160/jp.png" alt="日本語" className="flag-img" />
+        </button>
+        <button
+          className="night-mode-toggle"
+          onClick={toggleNightMode}
+          title={nightMode ? 'Switch to bright mode' : 'Switch to night mode'}
+          aria-label={nightMode ? 'Switch to bright mode' : 'Switch to night mode'}
+        >
+          {nightMode ? '☀️' : '🌙'}
         </button>
       </div>
 

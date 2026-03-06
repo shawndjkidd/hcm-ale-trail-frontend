@@ -57,8 +57,20 @@ function normalizeBrewery(b) {
 }
 
 export default function App() {
+  const [nightMode, setNightMode] = useState(() => {
+    const saved = localStorage.getItem("hcm-night-mode") === "true";
+    if (saved) document.body.classList.add("night-mode");
+    return saved;
+  });
+
+  useEffect(() => {
+    document.body.classList.toggle("night-mode", nightMode);
+    localStorage.setItem("hcm-night-mode", String(nightMode));
+  }, [nightMode]);
+
+  const toggleNightMode = () => setNightMode((m) => !m);
+
   const [stamps, setStamps] = useState([]);
-  const [beers, setBeers] = useState([]);
   const [breweries, setBreweries] = useState([]);
   const [selectedBrewery, setSelectedBrewery] = useState(null);
   const [selectedSideQuest, setSelectedSideQuest] = useState(null);
@@ -441,6 +453,8 @@ export default function App() {
           timerStart={timerStart}
           timerEnd={timerEnd}
           activeEvents={activeEvents}
+          nightMode={nightMode}
+          toggleNightMode={toggleNightMode}
         />
       )}
       {view === "brewery" && selectedBrewery && (
