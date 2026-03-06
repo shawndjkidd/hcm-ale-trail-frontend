@@ -124,12 +124,13 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
           <img src="https://flagcdn.com/w160/jp.png" alt="日本語" className="flag-img" />
         </button>
         <button
-          className="night-mode-toggle"
+          className={`night-mode-toggle${nightMode ? ' is-night' : ''}`}
           onClick={toggleNightMode}
           title={nightMode ? 'Switch to bright mode' : 'Switch to night mode'}
           aria-label={nightMode ? 'Switch to bright mode' : 'Switch to night mode'}
         >
-          {nightMode ? '☀️' : '🌙'}
+          <span className="toggle-sun">☀</span>
+          <span className="toggle-moon">☾</span>
         </button>
       </div>
 
