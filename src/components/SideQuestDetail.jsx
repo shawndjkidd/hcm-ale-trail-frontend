@@ -3,7 +3,6 @@ import { getAccessToken } from '../lib/api'
 import translations from '../translations'
 
 const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a921'
-const API_BASE = 'https://hcm-ale-trail-backend-flm8.vercel.app'
 
 function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, user, qrValidated }) {
   const [message, setMessage] = useState(null)
@@ -61,7 +60,7 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
     const fetchEvents = async () => {
       setEventsLoading(true)
       try {
-        const res = await fetch(`${API_BASE}/api/trails/${TRAIL_ID}/events?v=${Date.now()}`)
+        const res = await fetch(`/api/trails/${TRAIL_ID}/events?v=${Date.now()}`)
         const data = await res.json()
         if (data.ok && data.events) {
           setQuestEvents(data.events.filter(e => e.sideQuestId === quest.id))

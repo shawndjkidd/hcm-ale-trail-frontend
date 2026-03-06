@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import translations from '../translations'
 
 const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a921'
-const API_BASE = 'https://hcm-ale-trail-backend-flm8.vercel.app'
 
 const BREWERY_LOGOS = {
   'BiaCraft': '/logos/biacraft.png',
@@ -31,7 +30,7 @@ function EventsPage({ language, onClose }) {
     setLoading(true)
     setError('')
     try {
-      const res = await fetch(`${API_BASE}/api/trails/${TRAIL_ID}/events?v=${Date.now()}`)
+      const res = await fetch(`/api/trails/${TRAIL_ID}/events?v=${Date.now()}`)
       const data = await res.json()
       if (data.ok) {
         setEvents(data.events || [])
