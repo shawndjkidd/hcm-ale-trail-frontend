@@ -321,6 +321,28 @@ export async function deleteBreweryBeer(breweryId, beerId) {
   }
 }
 
+export async function mergeRatings(breweryId, oldName, newName) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/merge-ratings`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ oldName, newName })
+    });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function getMergeSuggestions(trailId) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/merge-suggestions`, { headers: authHeaders() });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
 // ==================== BEER RATINGS ====================
 
 export async function getTrailBeerRatings(trailId) {

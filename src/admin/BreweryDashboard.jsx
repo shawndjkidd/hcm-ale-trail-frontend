@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, TRAIL_ID } from './adminApi';
+import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, mergeRatings, TRAIL_ID } from './adminApi';
 
 const DAY_NAMES = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 const DAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -48,6 +48,9 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   const [eventForm, setEventForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '' });
   const [savingEvent, setSavingEvent] = useState(false);
 
+  const [mergeTargets, setMergeTargets] = useState({}); // key: ratingName -> targetName
+  const [mergingKey, setMergingKey] = useState(null);
+
   const [beers, setBeers] = useState([]);
   const [beersLoading, setBeersLoading] = useState(false);
   const [showBeerForm, setShowBeerForm] = useState(false);
@@ -77,9 +80,10 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
     }
     setLoading(true);
     setError('');
-    const [dashResult, eventsResult] = await Promise.all([
+    const [dashResult, eventsResult, beersResult] = await Promise.all([
       getBreweryDashboard(breweryId, from, to),
-      getBreweryEvents(breweryId)
+      getBreweryEvents(breweryId),
+      getBreweryBeers(breweryId),
     ]);
     if (dashResult.ok) {
       setData(dashResult);
@@ -101,6 +105,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       setError(dashResult.error || 'Failed to load data');
     }
     if (eventsResult.ok) setEvents(eventsResult.events || []);
+    if (beersResult.ok) setBeers(beersResult.beers || []);
     setLoading(false);
   };
 
@@ -316,6 +321,27 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
     setBeerForm({ name: '', style: '', abv: '' });
   };
 
+  const handleMergeRating = async (oldName) => {
+    const target = mergeTargets[oldName];
+    if (!target) return;
+    setMergingKey(oldName);
+    const result = await mergeRatings(breweryId, oldName, target);
+    if (result.ok) {
+      // Refresh dashboard data to update ratings
+      let from, to;
+      const now = new Date();
+      to = now.toISOString();
+      if (dateRange === '24h') from = new Date(now - 24 * 60 * 60 * 1000).toISOString();
+      else if (dateRange === '7d') from = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString();
+      else if (dateRange === '30d') from = new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString();
+      await loadData(from, to);
+      setMergeTargets(prev => { const n = { ...prev }; delete n[oldName]; return n; });
+    } else {
+      alert(result.error || 'Merge failed');
+    }
+    setMergingKey(null);
+  };
+
   // Aggregate beer ratings from latest ratings
   const getBeerRatings = () => {
     const latest = data?.ratings?.latest || [];
@@ -492,6 +518,54 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
               </div>
             )}
           </div>
+
+          {(() => {
+            const activeMenuNames = new Set(beers.filter(b => b.active !== false).map(b => b.name.toLowerCase()));
+            const unmatched = beerRatings.filter(r => !activeMenuNames.has(r.beerName.toLowerCase()));
+            if (activeMenuNames.size === 0 || unmatched.length === 0) return null;
+            const menuOptions = beers.filter(b => b.active !== false);
+            return (
+              <div className="admin-card">
+                <h3 className="admin-card-title">Merge Ratings</h3>
+                <p style={{ color: 'var(--admin-text-muted)', fontSize: 13, marginBottom: 16 }}>
+                  These submitted beer names don't match your menu. Reassign them to the correct menu entry to keep ratings clean.
+                </p>
+                <table className="admin-table">
+                  <thead><tr><th>Submitted Name</th><th># Ratings</th><th>Reassign to</th><th></th></tr></thead>
+                  <tbody>
+                    {unmatched.map((r) => (
+                      <tr key={r.beerName}>
+                        <td><strong style={{ color: 'var(--admin-warning)' }}>{r.beerName}</strong></td>
+                        <td>{r.count}</td>
+                        <td>
+                          <select
+                            className="admin-form-input"
+                            style={{ margin: 0 }}
+                            value={mergeTargets[r.beerName] || ''}
+                            onChange={(e) => setMergeTargets(prev => ({ ...prev, [r.beerName]: e.target.value }))}
+                          >
+                            <option value="">— keep as-is —</option>
+                            {menuOptions.map(b => (
+                              <option key={b.id} value={b.name}>{b.name}</option>
+                            ))}
+                          </select>
+                        </td>
+                        <td>
+                          <button
+                            className="admin-btn-small admin-btn-primary"
+                            disabled={!mergeTargets[r.beerName] || mergingKey === r.beerName}
+                            onClick={() => handleMergeRating(r.beerName)}
+                          >
+                            {mergingKey === r.beerName ? 'Merging...' : 'Merge'}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            );
+          })()}
         </>
       )}
 

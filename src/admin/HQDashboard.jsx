@@ -4,7 +4,7 @@ import {
   getTrailOverview, getTrailEvents, getAdminLeaderboard, exportParticipants,
   deleteEvent, createTrailEvent, getTrailBreweries, createBrewery, updateBrewery,
   deleteBrewery, getSideQuests, createSideQuest, updateSideQuest, deleteSideQuest,
-  getTrailBeerRatings, TRAIL_ID
+  getTrailBeerRatings, getMergeSuggestions, mergeRatings, TRAIL_ID
 } from './adminApi';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -42,6 +42,11 @@ export default function HQDashboard() {
   const [editingQuest, setEditingQuest] = useState(null);
   const [questForm, setQuestForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', reward: '', pin: '', address: '', district: '', mapsUrl: '', instagramUrl: '', facebookUrl: '', instagramHandle: '', hasVenueDashboard: false, status: 'active' });
   const [savingQuest, setSavingQuest] = useState(false);
+
+  const [mergeSuggestions, setMergeSuggestions] = useState(null); // null = not loaded
+  const [loadingMerge, setLoadingMerge] = useState(false);
+  const [hqMergeTargets, setHqMergeTargets] = useState({}); // key: `${breweryId}|||${ratingName}` -> targetName
+  const [hqMergingKey, setHqMergingKey] = useState(null);
 
   const [showQrModal, setShowQrModal] = useState(false);
   const [qrQuest, setQrQuest] = useState(null);
@@ -334,6 +339,35 @@ export default function HQDashboard() {
     setLoadingQr(false);
   };
 
+  const handleLoadMergeSuggestions = async () => {
+    setLoadingMerge(true);
+    const result = await getMergeSuggestions(TRAIL_ID);
+    if (result.ok) setMergeSuggestions(result.breweries || []);
+    else alert(result.error || 'Failed to load merge suggestions');
+    setLoadingMerge(false);
+  };
+
+  const handleHqMerge = async (breweryId, oldName) => {
+    const key = `${breweryId}|||${oldName}`;
+    const newName = hqMergeTargets[key];
+    if (!newName) return;
+    setHqMergingKey(key);
+    const result = await mergeRatings(breweryId, oldName, newName);
+    if (result.ok) {
+      // Remove this suggestion from the list
+      setMergeSuggestions(prev =>
+        prev.map(b => b.id === breweryId
+          ? { ...b, unmatched: b.unmatched.filter(u => u.name !== oldName) }
+          : b
+        ).filter(b => b.unmatched.length > 0)
+      );
+      setHqMergeTargets(prev => { const n = { ...prev }; delete n[key]; return n; });
+    } else {
+      alert(result.error || 'Merge failed');
+    }
+    setHqMergingKey(null);
+  };
+
   if (loading && !data) {
     return <div className="admin-loading"><div className="admin-spinner" /></div>;
   }
@@ -560,6 +594,69 @@ export default function HQDashboard() {
                 </tbody>
               </table>
             )}
+          </div>
+
+          <div className="admin-card" style={{ marginTop: 24 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <h3 className="admin-card-title" style={{ marginBottom: 0 }}>Merge Ratings</h3>
+              <button className="admin-btn admin-btn-secondary admin-btn-small" onClick={handleLoadMergeSuggestions} disabled={loadingMerge}>
+                {loadingMerge ? 'Loading...' : mergeSuggestions === null ? 'Load Suggestions' : 'Refresh'}
+              </button>
+            </div>
+            <p style={{ color: 'var(--admin-text-muted)', fontSize: 13, marginBottom: 16 }}>
+              Find submitted beer names that don't match any brewery menu entry and reassign them.
+            </p>
+            {mergeSuggestions === null && !loadingMerge && (
+              <div className="admin-empty">Click "Load Suggestions" to scan for mismatched beer names.</div>
+            )}
+            {mergeSuggestions !== null && mergeSuggestions.length === 0 && (
+              <div className="admin-empty" style={{ color: 'var(--admin-success)' }}>All submitted names match menu entries.</div>
+            )}
+            {mergeSuggestions !== null && mergeSuggestions.length > 0 && mergeSuggestions.map((b) => (
+              <div key={b.id} style={{ marginBottom: 24 }}>
+                <div style={{ fontWeight: 600, marginBottom: 8, color: 'var(--admin-text)' }}>{b.name}</div>
+                <table className="admin-table">
+                  <thead><tr><th>Submitted Name</th><th># Ratings</th><th>Reassign to</th><th></th></tr></thead>
+                  <tbody>
+                    {b.unmatched.map((u) => {
+                      const key = `${b.id}|||${u.name}`;
+                      return (
+                        <tr key={u.name}>
+                          <td><strong style={{ color: 'var(--admin-warning)' }}>{u.name}</strong></td>
+                          <td>{u.count}</td>
+                          <td>
+                            {b.menuBeers.length === 0 ? (
+                              <span style={{ color: 'var(--admin-text-muted)', fontSize: 13 }}>No menu beers</span>
+                            ) : (
+                              <select
+                                className="admin-form-input"
+                                style={{ margin: 0 }}
+                                value={hqMergeTargets[key] || ''}
+                                onChange={(e) => setHqMergeTargets(prev => ({ ...prev, [key]: e.target.value }))}
+                              >
+                                <option value="">— keep as-is —</option>
+                                {b.menuBeers.map((name, i) => (
+                                  <option key={i} value={name}>{name}</option>
+                                ))}
+                              </select>
+                            )}
+                          </td>
+                          <td>
+                            <button
+                              className="admin-btn-small admin-btn-primary"
+                              disabled={!hqMergeTargets[key] || hqMergingKey === key}
+                              onClick={() => handleHqMerge(b.id, u.name)}
+                            >
+                              {hqMergingKey === key ? 'Merging...' : 'Merge'}
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ))}
           </div>
         </>
       )}
