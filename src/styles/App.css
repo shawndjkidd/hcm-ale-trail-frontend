@@ -4107,3 +4107,63 @@ body.night-mode .night-mode-toggle:hover {
   height: 40px;
   flex-shrink: 0;
 }
+
+/* ==========================================
+   FLAG ROW — RESPONSIVE DEFINITIVE FIX
+   Overrides previous flag-row rules above.
+   ========================================== */
+
+/* Constrain to same width as .nav-row-full (margin: 0 12px) */
+.language-toggle-large {
+  margin: 0 12px 8px;
+  padding: 8px 0;
+  gap: 6px;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: nowrap;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* Flag buttons share remaining space equally, never overflow */
+.flag-btn-large {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 4px 2px;
+  box-sizing: border-box;
+}
+
+/* Flag images fill their button, cap at 52px */
+.flag-img {
+  width: 100%;
+  max-width: 52px;
+  min-width: 0;
+  margin: 0 auto;
+  display: block;
+}
+
+/* Pill: fixed size, never flex-grows */
+.night-mode-toggle {
+  flex: 0 0 68px;
+  width: 68px;
+  height: 38px;
+}
+
+/* Small phones (iPhone SE, 320–360px) */
+@media (max-width: 360px) {
+  .language-toggle-large {
+    gap: 4px;
+    padding: 6px 0;
+  }
+  .flag-img {
+    max-width: 42px;
+  }
+  .flag-btn-large {
+    padding: 4px 1px;
+  }
+  .night-mode-toggle {
+    flex: 0 0 58px;
+    width: 58px;
+    height: 34px;
+  }
+}
