@@ -3409,3 +3409,51 @@ body {
 .event-page-card-content {
   display: contents;
 }
+
+/* ==========================================
+   EVENTS PAGE: HEADER SIZE + BACK BUTTON
+   ========================================== */
+
+/* Reduce title to match Side Quests header weight (~38px) */
+.events-page-title {
+  font-size: 2.2rem;
+}
+
+/* Yellow back button (matches homepage button style) */
+.events-page .back-btn {
+  background: var(--yellow-primary);
+  color: var(--black);
+}
+
+/* ==========================================
+   BREWERY EVENT ITEMS: HIGH-CONTRAST REDESIGN
+   ========================================== */
+
+.brewery-event-item {
+  background: var(--yellow-primary);
+  border: 3px solid var(--black);
+  border-radius: 0;
+  box-shadow: 3px 3px 0 var(--black);
+}
+
+.brewery-event-name {
+  color: var(--black);
+  font-family: var(--font-display);
+}
+
+.brewery-event-date {
+  background: var(--black);
+  color: var(--white);
+  border-radius: 0;
+  font-weight: 800;
+}
+
+.brewery-event-time {
+  color: var(--black);
+  font-weight: 700;
+}
+
+.brewery-event-desc {
+  color: #333;
+  font-weight: 600;
+}
