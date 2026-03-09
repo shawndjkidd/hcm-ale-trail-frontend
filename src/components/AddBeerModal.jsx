@@ -93,7 +93,7 @@ function BeerAutocomplete({ value, onChange, allNames, placeholder }) {
   );
 }
 
-function AddBeerModal({ brewery, onSave, language, onClose }) {
+function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false }) {
   const [selectedBeerId, setSelectedBeerId] = useState('')
   const [customName, setCustomName] = useState('')
   const [rating, setRating] = useState(0)
@@ -155,12 +155,15 @@ function AddBeerModal({ brewery, onSave, language, onClose }) {
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay" onClick={mandatory ? undefined : onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}>✕</button>
+        {!mandatory && <button className="modal-close" onClick={onClose}>✕</button>}
 
         <h2>{t.addBeer}</h2>
         <p className="modal-subtitle">{brewery.name}</p>
+        {mandatory && (
+          <p className="mandatory-note">Rate your beer to continue</p>
+        )}
 
         <div className="form-group">
           <label>{t.beerName}</label>
@@ -228,9 +231,11 @@ function AddBeerModal({ brewery, onSave, language, onClose }) {
         </div>
 
         <div className="modal-actions">
-          <button className="btn-cancel" onClick={onClose}>
-            {t.cancel}
-          </button>
+          {!mandatory && (
+            <button className="btn-cancel" onClick={onClose}>
+              {t.cancel}
+            </button>
+          )}
           <button className="btn-save" onClick={handleSubmit}>
             {t.save}
           </button>

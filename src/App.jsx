@@ -101,6 +101,8 @@ export default function App() {
   const [timerEnd, setTimerEnd] = useState(null);
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [activeEvents, setActiveEvents] = useState([]);
+  const [initialized, setInitialized] = useState(false);
+  const [autoOpenBeer, setAutoOpenBeer] = useState(false);
 
   const pendingQR = useRef(null);
   const pendingSideQuestQR = useRef(null);
@@ -120,6 +122,7 @@ export default function App() {
     setSelectedSideQuest(null);
     setQrValidated(false);
     setSideQuestQrValidated(false);
+    setAutoOpenBeer(false);
     setView("home");
     try {
       window.history.pushState({}, "", "/");
@@ -206,31 +209,46 @@ export default function App() {
             setShowWelcome(false);
           }
         }
+        setInitialized(true);
       });
       loadBreweries();
       return;
     }
 
-    // Then check for brewery QR or checkin URL
+    // Then check for checkin or brewery URL
     loadBreweries().then((list) => {
       const checkinId = parseCheckinFromUrl();
-      const breweryId = checkinId || parseBreweryFromUrl();
-      if (!breweryId) return;
-      const brewery = list.find((b) => b.id === breweryId);
-      if (!brewery) return;
-      pendingQR.current = { brewery, breweryId };
-      const u = savedUser ? JSON.parse(savedUser) : null;
-      if (u) {
-        setSelectedBrewery(brewery);
-        setQrValidated(true);
-        setView("brewery");
-        setUser(u);
-        setShowWelcome(false);
-        setShowAuth(false);
-      } else {
-        setShowAuth(true);
-        setShowWelcome(false);
+      const directBreweryId = parseBreweryFromUrl();
+
+      if (checkinId) {
+        // QR scan check-in: auto-open beer modal, redirect URL to /brewery/[id]
+        const brewery = list.find((b) => b.id === checkinId);
+        if (brewery) {
+          try { window.history.replaceState({}, "", `/brewery/${checkinId}`); } catch {}
+          pendingQR.current = { brewery, breweryId: checkinId, autoOpenBeer: true };
+          const u = savedUser ? JSON.parse(savedUser) : null;
+          if (u) {
+            setSelectedBrewery(brewery);
+            setQrValidated(true);
+            setAutoOpenBeer(true);
+            setView("brewery");
+            setUser(u);
+            setShowWelcome(false);
+            setShowAuth(false);
+          } else {
+            setShowAuth(true);
+            setShowWelcome(false);
+          }
+        }
+      } else if (directBreweryId) {
+        // Direct /brewery/[id] navigation: show brewery without QR validation
+        const brewery = list.find((b) => b.id === directBreweryId);
+        if (brewery) {
+          setSelectedBrewery(brewery);
+          setView("brewery");
+        }
       }
+      setInitialized(true);
     });
 
     const onPop = () => {
@@ -296,6 +314,7 @@ export default function App() {
     if (pendingQR.current) {
       setSelectedBrewery(pendingQR.current.brewery);
       setQrValidated(true);
+      if (pendingQR.current.autoOpenBeer) setAutoOpenBeer(true);
       setView("brewery");
       pendingQR.current = null;
     }
@@ -352,6 +371,7 @@ export default function App() {
   const handleBreweryClick = (brewery) => {
     setSelectedBrewery(brewery);
     setQrValidated(false);
+    setAutoOpenBeer(false);
     setView("brewery");
     try {
       window.history.pushState({}, "", `/brewery/${brewery.id}`);
@@ -379,6 +399,7 @@ export default function App() {
       setSelectedSideQuest(null);
       setQrValidated(false);
       setSideQuestQrValidated(false);
+      setAutoOpenBeer(false);
       if (newView === "home") {
         try {
           window.history.pushState({}, "", "/");
@@ -431,6 +452,7 @@ export default function App() {
     if (pendingQR.current) {
       setSelectedBrewery(pendingQR.current.brewery);
       setQrValidated(true);
+      if (pendingQR.current.autoOpenBeer) setAutoOpenBeer(true);
       setView("brewery");
       pendingQR.current = null;
     }
@@ -448,7 +470,7 @@ export default function App() {
     }
   }, [user?.id]);
 
-  if (!breweries.length) {
+  if (!initialized) {
     return (
       <div className="loading">
         <div className="loading-spinner"></div>
@@ -496,6 +518,8 @@ export default function App() {
           onBack={goHome}
           language={language}
           user={user}
+          autoOpenBeer={autoOpenBeer}
+          onAutoOpenComplete={() => setAutoOpenBeer(false)}
         />
       )}
       {view === "sidequest" && selectedSideQuest && (

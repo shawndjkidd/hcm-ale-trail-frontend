@@ -4291,3 +4291,31 @@ body.night-mode .logout-link:hover {
 .brewery-closed-subtext {
   color: #ccc !important;
 }
+
+/* Mandatory beer rating modal (QR check-in flow) */
+.mandatory-note {
+  background: rgba(245, 166, 35, 0.15);
+  border: 1px solid #F5A623;
+  border-radius: 6px;
+  color: #F5A623;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 12px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+/* Side quest completed box - muted dark green in night mode */
+body.night-mode .side-quest-completed-box {
+  background: #1A3A25 !important;
+  border-color: #2D5A3A;
+  box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.5);
+}
+body.night-mode .side-quest-completed-box .completed-text {
+  color: #E8E8E8;
+}
+body.night-mode .side-quest-completed-box .completed-reward {
+  color: #E8E8E8;
+  background: #0D2B16;
+  border-color: #2D5A3A;
+}

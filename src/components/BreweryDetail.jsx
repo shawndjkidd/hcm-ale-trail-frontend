@@ -71,7 +71,7 @@ const DAY_LABELS = {
   jp: ['日', '月', '火', '水', '木', '金', '土']
 }
 
-function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, onBack, qrValidated, timerStart, user }) {
+function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, onBack, qrValidated, timerStart, user, autoOpenBeer = false, onAutoOpenComplete }) {
   const [showAddBeer, setShowAddBeer] = useState(false)
   const [message, setMessage] = useState(null)
   const [manualCode, setManualCode] = useState('')
@@ -229,7 +229,12 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     return date.toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' })
   }
 
-  // No auto-open: modal only opens when user clicks the button
+  // Auto-open modal for QR check-in flow
+  useEffect(() => {
+    if (autoOpenBeer && !isStamped) {
+      setShowAddBeer(true);
+    }
+  }, [autoOpenBeer]);
 
   const handleBeerAdded = async (beer) => {
     addBeer(beer)
@@ -260,6 +265,9 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     
     setShowAddBeer(false)
     setShowSharePrompt(true)
+    if (autoOpenBeer && typeof onAutoOpenComplete === 'function') {
+      onAutoOpenComplete();
+    }
   }
 
   const handleManualCode = () => {
@@ -495,7 +503,8 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
           brewery={brewery}
           onSave={handleBeerAdded}
           language={language}
-          onClose={() => setShowAddBeer(false)}
+          onClose={autoOpenBeer && !isStamped ? undefined : () => setShowAddBeer(false)}
+          mandatory={autoOpenBeer && !isStamped}
         />
       )}
     </div>
