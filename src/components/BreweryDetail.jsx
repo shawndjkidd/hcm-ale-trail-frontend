@@ -433,12 +433,14 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         )}
       </div>
 
-      <button
-        className="action-btn yellow add-beer-cta"
-        onClick={() => setShowAddBeer(true)}
-      >
-        🍺 {isStamped ? t.addAnotherBeer : t.addBeerNow}
-      </button>
+      {(qrValidated || isStamped) && (
+        <button
+          className="action-btn yellow add-beer-cta"
+          onClick={() => setShowAddBeer(true)}
+        >
+          🍺 {isStamped ? t.addAnotherBeer : t.addBeerNow}
+        </button>
+      )}
 
       <div className="hashtag-section">
         <div className="hashtag-text">

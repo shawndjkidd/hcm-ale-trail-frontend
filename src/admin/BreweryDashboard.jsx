@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import QRCode from 'qrcode';
 import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, mergeRatings, TRAIL_ID } from './adminApi';
 
 const DAY_NAMES = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -26,6 +27,9 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   const [pinCode, setPinCode] = useState('');
   const [savingPin, setSavingPin] = useState(false);
   const [pinMessage, setPinMessage] = useState('');
+
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [generatingQr, setGeneratingQr] = useState(false);
 
   const [operatingHours, setOperatingHours] = useState(DEFAULT_HOURS);
   const [savingHours, setSavingHours] = useState(false);
@@ -135,6 +139,18 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       setPinMessage(result.error || 'Failed to update PIN');
     }
     setSavingPin(false);
+  };
+
+  const handleGenerateQrCode = async () => {
+    setGeneratingQr(true);
+    try {
+      const url = `${window.location.origin}/checkin/${breweryId}`;
+      const dataUrl = await QRCode.toDataURL(url, { width: 400, margin: 2 });
+      setQrCodeUrl(dataUrl);
+    } catch (err) {
+      alert('Failed to generate QR code');
+    }
+    setGeneratingQr(false);
   };
 
   const handleHoursChange = (day, field, value) => {
@@ -806,6 +822,25 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
               </button>
               {pinMessage && <span style={{ fontSize: 13, color: pinMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{pinMessage}</span>}
             </div>
+          </div>
+
+          <div className="admin-card">
+            <h3 className="admin-card-title">QR Code</h3>
+            <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>Generate a QR code for guests to scan and check in at your venue.</p>
+            {qrCodeUrl ? (
+              <>
+                <img src={qrCodeUrl} alt="Check-in QR Code" style={{ width: 180, height: 180, imageRendering: 'pixelated', display: 'block', marginBottom: 12 }} />
+                <p style={{ fontSize: 12, color: 'var(--admin-text-muted)', marginBottom: 12, wordBreak: 'break-all' }}>{window.location.origin}/checkin/{breweryId}</p>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <a href={qrCodeUrl} download={`checkin-qr-${breweryId}.png`} className="admin-btn admin-btn-secondary" style={{ width: 'auto', display: 'inline-block', textDecoration: 'none' }}>Download QR</a>
+                  <button className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)', width: 'auto' }} onClick={handleGenerateQrCode} disabled={generatingQr}>Regenerate</button>
+                </div>
+              </>
+            ) : (
+              <button className="admin-btn admin-btn-primary settings-btn" onClick={handleGenerateQrCode} disabled={generatingQr}>
+                {generatingQr ? 'Generating...' : 'Generate QR Code'}
+              </button>
+            )}
           </div>
 
           <div className="admin-card">

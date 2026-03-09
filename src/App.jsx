@@ -46,6 +46,20 @@ function parseSideQuestFromUrl() {
   }
 }
 
+function parseCheckinFromUrl() {
+  try {
+    const path = window.location.pathname || "/";
+    const parts = path.split("/").filter(Boolean);
+    if (parts.length >= 2 && parts[0] === "checkin") {
+      const id = parts[1];
+      if (id && id.length >= 10) return id;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 function normalizeBrewery(b) {
   const descObj = b?.description && typeof b.description === "object" ? b.description : null;
   return {
@@ -197,9 +211,10 @@ export default function App() {
       return;
     }
 
-    // Then check for brewery QR
+    // Then check for brewery QR or checkin URL
     loadBreweries().then((list) => {
-      const breweryId = parseBreweryFromUrl();
+      const checkinId = parseCheckinFromUrl();
+      const breweryId = checkinId || parseBreweryFromUrl();
       if (!breweryId) return;
       const brewery = list.find((b) => b.id === breweryId);
       if (!brewery) return;
@@ -465,7 +480,6 @@ export default function App() {
           activeEvents={activeEvents}
           nightMode={nightMode}
           toggleNightMode={toggleNightMode}
-          user={user}
           onLogout={handleLogout}
         />
       )}

@@ -53,6 +53,11 @@ export default function HQDashboard() {
   const [qrUrl, setQrUrl] = useState('');
   const [loadingQr, setLoadingQr] = useState(false);
 
+  const [showBreweryQrModal, setShowBreweryQrModal] = useState(false);
+  const [qrBrewery, setQrBrewery] = useState(null);
+  const [qrBreweryUrl, setQrBreweryUrl] = useState('');
+  const [loadingBreweryQr, setLoadingBreweryQr] = useState(false);
+
   const loadData = async (from, to) => {
     setLoading(true);
     setError('');
@@ -339,6 +344,21 @@ export default function HQDashboard() {
     setLoadingQr(false);
   };
 
+  const handleGenerateBreweryQR = async (brewery) => {
+    setQrBrewery(brewery);
+    setQrBreweryUrl('');
+    setLoadingBreweryQr(true);
+    setShowBreweryQrModal(true);
+    try {
+      const url = `${window.location.origin}/checkin/${brewery.id}`;
+      const dataUrl = await QRCode.toDataURL(url, { width: 400, margin: 2 });
+      setQrBreweryUrl(dataUrl);
+    } catch (err) {
+      alert('Failed to generate QR code');
+    }
+    setLoadingBreweryQr(false);
+  };
+
   const handleLoadMergeSuggestions = async () => {
     setLoadingMerge(true);
     const result = await getMergeSuggestions(TRAIL_ID);
@@ -471,11 +491,33 @@ export default function HQDashboard() {
               </div>
             </div>
           )}
+          {showBreweryQrModal && qrBrewery && (
+            <div className="admin-modal-overlay" onClick={() => setShowBreweryQrModal(false)}>
+              <div className="admin-modal" onClick={(e) => e.stopPropagation()} style={{ textAlign: 'center' }}>
+                <h3 style={{ marginBottom: 4 }}>QR Code</h3>
+                <p style={{ color: 'var(--admin-text-muted)', marginBottom: 20, fontSize: 14 }}>{qrBrewery.name}</p>
+                {loadingBreweryQr ? (
+                  <div className="admin-spinner" style={{ margin: '40px auto' }} />
+                ) : qrBreweryUrl ? (
+                  <>
+                    <img src={qrBreweryUrl} alt="QR Code" style={{ width: 200, height: 200, imageRendering: 'pixelated', display: 'block', margin: '0 auto' }} />
+                    <p style={{ fontSize: 12, color: 'var(--admin-text-muted)', marginTop: 8 }}>{window.location.origin}/checkin/{qrBrewery.id}</p>
+                    <div style={{ marginTop: 16 }}>
+                      <a href={qrBreweryUrl} download={`brewery-qr-${qrBrewery.name.replace(/\s+/g, '-').toLowerCase()}.png`} className="admin-btn admin-btn-secondary" style={{ width: 'auto', display: 'inline-block', textDecoration: 'none' }}>Download PNG</a>
+                    </div>
+                  </>
+                ) : null}
+                <div style={{ marginTop: 16 }}>
+                  <button className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)', width: 'auto' }} onClick={() => setShowBreweryQrModal(false)}>Close</button>
+                </div>
+              </div>
+            </div>
+          )}
           <div className="admin-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}><h3 className="admin-card-title" style={{ marginBottom: 0 }}>Active Breweries ({activeBreweries.length})</h3><button className="admin-btn admin-btn-primary admin-btn-small" onClick={() => openBreweryForm()}>+ Add Brewery</button></div>
             {activeBreweries.length === 0 ? (<div className="admin-empty">No active breweries</div>) : (
               <table className="admin-table"><thead><tr><th>Name</th><th>District</th><th>PIN</th><th>Status</th><th>Actions</th></tr></thead><tbody>
-                {activeBreweries.map((brewery) => (<tr key={brewery.id}><td><strong>{brewery.name}</strong><div style={{ fontSize: 12, color: 'var(--admin-text-muted)' }}>{brewery.address}</div></td><td>{brewery.district || '--'}</td><td><code>{brewery.pinCode || '--'}</code></td><td><span className={`admin-badge ${brewery.status === 'temporarily_closed' ? 'inactive' : 'active'}`} style={{ cursor: 'pointer' }} onClick={() => handleToggleBreweryClosed(brewery)} title="Click to toggle">{brewery.status === 'temporarily_closed' ? '🔴 Temp Closed' : '🟢 Active'}</span></td><td><button className="admin-btn-small" style={{ marginRight: 8 }} onClick={() => openBreweryForm(brewery)}>Edit</button><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteBrewery(brewery.id)}>Delete</button></td></tr>))}
+                {activeBreweries.map((brewery) => (<tr key={brewery.id}><td><strong>{brewery.name}</strong><div style={{ fontSize: 12, color: 'var(--admin-text-muted)' }}>{brewery.address}</div></td><td>{brewery.district || '--'}</td><td><code>{brewery.pinCode || '--'}</code></td><td><span className={`admin-badge ${brewery.status === 'temporarily_closed' ? 'inactive' : 'active'}`} style={{ cursor: 'pointer' }} onClick={() => handleToggleBreweryClosed(brewery)} title="Click to toggle">{brewery.status === 'temporarily_closed' ? '🔴 Temp Closed' : '🟢 Active'}</span></td><td><button className="admin-btn-small admin-btn-secondary" style={{ marginRight: 6 }} onClick={() => handleGenerateBreweryQR(brewery)}>QR</button><button className="admin-btn-small" style={{ marginRight: 6 }} onClick={() => openBreweryForm(brewery)}>Edit</button><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteBrewery(brewery.id)}>Delete</button></td></tr>))}
               </tbody></table>
             )}
           </div>
