@@ -4330,7 +4330,12 @@ body.night-mode .side-quest-completed-box .completed-reward {
   flex-direction: column;
 }
 .ale-trail-map-page .back-btn {
+  background: var(--yellow-primary) !important;
+  color: var(--black) !important;
+  width: calc(100% - 32px);
   margin: 12px 16px 0;
+  display: block;
+  box-sizing: border-box;
 }
 .ale-trail-map-title {
   font-family: 'Anton', sans-serif;
