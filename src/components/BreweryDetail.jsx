@@ -294,7 +294,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </div>
       )}
 
-      {!isStamped && !qrValidated && (
+      {!isStamped && !qrValidated && !isTempClosed && (
         <div className="stamp-instruction-box">
           <div className="stamp-icon">🍺</div>
           <div className="stamp-instruction-text">
@@ -336,7 +336,12 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </div>
       )}
 
-      <div className="brewery-info-card">
+      <div className="brewery-info-card" style={{ position: 'relative', overflow: 'hidden' }}>
+        {isTempClosed && (
+          <div className="brewery-closed-diagonal-overlay">
+            <span>TEMPORARILY CLOSED</span>
+          </div>
+        )}
         <h1 className="brewery-title">{brewery?.name || 'Brewery'}</h1>
         <p className="brewery-address">📍 {brewery?.address || ''}</p>
         
@@ -433,7 +438,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         )}
       </div>
 
-      {(qrValidated || isStamped) && (
+      {(qrValidated || isStamped) && !isTempClosed && (
         <button
           className="action-btn yellow add-beer-cta"
           onClick={() => setShowAddBeer(true)}

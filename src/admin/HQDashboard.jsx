@@ -4,8 +4,14 @@ import {
   getTrailOverview, getTrailEvents, getAdminLeaderboard, exportParticipants,
   deleteEvent, createTrailEvent, getTrailBreweries, createBrewery, updateBrewery,
   deleteBrewery, getSideQuests, createSideQuest, updateSideQuest, deleteSideQuest,
-  getTrailBeerRatings, getMergeSuggestions, mergeRatings, TRAIL_ID
+  getTrailBeerRatings, getMergeSuggestions, mergeRatings, createBreweryStaff, TRAIL_ID
 } from './adminApi';
+
+const generateStaffEmail = (name) => name.toLowerCase().replace(/[^a-z0-9]/g, '') + '@aletrail.com';
+const generatePassword = () => {
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$';
+  return Array.from({ length: 10 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+};
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line
@@ -35,7 +41,7 @@ export default function HQDashboard() {
 
   const [showBreweryForm, setShowBreweryForm] = useState(false);
   const [editingBrewery, setEditingBrewery] = useState(null);
-  const [breweryForm, setBreweryForm] = useState({ name: '', address: '', district: '', pinCode: '', logoUrl: '', mapsUrl: '', instagramUrl: '', facebookUrl: '', descriptionEn: '', descriptionVn: '', status: 'active' });
+  const [breweryForm, setBreweryForm] = useState({ name: '', address: '', district: '', pinCode: '', logoUrl: '', mapsUrl: '', instagramUrl: '', facebookUrl: '', descriptionEn: '', descriptionVn: '', status: 'active', staffEmail: '', staffPassword: '' });
   const [savingBrewery, setSavingBrewery] = useState(false);
 
   const [showQuestForm, setShowQuestForm] = useState(false);
@@ -173,7 +179,7 @@ export default function HQDashboard() {
       });
     } else {
       setEditingBrewery(null);
-      setBreweryForm({ name: '', address: '', district: '', pinCode: '', logoUrl: '', mapsUrl: '', instagramUrl: '', facebookUrl: '', descriptionEn: '', descriptionVn: '', status: 'active' });
+      setBreweryForm({ name: '', address: '', district: '', pinCode: '', logoUrl: '', mapsUrl: '', instagramUrl: '', facebookUrl: '', descriptionEn: '', descriptionVn: '', status: 'active', staffEmail: '', staffPassword: generatePassword() });
     }
     setShowBreweryForm(true);
   };
@@ -206,7 +212,20 @@ export default function HQDashboard() {
       if (result.ok) setBreweries(breweries.map(b => b.id === editingBrewery.id ? { ...b, ...breweryData, pinCode: breweryData.pin_code, logoUrl: breweryData.logo_url, mapsUrl: breweryData.maps_url, instagramUrl: breweryData.instagram_url, facebookUrl: breweryData.facebook_url } : b));
     } else {
       result = await createBrewery(TRAIL_ID, breweryData);
-      if (result.ok && result.brewery) setBreweries([...breweries, result.brewery]);
+      if (result.ok && result.brewery) {
+        setBreweries([...breweries, result.brewery]);
+        // Create brewery staff account if credentials provided
+        const staffEmail = breweryForm.staffEmail || generateStaffEmail(breweryForm.name);
+        const staffPassword = breweryForm.staffPassword;
+        if (staffEmail && staffPassword) {
+          const staffResult = await createBreweryStaff(result.brewery.id, staffEmail, staffPassword);
+          if (!staffResult.ok) {
+            alert(`Brewery saved, but staff account creation failed: ${staffResult.error || 'Unknown error'}\n\nYou can set up credentials manually later.`);
+          } else {
+            alert(`✓ Brewery created!\n\nStaff login credentials:\nEmail: ${staffEmail}\nPassword: ${staffPassword}\n\nPlease share these with the venue.`);
+          }
+        }
+      }
     }
     if (result.ok) {
       setShowBreweryForm(false);
@@ -487,6 +506,46 @@ export default function HQDashboard() {
                 <div className="admin-form-group"><label className="admin-form-label">Description (English)</label><textarea className="admin-form-input" value={breweryForm.descriptionEn} onChange={(e) => setBreweryForm(prev => ({...prev, descriptionEn: e.target.value}))} rows={3} placeholder="Describe this brewery..." /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Description (Vietnamese)</label><textarea className="admin-form-input" value={breweryForm.descriptionVn} onChange={(e) => setBreweryForm(prev => ({...prev, descriptionVn: e.target.value}))} rows={3} /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Status</label><select className="admin-form-input" value={breweryForm.status} onChange={(e) => setBreweryForm(prev => ({...prev, status: e.target.value}))}><option value="active">Active</option><option value="temporarily_closed">Temporarily Closed</option><option value="inactive">Inactive</option></select></div>
+                {!editingBrewery && (
+                  <div style={{ borderTop: '1px solid var(--admin-border)', marginTop: 20, paddingTop: 16 }}>
+                    <p style={{ fontWeight: 600, marginBottom: 12, fontSize: 14 }}>Staff Login Credentials</p>
+                    <p style={{ color: 'var(--admin-text-muted)', fontSize: 12, marginBottom: 12 }}>Creates a /admin login for the venue. Share these credentials with the brewery.</p>
+                    <div className="admin-form-group">
+                      <label className="admin-form-label">Login Email</label>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <input type="email" className="admin-form-input" value={breweryForm.staffEmail} onChange={(e) => setBreweryForm(prev => ({...prev, staffEmail: e.target.value}))} placeholder="auto-generated from name" />
+                        <button type="button" className="admin-btn admin-btn-small" style={{ whiteSpace: 'nowrap' }} onClick={() => setBreweryForm(prev => ({...prev, staffEmail: generateStaffEmail(prev.name || 'brewery')}))}>Auto</button>
+                      </div>
+                    </div>
+                    <div className="admin-form-group">
+                      <label className="admin-form-label">Temporary Password</label>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <input type="text" className="admin-form-input" value={breweryForm.staffPassword} onChange={(e) => setBreweryForm(prev => ({...prev, staffPassword: e.target.value}))} placeholder="auto-generated" style={{ fontFamily: 'monospace' }} />
+                        <button type="button" className="admin-btn admin-btn-small" style={{ whiteSpace: 'nowrap' }} onClick={() => setBreweryForm(prev => ({...prev, staffPassword: generatePassword()}))}>New</button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {editingBrewery && (
+                  <div style={{ borderTop: '1px solid var(--admin-border)', marginTop: 20, paddingTop: 16 }}>
+                    <p style={{ fontWeight: 600, marginBottom: 8, fontSize: 14 }}>Reset Staff Login (optional)</p>
+                    <p style={{ color: 'var(--admin-text-muted)', fontSize: 12, marginBottom: 12 }}>Leave blank to keep existing credentials. Fill both to create/reset the staff account.</p>
+                    <div className="admin-form-group">
+                      <label className="admin-form-label">New Login Email</label>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <input type="email" className="admin-form-input" value={breweryForm.staffEmail} onChange={(e) => setBreweryForm(prev => ({...prev, staffEmail: e.target.value}))} placeholder="leave blank to skip" />
+                        <button type="button" className="admin-btn admin-btn-small" style={{ whiteSpace: 'nowrap' }} onClick={() => setBreweryForm(prev => ({...prev, staffEmail: generateStaffEmail(prev.name || 'brewery')}))}>Auto</button>
+                      </div>
+                    </div>
+                    <div className="admin-form-group">
+                      <label className="admin-form-label">New Password</label>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <input type="text" className="admin-form-input" value={breweryForm.staffPassword} onChange={(e) => setBreweryForm(prev => ({...prev, staffPassword: e.target.value}))} placeholder="leave blank to skip" style={{ fontFamily: 'monospace' }} />
+                        <button type="button" className="admin-btn admin-btn-small" style={{ whiteSpace: 'nowrap' }} onClick={() => setBreweryForm(prev => ({...prev, staffPassword: generatePassword()}))}>New</button>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div style={{ display: 'flex', gap: 12, marginTop: 20 }}><button type="button" className="admin-btn admin-btn-primary" onClick={handleSaveBrewery} disabled={savingBrewery}>{savingBrewery ? 'Saving...' : 'Save Brewery'}</button><button type="button" className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={() => setShowBreweryForm(false)}>Cancel</button></div>
               </div>
             </div>

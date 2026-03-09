@@ -354,6 +354,49 @@ export async function getTrailBeerRatings(trailId) {
   }
 }
 
+// ==================== BREWERY STAFF ====================
+
+export async function createBreweryStaff(breweryId, email, password) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/brewery-staff`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ breweryId, email, password, role: 'brewery_staff' })
+    });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+// ==================== ACCOUNT SETTINGS ====================
+
+export async function updateAdminEmail(newEmail) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/me/email`, {
+      method: 'PUT',
+      headers: authHeaders(),
+      body: JSON.stringify({ email: newEmail })
+    });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function updateAdminPassword(currentPassword, newPassword) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/me/password`, {
+      method: 'PUT',
+      headers: authHeaders(),
+      body: JSON.stringify({ currentPassword, newPassword })
+    });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
 // ==================== LOGIN ====================
 
 

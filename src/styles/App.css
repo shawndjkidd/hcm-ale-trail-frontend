@@ -4252,3 +4252,27 @@ body.night-mode .logout-link:hover {
 .leaderboard-title {
   letter-spacing: 1.5px !important;
 }
+
+/* ===== TEMPORARILY CLOSED DIAGONAL OVERLAY ===== */
+.brewery-closed-diagonal-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(220, 38, 38, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 2;
+}
+.brewery-closed-diagonal-overlay span {
+  color: rgba(200, 30, 30, 0.75);
+  font-size: clamp(18px, 5vw, 30px);
+  font-weight: 900;
+  letter-spacing: 2px;
+  transform: rotate(-20deg);
+  font-family: 'Anton', sans-serif;
+  border: 4px solid rgba(200, 30, 30, 0.45);
+  padding: 8px 20px;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
