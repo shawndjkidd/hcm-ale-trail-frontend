@@ -4440,23 +4440,21 @@ body.night-mode .events-page .back-btn {
 }
 
 /* ── Japanese font (bold Noto Sans JP) ──────────── */
+body.lang-jp *,
 body.lang-jp .brewery-card-name,
 body.lang-jp .action-btn,
 body.lang-jp h1, body.lang-jp h2, body.lang-jp h3,
-body.lang-jp .nav-btn, body.lang-jp .nav-btn-third,
-body.lang-jp .stamp-text, body.lang-jp .brewery-title,
-body.lang-jp .back-btn, body.lang-jp button {
-  font-family: 'Noto Sans JP', sans-serif;
-  font-weight: 700;
+body.lang-jp button, body.lang-jp a {
+  font-family: 'Noto Sans JP', sans-serif !important;
+  font-weight: 900 !important;
 }
 
 /* ── Korean font (bold Noto Sans KR) ────────────── */
+body.lang-kr *,
 body.lang-kr .brewery-card-name,
 body.lang-kr .action-btn,
 body.lang-kr h1, body.lang-kr h2, body.lang-kr h3,
-body.lang-kr .nav-btn, body.lang-kr .nav-btn-third,
-body.lang-kr .stamp-text, body.lang-kr .brewery-title,
-body.lang-kr .back-btn, body.lang-kr button {
-  font-family: 'Noto Sans KR', sans-serif;
-  font-weight: 700;
+body.lang-kr button, body.lang-kr a {
+  font-family: 'Noto Sans KR', sans-serif !important;
+  font-weight: 900 !important;
 }
