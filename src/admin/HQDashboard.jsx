@@ -209,7 +209,18 @@ export default function HQDashboard() {
     let result;
     if (editingBrewery) {
       result = await updateBrewery(editingBrewery.id, breweryData);
-      if (result.ok) setBreweries(breweries.map(b => b.id === editingBrewery.id ? { ...b, ...breweryData, pinCode: breweryData.pin_code, logoUrl: breweryData.logo_url, mapsUrl: breweryData.maps_url, instagramUrl: breweryData.instagram_url, facebookUrl: breweryData.facebook_url } : b));
+      if (result.ok) {
+        setBreweries(breweries.map(b => b.id === editingBrewery.id ? { ...b, ...breweryData, pinCode: breweryData.pin_code, logoUrl: breweryData.logo_url, mapsUrl: breweryData.maps_url, instagramUrl: breweryData.instagram_url, facebookUrl: breweryData.facebook_url } : b));
+        // Reset staff credentials if both provided
+        if (breweryForm.staffEmail && breweryForm.staffPassword) {
+          const staffResult = await createBreweryStaff(editingBrewery.id, breweryForm.staffEmail, breweryForm.staffPassword);
+          if (!staffResult.ok) {
+            alert(`Brewery saved, but staff credential reset failed: ${staffResult.error || 'Unknown error'}`);
+          } else {
+            alert(`✓ Staff credentials updated!\nEmail: ${breweryForm.staffEmail}\nPassword: ${breweryForm.staffPassword}`);
+          }
+        }
+      }
     } else {
       result = await createBrewery(TRAIL_ID, breweryData);
       if (result.ok && result.brewery) {

@@ -103,7 +103,7 @@ export default function AdminApp() {
       </header>
 
       {isBreweryAdmin && (
-        <BreweryDashboard breweryId={adminUser.breweryId} />
+        <BreweryDashboard breweryId={adminUser.breweryId} adminEmail={adminUser.email} />
       )}
       
       {isHQ && currentView === 'dashboard' && (

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import QRCode from 'qrcode';
-import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, mergeRatings, TRAIL_ID } from './adminApi';
+import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, mergeRatings, updateAdminEmail, updateAdminPassword, TRAIL_ID } from './adminApi';
 
 const DAY_NAMES = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 const DAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -14,7 +14,7 @@ const DEFAULT_HOURS = {
   sunday: { open: '12:00', close: '22:00', closed: false }
 };
 
-export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = false }) {
+export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = false, adminEmail = '' }) {
   const [selectedBreweryId, setSelectedBreweryId] = useState(propBreweryId || '');
   const [breweries, setBreweries] = useState([]);
   const [data, setData] = useState(null);
@@ -30,6 +30,16 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
 
   const [qrCodeUrl, setQrCodeUrl] = useState('');
   const [generatingQr, setGeneratingQr] = useState(false);
+
+  const [newEmail, setNewEmail] = useState('');
+  const [savingEmail, setSavingEmail] = useState(false);
+  const [emailMessage, setEmailMessage] = useState('');
+
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [savingPassword, setSavingPassword] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState('');
 
   const [operatingHours, setOperatingHours] = useState(DEFAULT_HOURS);
   const [savingHours, setSavingHours] = useState(false);
@@ -151,6 +161,52 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       alert('Failed to generate QR code');
     }
     setGeneratingQr(false);
+  };
+
+  const handleUpdateEmail = async () => {
+    if (!newEmail || !/\S+@\S+\.\S+/.test(newEmail)) {
+      setEmailMessage('Please enter a valid email address');
+      return;
+    }
+    setSavingEmail(true);
+    setEmailMessage('');
+    const result = await updateAdminEmail(newEmail);
+    if (result.ok) {
+      setEmailMessage('✓ Email updated. Please log out and log back in.');
+      setNewEmail('');
+      setTimeout(() => setEmailMessage(''), 5000);
+    } else {
+      setEmailMessage(result.error || 'Failed to update email');
+    }
+    setSavingEmail(false);
+  };
+
+  const handleUpdatePassword = async () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordMessage('Please fill in all password fields');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordMessage('New passwords do not match');
+      return;
+    }
+    if (newPassword.length < 8) {
+      setPasswordMessage('Password must be at least 8 characters');
+      return;
+    }
+    setSavingPassword(true);
+    setPasswordMessage('');
+    const result = await updateAdminPassword(currentPassword, newPassword);
+    if (result.ok) {
+      setPasswordMessage('✓ Password updated successfully');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setTimeout(() => setPasswordMessage(''), 5000);
+    } else {
+      setPasswordMessage(result.error || 'Failed to update password');
+    }
+    setSavingPassword(false);
   };
 
   const handleHoursChange = (day, field, value) => {
@@ -861,6 +917,50 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
               {descriptionMessage && <span style={{ fontSize: 13, color: descriptionMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{descriptionMessage}</span>}
             </div>
           </div>
+
+          {!isHQ && (
+          <div className="admin-card">
+            <h3 className="admin-card-title">Account Settings</h3>
+            <p style={{ color: 'var(--admin-text-muted)', marginBottom: 16 }}>Manage your /admin login credentials.</p>
+
+            <div style={{ marginBottom: 20 }}>
+              <p style={{ fontWeight: 600, fontSize: 13, marginBottom: 8 }}>Change Email</p>
+              {adminEmail && <p style={{ fontSize: 12, color: 'var(--admin-text-muted)', marginBottom: 8 }}>Current: {adminEmail}</p>}
+              <div className="admin-form-group">
+                <input type="email" className="admin-form-input" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="New email address" />
+              </div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <button className="admin-btn admin-btn-primary settings-btn" onClick={handleUpdateEmail} disabled={savingEmail}>
+                  {savingEmail ? 'Saving...' : 'Update Email'}
+                </button>
+                {emailMessage && <span style={{ fontSize: 13, color: emailMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{emailMessage}</span>}
+              </div>
+            </div>
+
+            <div style={{ borderTop: '1px solid var(--admin-border)', paddingTop: 16 }}>
+              <p style={{ fontWeight: 600, fontSize: 13, marginBottom: 8 }}>Change Password</p>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Current Password</label>
+                <input type="password" className="admin-form-input" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="Current password" />
+              </div>
+              <div className="admin-form-group">
+                <label className="admin-form-label">New Password</label>
+                <input type="password" className="admin-form-input" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="New password (min 8 chars)" />
+              </div>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Confirm New Password</label>
+                <input type="password" className="admin-form-input" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Confirm new password" />
+              </div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <button className="admin-btn admin-btn-primary settings-btn" onClick={handleUpdatePassword} disabled={savingPassword}>
+                  {savingPassword ? 'Saving...' : 'Update Password'}
+                </button>
+                {passwordMessage && <span style={{ fontSize: 13, color: passwordMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{passwordMessage}</span>}
+              </div>
+            </div>
+          </div>
+          )}
+
           </div>{/* end right column */}
         </div>
       )}
