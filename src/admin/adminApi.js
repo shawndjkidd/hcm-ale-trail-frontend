@@ -358,11 +358,20 @@ export async function getTrailBeerRatings(trailId) {
 
 export async function createBreweryStaff(breweryId, email, password) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/brewery-staff`, {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/create-login`, {
       method: 'POST',
       headers: authHeaders(),
-      body: JSON.stringify({ breweryId, email, password, role: 'brewery_staff' })
+      body: JSON.stringify({ email, password })
     });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function getBreweryLogin(breweryId) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/login`, { headers: authHeaders() });
     return await res.json();
   } catch (err) {
     return { ok: false, error: err.message };
@@ -371,25 +380,12 @@ export async function createBreweryStaff(breweryId, email, password) {
 
 // ==================== ACCOUNT SETTINGS ====================
 
-export async function updateAdminEmail(newEmail) {
+export async function updateAdminAccount({ email, currentPassword, password }) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/me/email`, {
+    const res = await fetch(`${API_BASE}/api/admin/account`, {
       method: 'PUT',
       headers: authHeaders(),
-      body: JSON.stringify({ email: newEmail })
-    });
-    return await res.json();
-  } catch (err) {
-    return { ok: false, error: err.message };
-  }
-}
-
-export async function updateAdminPassword(currentPassword, newPassword) {
-  try {
-    const res = await fetch(`${API_BASE}/api/admin/me/password`, {
-      method: 'PUT',
-      headers: authHeaders(),
-      body: JSON.stringify({ currentPassword, newPassword })
+      body: JSON.stringify({ email, currentPassword, password })
     });
     return await res.json();
   } catch (err) {

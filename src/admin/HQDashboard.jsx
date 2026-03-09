@@ -4,7 +4,7 @@ import {
   getTrailOverview, getTrailEvents, getAdminLeaderboard, exportParticipants,
   deleteEvent, createTrailEvent, getTrailBreweries, createBrewery, updateBrewery,
   deleteBrewery, getSideQuests, createSideQuest, updateSideQuest, deleteSideQuest,
-  getTrailBeerRatings, getMergeSuggestions, mergeRatings, createBreweryStaff, TRAIL_ID
+  getTrailBeerRatings, getMergeSuggestions, mergeRatings, createBreweryStaff, getBreweryLogin, TRAIL_ID
 } from './adminApi';
 
 const generateStaffEmail = (name) => name.toLowerCase().replace(/[^a-z0-9]/g, '') + '@aletrail.com';
@@ -43,6 +43,7 @@ export default function HQDashboard() {
   const [editingBrewery, setEditingBrewery] = useState(null);
   const [breweryForm, setBreweryForm] = useState({ name: '', address: '', district: '', pinCode: '', logoUrl: '', mapsUrl: '', instagramUrl: '', facebookUrl: '', descriptionEn: '', descriptionVn: '', status: 'active', staffEmail: '', staffPassword: '' });
   const [savingBrewery, setSavingBrewery] = useState(false);
+  const [existingBreweryLogin, setExistingBreweryLogin] = useState(null);
 
   const [showQuestForm, setShowQuestForm] = useState(false);
   const [editingQuest, setEditingQuest] = useState(null);
@@ -160,7 +161,8 @@ export default function HQDashboard() {
     setSavingEvent(false);
   };
 
-  const openBreweryForm = (brewery = null) => {
+  const openBreweryForm = async (brewery = null) => {
+    setExistingBreweryLogin(null);
     if (brewery) {
       setEditingBrewery(brewery);
       const brewDesc = brewery.description || {};
@@ -175,8 +177,11 @@ export default function HQDashboard() {
         facebookUrl: brewery.facebook_url || brewery.facebookUrl || '',
         descriptionEn: typeof brewDesc === 'string' ? brewDesc : (brewDesc.en || ''),
         descriptionVn: typeof brewDesc === 'string' ? '' : (brewDesc.vn || ''),
-        status: brewery.status || 'active'
+        status: brewery.status || 'active',
+        staffEmail: '', staffPassword: generatePassword()
       });
+      // Fetch existing login info
+      getBreweryLogin(brewery.id).then(r => { if (r.ok && r.email) setExistingBreweryLogin(r.email); });
     } else {
       setEditingBrewery(null);
       setBreweryForm({ name: '', address: '', district: '', pinCode: '', logoUrl: '', mapsUrl: '', instagramUrl: '', facebookUrl: '', descriptionEn: '', descriptionVn: '', status: 'active', staffEmail: '', staffPassword: generatePassword() });
@@ -517,46 +522,32 @@ export default function HQDashboard() {
                 <div className="admin-form-group"><label className="admin-form-label">Description (English)</label><textarea className="admin-form-input" value={breweryForm.descriptionEn} onChange={(e) => setBreweryForm(prev => ({...prev, descriptionEn: e.target.value}))} rows={3} placeholder="Describe this brewery..." /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Description (Vietnamese)</label><textarea className="admin-form-input" value={breweryForm.descriptionVn} onChange={(e) => setBreweryForm(prev => ({...prev, descriptionVn: e.target.value}))} rows={3} /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Status</label><select className="admin-form-input" value={breweryForm.status} onChange={(e) => setBreweryForm(prev => ({...prev, status: e.target.value}))}><option value="active">Active</option><option value="temporarily_closed">Temporarily Closed</option><option value="inactive">Inactive</option></select></div>
-                {!editingBrewery && (
-                  <div style={{ borderTop: '1px solid var(--admin-border)', marginTop: 20, paddingTop: 16 }}>
-                    <p style={{ fontWeight: 600, marginBottom: 12, fontSize: 14 }}>Staff Login Credentials</p>
-                    <p style={{ color: 'var(--admin-text-muted)', fontSize: 12, marginBottom: 12 }}>Creates a /admin login for the venue. Share these credentials with the brewery.</p>
-                    <div className="admin-form-group">
-                      <label className="admin-form-label">Login Email</label>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <input type="email" className="admin-form-input" value={breweryForm.staffEmail} onChange={(e) => setBreweryForm(prev => ({...prev, staffEmail: e.target.value}))} placeholder="auto-generated from name" />
-                        <button type="button" className="admin-btn admin-btn-small" style={{ whiteSpace: 'nowrap' }} onClick={() => setBreweryForm(prev => ({...prev, staffEmail: generateStaffEmail(prev.name || 'brewery')}))}>Auto</button>
-                      </div>
+                <div style={{ borderTop: '1px solid var(--admin-border)', marginTop: 20, paddingTop: 16 }}>
+                  <p style={{ fontWeight: 600, marginBottom: 8, fontSize: 14 }}>Brewery Login</p>
+                  {existingBreweryLogin ? (
+                    <div style={{ marginBottom: 12 }}>
+                      <span style={{ fontSize: 13, color: 'var(--admin-success)' }}>✓ Login exists: </span>
+                      <code style={{ fontSize: 13 }}>{existingBreweryLogin}</code>
+                      <p style={{ color: 'var(--admin-text-muted)', fontSize: 12, marginTop: 4 }}>Fill fields below to reset credentials.</p>
                     </div>
-                    <div className="admin-form-group">
-                      <label className="admin-form-label">Temporary Password</label>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <input type="text" className="admin-form-input" value={breweryForm.staffPassword} onChange={(e) => setBreweryForm(prev => ({...prev, staffPassword: e.target.value}))} placeholder="auto-generated" style={{ fontFamily: 'monospace' }} />
-                        <button type="button" className="admin-btn admin-btn-small" style={{ whiteSpace: 'nowrap' }} onClick={() => setBreweryForm(prev => ({...prev, staffPassword: generatePassword()}))}>New</button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                {editingBrewery && (
-                  <div style={{ borderTop: '1px solid var(--admin-border)', marginTop: 20, paddingTop: 16 }}>
-                    <p style={{ fontWeight: 600, marginBottom: 8, fontSize: 14 }}>Reset Staff Login (optional)</p>
-                    <p style={{ color: 'var(--admin-text-muted)', fontSize: 12, marginBottom: 12 }}>Leave blank to keep existing credentials. Fill both to create/reset the staff account.</p>
-                    <div className="admin-form-group">
-                      <label className="admin-form-label">New Login Email</label>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <input type="email" className="admin-form-input" value={breweryForm.staffEmail} onChange={(e) => setBreweryForm(prev => ({...prev, staffEmail: e.target.value}))} placeholder="leave blank to skip" />
-                        <button type="button" className="admin-btn admin-btn-small" style={{ whiteSpace: 'nowrap' }} onClick={() => setBreweryForm(prev => ({...prev, staffEmail: generateStaffEmail(prev.name || 'brewery')}))}>Auto</button>
-                      </div>
-                    </div>
-                    <div className="admin-form-group">
-                      <label className="admin-form-label">New Password</label>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <input type="text" className="admin-form-input" value={breweryForm.staffPassword} onChange={(e) => setBreweryForm(prev => ({...prev, staffPassword: e.target.value}))} placeholder="leave blank to skip" style={{ fontFamily: 'monospace' }} />
-                        <button type="button" className="admin-btn admin-btn-small" style={{ whiteSpace: 'nowrap' }} onClick={() => setBreweryForm(prev => ({...prev, staffPassword: generatePassword()}))}>New</button>
-                      </div>
+                  ) : (
+                    <p style={{ color: 'var(--admin-text-muted)', fontSize: 12, marginBottom: 12 }}>{editingBrewery ? 'No login yet. Fill below to create one.' : 'Creates a /admin login for the venue.'}</p>
+                  )}
+                  <div className="admin-form-group">
+                    <label className="admin-form-label">Login Email</label>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <input type="email" className="admin-form-input" value={breweryForm.staffEmail} onChange={(e) => setBreweryForm(prev => ({...prev, staffEmail: e.target.value}))} placeholder={existingBreweryLogin ? 'leave blank to keep' : 'auto-generated from name'} />
+                      <button type="button" className="admin-btn admin-btn-small" style={{ whiteSpace: 'nowrap' }} onClick={() => setBreweryForm(prev => ({...prev, staffEmail: generateStaffEmail(prev.name || 'brewery')}))}>Auto</button>
                     </div>
                   </div>
-                )}
+                  <div className="admin-form-group">
+                    <label className="admin-form-label">Temporary Password</label>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <input type="text" className="admin-form-input" value={breweryForm.staffPassword} onChange={(e) => setBreweryForm(prev => ({...prev, staffPassword: e.target.value}))} placeholder={existingBreweryLogin ? 'leave blank to keep' : 'auto-generated'} style={{ fontFamily: 'monospace' }} />
+                      <button type="button" className="admin-btn admin-btn-small" style={{ whiteSpace: 'nowrap' }} onClick={() => setBreweryForm(prev => ({...prev, staffPassword: generatePassword()}))}>New</button>
+                    </div>
+                  </div>
+                </div>
                 <div style={{ display: 'flex', gap: 12, marginTop: 20 }}><button type="button" className="admin-btn admin-btn-primary" onClick={handleSaveBrewery} disabled={savingBrewery}>{savingBrewery ? 'Saving...' : 'Save Brewery'}</button><button type="button" className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={() => setShowBreweryForm(false)}>Cancel</button></div>
               </div>
             </div>

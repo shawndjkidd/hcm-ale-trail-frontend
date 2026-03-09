@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import QRCode from 'qrcode';
-import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, mergeRatings, updateAdminEmail, updateAdminPassword, TRAIL_ID } from './adminApi';
+import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, mergeRatings, updateAdminAccount, TRAIL_ID } from './adminApi';
 
 const DAY_NAMES = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 const DAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -170,7 +170,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
     }
     setSavingEmail(true);
     setEmailMessage('');
-    const result = await updateAdminEmail(newEmail);
+    const result = await updateAdminAccount({ email: newEmail });
     if (result.ok) {
       setEmailMessage('✓ Email updated. Please log out and log back in.');
       setNewEmail('');
@@ -196,7 +196,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
     }
     setSavingPassword(true);
     setPasswordMessage('');
-    const result = await updateAdminPassword(currentPassword, newPassword);
+    const result = await updateAdminAccount({ currentPassword, password: newPassword });
     if (result.ok) {
       setPasswordMessage('✓ Password updated successfully');
       setCurrentPassword('');
