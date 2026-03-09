@@ -7,6 +7,7 @@ import MyBeers from "./components/MyBeers";
 import WelcomeModal from "./components/WelcomeModal";
 import Leaderboard from "./components/Leaderboard";
 import AuthModal from "./components/AuthModal";
+import AleTrailMap from "./components/AleTrailMap";
 
 import translations from "./translations";
 import { recordCheckin } from "./lib/supabase";
@@ -188,6 +189,13 @@ export default function App() {
       setShowAuth(false);
     } else {
       setShowWelcome(true);
+    }
+
+    // Check for /map route
+    if (window.location.pathname === '/map') {
+      loadBreweries().then(() => setInitialized(true));
+      setView('map');
+      return;
     }
 
     // Check for side quest QR first
@@ -400,11 +408,10 @@ export default function App() {
       setQrValidated(false);
       setSideQuestQrValidated(false);
       setAutoOpenBeer(false);
-      if (newView === "home") {
-        try {
-          window.history.pushState({}, "", "/");
-        } catch {}
-      }
+      try {
+        if (newView === "home") window.history.pushState({}, "", "/");
+        else if (newView === "map") window.history.pushState({}, "", "/map");
+      } catch {}
     }
   };
 
@@ -531,6 +538,14 @@ export default function App() {
           language={language}
           user={user}
           qrValidated={sideQuestQrValidated}
+        />
+      )}
+      {view === "map" && (
+        <AleTrailMap
+          breweries={breweries}
+          onBack={() => handleNavigate("home")}
+          nightMode={nightMode}
+          onBreweryNavigate={handleBreweryClick}
         />
       )}
       {view === "faq" && <FAQ onBack={() => handleNavigate("home")} language={language} user={user} />}

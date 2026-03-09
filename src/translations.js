@@ -5,6 +5,7 @@ const translations = {
     faq: "FAQ",
     website: "WEBSITE",
     maps: "GOOGLE MAPS",
+    trailMap: "ALE TRAIL MAP",
     myBeers: "MY BEERS",
     leaderboard: "LEADERBOARD",
     instagram: "INSTAGRAM",
