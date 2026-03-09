@@ -4169,20 +4169,24 @@ body.night-mode .night-mode-toggle:hover {
 }
 
 /* ==========================================
-   BREWERY DETAIL — QR PROMPT BOX (yellow/red, no green)
+   BREWERY DETAIL — QR PROMPT BOX (plain card, no glow)
    ========================================== */
 .brewery-detail .stamp-instruction-box {
-  background: var(--yellow-primary);
-  border-color: var(--red-primary);
-  box-shadow: 0 6px 0 var(--red-primary);
+  background: var(--theme-card-bg) !important;
+  border: 3px solid var(--theme-card-border) !important;
+  box-shadow: none !important;
+  animation: none !important;
 }
 .brewery-detail .stamp-instruction-text strong {
   color: var(--red-primary);
 }
+.brewery-detail .stamp-instruction-text p {
+  color: inherit;
+}
 body.night-mode .brewery-detail .stamp-instruction-box {
-  background: #1A1A1A;
-  border-color: #F5A623;
-  box-shadow: 0 6px 0 #F5A623;
+  background: var(--theme-card-bg) !important;
+  border-color: var(--theme-card-border) !important;
+  box-shadow: none !important;
 }
 body.night-mode .brewery-detail .stamp-instruction-text strong {
   color: #F5A623;
@@ -4193,51 +4197,58 @@ body.night-mode .brewery-detail .stamp-instruction-text strong {
    ========================================== */
 .logout-link {
   display: block;
-  background: none;
-  border: none;
-  box-shadow: none;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
   color: #999;
   font-size: 0.85rem;
   text-decoration: underline;
   cursor: pointer;
-  padding: 0.5rem 0;
-  margin: 0.5rem auto 0;
+  padding: 16px 0;
+  margin: 4px auto 0;
   font-family: var(--font-body);
   letter-spacing: 0.3px;
+  text-align: center;
+  width: 100%;
 }
 .logout-link:hover {
   color: #666;
 }
 body.night-mode .logout-link {
-  color: #666;
+  color: #555;
 }
 body.night-mode .logout-link:hover {
-  color: #999;
+  color: #888;
 }
 
 /* ==========================================
    GLOBAL LETTER SPACING
    ========================================== */
-* {
-  letter-spacing: 0.3px;
+.home-page,
+.home-page * {
+  letter-spacing: 0.5px;
 }
-h1, h2, h3, h4,
-.header-title,
+.home-page h1,
+.home-page h2,
+.home-page h3,
+.home-page .header-title,
+.home-page .brewery-card-name,
+.home-page .craft-beer-title,
+.home-page .stamp-count,
+.home-page .progress-label,
+.home-page .nav-btn-third,
+.home-page .nav-btn-half,
+.home-page .special-btn,
+.home-page .reset-btn,
+.home-page .footer-year,
 .brewery-title,
-.brewery-card-name,
-.craft-beer-title,
-.stamp-count,
-.section-title,
-.action-btn,
-.special-btn,
-.nav-btn,
-.back-btn,
-.completion-title,
-.leaderboard-title,
-.stamp-text,
-.reset-btn,
+.brewery-name,
 .brewery-events-title,
 .brewery-hours-title,
-.brewery-name {
-  letter-spacing: 1.5px;
+.action-btn,
+.back-btn,
+.stamp-text,
+.completion-title,
+.leaderboard-title {
+  letter-spacing: 1.5px !important;
 }
