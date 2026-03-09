@@ -20,7 +20,7 @@ const getBreweryLogo = (brewery) => {
   return BREWERY_LOGOS[brewery?.name] || null
 }
 
-function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onSideQuestClick, sideQuestCheckins = [], onNavigate, resetCard, activeEvents = [], nightMode, toggleNightMode }) {
+function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onSideQuestClick, sideQuestCheckins = [], onNavigate, resetCard, activeEvents = [], nightMode, toggleNightMode, user, onLogout }) {
   const [showCompletionModal, setShowCompletionModal] = useState(false)
   const [showEventsPage, setShowEventsPage] = useState(false)
   const [hatClaimed, setHatClaimed] = useState(false)
@@ -241,7 +241,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
               </div>
               {isStamped && (
                 <div className="completed-stamp">
-                  <div className="stamp-text">COMPLETED!</div>
+                  <div className="stamp-text">{(t.completed || 'Completed!').toUpperCase()}</div>
                 </div>
               )}
               {brewery.status === 'temporarily_closed' && (
@@ -296,6 +296,11 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         <button className="reset-btn" onClick={resetCard}>
           {t.resetCard}
         </button>
+        {user && onLogout && (
+          <button className="logout-link" onClick={onLogout}>
+            {t.logOut || 'Log out'}
+          </button>
+        )}
       </div>
 
       {showCompletionModal && (

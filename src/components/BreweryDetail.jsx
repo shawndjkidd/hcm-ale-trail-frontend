@@ -229,11 +229,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     return date.toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' })
   }
 
-  useEffect(() => {
-    if (qrValidated && !isStamped) {
-      setShowAddBeer(true)
-    }
-  }, [qrValidated, isStamped])
+  // No auto-open: modal only opens when user clicks the button
 
   const handleBeerAdded = async (beer) => {
     addBeer(beer)
@@ -437,14 +433,12 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         )}
       </div>
 
-      {(qrValidated || isStamped) && (
-        <button 
-          className="action-btn yellow add-beer-cta"
-          onClick={() => setShowAddBeer(true)}
-        >
-          🍺 {isStamped ? t.addAnotherBeer : t.addBeerNow}
-        </button>
-      )}
+      <button
+        className="action-btn yellow add-beer-cta"
+        onClick={() => setShowAddBeer(true)}
+      >
+        🍺 {isStamped ? t.addAnotherBeer : t.addBeerNow}
+      </button>
 
       <div className="hashtag-section">
         <div className="hashtag-text">

@@ -124,6 +124,7 @@ const translations = {
     moreInfo: "MORE INFO",
     alreadyHaveAccount: "Already have an account?",
     signInLink: "Sign in",
+    logOut: "Log out",
   },
   
   vn: {
@@ -251,6 +252,7 @@ const translations = {
     moreInfo: "THÊM THÔNG TIN",
     alreadyHaveAccount: "Bạn đã có tài khoản?",
     signInLink: "Đăng nhập",
+    logOut: "Đăng xuất",
   },
   
   kr: {
@@ -378,6 +380,7 @@ const translations = {
     moreInfo: "더 알아보기",
     alreadyHaveAccount: "이미 계정이 있으신가요?",
     signInLink: "로그인",
+    logOut: "로그아웃",
   },
   
   jp: {
@@ -505,6 +508,7 @@ const translations = {
     moreInfo: "詳細",
     alreadyHaveAccount: "すでにアカウントをお持ちですか？",
     signInLink: "ログイン",
+    logOut: "ログアウト",
   }
 }
 

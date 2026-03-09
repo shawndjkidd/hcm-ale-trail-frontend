@@ -4167,3 +4167,77 @@ body.night-mode .night-mode-toggle:hover {
     height: 34px;
   }
 }
+
+/* ==========================================
+   BREWERY DETAIL — QR PROMPT BOX (yellow/red, no green)
+   ========================================== */
+.brewery-detail .stamp-instruction-box {
+  background: var(--yellow-primary);
+  border-color: var(--red-primary);
+  box-shadow: 0 6px 0 var(--red-primary);
+}
+.brewery-detail .stamp-instruction-text strong {
+  color: var(--red-primary);
+}
+body.night-mode .brewery-detail .stamp-instruction-box {
+  background: #1A1A1A;
+  border-color: #F5A623;
+  box-shadow: 0 6px 0 #F5A623;
+}
+body.night-mode .brewery-detail .stamp-instruction-text strong {
+  color: #F5A623;
+}
+
+/* ==========================================
+   LOGOUT LINK — subtle footer text
+   ========================================== */
+.logout-link {
+  display: block;
+  background: none;
+  border: none;
+  box-shadow: none;
+  color: #999;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  margin: 0.5rem auto 0;
+  font-family: var(--font-body);
+  letter-spacing: 0.3px;
+}
+.logout-link:hover {
+  color: #666;
+}
+body.night-mode .logout-link {
+  color: #666;
+}
+body.night-mode .logout-link:hover {
+  color: #999;
+}
+
+/* ==========================================
+   GLOBAL LETTER SPACING
+   ========================================== */
+* {
+  letter-spacing: 0.3px;
+}
+h1, h2, h3, h4,
+.header-title,
+.brewery-title,
+.brewery-card-name,
+.craft-beer-title,
+.stamp-count,
+.section-title,
+.action-btn,
+.special-btn,
+.nav-btn,
+.back-btn,
+.completion-title,
+.leaderboard-title,
+.stamp-text,
+.reset-btn,
+.brewery-events-title,
+.brewery-hours-title,
+.brewery-name {
+  letter-spacing: 1.5px;
+}

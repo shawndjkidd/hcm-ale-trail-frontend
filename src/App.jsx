@@ -92,6 +92,15 @@ export default function App() {
   const pendingSideQuestQR = useRef(null);
   const t = translations[language];
 
+  const handleLogout = () => {
+    apiLogout();
+    setUser(null);
+    localStorage.removeItem("hcm-user");
+    setStamps([]);
+    setShowAuth(true);
+    goHome();
+  };
+
   const goHome = () => {
     setSelectedBrewery(null);
     setSelectedSideQuest(null);
@@ -456,6 +465,8 @@ export default function App() {
           activeEvents={activeEvents}
           nightMode={nightMode}
           toggleNightMode={toggleNightMode}
+          user={user}
+          onLogout={handleLogout}
         />
       )}
       {view === "brewery" && selectedBrewery && (
@@ -494,23 +505,6 @@ export default function App() {
           onBack={() => handleNavigate("home")}
           language={language}
         />
-      )}
-      {user?.id && (
-        <div style={{ position: "fixed", bottom: 10, right: 10, opacity: 0.75 }}>
-          <button
-            className="btn-secondary"
-            onClick={() => {
-              apiLogout();
-              setUser(null);
-              localStorage.removeItem("hcm-user");
-              setStamps([]);
-              setShowAuth(true);
-              goHome();
-            }}
-          >
-            Log out
-          </button>
-        </div>
       )}
     </div>
   );
