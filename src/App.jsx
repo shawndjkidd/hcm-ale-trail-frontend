@@ -313,6 +313,8 @@ export default function App() {
 
   useEffect(() => {
     localStorage.setItem("hcm-language", language);
+    document.body.classList.toggle("lang-jp", language === "jp");
+    document.body.classList.toggle("lang-kr", language === "kr");
   }, [language]);
 
   const handleUserRegistration = (userData) => {

@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@700;900&family=Noto+Sans+KR:wght@700;900&display=swap');
 
 /* ==========================================
    HCM ALE TRAIL - BOLD RED/YELLOW/BLACK DESIGN
@@ -4412,4 +4413,50 @@ body.night-mode .ale-trail-map-subtitle {
 body.night-mode .ale-trail-map-container {
   border-color: #333;
   box-shadow: 6px 6px 0 #333;
+}
+
+/* ── Events page title + header fix ─────────────── */
+.events-page-title {
+  font-weight: 900;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 12px;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+}
+.events-page-header {
+  margin-bottom: 0;
+}
+
+/* ── Events page back button — yellow style ─────── */
+.events-page .back-btn {
+  background: var(--yellow-primary) !important;
+  color: var(--black) !important;
+  border-color: var(--black) !important;
+}
+body.night-mode .events-page .back-btn {
+  background: var(--yellow-primary) !important;
+  color: var(--black) !important;
+  border-color: var(--black) !important;
+}
+
+/* ── Japanese font (bold Noto Sans JP) ──────────── */
+body.lang-jp .brewery-card-name,
+body.lang-jp .action-btn,
+body.lang-jp h1, body.lang-jp h2, body.lang-jp h3,
+body.lang-jp .nav-btn, body.lang-jp .nav-btn-third,
+body.lang-jp .stamp-text, body.lang-jp .brewery-title,
+body.lang-jp .back-btn, body.lang-jp button {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 700;
+}
+
+/* ── Korean font (bold Noto Sans KR) ────────────── */
+body.lang-kr .brewery-card-name,
+body.lang-kr .action-btn,
+body.lang-kr h1, body.lang-kr h2, body.lang-kr h3,
+body.lang-kr .nav-btn, body.lang-kr .nav-btn-third,
+body.lang-kr .stamp-text, body.lang-kr .brewery-title,
+body.lang-kr .back-btn, body.lang-kr button {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-weight: 700;
 }
