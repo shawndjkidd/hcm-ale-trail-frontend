@@ -1,12 +1,20 @@
 import { useState, useEffect } from 'react'
 
-const Star = ({ filled }) => (
-  <svg viewBox="0 0 24 24" className={`progress-star ${filled ? 'complete' : 'incomplete'}`}>
-    <polygon
-      points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
-      fill="currentColor"
-    />
-  </svg>
+const Star = ({ filled, num }) => (
+  <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+    <svg viewBox="0 0 24 24" className={`progress-star ${filled ? 'complete' : 'incomplete'}`}>
+      <polygon
+        points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+        fill="currentColor"
+        stroke="var(--black)"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+    </svg>
+    <span className={`star-number ${filled ? 'star-number-complete' : 'star-number-incomplete'}`}>
+      {num}
+    </span>
+  </div>
 )
 import translations from '../translations'
 import EventsPage from './EventsPage'
@@ -202,11 +210,18 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
       <div className="progress-section">
         <div className="progress-header">
           <div className="progress-label">{t.stamps}</div>
-          <div className="progress-count">{stamps.length}/{totalCount}</div>
+          <div className="progress-count">{stamps.length + breweries.filter(b => b.status === 'temporarily_closed' && !stamps.includes(b.id)).length}/{totalCount}</div>
         </div>
         <div className="progress-stars">
-          {Array.from({ length: totalCount }, (_, i) => (
-            <Star key={i} filled={i < stamps.length} />
+          {breweries.slice(0, totalCount).map((brewery, i) => (
+            <Star
+              key={i}
+              num={i + 1}
+              filled={stamps.includes(brewery.id) || brewery.status === 'temporarily_closed'}
+            />
+          ))}
+          {Array.from({ length: Math.max(0, totalCount - breweries.length) }, (_, i) => (
+            <Star key={`extra-${i}`} num={breweries.length + i + 1} filled={false} />
           ))}
         </div>
       </div>

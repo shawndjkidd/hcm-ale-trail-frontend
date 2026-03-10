@@ -5102,3 +5102,90 @@ body.night-mode .progress-section {
   background: #2a2a2a !important;
   border-color: var(--green-primary) !important;
 }
+
+/* ==========================================
+   STAMP SECTION — FULL REDESIGN
+   ========================================== */
+
+.progress-section {
+  background: var(--green-primary) !important;
+  border: 4px solid var(--yellow-primary) !important;
+}
+
+.progress-label {
+  color: var(--white) !important;
+  font-size: 2.5rem !important;
+}
+
+.progress-count {
+  font-size: 2.5rem !important;
+}
+
+.progress-star {
+  width: 48px !important;
+  height: 48px !important;
+}
+
+.progress-star.incomplete {
+  color: var(--red-primary) !important;
+  opacity: 1 !important;
+  filter: drop-shadow(0 3px 1px rgba(0,0,0,0.35)) !important;
+}
+
+.progress-star.complete {
+  color: var(--yellow-primary) !important;
+  opacity: 1 !important;
+  filter: drop-shadow(0 3px 1px rgba(0,0,0,0.35)) !important;
+}
+
+.progress-stars {
+  gap: 4px !important;
+}
+
+/* Star number overlays */
+.star-number {
+  position: absolute;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 900;
+  pointer-events: none;
+  line-height: 1;
+}
+.star-number-incomplete {
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+.star-number-complete {
+  color: #000;
+  text-shadow: none;
+}
+
+/* Dark mode */
+body.night-mode .progress-section {
+  background: #2a2a2a !important;
+  border-color: var(--green-primary) !important;
+}
+
+/* ==========================================
+   FLAG SELECTOR — LAYOUT FIX
+   ========================================== */
+
+.language-toggle-large {
+  justify-content: center !important;
+  gap: 10px !important;
+}
+
+.flag-btn-large {
+  flex: 0 0 auto !important;
+}
+
+.flag-btn-large .flag-img {
+  margin: 0 !important;
+  border: 1.5px solid rgba(0,0,0,0.5) !important;
+  border-radius: 3px !important;
+}
+
+.flag-btn-large.active {
+  padding: 3px !important;
+  border-radius: 6px !important;
+}

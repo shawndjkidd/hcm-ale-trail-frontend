@@ -1,7 +1,7 @@
 const translations = {
   en: {
     craftBeerPassport: "HO CHI MINH ALE TRAIL",
-    stamps: "STAMPS",
+    stamps: "BEER STAMPS",
     faq: "FAQ",
     website: "WEBSITE",
     maps: "GOOGLE MAPS",
@@ -130,7 +130,7 @@ const translations = {
   
   vn: {
     craftBeerPassport: "TUYẾN BIA HỒ CHÍ MINH",
-    stamps: "TEM",
+    stamps: "TEM BIA",
     faq: "CÂU HỎI",
     website: "TRANG WEB",
     maps: "GOOGLE MAPS",
@@ -259,7 +259,7 @@ const translations = {
   
   kr: {
     craftBeerPassport: "호치민 에일 트레일",
-    stamps: "스탬프",
+    stamps: "맥주 스탬프",
     faq: "자주 묻는 질문",
     website: "웹사이트",
     maps: "GOOGLE MAPS",
@@ -388,7 +388,7 @@ const translations = {
   
   jp: {
     craftBeerPassport: "ホーチミン エールトレイル",
-    stamps: "スタンプ",
+    stamps: "ビールスタンプ",
     faq: "よくある質問",
     website: "ウェブサイト",
     maps: "GOOGLE MAPS",
