@@ -4832,3 +4832,26 @@ body.night-mode .map-card-name {
 body.night-mode .map-card-district {
   color: #aaa;
 }
+
+/* ── Progress Stars (Vietnamese flag star style) ─── */
+.progress-stars {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 0 4px;
+}
+.progress-star {
+  width: 36px;
+  height: 36px;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+.progress-star.incomplete {
+  color: var(--red-primary);
+  opacity: 0.35;
+}
+.progress-star.complete {
+  color: var(--yellow-primary);
+  opacity: 1;
+  filter: drop-shadow(0 0 4px rgba(255, 209, 0, 0.6));
+}

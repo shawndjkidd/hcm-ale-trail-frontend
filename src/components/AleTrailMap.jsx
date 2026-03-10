@@ -48,6 +48,53 @@ const SAIGON_LANDMARKS = [
       </g>
     </svg>`,
   },
+  {
+    name: 'Nhà Thờ Tân Định',
+    lat: 10.7883, lng: 106.6907,
+    svg: `<svg viewBox="0 0 36 52" width="36" height="52" xmlns="http://www.w3.org/2000/svg">
+      <g fill="#E8829A" opacity="0.85">
+        <rect x="15" y="0" width="6" height="3" rx="1"/>
+        <polygon points="18,3 14,12 22,12"/>
+        <rect x="15" y="10" width="6" height="24" rx="1"/>
+        <rect x="8" y="20" width="20" height="14" rx="1"/>
+        <rect x="13" y="23" width="4" height="6" rx="1" fill="#F4B8C8"/>
+        <rect x="19" y="23" width="4" height="6" rx="1" fill="#F4B8C8"/>
+        <polygon points="18,12 8,22 28,22"/>
+        <rect x="4" y="34" width="28" height="5" rx="1"/>
+        <rect x="0" y="39" width="36" height="4" rx="1"/>
+      </g>
+    </svg>`,
+  },
+  {
+    name: 'Chợ Bến Thành',
+    lat: 10.7726, lng: 106.6980,
+    svg: `<svg viewBox="0 0 52 40" width="52" height="40" xmlns="http://www.w3.org/2000/svg">
+      <g fill="#C8963E" opacity="0.85">
+        <rect x="0" y="18" width="52" height="18" rx="1"/>
+        <rect x="20" y="6" width="12" height="14" rx="1"/>
+        <rect x="24" y="1" width="4" height="7" rx="1"/>
+        <circle cx="26" cy="12" r="4" fill="#E0B060"/>
+        <circle cx="26" cy="12" r="2.5" fill="#C8963E"/>
+        <line x1="26" y1="8" x2="26" y2="16" stroke="#E0B060" stroke-width="1"/>
+        <line x1="22" y1="12" x2="30" y2="12" stroke="#E0B060" stroke-width="1"/>
+        <polygon points="26,4 20,8 32,8"/>
+        <rect x="6" y="14" width="10" height="8" rx="0"/>
+        <rect x="36" y="14" width="10" height="8" rx="0"/>
+      </g>
+    </svg>`,
+  },
+  {
+    name: 'Japan Town',
+    lat: 10.7794, lng: 106.7047,
+    svg: `<svg viewBox="0 0 40 38" width="40" height="38" xmlns="http://www.w3.org/2000/svg">
+      <g fill="#CC3333" opacity="0.85">
+        <rect x="2" y="8" width="36" height="5" rx="2"/>
+        <rect x="6" y="3" width="28" height="4" rx="2"/>
+        <rect x="7" y="13" width="5" height="22" rx="1"/>
+        <rect x="28" y="13" width="5" height="22" rx="1"/>
+      </g>
+    </svg>`,
+  },
 ]
 
 const breweryIcon = (logoUrl, name) => L.divIcon({

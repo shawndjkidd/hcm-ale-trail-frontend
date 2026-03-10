@@ -1,4 +1,13 @@
 import { useState, useEffect } from 'react'
+
+const Star = ({ filled }) => (
+  <svg viewBox="0 0 24 24" className={`progress-star ${filled ? 'complete' : 'incomplete'}`}>
+    <polygon
+      points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+      fill="currentColor"
+    />
+  </svg>
+)
 import translations from '../translations'
 import EventsPage from './EventsPage'
 
@@ -194,11 +203,10 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
           <div className="progress-label">{t.stamps}</div>
           <div className="progress-count">{stamps.length}/{requiredCount}</div>
         </div>
-        <div className="progress-bar-container">
-          <div 
-            className="progress-bar-fill" 
-            style={{ width: `${progress}%` }}
-          />
+        <div className="progress-stars">
+          {Array.from({ length: requiredCount }, (_, i) => (
+            <Star key={i} filled={i < stamps.length} />
+          ))}
         </div>
       </div>
 
