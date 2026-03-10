@@ -1,39 +1,10 @@
-import { useEffect, useRef } from 'react'
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
+import { useRef } from 'react'
+import { MapContainer, TileLayer, Marker, Popup, ZoomControl, Tooltip } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
-// Fix Leaflet default marker icon broken by bundlers
 delete L.Icon.Default.prototype._getIconUrl
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-})
 
-// Custom marker icons
-const activeIcon = new L.Icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-})
-
-const closedIcon = new L.Icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-  className: 'leaflet-marker-closed',
-})
-
-// Hardcoded brewery coordinates keyed by name
 const BREWERY_COORDS = {
   'BiaCraft':              { lat: 10.7873, lng: 106.6910, district: 'District 3' },
   'Heart of Darkness':     { lat: 10.7768, lng: 106.7010, district: 'District 1' },
@@ -45,26 +16,51 @@ const BREWERY_COORDS = {
   'Belgo Saigon':          { lat: 10.7760, lng: 106.6950, district: 'District 1' },
 }
 
-const LIGHT_TILES = {
-  url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-}
+const SAIGON_LANDMARKS = [
+  { name: 'Notre-Dame Cathedral',    emoji: '⛪', lat: 10.7798, lng: 106.6990 },
+  { name: 'Ben Thanh Market',        emoji: '🏪', lat: 10.7725, lng: 106.6980 },
+  { name: 'Reunification Palace',    emoji: '🏛️', lat: 10.7770, lng: 106.6954 },
+  { name: 'Bitexco Financial Tower', emoji: '🏢', lat: 10.7716, lng: 106.7041 },
+  { name: 'War Remnants Museum',     emoji: '🏛️', lat: 10.7797, lng: 106.6920 },
+  { name: 'Opera House',             emoji: '🎭', lat: 10.7766, lng: 106.7032 },
+  { name: 'Central Post Office',     emoji: '📮', lat: 10.7800, lng: 106.6996 },
+]
 
-const DARK_TILES = {
-  url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-}
+const breweryIcon = (number) => L.divIcon({
+  className: 'brewery-map-marker',
+  html: `<div class="marker-inner">${number}</div>`,
+  iconSize: [36, 36],
+  iconAnchor: [18, 18],
+  popupAnchor: [0, -20],
+})
 
-// Component to swap tile layers without remounting the whole map
-function TileLayerSwitcher({ nightMode }) {
-  const tiles = nightMode ? DARK_TILES : LIGHT_TILES
-  return <TileLayer key={nightMode ? 'dark' : 'light'} url={tiles.url} attribution={tiles.attribution} />
-}
+const closedBreweryIcon = (number) => L.divIcon({
+  className: 'brewery-map-marker brewery-map-marker-closed',
+  html: `<div class="marker-inner">${number}</div>`,
+  iconSize: [36, 36],
+  iconAnchor: [18, 18],
+  popupAnchor: [0, -20],
+})
 
-export default function AleTrailMap({ breweries = [], onBack, nightMode, onBreweryNavigate }) {
+const landmarkIcon = (emoji) => L.divIcon({
+  className: 'landmark-map-marker',
+  html: `<div class="landmark-inner">${emoji}</div>`,
+  iconSize: [28, 28],
+  iconAnchor: [14, 14],
+})
+
+export default function AleTrailMap({ breweries = [], stamps = [], onBack, onBreweryNavigate }) {
+  const mapRef = useRef(null)
+
   const brewsWithCoords = breweries
     .map(b => ({ ...b, coords: BREWERY_COORDS[b.name] }))
     .filter(b => b.coords)
+
+  const flyToBrewery = (coords) => {
+    if (mapRef.current) {
+      mapRef.current.flyTo([coords.lat, coords.lng], 16, { duration: 0.8 })
+    }
+  }
 
   const handleViewBrewery = (brewery) => {
     if (typeof onBreweryNavigate === 'function') {
@@ -73,43 +69,90 @@ export default function AleTrailMap({ breweries = [], onBack, nightMode, onBrewe
   }
 
   return (
-    <div className={`ale-trail-map-page${nightMode ? ' night-mode' : ''}`}>
+    <div className="ale-trail-map-page">
       <button className="back-btn" onClick={onBack}>← BACK</button>
-      <h2 className="ale-trail-map-title">ALE TRAIL MAP</h2>
-      <p className="ale-trail-map-subtitle">{brewsWithCoords.length} breweries in Ho Chi Minh City</p>
+      <h1 className="map-page-title">ALE TRAIL MAP</h1>
+      <p className="map-page-subtitle">{brewsWithCoords.length} breweries across Ho Chi Minh City</p>
 
-      <div className="ale-trail-map-container">
+      <div className="map-wrapper">
         <MapContainer
-          center={[10.78, 106.70]}
-          zoom={13}
-          style={{ height: '100%', width: '100%' }}
-          scrollWheelZoom={true}
+          ref={mapRef}
+          center={[10.7800, 106.6970]}
+          zoom={14}
+          minZoom={12}
+          maxZoom={18}
+          style={{ height: '55vh', width: '100%' }}
+          zoomControl={false}
         >
-          <TileLayerSwitcher nightMode={nightMode} />
-          {brewsWithCoords.map(brewery => (
+          <TileLayer
+            url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
+          />
+          <TileLayer
+            url="https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png"
+            attribution=""
+          />
+          <ZoomControl position="bottomright" />
+
+          {SAIGON_LANDMARKS.map(lm => (
+            <Marker
+              key={lm.name}
+              position={[lm.lat, lm.lng]}
+              icon={landmarkIcon(lm.emoji)}
+              interactive={true}
+            >
+              <Tooltip className="landmark-tooltip" direction="top">{lm.name}</Tooltip>
+            </Marker>
+          ))}
+
+          {brewsWithCoords.map((brewery, i) => (
             <Marker
               key={brewery.id}
               position={[brewery.coords.lat, brewery.coords.lng]}
-              icon={brewery.status === 'temporarily_closed' ? closedIcon : activeIcon}
+              icon={brewery.status === 'temporarily_closed'
+                ? closedBreweryIcon(i + 1)
+                : breweryIcon(i + 1)
+              }
             >
               <Popup>
-                <div className="map-popup">
-                  <strong className="map-popup-name">{brewery.name}</strong>
-                  <span className="map-popup-district">{brewery.coords.district}</span>
+                <div>
+                  <div className="brewery-popup-name">{brewery.name}</div>
+                  <div className="brewery-popup-district">{brewery.coords.district}</div>
                   {brewery.status === 'temporarily_closed' && (
-                    <span className="map-popup-closed">Temporarily Closed</span>
+                    <div style={{ color: '#ff6b6b', fontSize: '0.75rem', marginBottom: 6 }}>
+                      Temporarily Closed
+                    </div>
                   )}
                   <button
-                    className="map-popup-btn"
+                    className="brewery-popup-btn"
                     onClick={() => handleViewBrewery(brewery)}
                   >
-                    View Brewery →
+                    VIEW BREWERY →
                   </button>
                 </div>
               </Popup>
             </Marker>
           ))}
         </MapContainer>
+      </div>
+
+      <div className="map-brewery-list">
+        {brewsWithCoords.map((brewery, i) => (
+          <div
+            key={brewery.id}
+            className="map-brewery-card"
+            onClick={() => flyToBrewery(brewery.coords)}
+          >
+            <div className="map-card-number">{i + 1}</div>
+            <div className="map-card-info">
+              <div className="map-card-name">{brewery.name}</div>
+              <div className="map-card-district">{brewery.coords.district}</div>
+            </div>
+            {stamps.includes(brewery.id) && (
+              <div className="map-card-stamp">✅</div>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   )

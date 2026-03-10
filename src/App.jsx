@@ -545,6 +545,7 @@ export default function App() {
       {view === "map" && (
         <AleTrailMap
           breweries={breweries}
+          stamps={stamps}
           onBack={() => handleNavigate("home")}
           nightMode={nightMode}
           onBreweryNavigate={handleBreweryClick}
