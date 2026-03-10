@@ -549,6 +549,7 @@ export default function App() {
           onBack={() => handleNavigate("home")}
           nightMode={nightMode}
           onBreweryNavigate={handleBreweryClick}
+          language={language}
         />
       )}
       {view === "faq" && <FAQ onBack={() => handleNavigate("home")} language={language} user={user} />}

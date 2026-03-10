@@ -126,6 +126,8 @@ const translations = {
     alreadyHaveAccount: "Already have an account?",
     signInLink: "Sign in",
     logOut: "Log out",
+    aleTrailMap: "ALE TRAIL MAP",
+    breweriesAcrossCity: "8 breweries across Ho Chi Minh City",
   },
   
   vn: {
@@ -255,6 +257,8 @@ const translations = {
     alreadyHaveAccount: "Bạn đã có tài khoản?",
     signInLink: "Đăng nhập",
     logOut: "Đăng xuất",
+    aleTrailMap: "BẢN ĐỒ ALE TRAIL",
+    breweriesAcrossCity: "8 nhà máy bia trên Hồ Chí Minh",
   },
   
   kr: {
@@ -384,6 +388,8 @@ const translations = {
     alreadyHaveAccount: "이미 계정이 있으신가요?",
     signInLink: "로그인",
     logOut: "로그아웃",
+    aleTrailMap: "에일 트레일 지도",
+    breweriesAcrossCity: "호치민시 8개 양조장",
   },
   
   jp: {
@@ -513,6 +519,8 @@ const translations = {
     alreadyHaveAccount: "すでにアカウントをお持ちですか？",
     signInLink: "ログイン",
     logOut: "ログアウト",
+    aleTrailMap: "エールトレイルマップ",
+    breweriesAcrossCity: "ホーチミンの8つの醸造所",
   }
 }
 

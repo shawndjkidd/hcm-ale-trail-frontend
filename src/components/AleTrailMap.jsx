@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react'
+import translations from '../translations'
 import { MapContainer, TileLayer, Marker, Popup, ZoomControl, Tooltip, AttributionControl } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -156,11 +157,12 @@ const landmarkIcon = (svgHtml) => L.divIcon({
   iconAnchor: [20, 50],
 })
 
-export default function AleTrailMap({ breweries = [], stamps = [], onBack, onBreweryNavigate }) {
+export default function AleTrailMap({ breweries = [], stamps = [], onBack, onBreweryNavigate, language = 'en' }) {
   const mapRef = useRef(null)
+  const t = translations[language] || translations.en
 
   useEffect(() => {
-    document.body.style.background = '#f5e6c8'
+    document.body.style.background = '#E31E24'
     return () => {
       document.body.style.background = ''
     }
@@ -184,10 +186,10 @@ export default function AleTrailMap({ breweries = [], stamps = [], onBack, onBre
 
   return (
     <div className="ale-trail-map-page">
-      <button className="back-btn" onClick={onBack}>← BACK</button>
+      <button className="back-btn" onClick={onBack}>← {t.back || 'BACK'}</button>
       <div className="map-title-banner">
-        <h1>ALE TRAIL MAP</h1>
-        <span className="subtitle">{brewsWithCoords.length} breweries across Ho Chi Minh City</span>
+        <h1>{t.aleTrailMap || 'ALE TRAIL MAP'}</h1>
+        <span className="subtitle">{t.breweriesAcrossCity || `${brewsWithCoords.length} breweries across Ho Chi Minh City`}</span>
       </div>
 
       <div className="map-wrapper">

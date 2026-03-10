@@ -4948,7 +4948,7 @@ body.night-mode .map-card-district {
 
 /* Cream page background */
 .ale-trail-map-page {
-  background: #F5E6C8 !important;
+  background: var(--red-primary) !important;
 }
 
 /* Vintage sepia filter on tile layer only — pins stay vivid */
@@ -5017,12 +5017,13 @@ body.night-mode .map-card-district {
 .map-title-banner::before { left: 12px; }
 .map-title-banner::after { right: 12px; }
 
-/* Dark vintage green back button */
+/* Back button: bright green, Anton font */
 .ale-trail-map-page .back-btn {
-  background: #2D5A27 !important;
-  color: #F5E6C8 !important;
+  background: var(--green-primary) !important;
+  color: var(--white) !important;
   border: 3px solid var(--black) !important;
   box-shadow: 4px 4px 0 var(--black) !important;
+  font-family: var(--font-display) !important;
 }
 
 /* Night mode overrides */
@@ -5244,8 +5245,22 @@ body.lang-jp .side-quests-section-title {
 
 /* Map page: prevent red .app background from bleeding on wide screens */
 body:has(.ale-trail-map-page) {
-  background: #f5e6c8;
+  background: var(--red-primary);
 }
 body:has(.ale-trail-map-page) .app {
   background: transparent;
+}
+.ale-trail-map-page .map-title-banner,
+.ale-trail-map-page .map-title-banner h1,
+.ale-trail-map-page .map-title-banner h2,
+.ale-trail-map-page .map-title-banner p,
+.ale-trail-map-page .map-title-banner .subtitle {
+  font-family: var(--font-display) !important;
+}
+.ale-trail-map-page .brewery-name,
+.ale-trail-map-page .brewery-number {
+  font-family: var(--font-display) !important;
+}
+.ale-trail-map-page .brewery-list {
+  margin: 0;
 }
