@@ -6,7 +6,7 @@
    ========================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap');
 
 :root {
@@ -20,17 +20,18 @@
   --gray: #808080;
   --instagram-pink: #E1306C;
   --facebook-blue: #1877F2;
-  --font-display: 'Anton', 'Be Vietnam Pro', sans-serif;
+  --font-display: 'Inter', 'Impact', sans-serif;
   --font-body: 'Arial', sans-serif;
 }
 
-/* Vietnamese: swap display font to Be Vietnam Pro for proper diacritic rendering */
+/* Vietnamese: Inter 900 handles diacritics and English perfectly */
 [data-lang="vn"] {
-  --font-display: 'Be Vietnam Pro', sans-serif;
+  --font-display: 'Inter', sans-serif;
 }
 [data-lang="vn"] * {
-  font-family: "Be Vietnam Pro", sans-serif !important;
+  font-family: 'Inter', sans-serif !important;
   font-weight: 900 !important;
+  letter-spacing: -0.5px !important;
 }
 
 * {
@@ -1632,7 +1633,8 @@ body {
   padding: 18px 8px;
   font-size: 1.1rem;
   font-weight: 900;
-  font-family: 'Anton', 'Impact', sans-serif;
+  font-family: 'Inter', 'Impact', sans-serif;
+  letter-spacing: -0.5px;
   text-align: center;
   text-decoration: none;
   border: 4px solid var(--black);
@@ -1686,10 +1688,11 @@ body {
 /* Half-width buttons */
 .nav-btn-half {
   flex: 1;
-  padding: 18px 8px;
-  font-size: 2.2rem;
+  padding: 0.75rem;
+  font-size: 1.2rem;
   font-weight: 900;
-  font-family: 'Anton', 'Impact', sans-serif;
+  font-family: 'Inter', 'Impact', sans-serif;
+  letter-spacing: -0.5px;
   text-align: center;
   text-decoration: none;
   border: 4px solid var(--black);
@@ -1698,6 +1701,10 @@ body {
   text-transform: uppercase;
   transition: transform 0.1s, box-shadow 0.1s;
   box-shadow: 4px 4px 0 var(--black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
 }
 
 .nav-btn-half:hover {
@@ -2977,15 +2984,15 @@ body {
 .side-quest-item-home {
   display: flex;
   align-items: center;
-  background: linear-gradient(135deg, #00B050 0%, #008C41 100%);
-  border: 4px solid var(--black);
-  border-radius: 0;
+  background: var(--green-primary);
+  border: none;
+  border-radius: 8px;
   padding: 0;
   margin-bottom: 0.5rem;
   cursor: pointer;
   transition: transform 0.2s;
   position: relative;
-  box-shadow: 4px 4px 0 var(--black);
+  box-shadow: none;
   gap: 0;
 }
 
@@ -3109,10 +3116,10 @@ body {
    SIDE QUEST SECTION HEADER
    ========================================== */
 .side-quests-section-title {
-  font-family: 'Anton', sans-serif;
+  font-family: 'Inter', 'Impact', sans-serif;
   font-size: 2rem;
-  font-weight: 400;
-  letter-spacing: 0.1em;
+  font-weight: 900;
+  letter-spacing: -0.5px;
   color: var(--white);
   -webkit-text-stroke: 0;
   text-shadow: none;
@@ -4275,9 +4282,9 @@ body.night-mode .logout-link:hover {
   color: #FFFFFF;
   font-size: clamp(20px, 6vw, 34px);
   font-weight: 900;
-  letter-spacing: 3px;
+  letter-spacing: -0.5px;
   transform: rotate(-20deg);
-  font-family: 'Anton', sans-serif;
+  font-family: 'Inter', 'Impact', sans-serif;
   border: 4px solid #F5A623;
   padding: 10px 24px;
   white-space: nowrap;
@@ -4342,9 +4349,10 @@ body.night-mode .side-quest-completed-box .completed-reward {
   box-sizing: border-box;
 }
 .ale-trail-map-title {
-  font-family: 'Anton', sans-serif;
+  font-family: 'Inter', 'Impact', sans-serif;
   font-size: 1.6rem;
-  letter-spacing: 2px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
   color: var(--black);
   margin: 8px 16px 2px;
 }
@@ -4373,10 +4381,10 @@ body.night-mode .side-quest-completed-box .completed-reward {
 }
 .map-popup-name {
   font-size: 0.95rem;
-  font-weight: 800;
+  font-weight: 900;
   color: #111;
-  font-family: 'Anton', sans-serif;
-  letter-spacing: 1px;
+  font-family: 'Inter', 'Impact', sans-serif;
+  letter-spacing: -0.5px;
 }
 .map-popup-district {
   font-size: 0.78rem;
@@ -4488,9 +4496,10 @@ body.lang-kr button, body.lang-kr a {
   box-sizing: border-box;
 }
 .map-page-title {
-  font-family: 'Anton', sans-serif;
+  font-family: 'Inter', 'Impact', sans-serif;
   font-size: 1.8rem;
-  letter-spacing: 3px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
   color: #FFD100;
   margin: 0 0 2px;
 }
@@ -5017,7 +5026,7 @@ body.night-mode .map-card-district {
 .map-title-banner::before { left: 12px; }
 .map-title-banner::after { right: 12px; }
 
-/* Back button: bright green, Anton font */
+/* Back button: bright green, Inter font */
 .ale-trail-map-page .back-btn {
   background: var(--green-primary) !important;
   color: var(--white) !important;
@@ -5210,7 +5219,9 @@ body.lang-jp .beer-name-large,
 body.lang-kr .beer-name-large,
 body.lang-jp .brewery-card-name,
 body.lang-kr .brewery-card-name {
-  font-family: Anton, "Be Vietnam Pro", sans-serif !important;
+  font-family: 'Inter', 'Impact', sans-serif !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.5px !important;
 }
 
 /* Side Quests - names and rewards are always English */
@@ -5220,7 +5231,9 @@ body.lang-jp .side-quest-reward-home,
 body.lang-kr .side-quest-reward-home,
 body.lang-jp .side-quest-info-home,
 body.lang-kr .side-quest-info-home {
-  font-family: Anton, "Be Vietnam Pro", sans-serif !important;
+  font-family: 'Inter', 'Impact', sans-serif !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.5px !important;
 }
 
 /* District labels are always English */
@@ -5238,26 +5251,7 @@ body.lang-jp .side-quests-section-title {
   font-family: "Noto Sans JP", sans-serif !important;
   font-weight: 900 !important;
 }
-[data-lang="vn"] .side-quests-section-title {
-  font-family: "Be Vietnam Pro", sans-serif !important;
-  font-weight: 900 !important;
-}
-
-/* Explicit Be Vietnam Pro 900 overrides for Vietnamese mode */
-[data-lang="vn"] .brewery-name,
-[data-lang="vn"] .brewery-title,
-[data-lang="vn"] .brewery-number,
-[data-lang="vn"] .brewery-district,
-[data-lang="vn"] .brewery-address-small,
-[data-lang="vn"] .brewery-card-name,
-[data-lang="vn"] .beer-name,
-[data-lang="vn"] .beer-name-large,
-[data-lang="vn"] .side-quest-name-home,
-[data-lang="vn"] .side-quest-reward-home,
-[data-lang="vn"] .side-quest-info-home {
-  font-family: "Be Vietnam Pro", sans-serif !important;
-  font-weight: 900 !important;
-}
+/* [data-lang="vn"] wildcard covers all display elements — no per-element overrides needed */
 
 /* Map page: prevent red .app background from bleeding on wide screens */
 body:has(.ale-trail-map-page) {
@@ -5291,3 +5285,32 @@ body.lang-jp .social-btn { font-size: 0.85rem !important; }
 
 body.lang-kr .nav-btn-third { font-size: 0.9rem !important; }
 body.lang-kr .social-btn { font-size: 0.9rem !important; }
+
+/* ==========================================
+   INTER 900 — Global letter-spacing & weight for all display-font elements
+   ========================================== */
+.nav-btn-third,
+.nav-btn-half,
+.social-btn,
+.progress-label,
+.progress-count,
+.special-btn,
+.brewery-name,
+.brewery-number,
+.side-quests-section-title,
+.side-quest-name-home,
+.side-quest-reward-home,
+.back-btn,
+.action-btn,
+.beer-name,
+.beer-name-large,
+.brewery-card-name,
+.brewery-title,
+.header-title h1,
+.header-title h2,
+.map-title-banner h2,
+.map-title-banner p,
+.star-number {
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
