@@ -67,25 +67,30 @@ export async function registerParticipant(data) {
 }
 
 // Record a check-in (stamp)
+// frontendBreweryId can be either an integer key (1-8) OR a UUID string from the API
 export async function recordCheckin(participantId, frontendBreweryId, method = 'qr_scan') {
-  const breweryUUID = BREWERY_MAP[frontendBreweryId];
-  
+  // Try integer key first, then fall back to treating it as a direct UUID
+  let breweryUUID = BREWERY_MAP[frontendBreweryId];
+  if (!breweryUUID && typeof frontendBreweryId === 'string' && frontendBreweryId.includes('-')) {
+    breweryUUID = frontendBreweryId;
+  }
+
   if (!breweryUUID) {
     console.log('Invalid brewery ID:', frontendBreweryId);
     return { data: null, error: { message: 'Invalid brewery ID' }, isExisting: false };
   }
-  
+
   // Check if already checked in
   const { data: existingCheckins } = await supabase
     .from('checkins')
     .select('*')
     .eq('participant_id', participantId)
     .eq('brewery_id', breweryUUID);
-  
+
   if (existingCheckins && existingCheckins.length > 0) {
     return { data: existingCheckins[0], error: null, isExisting: true };
   }
-  
+
   // Create new check-in
   const { data, error } = await supabase
     .from('checkins')
@@ -94,14 +99,17 @@ export async function recordCheckin(participantId, frontendBreweryId, method = '
       brewery_id: breweryUUID,
       trail_id: TRAIL_ID,
       method: method,
+      checked_in_at: new Date().toISOString(),
     })
     .select()
     .single();
-  
+
   if (error) {
-    console.log('Check-in error:', error);
+    console.log('Check-in insert error:', error);
+  } else {
+    console.log('Check-in saved:', breweryUUID, data);
   }
-  
+
   return { data, error, isExisting: false };
 }
 

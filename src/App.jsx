@@ -157,8 +157,13 @@ export default function App() {
     const r = await getMe(TRAIL_ID);
     if (r?.ok) {
       if (Array.isArray(r.checkedInBreweryIds)) {
-        setStamps(r.checkedInBreweryIds);
-        localStorage.setItem("hcm-stamps", JSON.stringify(r.checkedInBreweryIds));
+        // Merge server stamps with any locally-held stamps to avoid wiping
+        // stamps that were saved to state/localStorage but not yet persisted to DB
+        setStamps(prev => {
+          const merged = [...new Set([...prev, ...r.checkedInBreweryIds])];
+          localStorage.setItem("hcm-stamps", JSON.stringify(merged));
+          return merged;
+        });
       }
       return r;
     }
