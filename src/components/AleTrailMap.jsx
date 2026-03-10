@@ -5,6 +5,22 @@ import 'leaflet/dist/leaflet.css'
 
 delete L.Icon.Default.prototype._getIconUrl
 
+const BREWERY_LOGOS = {
+  'BiaCraft': '/logos/biacraft.png',
+  'Heart of Darkness': '/logos/hod.png',
+  'Deme': '/logos/deme.png',
+  'Steersman': '/logos/steersman.png',
+  'East West Brewing': '/logos/eastwest.png',
+  'Rooster Beers': '/logos/rooster.png',
+  '7 Bridges Brewing Co.': '/logos/7bridges.png',
+  'Belgo Saigon': '/logos/belgo.png',
+}
+
+const getBreweryLogo = (brewery) => {
+  if (brewery?.logo_url) return brewery.logo_url
+  return BREWERY_LOGOS[brewery?.name] || null
+}
+
 const BREWERY_COORDS = {
   'BiaCraft':              { lat: 10.7764, lng: 106.6855, district: 'District 3',  address: '1 Lê Ngô Cát, Võ Thị Sáu, Quận 3' },
   'Heart of Darkness':     { lat: 10.7798, lng: 106.7029, district: 'District 1',  address: '31D Lý Tự Trọng, Bến Nghé, Quận 1' },
@@ -207,15 +223,15 @@ export default function AleTrailMap({ breweries = [], stamps = [], onBack, onBre
               key={brewery.id}
               position={[brewery.coords.lat, brewery.coords.lng]}
               icon={brewery.status === 'temporarily_closed'
-                ? closedBreweryIcon(brewery.logo_url, brewery.name)
-                : breweryIcon(brewery.logo_url, brewery.name)
+                ? closedBreweryIcon(getBreweryLogo(brewery), brewery.name)
+                : breweryIcon(getBreweryLogo(brewery), brewery.name)
               }
             >
               <Popup>
                 <div className="brewery-popup">
                   <div className="brewery-popup-header">
-                    {brewery.logo_url && (
-                      <img src={brewery.logo_url} className="brewery-popup-logo" alt="" />
+                    {getBreweryLogo(brewery) && (
+                      <img src={getBreweryLogo(brewery)} className="brewery-popup-logo" alt="" />
                     )}
                     <div className="brewery-popup-name">{brewery.name}</div>
                   </div>
@@ -246,8 +262,8 @@ export default function AleTrailMap({ breweries = [], stamps = [], onBack, onBre
             onClick={() => flyToBrewery(brewery.coords)}
           >
             <div className="map-card-number">
-              {brewery.logo_url
-                ? <img src={brewery.logo_url} alt={brewery.name} className="map-card-logo" />
+              {getBreweryLogo(brewery)
+                ? <img src={getBreweryLogo(brewery)} alt={brewery.name} className="map-card-logo" />
                 : <span>🍺</span>
               }
             </div>
