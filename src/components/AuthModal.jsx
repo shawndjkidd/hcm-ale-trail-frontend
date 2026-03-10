@@ -126,7 +126,7 @@ export default function AuthModal({ onSuccess, language = "en" }) {
         return;
       }
 
-      setInfo("Check your email for a password reset link.");
+      setInfo(t.checkEmailForReset || "Check your email for a password reset link.");
     } catch (e) {
       setErr(e?.message || "Failed to send reset email. Please try again.");
     } finally {
@@ -191,18 +191,18 @@ export default function AuthModal({ onSuccess, language = "en" }) {
                 type="button"
                 onClick={() => switchMode("forgot")}
               >
-                Forgot password?
+                {t.forgotPassword || "Forgot password?"}
               </button>
             </p>
 
             <p style={{ textAlign: "center", marginTop: "0.5rem" }}>
-              <span style={{ opacity: 0.7, fontSize: "0.875rem" }}>No account? </span>
+              <span style={{ opacity: 0.7, fontSize: "0.875rem" }}>{t.noAccount || "No account?"} </span>
               <button
                 className="auth-link-btn"
                 type="button"
                 onClick={() => switchMode("register")}
               >
-                Create one
+                {t.createOne || "Create one"}
               </button>
             </p>
           </>
@@ -211,16 +211,16 @@ export default function AuthModal({ onSuccess, language = "en" }) {
         {/* ── Register mode ── */}
         {mode === "register" && (
           <>
-            <h2 className="welcome-title">CREATE ACCOUNT</h2>
-            <p className="welcome-subtitle">Join the HCM Ale Trail!</p>
+            <h2 className="welcome-title">{t.createAccount || "CREATE ACCOUNT"}</h2>
+            <p className="welcome-subtitle">{t.joinAleTrail || "Join the HCM Ale Trail!"}</p>
 
             <form onSubmit={submitRegister}>
               <div className="form-group">
-                <label>Name *</label>
+                <label>{t.nameLabel || "Name"} *</label>
                 <input
                   type="text"
                   className="text-input"
-                  placeholder="Your name"
+                  placeholder={t.namePlaceholder || "Your name"}
                   value={name}
                   autoComplete="name"
                   onChange={(e) => setName(e.target.value)}
@@ -256,18 +256,18 @@ export default function AuthModal({ onSuccess, language = "en" }) {
               {info && <div className="form-info">{info}</div>}
 
               <button className="welcome-btn" type="submit" disabled={busy}>
-                {busy ? "Creating account..." : "CREATE ACCOUNT"}
+                {busy ? "..." : (t.createAccount || "CREATE ACCOUNT")}
               </button>
             </form>
 
             <p style={{ textAlign: "center", marginTop: "0.75rem" }}>
-              <span style={{ opacity: 0.7, fontSize: "0.875rem" }}>Already have an account? </span>
+              <span style={{ opacity: 0.7, fontSize: "0.875rem" }}>{t.alreadyHaveAccount || "Already have an account?"} </span>
               <button
                 className="auth-link-btn"
                 type="button"
                 onClick={() => switchMode("login")}
               >
-                Sign in
+                {t.signIn || "Sign in"}
               </button>
             </p>
           </>
@@ -276,9 +276,9 @@ export default function AuthModal({ onSuccess, language = "en" }) {
         {/* ── Forgot password mode ── */}
         {mode === "forgot" && (
           <>
-            <h2 className="welcome-title">RESET PASSWORD</h2>
+            <h2 className="welcome-title">{t.resetPassword || "RESET PASSWORD"}</h2>
             <p className="welcome-subtitle">
-              Enter your email and we'll send you a reset link.
+              {t.resetPasswordSubtitle || "Enter your email and we'll send you a reset link."}
             </p>
 
             <form onSubmit={submitForgot}>
@@ -299,7 +299,7 @@ export default function AuthModal({ onSuccess, language = "en" }) {
               {info && <div className="form-info">{info}</div>}
 
               <button className="welcome-btn" type="submit" disabled={busy || !!info}>
-                {busy ? "Sending..." : "SEND RESET LINK"}
+                {busy ? "..." : (t.sendResetLink || "SEND RESET LINK")}
               </button>
             </form>
 
@@ -309,7 +309,7 @@ export default function AuthModal({ onSuccess, language = "en" }) {
                 type="button"
                 onClick={() => switchMode("login")}
               >
-                ← Back to sign in
+                {t.backToSignIn || "← Back to sign in"}
               </button>
             </p>
           </>
