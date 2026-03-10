@@ -6,14 +6,14 @@ import 'leaflet/dist/leaflet.css'
 delete L.Icon.Default.prototype._getIconUrl
 
 const BREWERY_COORDS = {
-  'BiaCraft':              { lat: 10.7873, lng: 106.6910, district: 'District 3' },
-  'Heart of Darkness':     { lat: 10.7768, lng: 106.7010, district: 'District 1' },
-  'Deme':                  { lat: 10.7901, lng: 106.6884, district: 'District 3' },
-  'Steersman':             { lat: 10.8031, lng: 106.7350, district: 'Thao Dien' },
-  'East West Brewing':     { lat: 10.7735, lng: 106.6965, district: 'District 1' },
-  'Rooster Beers':         { lat: 10.7700, lng: 106.6935, district: 'District 1' },
-  '7 Bridges Brewing Co.': { lat: 10.7750, lng: 106.6980, district: 'District 1' },
-  'Belgo Saigon':          { lat: 10.7760, lng: 106.6950, district: 'District 1' },
+  'BiaCraft':              { lat: 10.7764, lng: 106.6855, district: 'District 3',  address: '1 Lê Ngô Cát, Võ Thị Sáu, Quận 3' },
+  'Heart of Darkness':     { lat: 10.7798, lng: 106.7029, district: 'District 1',  address: '31D Lý Tự Trọng, Bến Nghé, Quận 1' },
+  'Deme':                  { lat: 10.7901, lng: 106.6884, district: 'District 3',  address: '393/7 Hai Bà Trưng, Võ Thị Sáu, Quận 3' },
+  'Steersman':             { lat: 10.7901, lng: 106.7120, district: 'Bình Thạnh',  address: '84 Phạm Viết Chánh, Phường 19, Bình Thạnh' },
+  'East West Brewing':     { lat: 10.7731, lng: 106.6961, district: 'District 1',  address: '181 Lý Tự Trọng, Bến Thành, Quận 1' },
+  'Rooster Beers':         { lat: 10.7677, lng: 106.6945, district: 'District 1',  address: '40 Bùi Viện, Phạm Ngũ Lão, Quận 1' },
+  '7 Bridges Brewing Co.': { lat: 10.7766, lng: 106.7049, district: 'District 1',  address: '38 Đông Du, Bến Nghé, Quận 1' },
+  'Belgo Saigon':          { lat: 10.7732, lng: 106.7021, district: 'District 1',  address: '29-31 Đ. Tôn Thất Thiệp, Bến Nghé, Quận 1' },
 }
 
 const SAIGON_LANDMARKS = [
@@ -117,7 +117,7 @@ export default function AleTrailMap({ breweries = [], stamps = [], onBack, onBre
               <Popup>
                 <div>
                   <div className="brewery-popup-name">{brewery.name}</div>
-                  <div className="brewery-popup-district">{brewery.coords.district}</div>
+                  <div className="brewery-popup-district">{brewery.coords.address}</div>
                   {brewery.status === 'temporarily_closed' && (
                     <div style={{ color: '#ff6b6b', fontSize: '0.75rem', marginBottom: 6 }}>
                       Temporarily Closed
