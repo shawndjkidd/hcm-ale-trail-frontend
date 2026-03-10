@@ -4262,7 +4262,7 @@ body.night-mode .logout-link:hover {
 .stamp-text,
 .completion-title,
 .leaderboard-title {
-  letter-spacing: 1.5px !important;
+  letter-spacing: -0.5px !important;
 }
 
 /* ===== TEMPORARILY CLOSED DIAGONAL OVERLAY ===== */
@@ -5313,4 +5313,15 @@ body.lang-kr .social-btn { font-size: 0.9rem !important; }
 .star-number {
   font-weight: 900;
   letter-spacing: -0.5px;
+}
+
+/* Inter letter-spacing fallback — covers all languages */
+[data-lang="vn"] * {
+  letter-spacing: -0.5px !important;
+}
+body.lang-kr * {
+  letter-spacing: -0.5px !important;
+}
+body.lang-jp * {
+  letter-spacing: -0.5px !important;
 }
