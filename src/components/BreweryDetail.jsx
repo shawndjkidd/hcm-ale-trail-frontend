@@ -302,7 +302,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </div>
       )}
 
-      {!isStamped && !qrValidated && !isTempClosed && (
+      {!isStamped && !isTempClosed && (
         <div className="stamp-instruction-box">
           <div className="stamp-icon">🍺</div>
           <div className="stamp-instruction-text">
@@ -478,7 +478,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </div>
       )}
 
-      {!qrValidated && !isStamped && !isTempClosed && (
+      {!isStamped && !isTempClosed && (
         <div className="manual-code-section">
           <p className="code-label">{t.codeBackup}</p>
           <p className="code-subtext">{t.codeBackupText}</p>
