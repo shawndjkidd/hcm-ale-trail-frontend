@@ -5189,3 +5189,21 @@ body.night-mode .progress-section {
   padding: 3px !important;
   border-radius: 6px !important;
 }
+
+/* Keep English display font for brewery/beer names regardless of language */
+body.lang-jp .brewery-name,
+body.lang-kr .brewery-name,
+body.lang-jp .brewery-title,
+body.lang-kr .brewery-title,
+body.lang-jp .brewery-address-small,
+body.lang-kr .brewery-address-small,
+body.lang-jp .brewery-number,
+body.lang-kr .brewery-number,
+body.lang-jp .beer-name,
+body.lang-kr .beer-name,
+body.lang-jp .beer-name-large,
+body.lang-kr .beer-name-large,
+body.lang-jp .brewery-card-name,
+body.lang-kr .brewery-card-name {
+  font-family: Anton, "Be Vietnam Pro", sans-serif !important;
+}
