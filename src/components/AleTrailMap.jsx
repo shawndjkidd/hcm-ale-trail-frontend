@@ -210,11 +210,16 @@ export default function AleTrailMap({ breweries = [], stamps = [], onBack, onBre
               }
             >
               <Popup>
-                <div>
-                  <div className="brewery-popup-name">{brewery.name}</div>
+                <div className="brewery-popup">
+                  <div className="brewery-popup-header">
+                    {brewery.logo_url && (
+                      <img src={brewery.logo_url} className="brewery-popup-logo" alt="" />
+                    )}
+                    <div className="brewery-popup-name">{brewery.name}</div>
+                  </div>
                   <div className="brewery-popup-district">{brewery.coords.address}</div>
                   {brewery.status === 'temporarily_closed' && (
-                    <div style={{ color: '#ff6b6b', fontSize: '0.75rem', marginBottom: 6 }}>
+                    <div style={{ color: '#c0392b', fontSize: '0.75rem', marginBottom: 6, fontWeight: 700 }}>
                       Temporarily Closed
                     </div>
                   )}

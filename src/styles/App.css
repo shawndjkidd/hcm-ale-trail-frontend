@@ -4868,3 +4868,72 @@ body.night-mode .map-card-district {
   color: rgba(255, 255, 255, 0.4) !important;
   text-decoration: none !important;
 }
+
+/* Yellow popup redesign (overrides previous black popup) */
+.leaflet-popup-content-wrapper {
+  background: var(--yellow-primary) !important;
+  color: var(--black) !important;
+  border: 3px solid var(--black) !important;
+  border-radius: 0 !important;
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.3) !important;
+  padding: 0 !important;
+}
+.leaflet-popup-content {
+  margin: 0 !important;
+  min-width: 180px;
+}
+.leaflet-popup-tip {
+  background: var(--yellow-primary) !important;
+}
+.leaflet-popup-close-button {
+  color: var(--black) !important;
+  font-size: 1.2rem !important;
+  font-weight: bold !important;
+}
+.brewery-popup {
+  padding: 10px 12px;
+}
+.brewery-popup-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.brewery-popup-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--black);
+  object-fit: contain;
+  background: #fff;
+  flex-shrink: 0;
+}
+.brewery-popup-name {
+  font-family: 'Impact', 'Arial Black', sans-serif;
+  font-size: 1rem;
+  color: var(--red-primary);
+  line-height: 1.2;
+}
+.brewery-popup-district {
+  font-size: 0.78rem;
+  color: var(--black);
+  opacity: 0.7;
+  margin-bottom: 8px;
+}
+.brewery-popup-btn {
+  display: block;
+  width: 100%;
+  background: var(--red-primary);
+  color: var(--white);
+  border: 2px solid var(--black);
+  padding: 6px 12px;
+  font-family: 'Impact', 'Arial Black', sans-serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-align: center;
+  letter-spacing: 1px;
+  box-sizing: border-box;
+}
+.brewery-popup-btn:hover {
+  background: #c0161b;
+}
