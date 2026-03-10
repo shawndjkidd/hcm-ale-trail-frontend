@@ -17,36 +17,80 @@ const BREWERY_COORDS = {
 }
 
 const SAIGON_LANDMARKS = [
-  { name: 'Notre-Dame Cathedral',    emoji: '⛪', lat: 10.7798, lng: 106.6990 },
-  { name: 'Ben Thanh Market',        emoji: '🏪', lat: 10.7725, lng: 106.6980 },
-  { name: 'Reunification Palace',    emoji: '🏛️', lat: 10.7770, lng: 106.6954 },
-  { name: 'Bitexco Financial Tower', emoji: '🏢', lat: 10.7716, lng: 106.7041 },
-  { name: 'War Remnants Museum',     emoji: '🏛️', lat: 10.7797, lng: 106.6920 },
-  { name: 'Opera House',             emoji: '🎭', lat: 10.7766, lng: 106.7032 },
-  { name: 'Central Post Office',     emoji: '📮', lat: 10.7800, lng: 106.6996 },
+  {
+    name: 'Nhà Thờ Đức Bà',
+    lat: 10.7798, lng: 106.6990,
+    svg: `<svg viewBox="0 0 40 50" width="40" height="50" xmlns="http://www.w3.org/2000/svg">
+      <g fill="#D4574A" opacity="0.85">
+        <rect x="6" y="8" width="5" height="30" rx="1"/>
+        <polygon points="8.5,0 4,10 13,10"/>
+        <rect x="29" y="8" width="5" height="30" rx="1"/>
+        <polygon points="31.5,0 27,10 36,10"/>
+        <rect x="11" y="18" width="18" height="20" rx="1"/>
+        <circle cx="20" cy="25" r="4" fill="#F0A0A0"/>
+        <polygon points="20,10 11,20 29,20"/>
+        <rect x="4" y="38" width="32" height="5" rx="1"/>
+      </g>
+    </svg>`,
+  },
+  {
+    name: 'Bitexco Financial Tower',
+    lat: 10.7716, lng: 106.7041,
+    svg: `<svg viewBox="0 0 24 55" width="24" height="55" xmlns="http://www.w3.org/2000/svg">
+      <g fill="#5A7A9A" opacity="0.8">
+        <polygon points="12,0 6,50 18,50"/>
+        <ellipse cx="18" cy="20" rx="6" ry="2" fill="#4A6A8A"/>
+        <line x1="10" y1="10" x2="14" y2="10" stroke="#8AB" stroke-width="0.5"/>
+        <line x1="9" y1="20" x2="15" y2="20" stroke="#8AB" stroke-width="0.5"/>
+        <line x1="8" y1="30" x2="16" y2="30" stroke="#8AB" stroke-width="0.5"/>
+        <line x1="7" y1="40" x2="17" y2="40" stroke="#8AB" stroke-width="0.5"/>
+        <rect x="4" y="50" width="16" height="3" rx="1"/>
+      </g>
+    </svg>`,
+  },
 ]
 
-const breweryIcon = (number) => L.divIcon({
-  className: 'brewery-map-marker',
-  html: `<div class="marker-inner">${number}</div>`,
-  iconSize: [36, 36],
-  iconAnchor: [18, 18],
-  popupAnchor: [0, -20],
+const breweryIcon = (logoUrl, name) => L.divIcon({
+  className: 'brewery-logo-pin',
+  html: `
+    <div class="logo-pin-container">
+      <div class="logo-pin-head">
+        ${logoUrl
+          ? `<img src="${logoUrl}" alt="${name}" class="logo-pin-img" />`
+          : `<span class="logo-pin-fallback">🍺</span>`
+        }
+      </div>
+      <div class="logo-pin-tail"></div>
+    </div>
+  `,
+  iconSize: [48, 58],
+  iconAnchor: [24, 58],
+  popupAnchor: [0, -55],
 })
 
-const closedBreweryIcon = (number) => L.divIcon({
-  className: 'brewery-map-marker brewery-map-marker-closed',
-  html: `<div class="marker-inner">${number}</div>`,
-  iconSize: [36, 36],
-  iconAnchor: [18, 18],
-  popupAnchor: [0, -20],
+const closedBreweryIcon = (logoUrl, name) => L.divIcon({
+  className: 'brewery-logo-pin brewery-logo-pin-closed',
+  html: `
+    <div class="logo-pin-container">
+      <div class="logo-pin-head logo-pin-head-closed">
+        ${logoUrl
+          ? `<img src="${logoUrl}" alt="${name}" class="logo-pin-img" style="filter:grayscale(1);opacity:0.5" />`
+          : `<span class="logo-pin-fallback">🍺</span>`
+        }
+      </div>
+      <div class="logo-pin-tail logo-pin-tail-closed"></div>
+    </div>
+  `,
+  iconSize: [48, 58],
+  iconAnchor: [24, 58],
+  popupAnchor: [0, -55],
 })
 
-const landmarkIcon = (emoji) => L.divIcon({
-  className: 'landmark-map-marker',
-  html: `<div class="landmark-inner">${emoji}</div>`,
-  iconSize: [28, 28],
-  iconAnchor: [14, 14],
+const landmarkIcon = (svgHtml) => L.divIcon({
+  className: 'landmark-svg-marker',
+  html: svgHtml,
+  iconSize: [40, 55],
+  iconAnchor: [20, 50],
 })
 
 export default function AleTrailMap({ breweries = [], stamps = [], onBack, onBreweryNavigate }) {
@@ -85,11 +129,11 @@ export default function AleTrailMap({ breweries = [], stamps = [], onBack, onBre
           zoomControl={false}
         >
           <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
+            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
           />
           <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png"
+            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png"
             attribution=""
           />
           <ZoomControl position="bottomright" />
@@ -98,20 +142,22 @@ export default function AleTrailMap({ breweries = [], stamps = [], onBack, onBre
             <Marker
               key={lm.name}
               position={[lm.lat, lm.lng]}
-              icon={landmarkIcon(lm.emoji)}
-              interactive={true}
+              icon={landmarkIcon(lm.svg)}
+              interactive={false}
             >
-              <Tooltip className="landmark-tooltip" direction="top">{lm.name}</Tooltip>
+              <Tooltip className="landmark-tooltip" direction="top" offset={[0, -50]}>
+                {lm.name}
+              </Tooltip>
             </Marker>
           ))}
 
-          {brewsWithCoords.map((brewery, i) => (
+          {brewsWithCoords.map(brewery => (
             <Marker
               key={brewery.id}
               position={[brewery.coords.lat, brewery.coords.lng]}
               icon={brewery.status === 'temporarily_closed'
-                ? closedBreweryIcon(i + 1)
-                : breweryIcon(i + 1)
+                ? closedBreweryIcon(brewery.logo_url, brewery.name)
+                : breweryIcon(brewery.logo_url, brewery.name)
               }
             >
               <Popup>
@@ -137,13 +183,18 @@ export default function AleTrailMap({ breweries = [], stamps = [], onBack, onBre
       </div>
 
       <div className="map-brewery-list">
-        {brewsWithCoords.map((brewery, i) => (
+        {brewsWithCoords.map(brewery => (
           <div
             key={brewery.id}
             className="map-brewery-card"
             onClick={() => flyToBrewery(brewery.coords)}
           >
-            <div className="map-card-number">{i + 1}</div>
+            <div className="map-card-number">
+              {brewery.logo_url
+                ? <img src={brewery.logo_url} alt={brewery.name} className="map-card-logo" />
+                : <span>🍺</span>
+              }
+            </div>
             <div className="map-card-info">
               <div className="map-card-name">{brewery.name}</div>
               <div className="map-card-district">{brewery.coords.district}</div>

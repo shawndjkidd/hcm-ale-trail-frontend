@@ -4660,3 +4660,175 @@ body.lang-kr button, body.lang-kr a {
   font-size: 1.2rem;
   margin-left: 8px;
 }
+
+/* ==========================================
+   ALE TRAIL MAP - SAIGON CRAFT MAP THEME
+   ========================================== */
+
+/* Page wrapper */
+.ale-trail-map-page {
+  background: var(--red-primary) !important;
+  min-height: 100vh;
+  padding: 12px 16px 32px;
+  box-sizing: border-box;
+}
+.ale-trail-map-page .back-btn {
+  background: var(--yellow-primary) !important;
+  color: var(--black) !important;
+  border: 3px solid var(--black) !important;
+  box-shadow: 4px 4px 0 var(--black) !important;
+  width: 100% !important;
+  margin: 0 0 12px 0 !important;
+  box-sizing: border-box;
+}
+.map-page-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--yellow-primary);
+  margin: 0 0 2px;
+  letter-spacing: 2px;
+}
+.map-page-subtitle {
+  color: var(--white);
+  font-size: 0.9rem;
+  margin: 0 0 12px;
+  opacity: 0.85;
+}
+
+/* Map frame */
+.map-wrapper {
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  border: 3px solid var(--yellow-primary) !important;
+  box-shadow: 4px 4px 0 var(--black) !important;
+  margin-bottom: 16px;
+}
+
+/* Logo pin marker */
+.brewery-logo-pin {
+  background: none !important;
+  border: none !important;
+}
+.logo-pin-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.logo-pin-container:hover {
+  transform: scale(1.15) translateY(-3px);
+}
+.logo-pin-head {
+  width: 42px;
+  height: 42px;
+  background: #fff;
+  border: 3px solid #E31E24;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.logo-pin-head-closed {
+  border-color: #888;
+}
+.logo-pin-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  border-radius: 50%;
+}
+.logo-pin-fallback {
+  font-size: 20px;
+}
+.logo-pin-tail {
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 10px solid #E31E24;
+  margin-top: -2px;
+}
+.logo-pin-tail-closed {
+  border-top-color: #888;
+}
+
+/* Landmark SVG marker */
+.landmark-svg-marker {
+  background: none !important;
+  border: none !important;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  pointer-events: none;
+}
+
+/* Brewery list cards */
+.map-brewery-list {
+  padding: 0;
+}
+.map-brewery-card {
+  display: flex;
+  align-items: center;
+  background: var(--white);
+  border: 3px solid var(--black);
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: 4px 4px 0 var(--black);
+}
+.map-brewery-card:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--black);
+}
+.map-card-number {
+  width: 36px;
+  height: 36px;
+  border: 2px solid var(--red-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+.map-card-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+.map-card-info {
+  flex: 1;
+}
+.map-card-name {
+  font-family: var(--font-display);
+  color: var(--red-primary);
+  font-size: 1rem;
+}
+.map-card-district {
+  color: #666;
+  font-size: 0.8rem;
+}
+.map-card-stamp {
+  font-size: 1.2rem;
+  margin-left: 8px;
+}
+
+/* Night mode overrides */
+body.night-mode .ale-trail-map-page {
+  background: #1a1a1a !important;
+}
+body.night-mode .map-brewery-card {
+  background: #2a2a2a;
+  border-color: #444;
+  box-shadow: none;
+}
+body.night-mode .map-card-name {
+  color: var(--yellow-primary);
+}
+body.night-mode .map-card-district {
+  color: #aaa;
+}
