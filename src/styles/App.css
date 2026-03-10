@@ -5207,3 +5207,21 @@ body.lang-jp .brewery-card-name,
 body.lang-kr .brewery-card-name {
   font-family: Anton, "Be Vietnam Pro", sans-serif !important;
 }
+
+/* Side Quests - names and rewards are always English */
+body.lang-jp .side-quests-section-title,
+body.lang-kr .side-quests-section-title,
+body.lang-jp .side-quest-name-home,
+body.lang-kr .side-quest-name-home,
+body.lang-jp .side-quest-reward-home,
+body.lang-kr .side-quest-reward-home,
+body.lang-jp .side-quest-info-home,
+body.lang-kr .side-quest-info-home {
+  font-family: Anton, "Be Vietnam Pro", sans-serif !important;
+}
+
+/* District labels are always English */
+body.lang-jp .brewery-district,
+body.lang-kr .brewery-district {
+  font-family: Nunito, Arial, sans-serif !important;
+}
