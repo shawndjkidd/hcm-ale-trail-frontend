@@ -3280,8 +3280,8 @@ body {
   font-weight: 400;
   letter-spacing: 0.08em;
   color: var(--yellow-primary);
-  -webkit-text-stroke: 2px var(--black);
-  text-shadow: 3px 3px 0 var(--black);
+  -webkit-text-stroke: 0;
+  text-shadow: none;
   padding: 8px 1rem 6px;
   margin: 0;
 }
@@ -4442,7 +4442,7 @@ body.night-mode .ale-trail-map-container {
   text-align: center;
   margin-top: 0;
   margin-bottom: 12px;
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+  text-shadow: none;
 }
 .events-page-header {
   margin-bottom: 0;
