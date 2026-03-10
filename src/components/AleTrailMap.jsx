@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { MapContainer, TileLayer, Marker, Popup, ZoomControl, Tooltip } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, ZoomControl, Tooltip, AttributionControl } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
@@ -170,11 +170,13 @@ export default function AleTrailMap({ breweries = [], stamps = [], onBack, onBre
           ref={mapRef}
           center={[10.7800, 106.6970]}
           zoom={14}
-          minZoom={12}
+          minZoom={13}
           maxZoom={18}
           style={{ height: '55vh', width: '100%' }}
           zoomControl={false}
+          attributionControl={false}
         >
+          <AttributionControl position="bottomright" prefix={false} />
           <TileLayer
             url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'

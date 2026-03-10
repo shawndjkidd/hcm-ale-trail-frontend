@@ -4855,3 +4855,16 @@ body.night-mode .map-card-district {
   opacity: 1;
   filter: drop-shadow(0 0 4px rgba(255, 209, 0, 0.6));
 }
+
+/* Collapsed map attribution */
+.ale-trail-map-page .leaflet-control-attribution {
+  background: rgba(0, 0, 0, 0.4) !important;
+  color: rgba(255, 255, 255, 0.4) !important;
+  font-size: 8px !important;
+  padding: 1px 4px !important;
+  border-radius: 4px 0 0 0 !important;
+}
+.ale-trail-map-page .leaflet-control-attribution a {
+  color: rgba(255, 255, 255, 0.4) !important;
+  text-decoration: none !important;
+}
