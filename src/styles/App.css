@@ -30,7 +30,7 @@
 }
 [data-lang="vn"] * {
   font-family: "Be Vietnam Pro", sans-serif !important;
-  font-weight: 800 !important;
+  font-weight: 900 !important;
 }
 
 * {
@@ -5241,6 +5241,23 @@ body.lang-jp .side-quests-section-title {
 [data-lang="vn"] .side-quests-section-title {
   font-family: "Be Vietnam Pro", sans-serif !important;
   font-weight: 900 !important;
+}
+
+/* Vietnamese mode: restore Anton for English UI elements */
+[data-lang="vn"] .brewery-name,
+[data-lang="vn"] .brewery-title,
+[data-lang="vn"] .brewery-number,
+[data-lang="vn"] .brewery-address-small,
+[data-lang="vn"] .brewery-card-name,
+[data-lang="vn"] .side-quest-name-home,
+[data-lang="vn"] .side-quest-reward-home,
+[data-lang="vn"] .side-quest-info-home,
+[data-lang="vn"] .beer-name,
+[data-lang="vn"] .beer-name-large {
+  font-family: Anton, "Be Vietnam Pro", sans-serif !important;
+}
+[data-lang="vn"] .brewery-district {
+  font-family: Nunito, Arial, sans-serif !important;
 }
 
 /* Map page: prevent red .app background from bleeding on wide screens */
