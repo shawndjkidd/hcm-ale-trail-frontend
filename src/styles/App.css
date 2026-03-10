@@ -5264,3 +5264,14 @@ body:has(.ale-trail-map-page) .app {
 .ale-trail-map-page .brewery-list {
   margin: 0;
 }
+
+/* Per-language button font size overrides */
+[data-lang="vn"] .nav-btn-half { font-size: 1.3rem !important; }
+[data-lang="vn"] .nav-btn-third { font-size: 0.85rem !important; }
+
+body.lang-jp .nav-btn-half { font-size: 1.3rem !important; }
+body.lang-jp .nav-btn-third { font-size: 0.85rem !important; }
+body.lang-jp .social-btn { font-size: 0.85rem !important; }
+
+body.lang-kr .nav-btn-third { font-size: 0.9rem !important; }
+body.lang-kr .social-btn { font-size: 0.9rem !important; }
