@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, ZoomControl, Tooltip, AttributionControl } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -159,6 +159,13 @@ const landmarkIcon = (svgHtml) => L.divIcon({
 export default function AleTrailMap({ breweries = [], stamps = [], onBack, onBreweryNavigate }) {
   const mapRef = useRef(null)
 
+  useEffect(() => {
+    document.body.style.background = '#f5e6c8'
+    return () => {
+      document.body.style.background = ''
+    }
+  }, [])
+
   const brewsWithCoords = breweries
     .map(b => ({ ...b, coords: BREWERY_COORDS[b.name] }))
     .filter(b => b.coords)
@@ -196,12 +203,8 @@ export default function AleTrailMap({ breweries = [], stamps = [], onBack, onBre
         >
           <AttributionControl position="bottomright" prefix={false} />
           <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png"
+            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
-          />
-          <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png"
-            attribution=""
           />
           <ZoomControl position="bottomright" />
 
@@ -254,26 +257,25 @@ export default function AleTrailMap({ breweries = [], stamps = [], onBack, onBre
         </MapContainer>
       </div>
 
-      <div className="map-brewery-list">
-        {brewsWithCoords.map(brewery => (
+      <div className="brewery-list">
+        {brewsWithCoords.map((brewery, index) => (
           <div
             key={brewery.id}
-            className="map-brewery-card"
+            className={`brewery-item ${stamps.includes(brewery.id) ? 'stamped' : ''}`}
             onClick={() => flyToBrewery(brewery.coords)}
           >
-            <div className="map-card-number">
-              {getBreweryLogo(brewery)
-                ? <img src={getBreweryLogo(brewery)} alt={brewery.name} className="map-card-logo" />
-                : <span>🍺</span>
-              }
+            <div className="brewery-number">{index + 1}</div>
+            <div className="brewery-info">
+              <div className="brewery-name">{brewery.name}</div>
+              <div className="brewery-district">{brewery.coords.district}</div>
             </div>
-            <div className="map-card-info">
-              <div className="map-card-name">{brewery.name}</div>
-              <div className="map-card-district">{brewery.coords.district}</div>
+            <div className="brewery-logo">
+              {getBreweryLogo(brewery) ? (
+                <img src={getBreweryLogo(brewery)} alt={brewery.name} className="color" />
+              ) : (
+                <span className="logo-placeholder">🍺</span>
+              )}
             </div>
-            {stamps.includes(brewery.id) && (
-              <div className="map-card-stamp">✅</div>
-            )}
           </div>
         ))}
       </div>

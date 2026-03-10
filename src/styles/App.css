@@ -5241,3 +5241,11 @@ body.lang-jp .side-quests-section-title {
   font-family: "Be Vietnam Pro", sans-serif !important;
   font-weight: 900 !important;
 }
+
+/* Map page: prevent red .app background from bleeding on wide screens */
+body:has(.ale-trail-map-page) {
+  background: #f5e6c8;
+}
+body:has(.ale-trail-map-page) .app {
+  background: transparent;
+}
