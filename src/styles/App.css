@@ -5358,3 +5358,19 @@ body.lang-kr .event-page-card-brewery {
   font-weight: 900 !important;
   letter-spacing: -0.5px !important;
 }
+
+.events-page-title {
+  -webkit-text-stroke: 0 !important;
+  text-shadow: none !important;
+  margin: 0 0 8px;
+  padding: 4px 0;
+}
+.events-page-header .back-btn {
+  margin-bottom: 4px;
+}
+.events-page-list {
+  gap: 8px;
+}
+.side-quest-name-home {
+  font-size: 16px;
+}
