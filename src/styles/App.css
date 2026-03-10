@@ -24,9 +24,13 @@
   --font-body: 'Arial', sans-serif;
 }
 
-/* Vietnamese: swap display font to Baloo 2 for proper diacritic rendering */
+/* Vietnamese: swap display font to Be Vietnam Pro for proper diacritic rendering */
 [data-lang="vn"] {
-  --font-display: 'Baloo 2', sans-serif;
+  --font-display: 'Be Vietnam Pro', sans-serif;
+}
+[data-lang="vn"] * {
+  font-family: "Be Vietnam Pro", sans-serif !important;
+  font-weight: 800 !important;
 }
 
 * {
@@ -5209,8 +5213,6 @@ body.lang-kr .brewery-card-name {
 }
 
 /* Side Quests - names and rewards are always English */
-body.lang-jp .side-quests-section-title,
-body.lang-kr .side-quests-section-title,
 body.lang-jp .side-quest-name-home,
 body.lang-kr .side-quest-name-home,
 body.lang-jp .side-quest-reward-home,
@@ -5224,4 +5226,18 @@ body.lang-kr .side-quest-info-home {
 body.lang-jp .brewery-district,
 body.lang-kr .brewery-district {
   font-family: Nunito, Arial, sans-serif !important;
+}
+
+/* Side Quests heading — use each language's bold display font */
+body.lang-kr .side-quests-section-title {
+  font-family: "Noto Sans KR", sans-serif !important;
+  font-weight: 900 !important;
+}
+body.lang-jp .side-quests-section-title {
+  font-family: "Noto Sans JP", sans-serif !important;
+  font-weight: 900 !important;
+}
+[data-lang="vn"] .side-quests-section-title {
+  font-family: "Be Vietnam Pro", sans-serif !important;
+  font-weight: 900 !important;
 }
