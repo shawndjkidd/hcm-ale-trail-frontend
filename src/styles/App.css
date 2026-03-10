@@ -156,7 +156,7 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) rotate(-15deg);
+  transform: translate(-50%, -50%) rotate(-10deg);
   z-index: 2;
   pointer-events: none;
 }
@@ -5373,4 +5373,9 @@ body.lang-kr .event-page-card-brewery {
 }
 .side-quest-name-home {
   font-size: 16px;
+}
+
+/* Vietnamese: stamp overlay text smaller to prevent overflow */
+[data-lang="vn"] .stamp-text {
+  font-size: 0.7rem !important;
 }
