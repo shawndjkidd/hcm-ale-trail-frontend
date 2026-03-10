@@ -1630,8 +1630,8 @@ body {
 /* Third-width buttons - larger font */
 .nav-btn-third {
   flex: 1;
-  padding: 18px 8px;
-  font-size: 1.1rem;
+  padding: 8px;
+  font-size: 0.85rem;
   font-weight: 900;
   font-family: 'Inter', 'Impact', sans-serif;
   letter-spacing: -0.5px;
@@ -1643,6 +1643,10 @@ body {
   text-transform: uppercase;
   transition: transform 0.1s, box-shadow 0.1s;
   box-shadow: 4px 4px 0 var(--black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
 }
 
 .nav-btn-third:hover {
@@ -3036,7 +3040,7 @@ body {
 
 .side-quest-name-home {
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: 14px;
   color: var(--white);
   text-transform: uppercase;
 }
@@ -5277,14 +5281,12 @@ body:has(.ale-trail-map-page) .app {
 
 /* Per-language button font size overrides */
 [data-lang="vn"] .nav-btn-half { font-size: 1.3rem !important; }
-[data-lang="vn"] .nav-btn-third { font-size: 0.85rem !important; }
 
 body.lang-jp .nav-btn-half { font-size: 1.3rem !important; }
-body.lang-jp .nav-btn-third { font-size: 0.85rem !important; }
-body.lang-jp .social-btn { font-size: 0.85rem !important; }
 
-body.lang-kr .nav-btn-third { font-size: 0.9rem !important; }
-body.lang-kr .social-btn { font-size: 0.9rem !important; }
+.social-btn {
+  font-size: 0.85rem;
+}
 
 /* ==========================================
    INTER 900 — Global letter-spacing & weight for all display-font elements
@@ -5323,5 +5325,36 @@ body.lang-kr * {
   letter-spacing: -0.5px !important;
 }
 body.lang-jp * {
+  letter-spacing: -0.5px !important;
+}
+
+/* ==========================================
+   EVENTS PAGE — Inter font
+   ========================================== */
+.events-page-title,
+.event-page-card-title,
+.event-page-card-brewery,
+.event-page-card-desc,
+.event-page-card-date,
+.event-page-card-time,
+.event-link-btn,
+[class*="event-page"] h1,
+[class*="event-page"] h2,
+[class*="event-page"] h3,
+[class*="event-page"] strong,
+[class*="event-page"] button,
+[class*="event-page"] a {
+  font-family: 'Inter', sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+
+/* Events page: English names always in Inter regardless of CJK language */
+body.lang-jp .event-page-card-title,
+body.lang-kr .event-page-card-title,
+body.lang-jp .event-page-card-brewery,
+body.lang-kr .event-page-card-brewery {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 900 !important;
   letter-spacing: -0.5px !important;
 }
