@@ -162,8 +162,10 @@ export default function AleTrailMap({ breweries = [], stamps = [], onBack, onBre
   return (
     <div className="ale-trail-map-page">
       <button className="back-btn" onClick={onBack}>← BACK</button>
-      <h1 className="map-page-title">ALE TRAIL MAP</h1>
-      <p className="map-page-subtitle">{brewsWithCoords.length} breweries across Ho Chi Minh City</p>
+      <div className="map-title-banner">
+        <h1>ALE TRAIL MAP</h1>
+        <span className="subtitle">{brewsWithCoords.length} breweries across Ho Chi Minh City</span>
+      </div>
 
       <div className="map-wrapper">
         <MapContainer
@@ -178,12 +180,8 @@ export default function AleTrailMap({ breweries = [], stamps = [], onBack, onBre
         >
           <AttributionControl position="bottomright" prefix={false} />
           <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
-          />
-          <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png"
-            attribution=""
+            url="https://tiles.stadiamaps.com/tiles/stamen_toner_lite/{z}/{x}/{y}{r}.png"
+            attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://stamen.com/">Stamen Design</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           />
           <ZoomControl position="bottomright" />
 

@@ -38,6 +38,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
   const t = translations[language]
   const requiredBreweries = breweries.filter(b => b.status !== 'temporarily_closed')
   const requiredCount = requiredBreweries.length || 8
+  const totalCount = breweries.length || 8
   const progress = Math.min((stamps.length / requiredCount) * 100, 100)
   const isComplete = stamps.length >= requiredCount
 
@@ -201,10 +202,10 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
       <div className="progress-section">
         <div className="progress-header">
           <div className="progress-label">{t.stamps}</div>
-          <div className="progress-count">{stamps.length}/{requiredCount}</div>
+          <div className="progress-count">{stamps.length}/{totalCount}</div>
         </div>
         <div className="progress-stars">
-          {Array.from({ length: requiredCount }, (_, i) => (
+          {Array.from({ length: totalCount }, (_, i) => (
             <Star key={i} filled={i < stamps.length} />
           ))}
         </div>

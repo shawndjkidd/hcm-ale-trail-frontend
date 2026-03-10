@@ -4937,3 +4937,168 @@ body.night-mode .map-card-district {
 .brewery-popup-btn:hover {
   background: #c0161b;
 }
+
+/* ==========================================
+   ALE TRAIL MAP - RETRO SAIGON THEME
+   ========================================== */
+
+/* Cream page background */
+.ale-trail-map-page {
+  background: #F5E6C8 !important;
+}
+
+/* Vintage sepia filter on tile layer only — pins stay vivid */
+.ale-trail-map-page .leaflet-tile-pane {
+  filter:
+    sepia(0.35)
+    saturate(0.6)
+    hue-rotate(-10deg)
+    contrast(1.05)
+    brightness(0.95);
+}
+
+/* Vintage noise texture overlay on map wrapper */
+.map-wrapper {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 4px solid var(--black);
+  box-shadow: 4px 4px 0 var(--black);
+}
+.map-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.06'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1000;
+  mix-blend-mode: multiply;
+  opacity: 0.4;
+}
+
+/* Vintage banner title */
+.map-title-banner {
+  background: var(--red-primary);
+  border: 3px solid var(--black);
+  padding: 8px 36px;
+  text-align: center;
+  margin-bottom: 12px;
+  box-shadow: 4px 4px 0 var(--black);
+  position: relative;
+}
+.map-title-banner h1 {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  color: var(--yellow-primary);
+  letter-spacing: 2px;
+  margin: 0;
+  line-height: 1.1;
+}
+.map-title-banner .subtitle {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--white);
+  opacity: 0.9;
+  margin-top: 2px;
+}
+.map-title-banner::before,
+.map-title-banner::after {
+  content: '★';
+  color: var(--yellow-primary);
+  font-size: 1rem;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.map-title-banner::before { left: 12px; }
+.map-title-banner::after { right: 12px; }
+
+/* Dark vintage green back button */
+.ale-trail-map-page .back-btn {
+  background: #2D5A27 !important;
+  color: #F5E6C8 !important;
+  border: 3px solid var(--black) !important;
+  box-shadow: 4px 4px 0 var(--black) !important;
+}
+
+/* Night mode overrides */
+body.night-mode .ale-trail-map-page {
+  background: #2A2318 !important;
+}
+body.night-mode .map-title-banner {
+  background: #8B1A1A;
+}
+body.night-mode .map-brewery-card {
+  background: #3A3228;
+  border-color: #555;
+  box-shadow: none;
+}
+body.night-mode .map-card-name {
+  color: var(--yellow-primary);
+}
+body.night-mode .map-card-district {
+  color: #aaa;
+}
+body.night-mode .ale-trail-map-page .leaflet-tile-pane {
+  filter: sepia(0.2) saturate(0.4) brightness(0.7) contrast(1.1);
+}
+
+/* ==========================================
+   ALE TRAIL MAP - CARD HOVER STATES + SUBTITLE
+   ========================================== */
+
+/* Subtitle font refinement */
+.map-title-banner .subtitle {
+  font-family: 'Nunito', var(--font-body);
+  font-size: 1.1rem;
+  font-weight: 800 !important;
+  color: var(--white);
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+/* Card hover/active states */
+.map-brewery-card:hover {
+  background: var(--yellow-primary);
+  border-color: var(--black);
+}
+.map-brewery-card:hover .map-card-name {
+  color: var(--black);
+}
+.map-brewery-card:hover .map-card-district {
+  color: var(--black);
+  opacity: 0.7;
+}
+.map-brewery-card:active {
+  background: var(--yellow-primary);
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 rgba(0,0,0,0.2);
+}
+.map-brewery-card:active .map-card-name {
+  color: var(--black);
+}
+
+/* Progress section — yellow border (not black) */
+.progress-section {
+  border-color: var(--yellow-primary) !important;
+}
+
+/* Progress section — light/dark mode star colors */
+.progress-section {
+  background: var(--green-primary) !important;
+  border-color: var(--yellow-primary) !important;
+}
+.progress-star.incomplete {
+  color: var(--red-primary) !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+.progress-star.complete {
+  color: var(--yellow-primary) !important;
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 6px rgba(255, 209, 0, 0.7)) !important;
+}
+body.night-mode .progress-section {
+  background: #2a2a2a !important;
+  border-color: var(--green-primary) !important;
+}
