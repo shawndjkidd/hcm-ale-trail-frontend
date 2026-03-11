@@ -5375,7 +5375,7 @@ body.lang-kr .event-page-card-brewery {
   font-size: 16px;
 }
 
-/* Vietnamese: stamp overlay text smaller to prevent overflow */
+/* Fix Vietnamese stamp font size - was 0.7rem, too small */
 [data-lang="vn"] .stamp-text {
-  font-size: 0.7rem !important;
+  font-size: 1.8rem !important;
 }
