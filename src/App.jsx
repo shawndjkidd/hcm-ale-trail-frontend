@@ -12,7 +12,7 @@ import AleTrailMap from "./components/AleTrailMap";
 import translations from "./translations";
 import { recordCheckin } from "./lib/supabase";
 import { TRAIL_ID } from "./config";
-import { getBreweries, getMe, logout as apiLogout, startNewRun } from "./lib/api";
+import { getBreweries, getMe, logout as apiLogout, startNewRun, postCheckin } from "./lib/api";
 
 import "./styles/App.css";
 
@@ -345,13 +345,22 @@ export default function App() {
     if (!stamps.includes(breweryId)) {
       const newStamps = [...stamps, breweryId];
       setStamps(newStamps);
-      if (user?.id) {
-        try {
-          const { error } = await recordCheckin(user.id, breweryId, "qr_scan");
-          if (error) console.log("Error saving check-in to Supabase:", error);
-        } catch (err) {
-          console.log("Check-in error:", err);
+      try {
+        // Primary: call backend API (uses JWT, correct participant lookup)
+        const result = await postCheckin(TRAIL_ID, breweryId, {});
+        if (result?.ok) {
+          console.log("Check-in saved via backend API:", breweryId);
+        } else {
+          console.log("Backend check-in failed:", result?.error, "— trying Supabase direct");
+          // Fallback: direct Supabase insert
+          if (user?.id) {
+            const { error } = await recordCheckin(user.id, breweryId, "qr_scan");
+            if (error) console.log("Supabase check-in error:", error);
+            else console.log("Check-in saved via Supabase direct:", breweryId);
+          }
         }
+      } catch (err) {
+        console.log("Check-in error:", err);
       }
       if (newStamps.length === 1 && !timerStart) {
         const startTime = Date.now();
