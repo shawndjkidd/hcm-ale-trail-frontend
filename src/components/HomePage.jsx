@@ -18,6 +18,7 @@ const Star = ({ filled, num }) => (
 )
 import translations from '../translations'
 import EventsPage from './EventsPage'
+import { claimHat } from '../lib/api'
 
 const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a921'
 
@@ -37,12 +38,13 @@ const getBreweryLogo = (brewery) => {
   return BREWERY_LOGOS[brewery?.name] || null
 }
 
-function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onSideQuestClick, sideQuestCheckins = [], onNavigate, resetCard, activeEvents = [], nightMode, toggleNightMode, user, onLogout }) {
+function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onSideQuestClick, sideQuestCheckins = [], onNavigate, resetCard, activeEvents = [], nightMode, toggleNightMode, user, onLogout, hatClaimed, onHatClaimed }) {
   const [showCompletionModal, setShowCompletionModal] = useState(false)
   const [showEventsPage, setShowEventsPage] = useState(false)
-  const [hatClaimed, setHatClaimed] = useState(false)
+  const [hatClaimError, setHatClaimError] = useState(null)
+  const [claimingHat, setClaimingHat] = useState(false)
   const [sideQuests, setSideQuests] = useState([])
-  
+
   const t = translations[language]
   const requiredBreweries = breweries.filter(b => b.status !== 'temporarily_closed')
   const requiredCount = requiredBreweries.length || 8
@@ -66,13 +68,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
   }, [])
 
   useEffect(() => {
-    const claimed = localStorage.getItem('hcm-hat-claimed')
-    if (claimed === 'true') {
-      setHatClaimed(true)
-    }
-  }, [])
-
-  useEffect(() => {
     if (isComplete && !localStorage.getItem('hcm-completion-modal-shown')) {
       setShowCompletionModal(true)
     }
@@ -80,13 +75,28 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
 
   const handleCloseCompletionModal = () => {
     setShowCompletionModal(false)
+    setHatClaimError(null)
     localStorage.setItem('hcm-completion-modal-shown', 'true')
   }
 
-  const handleClaimHat = () => {
-    localStorage.setItem('hcm-hat-claimed', 'true')
-    setHatClaimed(true)
-    setShowCompletionModal(false)
+  const handleClaimHat = async () => {
+    setHatClaimError(null)
+    setClaimingHat(true)
+    try {
+      const res = await claimHat()
+      if (res?.ok) {
+        onHatClaimed()
+        if (!res.alreadyClaimed) {
+          setShowCompletionModal(false)
+        }
+      } else {
+        setHatClaimError(res?.error || 'Failed to claim hat. Please try again.')
+      }
+    } catch {
+      setHatClaimError('Failed to claim hat. Please try again.')
+    } finally {
+      setClaimingHat(false)
+    }
   }
 
   const getQuestTitle = (quest) => {
@@ -107,9 +117,9 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
 
   if (showEventsPage) {
     return (
-      <EventsPage 
-        language={language} 
-        onClose={() => setShowEventsPage(false)} 
+      <EventsPage
+        language={language}
+        onClose={() => setShowEventsPage(false)}
       />
     )
   }
@@ -153,9 +163,9 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
       </div>
 
       <div className="header-logo">
-        <img 
+        <img
           src="/logos/HCM Logo-Ale-Trail-2023-BK.png"
-          alt="HCM Ale Trail" 
+          alt="HCM Ale Trail"
           className="header-logo-img"
         />
       </div>
@@ -164,9 +174,9 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         <button className="nav-btn-third yellow" onClick={() => onNavigate('faq')}>
           {t.trailGuide || 'TRAIL GUIDE'}
         </button>
-        <a 
-          href="https://www.hochiminhaletrail.com/" 
-          target="_blank" 
+        <a
+          href="https://www.hochiminhaletrail.com/"
+          target="_blank"
           rel="noopener noreferrer"
           className="nav-btn-third red"
         >
@@ -181,25 +191,25 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
       </div>
 
       <div className="nav-row-full">
-        <a 
-          href="https://www.instagram.com/hcm.aletrail/" 
-          target="_blank" 
+        <a
+          href="https://www.instagram.com/hcm.aletrail/"
+          target="_blank"
           rel="noopener noreferrer"
           className="nav-btn-third instagram"
         >
           {t.instagram}
         </a>
-        <a 
-          href="https://www.facebook.com/hcmaletrail" 
-          target="_blank" 
+        <a
+          href="https://www.facebook.com/hcmaletrail"
+          target="_blank"
           rel="noopener noreferrer"
           className="nav-btn-third facebook"
         >
           {t.facebook}
         </a>
-        <a 
-          href="https://www.messenger.com/t/115480196509607/?messaging_source=source%3Apages%3Amessage_shortlink&source_id=1441792&recurring_notification=0" 
-          target="_blank" 
+        <a
+          href="https://www.messenger.com/t/115480196509607/?messaging_source=source%3Apages%3Amessage_shortlink&source_id=1441792&recurring_notification=0"
+          target="_blank"
           rel="noopener noreferrer"
           className="nav-btn-third messenger"
         >
@@ -305,7 +315,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
       )}
 
       <div className="special-buttons">
-        <button 
+        <button
           className="special-btn yellow"
           onClick={() => setShowEventsPage(true)}
         >
@@ -346,9 +356,12 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
                 <div className="step-text">{t.completionStep3}</div>
               </div>
             </div>
+            {hatClaimError && (
+              <div className="hat-claim-error">{hatClaimError}</div>
+            )}
             {!hatClaimed ? (
-              <button className="completion-ok-btn" onClick={handleClaimHat}>
-                {t.claimHat}
+              <button className="completion-ok-btn" onClick={handleClaimHat} disabled={claimingHat}>
+                {claimingHat ? '...' : t.claimHat}
               </button>
             ) : (
               <>

@@ -12,7 +12,7 @@ import AleTrailMap from "./components/AleTrailMap";
 import translations from "./translations";
 import { recordCheckin } from "./lib/supabase";
 import { TRAIL_ID } from "./config";
-import { getBreweries, getMe, logout as apiLogout, startNewRun, postCheckin, getLeaderboard } from "./lib/api";
+import { getBreweries, getMe, logout as apiLogout, startNewRun, postCheckin, getLeaderboard, claimHat } from "./lib/api";
 
 import "./styles/App.css";
 
@@ -104,6 +104,7 @@ export default function App() {
   const [activeEvents, setActiveEvents] = useState([]);
   const [initialized, setInitialized] = useState(false);
   const [autoOpenBeer, setAutoOpenBeer] = useState(false);
+  const [hatClaimed, setHatClaimed] = useState(() => localStorage.getItem("hcm-hat-claimed") === "true");
 
   const pendingQR = useRef(null);
   const pendingSideQuestQR = useRef(null);
@@ -165,9 +166,19 @@ export default function App() {
           return merged;
         });
       }
+      // Sync hat claim status from server (authoritative)
+      if (r.hatClaimed) {
+        setHatClaimed(true);
+        localStorage.setItem("hcm-hat-claimed", "true");
+      }
       return r;
     }
     return null;
+  };
+
+  const handleHatClaimed = () => {
+    setHatClaimed(true);
+    localStorage.setItem("hcm-hat-claimed", "true");
   };
 
   useEffect(() => {
@@ -456,6 +467,7 @@ export default function App() {
     setBeers([]);
     setTimerStart(null);
     setTimerEnd(null);
+    setHatClaimed(false);
     setSideQuestCheckins([]);
     localStorage.removeItem("hcm-stamps");
     localStorage.removeItem("hcm-beers");
@@ -533,6 +545,8 @@ export default function App() {
           nightMode={nightMode}
           toggleNightMode={toggleNightMode}
           onLogout={handleLogout}
+          hatClaimed={hatClaimed}
+          onHatClaimed={handleHatClaimed}
         />
       )}
       {view === "brewery" && selectedBrewery && (
