@@ -12,7 +12,7 @@ import AleTrailMap from "./components/AleTrailMap";
 import translations from "./translations";
 import { recordCheckin } from "./lib/supabase";
 import { TRAIL_ID } from "./config";
-import { getBreweries, getMe, logout as apiLogout, startNewRun, postCheckin } from "./lib/api";
+import { getBreweries, getMe, logout as apiLogout, startNewRun, postCheckin, getLeaderboard } from "./lib/api";
 
 import "./styles/App.css";
 
@@ -418,6 +418,13 @@ export default function App() {
 
   const handleNavigate = (newView) => {
     setView(newView);
+    if (newView === "leaderboard") {
+      getLeaderboard().then((res) => {
+        if (res?.leaderboard?.length) {
+          setLeaderboardData(res.leaderboard);
+        }
+      }).catch(() => {});
+    }
     if (newView !== "brewery" && newView !== "sidequest") {
       setSelectedBrewery(null);
       setSelectedSideQuest(null);

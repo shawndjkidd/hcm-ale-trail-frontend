@@ -171,6 +171,10 @@ export function postRating(trailId = TRAIL_ID, breweryId, payload) {
   });
 }
 
+export function getLeaderboard(trailId = TRAIL_ID) {
+  return request(`/trails/${trailId}/leaderboard`);
+}
+
 /**
  * Start a new run - archives current progress and creates fresh participant
  */
