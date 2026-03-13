@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef } from 'react'
 import translations from '../translations'
 import { MapContainer, TileLayer, Marker, Popup, ZoomControl, Tooltip, AttributionControl } from 'react-leaflet'
 import L from 'leaflet'
@@ -160,13 +160,6 @@ const landmarkIcon = (svgHtml) => L.divIcon({
 export default function AleTrailMap({ breweries = [], stamps = [], onBack, onBreweryNavigate, language = 'en' }) {
   const mapRef = useRef(null)
   const t = translations[language] || translations.en
-
-  useEffect(() => {
-    document.body.style.background = '#E31E24'
-    return () => {
-      document.body.style.background = ''
-    }
-  }, [])
 
   const brewsWithCoords = breweries
     .map(b => ({ ...b, coords: BREWERY_COORDS[b.name] }))
