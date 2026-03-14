@@ -5378,7 +5378,10 @@ body.lang-kr .event-page-card-brewery {
 /* Fix Vietnamese stamp font size */
 [data-lang="vn"] .stamp-text { font-size: 1.4rem; white-space: nowrap; }
 
-/* Night mode: override body:has(.ale-trail-map-page) which locks body to red */
+/* Night mode: override body:has(.ale-trail-map-page) and .ale-trail-map-page !important rules */
 body.night-mode:has(.ale-trail-map-page) {
-  background: #111111;
+  background: #111111 !important;
+}
+body.night-mode .ale-trail-map-page {
+  background: #111111 !important;
 }
