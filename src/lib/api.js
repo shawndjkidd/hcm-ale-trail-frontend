@@ -186,6 +186,13 @@ export function startNewRun(trailId = TRAIL_ID) {
  * Back-compat helper (older AuthModal expects this).
  * Stores tokens returned by /api/auth/login.
  */
+export function changePassword(newPassword) {
+  return request(`/auth/change-password`, {
+    method: "POST",
+    body: { newPassword },
+  });
+}
+
 export function storeLoginTokens(data) {
   try {
     if (!data) return;

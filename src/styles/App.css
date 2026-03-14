@@ -5385,3 +5385,218 @@ body.night-mode:has(.ale-trail-map-page) {
 body.night-mode .ale-trail-map-page {
   background: #111111 !important;
 }
+
+/* ========== SETTINGS PAGE ========== */
+.settings-page {
+  min-height: 100vh;
+  background: var(--white, #fff);
+  color: var(--black, #000);
+  font-family: var(--font-display, 'Inter', 'Impact', sans-serif);
+  padding-bottom: 2rem;
+}
+
+.settings-header {
+  background: var(--red-primary, #E31E24);
+  color: var(--white, #fff);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 4px solid var(--black, #000);
+}
+
+.settings-back-btn {
+  background: none;
+  border: 2px solid var(--white, #fff);
+  color: var(--white, #fff);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.settings-back-btn:hover {
+  background: rgba(255,255,255,0.15);
+}
+
+.settings-title {
+  font-size: 1.4rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.settings-content {
+  padding: 1.25rem;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.settings-section {
+  border: 3px solid var(--black, #000);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.settings-section-title {
+  background: var(--yellow-primary, #FFD100);
+  color: var(--black, #000);
+  font-size: 0.9rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 0;
+  padding: 0.6rem 1rem;
+  border-bottom: 3px solid var(--black, #000);
+}
+
+.settings-field {
+  padding: 0.9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.settings-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #555;
+}
+
+.settings-email-display {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--black, #000);
+  padding: 0.5rem 0.75rem;
+  background: #f4f4f4;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  word-break: break-all;
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.settings-form .settings-field {
+  border-bottom: 2px solid #eee;
+}
+
+.settings-form .settings-field:last-of-type {
+  border-bottom: none;
+}
+
+.settings-input {
+  font-size: 1rem;
+  font-family: inherit;
+  padding: 0.55rem 0.75rem;
+  border: 2px solid var(--black, #000);
+  border-radius: 4px;
+  background: var(--white, #fff);
+  color: var(--black, #000);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.settings-input:focus {
+  outline: none;
+  border-color: var(--red-primary, #E31E24);
+  box-shadow: 0 0 0 2px rgba(227,30,36,0.2);
+}
+
+.settings-error {
+  margin: 0 1rem 0.75rem;
+  padding: 0.6rem 0.85rem;
+  background: #fff0f0;
+  border: 2px solid var(--red-primary, #E31E24);
+  border-radius: 4px;
+  color: var(--red-primary, #E31E24);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.settings-success {
+  margin: 0 1rem 0.75rem;
+  padding: 0.6rem 0.85rem;
+  background: #f0fff4;
+  border: 2px solid #00B050;
+  border-radius: 4px;
+  color: #006d2c;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.settings-submit-btn {
+  margin: 0.75rem 1rem 1rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--red-primary, #E31E24);
+  color: var(--white, #fff);
+  border: 3px solid var(--black, #000);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.settings-submit-btn:hover:not(:disabled) {
+  background: var(--red-dark, #C41E3A);
+}
+
+.settings-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Night mode overrides */
+body.night-mode .settings-page {
+  background: #1a1a1a;
+  color: #f0f0f0;
+}
+
+body.night-mode .settings-email-display {
+  background: #2a2a2a;
+  border-color: #444;
+  color: #f0f0f0;
+}
+
+body.night-mode .settings-input {
+  background: #2a2a2a;
+  border-color: #555;
+  color: #f0f0f0;
+}
+
+body.night-mode .settings-label {
+  color: #aaa;
+}
+
+body.night-mode .settings-form .settings-field {
+  border-bottom-color: #333;
+}
+
+body.night-mode .settings-error {
+  background: #2a0000;
+  border-color: #ff4444;
+  color: #ff6666;
+}
+
+body.night-mode .settings-success {
+  background: #002a10;
+  border-color: #00c060;
+  color: #00e070;
+}

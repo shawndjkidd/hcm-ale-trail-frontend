@@ -140,6 +140,16 @@ const translations = {
     sendResetLink: "SEND RESET LINK",
     checkEmailForReset: "Check your email for a password reset link.",
     backToSignIn: "← Back to sign in",
+    settingsTitle: "SETTINGS",
+    accountInfo: "ACCOUNT",
+    changePasswordTitle: "CHANGE PASSWORD",
+    newPassword: "New Password",
+    confirmPassword: "Confirm Password",
+    updatePassword: "UPDATE PASSWORD",
+    passwordChanged: "Password updated successfully!",
+    passwordMismatch: "Passwords do not match",
+    passwordTooShort: "Password must be at least 6 characters",
+    settings: "Settings",
   },
   
   vn: {
@@ -283,6 +293,16 @@ const translations = {
     sendResetLink: "GỬI LINK ĐẶT LẠI",
     checkEmailForReset: "Kiểm tra email để lấy link đặt lại mật khẩu.",
     backToSignIn: "← Quay lại đăng nhập",
+    settingsTitle: "CÀI ĐẶT",
+    accountInfo: "TÀI KHOẢN",
+    changePasswordTitle: "ĐỔI MẬT KHẨU",
+    newPassword: "Mật khẩu mới",
+    confirmPassword: "Xác nhận mật khẩu",
+    updatePassword: "CẬP NHẬT MẬT KHẨU",
+    passwordChanged: "Đã cập nhật mật khẩu thành công!",
+    passwordMismatch: "Mật khẩu không khớp",
+    passwordTooShort: "Mật khẩu phải có ít nhất 6 ký tự",
+    settings: "Cài đặt",
   },
   
   kr: {

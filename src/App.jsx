@@ -8,6 +8,7 @@ import WelcomeModal from "./components/WelcomeModal";
 import Leaderboard from "./components/Leaderboard";
 import AuthModal from "./components/AuthModal";
 import AleTrailMap from "./components/AleTrailMap";
+import Settings from "./components/Settings";
 
 import translations from "./translations";
 import { recordCheckin } from "./lib/supabase";
@@ -205,6 +206,13 @@ export default function App() {
       setShowAuth(false);
     } else {
       setShowWelcome(true);
+    }
+
+    // Check for /settings route
+    if (window.location.pathname === '/settings') {
+      loadBreweries().then(() => setInitialized(true));
+      setView('settings');
+      return;
     }
 
     // Check for /map route
@@ -445,6 +453,7 @@ export default function App() {
       try {
         if (newView === "home") window.history.pushState({}, "", "/");
         else if (newView === "map") window.history.pushState({}, "", "/map");
+        else if (newView === "settings") window.history.pushState({}, "", "/settings");
       } catch {}
     }
   };
@@ -545,6 +554,7 @@ export default function App() {
           nightMode={nightMode}
           toggleNightMode={toggleNightMode}
           onLogout={handleLogout}
+          onSettings={() => handleNavigate("settings")}
           hatClaimed={hatClaimed}
           onHatClaimed={handleHatClaimed}
         />
@@ -586,6 +596,9 @@ export default function App() {
           onBreweryNavigate={handleBreweryClick}
           language={language}
         />
+      )}
+      {view === "settings" && (
+        <Settings user={user} language={language} onBack={() => handleNavigate("home")} />
       )}
       {view === "faq" && <FAQ onBack={() => handleNavigate("home")} language={language} user={user} />}
       {view === "mybeers" && <MyBeers beers={beers} breweries={breweries} onBack={() => handleNavigate("home")} language={language} />}

@@ -38,7 +38,7 @@ const getBreweryLogo = (brewery) => {
   return BREWERY_LOGOS[brewery?.name] || null
 }
 
-function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onSideQuestClick, sideQuestCheckins = [], onNavigate, resetCard, activeEvents = [], nightMode, toggleNightMode, user, onLogout, hatClaimed, onHatClaimed }) {
+function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onSideQuestClick, sideQuestCheckins = [], onNavigate, resetCard, activeEvents = [], nightMode, toggleNightMode, user, onLogout, onSettings, hatClaimed, onHatClaimed }) {
   const [showCompletionModal, setShowCompletionModal] = useState(false)
   const [showEventsPage, setShowEventsPage] = useState(false)
   const [hatClaimError, setHatClaimError] = useState(null)
@@ -328,6 +328,11 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         <button className="reset-btn" onClick={resetCard}>
           {t.resetCard}
         </button>
+        {user && onSettings && (
+          <button className="logout-link" onClick={onSettings}>
+            {t.settings || 'Settings'}
+          </button>
+        )}
         {user && onLogout && (
           <button className="logout-link" onClick={onLogout}>
             {t.logOut || 'Log out'}
