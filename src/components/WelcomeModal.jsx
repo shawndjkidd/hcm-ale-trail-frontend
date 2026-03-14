@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import translations from '../translations'
-import { registerParticipant, getParticipantCheckins } from '../lib/supabase'
+import { storeLoginTokens } from '../lib/api'
 
 const COUNTRIES = [
   "Vietnam", "United States", "United Kingdom", "Australia", "South Korea", 
@@ -14,6 +14,8 @@ const COUNTRIES = [
 function WelcomeModal({ language, setLanguage, onComplete, onSignIn }) {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [dob, setDob] = useState('')
   const [country, setCountry] = useState('')
   const [gender, setGender] = useState('')
@@ -50,6 +52,19 @@ function WelcomeModal({ language, setLanguage, onComplete, onSignIn }) {
       return
     }
 
+    if (!password) {
+      setError(t.passwordTooShort || 'Password must be at least 6 characters')
+      return
+    }
+    if (password.length < 6) {
+      setError(t.passwordTooShort || 'Password must be at least 6 characters')
+      return
+    }
+    if (password !== confirmPassword) {
+      setError(t.passwordMismatch || 'Passwords do not match')
+      return
+    }
+
     if (!dob) {
       setError(t.dobRequired)
       return
@@ -64,39 +79,45 @@ function WelcomeModal({ language, setLanguage, onComplete, onSignIn }) {
     setIsLoading(true)
 
     try {
-      const { data: participant, error: supabaseError, isExisting } = await registerParticipant({
-        name: name.trim(),
-        email: email.trim(),
-        dateOfBirth: dob,
-        country: country || null,
-        gender: gender || null,
+      const regRes = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password, name: name.trim() }),
       })
+      const regData = await regRes.json().catch(() => null)
 
-      if (supabaseError) {
-        console.error('Supabase error:', supabaseError)
-        setError('Registration failed. Please try again.')
+      if (!regRes.ok || !regData?.ok) {
+        const msg = regData?.error || 'Registration failed. Please try again.'
+        setError(regRes.status === 409 ? 'An account with that email already exists.' : msg)
         setIsLoading(false)
         return
       }
 
-      // If existing user, fetch their stamps from Supabase
-      let existingStamps = []
-      if (isExisting && participant?.id) {
-        const { data: stamps } = await getParticipantCheckins(participant.id)
-        existingStamps = stamps || []
+      // Auto sign in
+      const loginRes = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password }),
+      })
+      const loginData = await loginRes.json().catch(() => null)
+
+      if (!loginRes.ok || !loginData?.ok) {
+        setError('Account created! Please sign in.')
+        setIsLoading(false)
+        return
       }
 
+      storeLoginTokens(loginData)
+
       const userData = {
-        id: participant.id,
-        name: isExisting ? participant.display_name : name.trim(),
+        id: loginData.user?.id,
+        name: name.trim(),
         email: email.trim(),
         dob,
         age,
         country: country || null,
         gender: gender || null,
         registeredAt: new Date().toISOString(),
-        isExisting,
-        existingStamps
       }
 
       localStorage.setItem('hcm-user', JSON.stringify(userData))
@@ -179,6 +200,31 @@ function WelcomeModal({ language, setLanguage, onComplete, onSignIn }) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="john@example.com"
+            autoComplete="email"
+          />
+        </div>
+
+        <div className="form-group">
+          <label>{t.password || 'Password'} *</label>
+          <input
+            type="password"
+            className="text-input"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            autoComplete="new-password"
+          />
+        </div>
+
+        <div className="form-group">
+          <label>{t.confirmPassword || 'Confirm Password'} *</label>
+          <input
+            type="password"
+            className="text-input"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="••••••••"
+            autoComplete="new-password"
           />
         </div>
 

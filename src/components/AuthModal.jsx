@@ -6,6 +6,7 @@ export default function AuthModal({ onSuccess, language = "en" }) {
   const [mode, setMode] = useState("login"); // "login" | "register" | "forgot"
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
@@ -20,6 +21,7 @@ export default function AuthModal({ onSuccess, language = "en" }) {
 
   const switchMode = (newMode) => {
     resetMessages();
+    setConfirmPassword("");
     setMode(newMode);
   };
 
@@ -63,6 +65,10 @@ export default function AuthModal({ onSuccess, language = "en" }) {
     }
     if (password.length < 6) {
       setErr("Password must be at least 6 characters.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setErr(t.passwordMismatch || "Passwords do not match.");
       return;
     }
 
@@ -248,6 +254,18 @@ export default function AuthModal({ onSuccess, language = "en" }) {
                   value={password}
                   autoComplete="new-password"
                   onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>{t.confirmPassword || "Confirm Password"} *</label>
+                <input
+                  type="password"
+                  className="text-input"
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  autoComplete="new-password"
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                 />
               </div>
