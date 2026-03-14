@@ -250,7 +250,7 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
           </p>
         )}
         {questDetail?.reward && (
-          <p className="brewery-description">🎁 {t.reward || 'Reward'}: <strong>{questDetail.reward}</strong></p>
+          <p className="brewery-description">🎁 {t.reward || 'Reward'}: <strong>{t.rewardMap?.[questDetail.reward] || questDetail.reward}</strong></p>
         )}
         {getDescription() && (
           <p className="brewery-description">{getDescription()}</p>
@@ -327,7 +327,7 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
           <div className="completed-text">{wasAlreadyCompleted ? 'Already Completed ✓' : (t.questAlreadyCompleted || 'Quest Completed!')}</div>
           {questDetail?.reward && (
             <div className="completed-reward">
-              {t.claimReward || 'Show this screen to claim your reward:'} <strong>{questDetail.reward}</strong>
+              {t.claimReward || 'Show this screen to claim your reward:'} <strong>{t.rewardMap?.[questDetail.reward] || questDetail.reward}</strong>
             </div>
           )}
         </div>

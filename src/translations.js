@@ -303,6 +303,11 @@ const translations = {
     passwordMismatch: "Mật khẩu không khớp",
     passwordTooShort: "Mật khẩu phải có ít nhất 6 ký tự",
     settings: "Cài đặt",
+    rewardMap: {
+      "Free craft beer at any trail brewery": "Bia thủ công miễn phí tại bất kỳ nhà máy bia nào",
+      "Exclusive Ale Trail sticker pack": "Bộ sticker Ale Trail độc quyền",
+      "Limited edition coaster set": "Bộ lót ly phiên bản giới hạn",
+    },
   },
   
   kr: {

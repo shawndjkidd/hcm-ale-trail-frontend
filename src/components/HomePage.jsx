@@ -303,7 +303,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
                   <div className="side-quest-icon-home">{isCompleted ? '✅' : '🎯'}</div>
                   <div className="side-quest-info-home">
                     <div className="side-quest-name-home">{getQuestTitle(quest)}</div>
-                    {quest.reward && <div className="side-quest-reward-home">🎁 {quest.reward}</div>}
+                    {quest.reward && <div className="side-quest-reward-home">🎁 {t.rewardMap?.[quest.reward] || quest.reward}</div>}
                   </div>
                   <div className="side-quest-arrow-home">→</div>
                   {questEvent && <div className="event-banner">🎉 Event happening now!</div>}
@@ -324,7 +324,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
       </div>
 
       <div className="footer">
-        <div className="footer-year">HCM ALE TRAIL 2025</div>
+        <div className="footer-year">HCM ALE TRAIL 2026</div>
         <button className="reset-btn" onClick={resetCard}>
           {t.resetCard}
         </button>
