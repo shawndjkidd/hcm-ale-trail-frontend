@@ -535,7 +535,7 @@ export default function App() {
       {showWelcome && (
         <WelcomeModal language={language} setLanguage={setLanguage} onComplete={handleUserRegistration} onSignIn={() => setShowAuth(true)} />
       )}
-      {showAuth && <AuthModal onSuccess={onAuthSuccess} language={language} />}
+      {showAuth && <AuthModal onSuccess={onAuthSuccess} language={language} setLanguage={setLanguage} />}
       {view === "home" && (
         <HomePage
           breweries={breweries}

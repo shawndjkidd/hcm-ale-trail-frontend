@@ -451,6 +451,10 @@ const translations = {
     sendResetLink: "재설정 링크 보내기",
     checkEmailForReset: "비밀번호 재설정 링크를 이메일에서 확인하세요.",
     backToSignIn: "← 로그인으로 돌아가기",
+    confirmPassword: "비밀번호 확인",
+    passwordMismatch: "비밀번호가 일치하지 않습니다",
+    passwordTooShort: "비밀번호는 최소 6자 이상이어야 합니다",
+    settings: "설정",
   },
   
   jp: {
@@ -594,6 +598,10 @@ const translations = {
     sendResetLink: "リセットリンクを送信",
     checkEmailForReset: "パスワードリセットリンクをメールで確認してください。",
     backToSignIn: "← ログインに戻る",
+    confirmPassword: "パスワードの確認",
+    passwordMismatch: "パスワードが一致しません",
+    passwordTooShort: "パスワードは6文字以上必要です",
+    settings: "設定",
   }
 }
 

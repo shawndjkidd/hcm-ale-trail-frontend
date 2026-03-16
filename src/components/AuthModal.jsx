@@ -2,7 +2,7 @@ import { useState } from "react";
 import { storeLoginTokens } from "../lib/api";
 import translations from "../translations";
 
-export default function AuthModal({ onSuccess, language = "en" }) {
+export default function AuthModal({ onSuccess, language = "en", setLanguage }) {
   const [mode, setMode] = useState("login"); // "login" | "register" | "forgot"
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -144,6 +144,22 @@ export default function AuthModal({ onSuccess, language = "en" }) {
   return (
     <div className="modal-overlay">
       <div className="welcome-modal">
+        {setLanguage && (
+          <div className="language-toggle">
+            <button className={`flag-btn ${language === 'en' ? 'active' : ''}`} onClick={() => setLanguage('en')}>
+              <img src="https://flagcdn.com/w80/us.png" alt="EN" className="flag-img-sm" />
+            </button>
+            <button className={`flag-btn ${language === 'vn' ? 'active' : ''}`} onClick={() => setLanguage('vn')}>
+              <img src="https://flagcdn.com/w80/vn.png" alt="VN" className="flag-img-sm" />
+            </button>
+            <button className={`flag-btn ${language === 'kr' ? 'active' : ''}`} onClick={() => setLanguage('kr')}>
+              <img src="https://flagcdn.com/w80/kr.png" alt="KR" className="flag-img-sm" />
+            </button>
+            <button className={`flag-btn ${language === 'jp' ? 'active' : ''}`} onClick={() => setLanguage('jp')}>
+              <img src="https://flagcdn.com/w80/jp.png" alt="JP" className="flag-img-sm" />
+            </button>
+          </div>
+        )}
         <img
           src="/logos/HCM Logo-Ale-Trail-2023-BK.png"
           alt="HCM Ale Trail"
