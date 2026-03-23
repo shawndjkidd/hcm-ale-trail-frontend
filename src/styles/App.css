@@ -6028,3 +6028,43 @@ body.night-mode .brewery-hours-compact {
 body.night-mode .brewery-hours-compact-time {
   color: var(--text-primary, #fff);
 }
+
+/* ============================================
+   FIX: Dark mode for Upcoming Events section
+   ============================================ */
+body.night-mode .brewery-events-section {
+  background: #2a2a2a;
+  border-color: #444;
+}
+
+body.night-mode .brewery-event-item {
+  background: #333;
+  border-color: #FFC700;
+  box-shadow: none;
+}
+
+body.night-mode .brewery-event-name {
+  color: #FFC700;
+}
+
+body.night-mode .brewery-event-date {
+  background: #FFC700;
+  color: #111;
+}
+
+body.night-mode .brewery-event-time {
+  color: #ccc;
+}
+
+body.night-mode .brewery-event-desc {
+  color: #aaa;
+}
+
+body.night-mode .no-events {
+  color: #888;
+}
+
+body.night-mode .event-link-btn {
+  color: #FFC700;
+  border-color: #FFC700;
+}
