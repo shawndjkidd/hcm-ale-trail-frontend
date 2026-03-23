@@ -6288,3 +6288,29 @@ body.night-mode .leaderboard-row {
   color: #e0e0e0;
   border-bottom-color: #444;
 }
+
+/* ============================================
+   FIX: Leaderboard rank colors in dark mode
+   ============================================ */
+body.night-mode .leaderboard-row.gold {
+  background: rgba(255, 199, 0, 0.15);
+  border-left: 4px solid #FFC700;
+}
+
+body.night-mode .leaderboard-row.silver {
+  background: rgba(192, 192, 192, 0.12);
+  border-left: 4px solid #aaa;
+}
+
+body.night-mode .leaderboard-row.bronze {
+  background: rgba(205, 127, 50, 0.15);
+  border-left: 4px solid #CD7F32;
+}
+
+body.night-mode .lb-name {
+  color: #fff;
+}
+
+body.night-mode .lb-time {
+  color: #ccc;
+}
