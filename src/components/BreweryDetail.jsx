@@ -327,22 +327,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         <p className="brewery-description">{getDescription()}</p>
       </div>
 
-      {/* 2. Operating Hours */}
-      {hoursData && hoursData.length > 0 && (
-        <div className="brewery-hours-section">
-          <h3 className="brewery-hours-title">{t.hours || 'HOURS'}</h3>
-          <div className="brewery-hours-grid">
-            {hoursData.map((item, index) => (
-              <div key={index} className="brewery-hours-row">
-                <span className="brewery-hours-day">{item.day}</span>
-                <span className="brewery-hours-time">{item.hours}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* 3. CHECK IN & RATE A BEER */}
+      {/* 2. CHECK IN & RATE A BEER */}
       {!isTempClosed && (
         <button
           className="action-btn yellow add-beer-cta"
@@ -352,41 +337,61 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </button>
       )}
 
-      {/* 4. Social Buttons */}
-      <div className="brewery-buttons-row">
-        {breweryInfo.maps && (
-          <a
-            href={breweryInfo.maps}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="action-btn green"
-          >
-            {t.maps}
-          </a>
-        )}
-        {breweryInfo.instagram && (
-          <a
-            href={breweryInfo.instagram}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="action-btn instagram-btn"
-          >
-            {t.instagram}
-          </a>
-        )}
-        {breweryInfo.facebook && (
-          <a
-            href={breweryInfo.facebook}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="action-btn facebook-btn"
-          >
-            {t.facebook}
-          </a>
-        )}
+      {/* 3. Two-column: Hours + Social Buttons */}
+      <div className="brewery-hours-social-row">
+        {/* Left: Operating Hours */}
+        <div className="brewery-hours-compact">
+          <h3 className="brewery-hours-compact-title">{t.hours || 'HOURS'}</h3>
+          {hoursData && hoursData.length > 0 ? (
+            <div className="brewery-hours-compact-grid">
+              {hoursData.map((item, index) => (
+                <div key={index} className={`brewery-hours-compact-row ${item.hours === (t.closed || 'Closed') ? 'closed-day' : ''}`}>
+                  <span className="brewery-hours-compact-day">{item.day}</span>
+                  <span className="brewery-hours-compact-time">{item.hours}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="brewery-hours-compact-na">{t.hoursNotAvailable || 'Hours not available'}</p>
+          )}
+        </div>
+
+        {/* Right: Social Buttons stacked */}
+        <div className="brewery-social-stack">
+          {breweryInfo.maps && (
+            <a
+              href={breweryInfo.maps}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-stack-btn green"
+            >
+              {t.maps}
+            </a>
+          )}
+          {breweryInfo.instagram && (
+            <a
+              href={breweryInfo.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-stack-btn instagram"
+            >
+              {t.instagram}
+            </a>
+          )}
+          {breweryInfo.facebook && (
+            <a
+              href={breweryInfo.facebook}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-stack-btn facebook"
+            >
+              {t.facebook}
+            </a>
+          )}
+        </div>
       </div>
 
-      {/* 5. Upcoming Events */}
+      {/* 4. Upcoming Events */}
       <div className="brewery-events-section">
         <h3 className="brewery-events-title">{t.upcomingEvents || 'UPCOMING EVENTS'}</h3>
         {eventsLoading ? (
@@ -420,7 +425,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         )}
       </div>
 
-      {/* 6. Our Beers (brewery menu) */}
+      {/* 5. Our Beers (brewery menu) */}
       {!menuBeersLoading && menuBeers.length > 0 && (
         <div className="brewery-menu-section">
           <h3 className="brewery-menu-title">{t.ourBeers || 'OUR BEERS'}</h3>
@@ -438,7 +443,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </div>
       )}
 
-      {/* 7. Hashtag / Copy Handle */}
+      {/* 6. Hashtag / Copy Handle */}
       <div className="hashtag-section">
         <div className="hashtag-text">
           {t.tag || "Tag"}: {breweryInfo.instagramHandle}
@@ -448,7 +453,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </button>
       </div>
 
-      {/* 8. My Beers (user's rated beers at this brewery) */}
+      {/* 7. My Beers (user's rated beers at this brewery) */}
       {breweryBeers.length > 0 && (
         <div className="brewery-beers">
           <h3>{t.myBeersHere || 'MY BEERS'}</h3>

@@ -5910,3 +5910,121 @@ body.night-mode .brewery-menu-beer-name {
 body.night-mode .brewery-menu-item {
   border-bottom-color: rgba(255,255,255,0.08);
 }
+
+/* ============================================
+   TWO-COLUMN: Hours + Social Buttons
+   ============================================ */
+.brewery-hours-social-row {
+  display: flex;
+  gap: 0.6rem;
+  margin: 0.75rem 0;
+}
+
+.brewery-hours-compact {
+  flex: 1;
+  background: var(--card-bg, #fff);
+  border: 3px solid #000;
+  border-radius: 8px;
+  padding: 0.5rem 0.7rem;
+}
+
+.brewery-hours-compact-title {
+  font-family: 'Anton', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  color: var(--text-secondary, #888);
+  margin: 0 0 0.4rem;
+  text-align: center;
+}
+
+.brewery-hours-compact-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.brewery-hours-compact-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.brewery-hours-compact-day {
+  color: var(--text-secondary, #888);
+  font-weight: 600;
+  min-width: 2rem;
+}
+
+.brewery-hours-compact-time {
+  color: var(--text-primary, #222);
+  font-weight: 500;
+  text-align: right;
+}
+
+.brewery-hours-compact-row.closed-day .brewery-hours-compact-day,
+.brewery-hours-compact-row.closed-day .brewery-hours-compact-time {
+  color: #CC2222;
+  font-weight: 700;
+}
+
+.brewery-hours-compact-na {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #888);
+  text-align: center;
+  font-style: italic;
+  margin: 0.5rem 0;
+}
+
+.brewery-social-stack {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.social-stack-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Anton', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  color: #fff;
+  border: 3px solid #000;
+  border-radius: 8px;
+  text-decoration: none;
+  padding: 0.4rem 0.5rem;
+  transition: transform 0.15s;
+}
+
+.social-stack-btn:hover {
+  transform: scale(1.02);
+}
+
+.social-stack-btn:active {
+  transform: scale(0.98);
+}
+
+.social-stack-btn.green {
+  background: #28A745;
+}
+
+.social-stack-btn.instagram {
+  background: #C13584;
+}
+
+.social-stack-btn.facebook {
+  background: #1877F2;
+}
+
+/* Night mode */
+body.night-mode .brewery-hours-compact {
+  background: var(--card-bg, #222);
+}
+
+body.night-mode .brewery-hours-compact-time {
+  color: var(--text-primary, #fff);
+}
