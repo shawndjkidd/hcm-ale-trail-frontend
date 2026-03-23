@@ -6314,3 +6314,116 @@ body.night-mode .lb-name {
 body.night-mode .lb-time {
   color: #ccc;
 }
+
+/* ============================================
+   LEADERBOARD — Polished rank styling
+   ============================================ */
+
+/* Light mode: stronger rank backgrounds with left accent borders */
+.leaderboard-row.gold {
+  background: #FFF8DC !important;
+  border-left: 5px solid #DAA520;
+}
+
+.leaderboard-row.gold .lb-name {
+  color: #8B6914;
+}
+
+.leaderboard-row.gold .lb-time {
+  color: #8B6914;
+  font-weight: 600;
+}
+
+.leaderboard-row.silver {
+  background: #F5F5F5 !important;
+  border-left: 5px solid #A0A0A0;
+}
+
+.leaderboard-row.silver .lb-name {
+  color: #555;
+}
+
+.leaderboard-row.silver .lb-time {
+  color: #555;
+  font-weight: 600;
+}
+
+.leaderboard-row.bronze {
+  background: #FFF0E0 !important;
+  border-left: 5px solid #CD7F32;
+}
+
+.leaderboard-row.bronze .lb-name {
+  color: #8B4513;
+}
+
+.leaderboard-row.bronze .lb-time {
+  color: #8B4513;
+  font-weight: 600;
+}
+
+/* Regular rows - clean styling */
+.leaderboard-row .lb-rank {
+  font-weight: 700;
+  color: #333;
+}
+
+.leaderboard-row .lb-name {
+  color: #222;
+}
+
+.leaderboard-row .lb-time {
+  color: #444;
+}
+
+/* Dark mode overrides */
+body.night-mode .leaderboard-row.gold {
+  background: rgba(218, 165, 32, 0.2) !important;
+  border-left: 5px solid #FFC700;
+}
+
+body.night-mode .leaderboard-row.gold .lb-name {
+  color: #FFC700;
+}
+
+body.night-mode .leaderboard-row.gold .lb-time {
+  color: #DAA520;
+}
+
+body.night-mode .leaderboard-row.silver {
+  background: rgba(192, 192, 192, 0.15) !important;
+  border-left: 5px solid #aaa;
+}
+
+body.night-mode .leaderboard-row.silver .lb-name {
+  color: #ddd;
+}
+
+body.night-mode .leaderboard-row.silver .lb-time {
+  color: #bbb;
+}
+
+body.night-mode .leaderboard-row.bronze {
+  background: rgba(205, 127, 50, 0.2) !important;
+  border-left: 5px solid #CD7F32;
+}
+
+body.night-mode .leaderboard-row.bronze .lb-name {
+  color: #DDA15E;
+}
+
+body.night-mode .leaderboard-row.bronze .lb-time {
+  color: #CD7F32;
+}
+
+body.night-mode .leaderboard-row .lb-rank {
+  color: #ccc;
+}
+
+body.night-mode .leaderboard-row .lb-name {
+  color: #e0e0e0;
+}
+
+body.night-mode .leaderboard-row .lb-time {
+  color: #bbb;
+}
