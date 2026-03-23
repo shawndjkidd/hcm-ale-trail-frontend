@@ -91,7 +91,14 @@ function EventsPage({ language, onClose }) {
         {!loading && !error && events.length > 0 && (
           <div className="events-page-list">
             {events.map((event) => (
-              <div key={event.id} className="event-page-card">
+              <div key={event.id} className={`event-page-card ${event.category === 'new_release' ? 'event-new-release' : ''}`}>
+                <div className="event-category-tag-row">
+                  {event.category === 'new_release' ? (
+                    <span className="event-category-tag new-release">🍺 {t.newRelease || 'NEW RELEASE'}</span>
+                  ) : (
+                    <span className="event-category-tag event-type">🎉 {t.event || 'EVENT'}</span>
+                  )}
+                </div>
                 <div className="event-page-card-venue">
                   {event.breweryName || 'Trail Event'}
                 </div>

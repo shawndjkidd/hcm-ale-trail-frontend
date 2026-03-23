@@ -398,7 +398,14 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
           <p className="events-loading-text">{t.loading || 'Loading...'}</p>
         ) : breweryEvents.length > 0 ? (
           breweryEvents.map(event => (
-            <div key={event.id} className="brewery-event-item">
+            <div key={event.id} className={`brewery-event-item ${event.category === 'new_release' ? 'event-new-release' : ''}`}>
+              <div className="event-category-tag-row">
+                {event.category === 'new_release' ? (
+                  <span className="event-category-tag new-release">🍺 {t.newRelease || 'NEW RELEASE'}</span>
+                ) : (
+                  <span className="event-category-tag event-type">🎉 {t.event || 'EVENT'}</span>
+                )}
+              </div>
               <div className="brewery-event-header">
                 <span className="brewery-event-name">{getEventTitle(event)}</span>
                 <span className="brewery-event-date">{formatEventDate(event.startsAt)}</span>

@@ -6427,3 +6427,55 @@ body.night-mode .leaderboard-row .lb-name {
 body.night-mode .leaderboard-row .lb-time {
   color: #bbb;
 }
+
+/* ============================================
+   EVENT CATEGORY TAGS
+   ============================================ */
+.event-category-tag-row {
+  margin-bottom: 6px;
+}
+
+.event-category-tag {
+  display: inline-block;
+  font-family: 'Anton', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 2px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+.event-category-tag.event-type {
+  background: #FFC700;
+  color: #000;
+}
+
+.event-category-tag.new-release {
+  background: #28A745;
+  color: #fff;
+}
+
+/* New release event card accent */
+.brewery-event-item.event-new-release {
+  border-color: #28A745;
+  border-left: 5px solid #28A745;
+}
+
+.event-page-card.event-new-release {
+  border-left: 5px solid #28A745;
+}
+
+/* Dark mode */
+body.night-mode .event-category-tag.event-type {
+  background: #FFC700;
+  color: #000;
+}
+
+body.night-mode .event-category-tag.new-release {
+  background: #28A745;
+  color: #fff;
+}
+
+body.night-mode .brewery-event-item.event-new-release {
+  border-color: #28A745;
+}
