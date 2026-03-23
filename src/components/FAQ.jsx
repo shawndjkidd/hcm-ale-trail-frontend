@@ -6,7 +6,7 @@ function FAQ({ language, onBack }) {
   return (
     <div className="modal-overlay" onClick={onBack}>
       <div className="faq-content retro" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close retro" onClick={onBack}>✕</button>
+        <button className="back-btn" onClick={onBack}>← {t.back || 'BACK'}</button>
         
         <div className="retro-header">
           <div className="retro-title-box">
