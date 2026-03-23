@@ -74,7 +74,6 @@ const DAY_LABELS = {
 function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, onBack, qrValidated, timerStart, user, autoOpenBeer = false, onAutoOpenComplete }) {
   const [showAddBeer, setShowAddBeer] = useState(false)
   const [message, setMessage] = useState(null)
-  const [showSharePrompt, setShowSharePrompt] = useState(false)
   const [breweryEvents, setBreweryEvents] = useState([])
   const [eventsLoading, setEventsLoading] = useState(true)
 
@@ -263,7 +262,6 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     }
 
     setShowAddBeer(false)
-    setShowSharePrompt(true)
     if (autoOpenBeer && typeof onAutoOpenComplete === 'function') {
       onAutoOpenComplete();
     }
@@ -293,32 +291,6 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
       {message && (
         <div className={`message ${message.type}`}>
           {message.text}
-        </div>
-      )}
-
-      {showSharePrompt && (
-        <div className="share-prompt">
-          <div className="share-prompt-header">
-            <span className="share-icon">📸</span>
-            <div className="share-text">
-              <strong>{t.shareYourExperience}</strong>
-              <p>{t.shareInstructions}</p>
-            </div>
-            <button className="share-close" onClick={() => setShowSharePrompt(false)}>✕</button>
-          </div>
-          <div className="share-actions">
-            <button className="share-btn copy" onClick={copyInstagramHandle}>
-              📋 {t.copyHandle}
-            </button>
-            <a
-              href={breweryInfo.instagram}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="share-btn instagram"
-            >
-              📷 {t.instagram}
-            </a>
-          </div>
         </div>
       )}
 
