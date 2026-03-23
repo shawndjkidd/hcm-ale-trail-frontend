@@ -6220,3 +6220,71 @@ body.night-mode .brewery-event-item .event-link-btn {
   color: #000 !important;
   border-color: #000 !important;
 }
+
+/* ============================================
+   FIX: Dark mode for My Beers page
+   ============================================ */
+body.night-mode .brewery-group {
+  background: #2a2a2a;
+  border-color: #444;
+  box-shadow: none;
+}
+
+body.night-mode .brewery-group-title {
+  color: #FFC700;
+  border-bottom-color: #555;
+}
+
+body.night-mode .grouped-beer-item {
+  background: #333;
+  border-color: #555;
+}
+
+body.night-mode .grouped-beer-name {
+  color: #fff;
+}
+
+body.night-mode .grouped-beer-notes {
+  color: #aaa;
+}
+
+body.night-mode .top-beer-compact {
+  background: #2a2a2a;
+  border-color: #FFC700;
+}
+
+body.night-mode .top-beer-name {
+  color: #fff;
+}
+
+body.night-mode .top-beer-brewery {
+  color: #aaa;
+}
+
+body.night-mode .section-title {
+  color: #FFC700;
+}
+
+body.night-mode .no-completions {
+  background: #2a2a2a;
+  color: #888;
+}
+
+/* ============================================
+   FIX: Dark mode for Leaderboard page
+   ============================================ */
+body.night-mode .leaderboard-list {
+  background: #2a2a2a;
+  border-color: #444;
+  box-shadow: none;
+}
+
+body.night-mode .leaderboard-header-row {
+  background: #333;
+  color: #FFC700;
+}
+
+body.night-mode .leaderboard-row {
+  color: #e0e0e0;
+  border-bottom-color: #444;
+}
