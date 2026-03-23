@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { changePassword } from '../lib/api'
+import { changePassword, changeEmail } from '../lib/api'
 import translations from '../translations'
 
 export default function Settings({ user, language, onBack }) {
@@ -8,6 +8,13 @@ export default function Settings({ user, language, onBack }) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+
+  // Email change state
+  const [editingEmail, setEditingEmail] = useState(false)
+  const [newEmail, setNewEmail] = useState('')
+  const [emailBusy, setEmailBusy] = useState(false)
+  const [emailError, setEmailError] = useState('')
+  const [emailSuccess, setEmailSuccess] = useState(false)
 
   const t = translations[language]
 
@@ -40,6 +47,35 @@ export default function Settings({ user, language, onBack }) {
     }
   }
 
+  const handleEmailSave = async () => {
+    setEmailError('')
+    setEmailSuccess(false)
+    if (!newEmail.trim()) return
+
+    setEmailBusy(true)
+    try {
+      const res = await changeEmail(newEmail.trim())
+      if (res?.ok) {
+        setEmailSuccess(true)
+        setEditingEmail(false)
+        setNewEmail('')
+      } else {
+        setEmailError(res?.error || t.emailChangeError || 'Failed to change email. Please try again.')
+      }
+    } catch {
+      setEmailError(t.emailChangeError || 'Failed to change email. Please try again.')
+    } finally {
+      setEmailBusy(false)
+    }
+  }
+
+  const handleEmailCancel = () => {
+    setEditingEmail(false)
+    setNewEmail('')
+    setEmailError('')
+    setEmailSuccess(false)
+  }
+
   return (
     <div className="settings-page">
       <div className="settings-header">
@@ -52,7 +88,51 @@ export default function Settings({ user, language, onBack }) {
           <h2 className="settings-section-title">{t.accountInfo || 'ACCOUNT'}</h2>
           <div className="settings-field">
             <label className="settings-label">{t.yourEmail || 'Email'}</label>
-            <div className="settings-email-display">{user?.email || '—'}</div>
+            {!editingEmail ? (
+              <div className="settings-email-row">
+                <div className="settings-email-display">{user?.email || '—'}</div>
+                <button
+                  className="settings-edit-btn"
+                  onClick={() => setEditingEmail(true)}
+                >
+                  {t.editEmail || 'Edit'}
+                </button>
+              </div>
+            ) : (
+              <div className="settings-email-edit">
+                <label className="settings-label">{t.newEmailLabel || 'New Email'}</label>
+                <input
+                  type="email"
+                  className="settings-input"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  placeholder={user?.email || 'new@email.com'}
+                  autoFocus
+                />
+                {emailError && <div className="settings-error">{emailError}</div>}
+                <div className="settings-email-actions">
+                  <button
+                    className="settings-submit-btn"
+                    onClick={handleEmailSave}
+                    disabled={emailBusy || !newEmail.trim()}
+                  >
+                    {emailBusy ? '...' : (t.saveEmail || 'SAVE')}
+                  </button>
+                  <button
+                    className="settings-cancel-btn"
+                    onClick={handleEmailCancel}
+                    disabled={emailBusy}
+                  >
+                    {t.cancelEdit || 'Cancel'}
+                  </button>
+                </div>
+              </div>
+            )}
+            {emailSuccess && (
+              <div className="settings-success">
+                {t.emailConfirmationSent || 'Confirmation email sent. Check your new inbox to verify.'}
+              </div>
+            )}
           </div>
         </div>
 

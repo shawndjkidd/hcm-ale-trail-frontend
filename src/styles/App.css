@@ -6479,3 +6479,83 @@ body.night-mode .event-category-tag.new-release {
 body.night-mode .brewery-event-item.event-new-release {
   border-color: #28A745;
 }
+
+/* ============================================
+   SETTINGS — Email change inline edit
+   ============================================ */
+.settings-email-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.settings-edit-btn {
+  font-family: 'Anton', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  padding: 0.3rem 0.75rem;
+  background: transparent;
+  color: var(--text-secondary, #888);
+  border: 2px solid #aaa;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.settings-edit-btn:hover {
+  border-color: #FFC700;
+  color: #FFC700;
+}
+
+.settings-email-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.settings-email-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.settings-cancel-btn {
+  flex: 1;
+  padding: 0.6rem;
+  font-family: 'Anton', sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  background: transparent;
+  color: var(--text-secondary, #888);
+  border: 2px solid #aaa;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.settings-cancel-btn:hover {
+  border-color: #CC2222;
+  color: #CC2222;
+}
+
+/* Dark mode */
+body.night-mode .settings-edit-btn {
+  color: #aaa;
+  border-color: #555;
+}
+
+body.night-mode .settings-edit-btn:hover {
+  border-color: #FFC700;
+  color: #FFC700;
+}
+
+body.night-mode .settings-cancel-btn {
+  color: #aaa;
+  border-color: #555;
+}
+
+body.night-mode .settings-cancel-btn:hover {
+  border-color: #CC2222;
+  color: #CC2222;
+}

@@ -193,6 +193,13 @@ export function changePassword(newPassword) {
   });
 }
 
+export function changeEmail(newEmail) {
+  return request(`/auth/change-email`, {
+    method: "POST",
+    body: { email: newEmail },
+  });
+}
+
 export function storeLoginTokens(data) {
   try {
     if (!data) return;
