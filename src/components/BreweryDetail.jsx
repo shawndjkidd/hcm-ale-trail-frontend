@@ -74,7 +74,6 @@ const DAY_LABELS = {
 function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, onBack, qrValidated, timerStart, user, autoOpenBeer = false, onAutoOpenComplete }) {
   const [showAddBeer, setShowAddBeer] = useState(false)
   const [message, setMessage] = useState(null)
-  const [manualCode, setManualCode] = useState('')
   const [showSharePrompt, setShowSharePrompt] = useState(false)
   const [breweryEvents, setBreweryEvents] = useState([])
   const [eventsLoading, setEventsLoading] = useState(true)
@@ -82,10 +81,10 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
   const t = translations[language]
   const isStamped = stamps.includes(brewery?.id)
   const isTempClosed = brewery?.status === 'temporarily_closed'
-  const breweryBeers = beers.filter(b => 
+  const breweryBeers = beers.filter(b =>
     b.breweryId === brewery?.id || b.breweryName === brewery?.name
   )
-  
+
   const hardcodedInfo = BREWERY_DATA[brewery?.name] || {}
   const breweryInfo = {
     instagram: brewery?.instagram_url || brewery?.instagramUrl || hardcodedInfo.instagram || null,
@@ -94,9 +93,9 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     instagramHandle: brewery?.instagram_handle || brewery?.instagramHandle || hardcodedInfo.instagramHandle,
     code: brewery?.manual_code || brewery?.manualCode || hardcodedInfo.code,
   }
-  
+
   const isFirstStamp = stamps.length === 0
-  
+
   const BREWERY_ORDER = {
     'BiaCraft': 1,
     'Heart of Darkness': 2,
@@ -107,7 +106,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     '7 Bridges Brewing Co.': 7,
     'Belgo Saigon': 8
   }
-  
+
   const getDescription = () => {
     const orderKey = brewery?.order || BREWERY_ORDER[brewery?.name]
     if (orderKey && t[`brewery${orderKey}Desc`]) {
@@ -158,20 +157,20 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
   const isOpenNow = () => {
     const hours = brewery?.operatingHours || brewery?.operating_hours
     if (!hours) return null
-    
+
     const now = new Date()
     const dayName = DAY_NAMES[now.getDay()]
     const todayHours = hours[dayName]
-    
+
     if (!todayHours || todayHours.closed) return false
-    
+
     const currentTime = now.getHours() * 60 + now.getMinutes()
     const [openHour, openMin] = (todayHours.open || '00:00').split(':').map(Number)
     const [closeHour, closeMin] = (todayHours.close || '23:59').split(':').map(Number)
-    
+
     const openTime = openHour * 60 + openMin
     let closeTime = closeHour * 60 + closeMin
-    
+
     // Handle midnight crossover (e.g., closes at 01:00)
     if (closeTime < openTime) {
       closeTime += 24 * 60
@@ -179,7 +178,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         return currentTime + 24 * 60 >= openTime && currentTime + 24 * 60 <= closeTime
       }
     }
-    
+
     return currentTime >= openTime && currentTime <= closeTime
   }
 
@@ -238,46 +237,35 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
 
   const handleBeerAdded = async (beer) => {
     addBeer(beer)
-    
+
     if (!isStamped) {
       if (isFirstStamp) {
-        setMessage({ 
-          type: 'success', 
-          text: `⏱️ ${t.timerStarted}` 
+        setMessage({
+          type: 'success',
+          text: `⏱️ ${t.timerStarted}`
         })
         setTimeout(() => {
-          setMessage({ 
-            type: 'success', 
-            text: `🎉 ${t.stampCollected} (1/8)` 
+          setMessage({
+            type: 'success',
+            text: `🎉 ${t.stampCollected} (1/8)`
           })
           setTimeout(() => setMessage(null), 3000)
         }, 2000)
       } else {
-        setMessage({ 
-          type: 'success', 
-          text: `🎉 ${t.stampCollected} (${stamps.length + 1}/8)` 
+        setMessage({
+          type: 'success',
+          text: `🎉 ${t.stampCollected} (${stamps.length + 1}/8)`
         })
         setTimeout(() => setMessage(null), 5000)
       }
-      
+
       addStamp(brewery.id)
     }
-    
+
     setShowAddBeer(false)
     setShowSharePrompt(true)
     if (autoOpenBeer && typeof onAutoOpenComplete === 'function') {
       onAutoOpenComplete();
-    }
-  }
-
-  const handleManualCode = () => {
-    const correctCode = breweryInfo.code
-    if (manualCode.trim() === correctCode) {
-      setShowAddBeer(true)
-      setManualCode('')
-    } else {
-      setMessage({ type: 'error', text: t.invalidCode || 'Invalid code. Try again!' })
-      setTimeout(() => setMessage(null), 3000)
     }
   }
 
@@ -302,16 +290,6 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </div>
       )}
 
-      {!isStamped && !isTempClosed && (
-        <div className="stamp-instruction-box">
-          <div className="stamp-icon">🍺</div>
-          <div className="stamp-instruction-text">
-            <strong>{t.scanQRToCollect}</strong>
-            <p>{t.scanFirst}</p>
-          </div>
-        </div>
-      )}
-
       {message && (
         <div className={`message ${message.type}`}>
           {message.text}
@@ -332,9 +310,9 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
             <button className="share-btn copy" onClick={copyInstagramHandle}>
               📋 {t.copyHandle}
             </button>
-            <a 
-              href={breweryInfo.instagram} 
-              target="_blank" 
+            <a
+              href={breweryInfo.instagram}
+              target="_blank"
               rel="noopener noreferrer"
               className="share-btn instagram"
             >
@@ -352,14 +330,14 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         )}
         <h1 className="brewery-title">{brewery?.name || 'Brewery'}</h1>
         <p className="brewery-address">📍 {brewery?.address || ''}</p>
-        
+
         {/* Open/Closed Status */}
         {openStatus !== null && (
           <div className={`brewery-open-status ${openStatus ? 'open' : 'closed'}`}>
             {openStatus ? (t.openNow || '🟢 Open Now') : (t.closedNow || '🔴 Closed')}
           </div>
         )}
-        
+
         <p className="brewery-description">{getDescription()}</p>
       </div>
 
@@ -395,9 +373,9 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
                 <div className="brewery-event-desc">{getEventDescription(event)}</div>
               )}
               {event.link && (
-                <a 
-                  href={event.link} 
-                  target="_blank" 
+                <a
+                  href={event.link}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="event-link-btn"
                   style={{ marginTop: '8px' }}
@@ -415,9 +393,9 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
       {/* Three buttons in a row */}
       <div className="brewery-buttons-row">
         {breweryInfo.maps && (
-          <a 
-            href={breweryInfo.maps} 
-            target="_blank" 
+          <a
+            href={breweryInfo.maps}
+            target="_blank"
             rel="noopener noreferrer"
             className="action-btn green"
           >
@@ -425,9 +403,9 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
           </a>
         )}
         {breweryInfo.instagram && (
-          <a 
-            href={breweryInfo.instagram} 
-            target="_blank" 
+          <a
+            href={breweryInfo.instagram}
+            target="_blank"
             rel="noopener noreferrer"
             className="action-btn instagram-btn"
           >
@@ -435,9 +413,9 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
           </a>
         )}
         {breweryInfo.facebook && (
-          <a 
-            href={breweryInfo.facebook} 
-            target="_blank" 
+          <a
+            href={breweryInfo.facebook}
+            target="_blank"
             rel="noopener noreferrer"
             className="action-btn facebook-btn"
           >
@@ -446,12 +424,12 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         )}
       </div>
 
-      {(qrValidated || isStamped) && !isTempClosed && (
+      {!isTempClosed && (
         <button
           className="action-btn yellow add-beer-cta"
           onClick={() => setShowAddBeer(true)}
         >
-          🍺 {isStamped ? t.addAnotherBeer : t.addBeerNow}
+          🍺 {isStamped ? t.addAnotherBeer : (t.checkIn || 'CHECK IN & RATE A BEER')}
         </button>
       )}
 
@@ -478,33 +456,15 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </div>
       )}
 
-      {!isStamped && !isTempClosed && (
-        <div className="manual-code-section">
-          <p className="code-label">{t.codeBackup}</p>
-          <p className="code-subtext">{t.codeBackupText}</p>
-          <div className="code-input-row">
-            <input
-              type="text"
-              value={manualCode}
-              onChange={(e) => setManualCode(e.target.value)}
-              placeholder={t.code || "Code"}
-              maxLength="4"
-              className="code-input"
-            />
-            <button className="code-btn" onClick={handleManualCode}>
-              {t.go || "GO!"}
-            </button>
-          </div>
-        </div>
-      )}
-
       {showAddBeer && (
         <AddBeerModal
           brewery={brewery}
           onSave={handleBeerAdded}
           language={language}
-          onClose={autoOpenBeer && !isStamped ? undefined : () => setShowAddBeer(false)}
+          onClose={() => setShowAddBeer(false)}
           mandatory={autoOpenBeer && !isStamped}
+          breweryCode={breweryInfo.code}
+          isAlreadyStamped={isStamped}
         />
       )}
     </div>

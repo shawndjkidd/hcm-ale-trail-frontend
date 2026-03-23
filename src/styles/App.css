@@ -5600,3 +5600,141 @@ body.night-mode .settings-success {
   border-color: #00c060;
   color: #00e070;
 }
+
+/* ============================================
+   PIN VERIFICATION STEP (AddBeerModal Step 2)
+   ============================================ */
+.pin-verification-step {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.pin-lock-icon {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.pin-title {
+  font-family: 'Anton', sans-serif;
+  font-size: 1.4rem;
+  letter-spacing: 2px;
+  color: var(--text-primary, #fff);
+  margin: 0 0 0.5rem;
+}
+
+.pin-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-secondary, #ccc);
+  margin: 0 0 1.5rem;
+  line-height: 1.4;
+}
+
+.pin-input-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.pin-digit-input {
+  width: 3.2rem;
+  height: 3.8rem;
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  border: 3px solid #555;
+  border-radius: 10px;
+  background: #1a1a1a;
+  color: #fff;
+  outline: none;
+  transition: border-color 0.2s, transform 0.2s;
+  caret-color: #FFC700;
+}
+
+.pin-digit-input:focus {
+  border-color: #FFC700;
+  transform: scale(1.05);
+}
+
+.pin-digit-input.pin-error {
+  border-color: #CC2222;
+  background: #2a1111;
+}
+
+.pin-error-text {
+  color: #CC2222;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0.5rem 0 1rem;
+}
+
+/* Shake animation for wrong PIN */
+.pin-shake {
+  animation: pinShake 0.4s ease-in-out;
+}
+
+@keyframes pinShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-10px); }
+  40% { transform: translateX(10px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+
+.btn-confirm-stamp {
+  display: block;
+  width: 100%;
+  padding: 0.9rem;
+  margin-top: 1rem;
+  font-family: 'Anton', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+  background: #28A745;
+  color: #fff;
+  border: 3px solid #000;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s;
+}
+
+.btn-confirm-stamp:hover {
+  background: #22923c;
+  transform: scale(1.02);
+}
+
+.btn-confirm-stamp:active {
+  transform: scale(0.98);
+}
+
+.btn-back-to-beer {
+  display: block;
+  width: 100%;
+  padding: 0.6rem;
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  background: transparent;
+  color: var(--text-secondary, #999);
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.btn-back-to-beer:hover {
+  color: var(--text-primary, #fff);
+}
+
+/* Night mode overrides for PIN step */
+body.night-mode .pin-digit-input {
+  background: #222;
+  border-color: #555;
+  color: #fff;
+}
+
+body.night-mode .pin-digit-input:focus {
+  border-color: #FFC700;
+}
+
+body.night-mode .pin-digit-input.pin-error {
+  border-color: #CC2222;
+  background: #2a1111;
+}
