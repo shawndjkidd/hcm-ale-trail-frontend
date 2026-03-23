@@ -6134,3 +6134,76 @@ body.night-mode .event-link-btn {
   color: #FFC700;
   border-color: #FFC700;
 }
+
+/* ============================================
+   CHECK IN BUTTON — Eye-catching accent
+   ============================================ */
+.add-beer-cta {
+  background: #FFC700 !important;
+  color: #000 !important;
+  border: 4px solid #000 !important;
+  box-shadow: 0 4px 20px rgba(255, 199, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  transition: transform 0.15s, box-shadow 0.15s !important;
+}
+
+.add-beer-cta:hover {
+  box-shadow: 0 6px 28px rgba(255, 199, 0, 0.5), 0 3px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+body.night-mode .action-btn.yellow.add-beer-cta {
+  background: #FFC700 !important;
+  color: #000 !important;
+  border-color: #FFC700 !important;
+  box-shadow: 0 4px 24px rgba(255, 199, 0, 0.45), 0 0 12px rgba(255, 199, 0, 0.25) !important;
+}
+
+body.night-mode .action-btn.yellow.add-beer-cta:hover {
+  box-shadow: 0 6px 32px rgba(255, 199, 0, 0.55), 0 0 18px rgba(255, 199, 0, 0.35) !important;
+}
+
+/* ============================================
+   FIX: Dark mode for Upcoming Events section
+   ============================================ */
+body.night-mode .brewery-events-section {
+  background: #2a2a2a;
+  border-color: #444;
+}
+
+body.night-mode .brewery-event-item {
+  background: #333;
+  border-color: #FFC700;
+  box-shadow: none;
+}
+
+body.night-mode .brewery-event-name {
+  color: #FFC700;
+}
+
+body.night-mode .brewery-event-date {
+  background: #FFC700;
+  color: #111;
+}
+
+body.night-mode .brewery-event-time {
+  color: #ccc;
+}
+
+body.night-mode .brewery-event-desc {
+  color: #aaa;
+}
+
+body.night-mode .no-events {
+  color: #888;
+}
+
+/* FIX: MORE INFO button — was yellow-on-yellow, unreadable */
+body.night-mode .event-link-btn {
+  background: transparent !important;
+  color: #FFC700 !important;
+  border: 2px solid #FFC700 !important;
+  box-shadow: none !important;
+}
+
+body.night-mode .event-link-btn:hover {
+  background: rgba(255, 199, 0, 0.15) !important;
+}
