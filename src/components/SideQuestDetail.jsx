@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { getAccessToken } from '../lib/api'
 import translations from '../translations'
 
@@ -6,17 +6,25 @@ const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a921'
 
 function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, user, qrValidated }) {
   const [message, setMessage] = useState(null)
-  const [manualCode, setManualCode] = useState('')
   const [isChecking, setIsChecking] = useState(false)
-  const [showRatingModal, setShowRatingModal] = useState(false)
-  const [itemName, setItemName] = useState('')
-  const [rating, setRating] = useState(0)
-  const [notes, setNotes] = useState('')
   const [wasAlreadyCompleted] = useState(isCompleted)
   const [hasCheckedIn, setHasCheckedIn] = useState(isCompleted)
   const [questDetail, setQuestDetail] = useState(quest)
   const [questEvents, setQuestEvents] = useState([])
   const [eventsLoading, setEventsLoading] = useState(true)
+
+  // Check-in modal state
+  const [showCheckinModal, setShowCheckinModal] = useState(false)
+  const [step, setStep] = useState(1) // 1 = rate, 2 = PIN
+  const [itemName, setItemName] = useState('')
+  const [rating, setRating] = useState(0)
+  const [notes, setNotes] = useState('')
+
+  // PIN state
+  const [pinDigits, setPinDigits] = useState(['', '', '', ''])
+  const [pinError, setPinError] = useState(false)
+  const [pinShake, setPinShake] = useState(false)
+  const pinRefs = [useRef(null), useRef(null), useRef(null), useRef(null)]
 
   const t = translations[language]
 
@@ -42,7 +50,6 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
     return desc?.[language] || desc?.en || ''
   }
 
-  // Fetch full quest detail (for social URLs) and events on mount
   useEffect(() => {
     if (!quest?.id) return
 
@@ -73,10 +80,10 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
     fetchEvents()
   }, [quest?.id])
 
-  // Auto check-in when QR scanned
+  // Auto-open check-in modal when QR scanned
   useEffect(() => {
     if (qrValidated && !isCompleted && !hasCheckedIn) {
-      handleQRCheckin()
+      setShowCheckinModal(true)
     }
   }, [qrValidated])
 
@@ -102,64 +109,105 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
     return date.toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' })
   }
 
-  const handleQRCheckin = async () => {
-    setIsChecking(true)
-    try {
-      const res = await fetch(`/api/side-quests/${quest.id}/checkin`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          participant_id: user?.id,
-          method: 'qr_scan'
-        })
-      })
-      const data = await res.json()
-      if (data.ok) {
-        setHasCheckedIn(true)
-        onComplete(quest.id)
-        setShowRatingModal(true)
-      } else if (data.error === 'Already checked in to this side quest') {
-        setHasCheckedIn(true)
-        setMessage({ type: 'info', text: t.alreadyCheckedIn || 'Already checked in!' })
-        setTimeout(() => setMessage(null), 3000)
-      } else {
-        setMessage({ type: 'error', text: data.error || 'Check-in failed' })
-        setTimeout(() => setMessage(null), 3000)
-      }
-    } catch (err) {
-      console.error('Check-in error:', err)
-      setMessage({ type: 'error', text: 'Connection error. Try again.' })
-      setTimeout(() => setMessage(null), 3000)
-    }
-    setIsChecking(false)
-  }
-
-  const handleManualCode = async () => {
-    if (!manualCode.trim()) {
-      setMessage({ type: 'error', text: t.enterCode || 'Please enter a code' })
-      setTimeout(() => setMessage(null), 3000)
+  // Step 1: Validate rating, move to PIN step
+  const handleRatingSubmit = () => {
+    if (!itemName.trim()) {
+      alert(t.enterItemName || 'Please enter what you tried')
       return
     }
+    if (rating === 0) {
+      alert(t.selectRating || 'Please select a rating')
+      return
+    }
+    setStep(2)
+    setPinDigits(['', '', '', ''])
+    setPinError(false)
+    setTimeout(() => pinRefs[0]?.current?.focus(), 100)
+  }
+
+  // PIN digit input handling
+  const handlePinChange = (index, value) => {
+    const digit = value.replace(/\D/g, '').slice(-1)
+    const newDigits = [...pinDigits]
+    newDigits[index] = digit
+    setPinDigits(newDigits)
+    setPinError(false)
+
+    if (digit && index < 3) {
+      pinRefs[index + 1]?.current?.focus()
+    }
+
+    if (digit && index === 3) {
+      const fullPin = [...newDigits.slice(0, 3), digit].join('')
+      if (fullPin.length === 4) {
+        setTimeout(() => validateAndSubmit(fullPin), 150)
+      }
+    }
+  }
+
+  const handlePinKeyDown = (index, e) => {
+    if (e.key === 'Backspace' && !pinDigits[index] && index > 0) {
+      pinRefs[index - 1]?.current?.focus()
+    }
+  }
+
+  const handlePinSubmit = () => {
+    const fullPin = pinDigits.join('')
+    if (fullPin.length === 4) {
+      validateAndSubmit(fullPin)
+    }
+  }
+
+  // Validate PIN via backend and submit rating
+  const validateAndSubmit = async (pin) => {
     setIsChecking(true)
     try {
+      // Step 1: Check in with PIN
       const res = await fetch(`/api/side-quests/${quest.id}/checkin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           participant_id: user?.id,
           method: 'pin',
-          pin: manualCode.trim()
+          pin: pin
         })
       })
       const data = await res.json()
-      if (data.ok) {
+
+      if (data.ok || (data.error && data.error.includes('Already checked in'))) {
+        // Step 2: Submit rating
+        try {
+          const token = getAccessToken()
+          const headers = { 'Content-Type': 'application/json' }
+          if (token) headers['Authorization'] = `Bearer ${token}`
+
+          await fetch(`/api/side-quests/${quest.id}/ratings`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              rating,
+              item_name: itemName.trim(),
+              notes: notes.trim() || null,
+            }),
+          })
+        } catch (err) {
+          console.error('Rating error:', err)
+        }
+
         setHasCheckedIn(true)
         onComplete(quest.id)
-        setManualCode('')
-        setShowRatingModal(true)
+        setShowCheckinModal(false)
+        setMessage({ type: 'success', text: `🎉 ${t.questCompleted || 'Side Quest Completed!'}` })
+        setTimeout(() => setMessage(null), 5000)
       } else {
-        setMessage({ type: 'error', text: data.error || t.invalidCode || 'Invalid code' })
-        setTimeout(() => setMessage(null), 3000)
+        // Wrong PIN
+        setPinError(true)
+        setPinShake(true)
+        setPinDigits(['', '', '', ''])
+        setTimeout(() => {
+          setPinShake(false)
+          pinRefs[0]?.current?.focus()
+        }, 500)
       }
     } catch (err) {
       console.error('Check-in error:', err)
@@ -169,43 +217,10 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
     setIsChecking(false)
   }
 
-  const handleSubmitRating = async () => {
-    if (!itemName.trim()) {
-      setMessage({ type: 'error', text: t.enterItemName || 'Please enter what you tried' })
-      setTimeout(() => setMessage(null), 3000)
-      return
-    }
-    if (rating === 0) {
-      setMessage({ type: 'error', text: t.selectRating || 'Please select a rating' })
-      setTimeout(() => setMessage(null), 3000)
-      return
-    }
-
-    try {
-      const token = getAccessToken()
-      const headers = { 'Content-Type': 'application/json' }
-      if (token) headers['Authorization'] = `Bearer ${token}`
-
-      const res = await fetch(`/api/side-quests/${quest.id}/ratings`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          rating,
-          item_name: itemName.trim(),
-          notes: notes.trim() || null,
-        }),
-      })
-      const data = await res.json().catch(() => null)
-      if (!data?.ok) {
-        console.error('Rating save failed:', data?.error)
-      }
-    } catch (err) {
-      console.error('Rating error:', err)
-    }
-
-    setShowRatingModal(false)
-    setMessage({ type: 'success', text: `🎉 ${t.questCompleted || 'Side Quest Completed!'}` })
-    setTimeout(() => setMessage(null), 5000)
+  const handleBackToStep1 = () => {
+    setStep(1)
+    setPinDigits(['', '', '', ''])
+    setPinError(false)
   }
 
   const copyInstagramHandle = () => {
@@ -216,25 +231,9 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
     setTimeout(() => setMessage(null), 3000)
   }
 
-  const handleSkipRating = () => {
-    setShowRatingModal(false)
-    setMessage({ type: 'success', text: `🎉 ${t.questCompleted || 'Side Quest Completed!'}` })
-    setTimeout(() => setMessage(null), 5000)
-  }
-
   return (
     <div className="brewery-detail side-quest-detail">
       <button className="back-btn" onClick={onBack}>← {t.back || 'BACK'}</button>
-
-      {!hasCheckedIn && !isCompleted && !qrValidated && (
-        <div className="stamp-instruction-box">
-          <div className="stamp-icon">🗺️</div>
-          <div className="stamp-instruction-text">
-            <strong>{t.scanQRToComplete || 'SCAN THE QR CODE'}</strong>
-            <p>{t.scanQRFirst || 'Scan the QR code at the venue to complete this quest'}</p>
-          </div>
-        </div>
-      )}
 
       {message && (
         <div className={`message ${message.type}`}>
@@ -242,6 +241,7 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
         </div>
       )}
 
+      {/* Quest Info Card */}
       <div className="brewery-info-card">
         <h1 className="brewery-title">{getTitle()}</h1>
         {questDetail?.address && (
@@ -257,39 +257,25 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
         )}
       </div>
 
-      {/* Upcoming Events */}
-      <div className="brewery-events-section">
-        <h3 className="brewery-events-title">{t.upcomingEvents || 'UPCOMING EVENTS'}</h3>
-        {eventsLoading ? (
-          <p className="events-loading-text">{t.loading || 'Loading...'}</p>
-        ) : questEvents.length > 0 ? (
-          questEvents.map(event => (
-            <div key={event.id} className="brewery-event-item">
-              <div className="brewery-event-header">
-                <span className="brewery-event-name">{getEventTitle(event)}</span>
-                <span className="brewery-event-date">{formatEventDate(event.startsAt)}</span>
-              </div>
-              <div className="brewery-event-time">🕐 {formatEventTime(event.startsAt)}</div>
-              {getEventDescription(event) && (
-                <div className="brewery-event-desc">{getEventDescription(event)}</div>
-              )}
-              {event.link && (
-                <a
-                  href={event.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="event-link-btn"
-                  style={{ marginTop: '8px' }}
-                >
-                  {t.moreInfo || 'MORE INFO'}
-                </a>
-              )}
+      {/* CHECK IN button */}
+      {!hasCheckedIn && !isCompleted ? (
+        <button
+          className="action-btn yellow add-beer-cta"
+          onClick={() => { setStep(1); setShowCheckinModal(true); }}
+        >
+          🗺️ {t.checkInQuest || 'CHECK IN & RATE'}
+        </button>
+      ) : (
+        <div className="side-quest-completed-box">
+          <div className="completed-icon">✅</div>
+          <div className="completed-text">{wasAlreadyCompleted ? 'Already Completed ✓' : (t.questAlreadyCompleted || 'Quest Completed!')}</div>
+          {questDetail?.reward && (
+            <div className="completed-reward">
+              {t.claimReward || 'Show this screen to claim your reward:'} <strong>{t.rewardMap?.[questDetail.reward] || questDetail.reward}</strong>
             </div>
-          ))
-        ) : (
-          <p className="no-events">{t.noEvents || 'No upcoming events'}</p>
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
       {/* Social buttons */}
       <div className="brewery-buttons-row">
@@ -310,6 +296,34 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
         )}
       </div>
 
+      {/* Upcoming Events */}
+      <div className="brewery-events-section">
+        <h3 className="brewery-events-title">{t.upcomingEvents || 'UPCOMING EVENTS'}</h3>
+        {eventsLoading ? (
+          <p className="events-loading-text">{t.loading || 'Loading...'}</p>
+        ) : questEvents.length > 0 ? (
+          questEvents.map(event => (
+            <div key={event.id} className="brewery-event-item">
+              <div className="brewery-event-header">
+                <span className="brewery-event-name">{getEventTitle(event)}</span>
+                <span className="brewery-event-date">{formatEventDate(event.startsAt)}</span>
+              </div>
+              <div className="brewery-event-time">🕐 {formatEventTime(event.startsAt)}</div>
+              {getEventDescription(event) && (
+                <div className="brewery-event-desc">{getEventDescription(event)}</div>
+              )}
+              {event.link && (
+                <a href={event.link} target="_blank" rel="noopener noreferrer" className="event-link-btn" style={{ marginTop: '8px' }}>
+                  {t.moreInfo || 'MORE INFO'}
+                </a>
+              )}
+            </div>
+          ))
+        ) : (
+          <p className="no-events">{t.noEvents || 'No upcoming events'}</p>
+        )}
+      </div>
+
       {(questDetail?.instagram_handle || questDetail?.instagramHandle) && (
         <div className="hashtag-section">
           <div className="hashtag-text">
@@ -321,92 +335,107 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
         </div>
       )}
 
-      {(hasCheckedIn || isCompleted) ? (
-        <div className="side-quest-completed-box">
-          <div className="completed-icon">✅</div>
-          <div className="completed-text">{wasAlreadyCompleted ? 'Already Completed ✓' : (t.questAlreadyCompleted || 'Quest Completed!')}</div>
-          {questDetail?.reward && (
-            <div className="completed-reward">
-              {t.claimReward || 'Show this screen to claim your reward:'} <strong>{t.rewardMap?.[questDetail.reward] || questDetail.reward}</strong>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="manual-code-section">
-          <p className="code-label side-quest-code-label">{t.completeQuest || 'COMPLETE THIS QUEST'}</p>
-          <p className="code-subtext">{t.enterQuestCode || 'Enter the code from the venue to check in'}</p>
-          <div className="code-input-row">
-            <input
-              type="text"
-              className="code-input"
-              placeholder={t.enterCode || 'Enter code'}
-              value={manualCode}
-              onChange={(e) => setManualCode(e.target.value.replace(/\D/g, '').slice(0, 4))}
-              maxLength="4"
-            />
-            <button
-              className="code-btn"
-              onClick={handleManualCode}
-              disabled={isChecking || manualCode.length !== 4}
-            >
-              {isChecking ? '...' : t.go || 'GO!'}
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Two-step check-in modal: Rate → PIN */}
+      {showCheckinModal && (
+        <div className="modal-overlay" onClick={step === 2 ? undefined : () => setShowCheckinModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            {step === 1 && <button className="modal-close" onClick={() => setShowCheckinModal(false)}>✕</button>}
 
-      {/* Rating Modal */}
-      {showRatingModal && (
-        <div className="modal-overlay">
-          <div className="add-beer-modal">
-            <button className="modal-close" onClick={handleSkipRating}>✕</button>
-            <h2 className="modal-title">{t.rateExperience || 'Rate Your Experience'}</h2>
+            {step === 1 && (
+              <>
+                <h2>{t.rateExperience || 'RATE YOUR EXPERIENCE'}</h2>
+                <p className="modal-subtitle">{getTitle()}</p>
 
-            <div className="beer-input-group">
-              <label>{t.whatDidYouTry || 'What did you try?'}</label>
-              <input
-                type="text"
-                className="beer-name-input"
-                placeholder={t.itemNamePlaceholder || 'e.g., Sake Flight, Ramen...'}
-                value={itemName}
-                onChange={(e) => setItemName(e.target.value)}
-              />
-            </div>
+                <div className="form-group">
+                  <label>{t.whatDidYouTry || 'What did you try?'}</label>
+                  <input
+                    type="text"
+                    className="text-input"
+                    placeholder={t.itemNamePlaceholder || 'e.g., Sake Flight, Ramen...'}
+                    value={itemName}
+                    onChange={(e) => setItemName(e.target.value)}
+                    autoFocus
+                  />
+                </div>
 
-            <div className="beer-rating-group">
-              <label>{t.rating || 'Rating'}</label>
-              <div className="star-rating">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    className={`star-btn ${rating >= star ? 'active' : ''}`}
-                    onClick={() => setRating(star)}
-                  >
-                    ⭐
+                <div className="form-group">
+                  <label>{t.rating || 'Rating'}</label>
+                  <div className="star-rating">
+                    {[1, 2, 3, 4, 5].map(star => (
+                      <button
+                        key={star}
+                        className={`star ${rating >= star ? 'active' : ''}`}
+                        onClick={() => setRating(star)}
+                      >
+                        ⭐
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>{t.tastingNotes || 'Notes'} ({t.optional || 'Optional'})</label>
+                  <textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder={t.notesPlaceholder || 'Any thoughts?'}
+                    className="textarea-input"
+                    rows="3"
+                  />
+                </div>
+
+                <div className="modal-actions">
+                  <button className="btn-cancel" onClick={() => setShowCheckinModal(false)}>
+                    {t.cancel}
                   </button>
-                ))}
+                  <button className="btn-save" onClick={handleRatingSubmit}>
+                    {t.next || 'NEXT →'}
+                  </button>
+                </div>
+              </>
+            )}
+
+            {step === 2 && (
+              <div className="pin-verification-step">
+                <div className="pin-lock-icon">🔒</div>
+                <h2 className="pin-title">{t.serverConfirm || 'SERVER CONFIRMATION'}</h2>
+                <p className="pin-subtitle">
+                  {t.askServerPin || 'Show this to your server — they\'ll enter the PIN'}
+                </p>
+
+                <div className={`pin-input-row ${pinShake ? 'pin-shake' : ''}`}>
+                  {[0, 1, 2, 3].map(i => (
+                    <input
+                      key={i}
+                      ref={pinRefs[i]}
+                      type="tel"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength="1"
+                      className={`pin-digit-input ${pinError ? 'pin-error' : ''}`}
+                      value={pinDigits[i]}
+                      onChange={(e) => handlePinChange(i, e.target.value)}
+                      onKeyDown={(e) => handlePinKeyDown(i, e)}
+                      autoComplete="off"
+                    />
+                  ))}
+                </div>
+
+                {pinError && (
+                  <p className="pin-error-text">
+                    {t.invalidCode || 'Invalid code. Try again!'}
+                  </p>
+                )}
+
+                <button className="btn-confirm-stamp" onClick={handlePinSubmit} disabled={isChecking}>
+                  {isChecking ? '...' : (t.confirmStamp || 'CONFIRM STAMP ✓')}
+                </button>
+
+                <button className="btn-back-to-beer" onClick={handleBackToStep1}>
+                  ← {t.editBeer || 'Edit details'}
+                </button>
               </div>
-            </div>
-
-            <div className="beer-input-group">
-              <label>{t.notes || 'Notes'} ({t.optional || 'optional'})</label>
-              <textarea
-                className="beer-notes-input"
-                placeholder={t.notesPlaceholder || 'Any thoughts?'}
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows={3}
-              />
-            </div>
-
-            <div className="modal-buttons">
-              <button className="skip-btn" onClick={handleSkipRating}>
-                {t.skip || 'SKIP'}
-              </button>
-              <button className="submit-btn" onClick={handleSubmitRating}>
-                {t.submit || 'SUBMIT'}
-              </button>
-            </div>
+            )}
           </div>
         </div>
       )}
