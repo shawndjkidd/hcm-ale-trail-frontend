@@ -76,6 +76,8 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
   const [message, setMessage] = useState(null)
   const [breweryEvents, setBreweryEvents] = useState([])
   const [eventsLoading, setEventsLoading] = useState(true)
+  const [menuBeers, setMenuBeers] = useState([])
+  const [menuBeersLoading, setMenuBeersLoading] = useState(true)
 
   const t = translations[language]
   const isStamped = stamps.includes(brewery?.id)
@@ -133,6 +135,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
   useEffect(() => {
     if (brewery?.id) {
       fetchBreweryEvents()
+      fetchMenuBeers()
     }
   }, [brewery?.id])
 
@@ -142,7 +145,6 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
       const res = await fetch(`/api/trails/${TRAIL_ID}/events?v=${Date.now()}`)
       const data = await res.json()
       if (data.ok && data.events) {
-        // Filter events for this brewery
         const filtered = data.events.filter(e => e.breweryId === brewery.id)
         setBreweryEvents(filtered)
       }
@@ -150,6 +152,20 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
       console.error('Failed to fetch brewery events:', err)
     }
     setEventsLoading(false)
+  }
+
+  const fetchMenuBeers = async () => {
+    setMenuBeersLoading(true)
+    try {
+      const res = await fetch(`/api/trails/${TRAIL_ID}/breweries/${brewery.id}/beers`)
+      const data = await res.json()
+      if (data.ok && data.beers) {
+        setMenuBeers(data.beers)
+      }
+    } catch (err) {
+      console.error('Failed to fetch brewery beers:', err)
+    }
+    setMenuBeersLoading(false)
   }
 
   // Check if brewery is open now
@@ -170,7 +186,6 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     const openTime = openHour * 60 + openMin
     let closeTime = closeHour * 60 + closeMin
 
-    // Handle midnight crossover (e.g., closes at 01:00)
     if (closeTime < openTime) {
       closeTime += 24 * 60
       if (currentTime < openTime) {
@@ -183,7 +198,6 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
 
   const formatTime = (time) => time === '00:00' ? 'Midnight' : time
 
-  // Format hours for display
   const formatHours = () => {
     const hours = brewery?.operatingHours || brewery?.operating_hours
     if (!hours) return null
@@ -294,6 +308,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </div>
       )}
 
+      {/* 1. Brewery Info Card */}
       <div className="brewery-info-card" style={{ position: 'relative', overflow: 'hidden' }}>
         {isTempClosed && (
           <div className="brewery-closed-diagonal-overlay">
@@ -303,7 +318,6 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         <h1 className="brewery-title">{brewery?.name || 'Brewery'}</h1>
         <p className="brewery-address">📍 {brewery?.address || ''}</p>
 
-        {/* Open/Closed Status */}
         {openStatus !== null && (
           <div className={`brewery-open-status ${openStatus ? 'open' : 'closed'}`}>
             {openStatus ? (t.openNow || '🟢 Open Now') : (t.closedNow || '🔴 Closed')}
@@ -313,7 +327,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         <p className="brewery-description">{getDescription()}</p>
       </div>
 
-      {/* Operating Hours */}
+      {/* 2. Operating Hours */}
       {hoursData && hoursData.length > 0 && (
         <div className="brewery-hours-section">
           <h3 className="brewery-hours-title">{t.hours || 'HOURS'}</h3>
@@ -328,41 +342,17 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </div>
       )}
 
-      {/* Upcoming Events at this Brewery */}
-      <div className="brewery-events-section">
-        <h3 className="brewery-events-title">{t.upcomingEvents || 'UPCOMING EVENTS'}</h3>
-        {eventsLoading ? (
-          <p className="events-loading-text">{t.loading || 'Loading...'}</p>
-        ) : breweryEvents.length > 0 ? (
-          breweryEvents.map(event => (
-            <div key={event.id} className="brewery-event-item">
-              <div className="brewery-event-header">
-                <span className="brewery-event-name">{getEventTitle(event)}</span>
-                <span className="brewery-event-date">{formatEventDate(event.startsAt)}</span>
-              </div>
-              <div className="brewery-event-time">🕐 {formatEventTime(event.startsAt)}</div>
-              {getEventDescription(event) && (
-                <div className="brewery-event-desc">{getEventDescription(event)}</div>
-              )}
-              {event.link && (
-                <a
-                  href={event.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="event-link-btn"
-                  style={{ marginTop: '8px' }}
-                >
-                  {t.moreInfo || 'MORE INFO'}
-                </a>
-              )}
-            </div>
-          ))
-        ) : (
-          <p className="no-events">{t.noEvents || 'No upcoming events'}</p>
-        )}
-      </div>
+      {/* 3. CHECK IN & RATE A BEER */}
+      {!isTempClosed && (
+        <button
+          className="action-btn yellow add-beer-cta"
+          onClick={() => setShowAddBeer(true)}
+        >
+          🍺 {isStamped ? t.addAnotherBeer : (t.checkIn || 'CHECK IN & RATE A BEER')}
+        </button>
+      )}
 
-      {/* Three buttons in a row */}
+      {/* 4. Social Buttons */}
       <div className="brewery-buttons-row">
         {breweryInfo.maps && (
           <a
@@ -396,15 +386,59 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         )}
       </div>
 
-      {!isTempClosed && (
-        <button
-          className="action-btn yellow add-beer-cta"
-          onClick={() => setShowAddBeer(true)}
-        >
-          🍺 {isStamped ? t.addAnotherBeer : (t.checkIn || 'CHECK IN & RATE A BEER')}
-        </button>
+      {/* 5. Upcoming Events */}
+      <div className="brewery-events-section">
+        <h3 className="brewery-events-title">{t.upcomingEvents || 'UPCOMING EVENTS'}</h3>
+        {eventsLoading ? (
+          <p className="events-loading-text">{t.loading || 'Loading...'}</p>
+        ) : breweryEvents.length > 0 ? (
+          breweryEvents.map(event => (
+            <div key={event.id} className="brewery-event-item">
+              <div className="brewery-event-header">
+                <span className="brewery-event-name">{getEventTitle(event)}</span>
+                <span className="brewery-event-date">{formatEventDate(event.startsAt)}</span>
+              </div>
+              <div className="brewery-event-time">🕐 {formatEventTime(event.startsAt)}</div>
+              {getEventDescription(event) && (
+                <div className="brewery-event-desc">{getEventDescription(event)}</div>
+              )}
+              {event.link && (
+                <a
+                  href={event.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="event-link-btn"
+                  style={{ marginTop: '8px' }}
+                >
+                  {t.moreInfo || 'MORE INFO'}
+                </a>
+              )}
+            </div>
+          ))
+        ) : (
+          <p className="no-events">{t.noEvents || 'No upcoming events'}</p>
+        )}
+      </div>
+
+      {/* 6. Our Beers (brewery menu) */}
+      {!menuBeersLoading && menuBeers.length > 0 && (
+        <div className="brewery-menu-section">
+          <h3 className="brewery-menu-title">{t.ourBeers || 'OUR BEERS'}</h3>
+          <div className="brewery-menu-list">
+            {menuBeers.map(beer => (
+              <div key={beer.id} className="brewery-menu-item">
+                <div className="brewery-menu-beer-name">{beer.name}</div>
+                <div className="brewery-menu-beer-details">
+                  {beer.style && <span className="brewery-menu-style">{beer.style}</span>}
+                  {beer.abv != null && <span className="brewery-menu-abv">{beer.abv}%</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
+      {/* 7. Hashtag / Copy Handle */}
       <div className="hashtag-section">
         <div className="hashtag-text">
           {t.tag || "Tag"}: {breweryInfo.instagramHandle}
@@ -414,9 +448,10 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </button>
       </div>
 
+      {/* 8. My Beers (user's rated beers at this brewery) */}
       {breweryBeers.length > 0 && (
         <div className="brewery-beers">
-          <h3>{t.beersAt} {brewery?.name || 'this brewery'}:</h3>
+          <h3>{t.myBeersHere || 'MY BEERS'}</h3>
           {breweryBeers.map(beer => (
             <div key={beer.id} className="beer-item">
               <div className="beer-name">{beer.name}</div>

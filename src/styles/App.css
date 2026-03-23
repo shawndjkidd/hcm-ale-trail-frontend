@@ -5834,3 +5834,79 @@ body.night-mode .btn-scan-qr {
 body.night-mode .pin-divider-line {
   background: #444;
 }
+
+/* ============================================
+   OUR BEERS - Brewery Menu Section
+   ============================================ */
+.brewery-menu-section {
+  background: var(--card-bg, #fff);
+  border: 3px solid #000;
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  margin: 0.75rem 0;
+}
+
+.brewery-menu-title {
+  font-family: 'Anton', sans-serif;
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  color: var(--accent-red, #CC2222);
+  margin: 0 0 0.75rem;
+  text-align: center;
+  border-bottom: 2px solid var(--accent-yellow, #FFC700);
+  padding-bottom: 0.5rem;
+}
+
+.brewery-menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.brewery-menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+.brewery-menu-item:last-child {
+  border-bottom: none;
+}
+
+.brewery-menu-beer-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-primary, #222);
+}
+
+.brewery-menu-beer-details {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--text-secondary, #888);
+}
+
+.brewery-menu-style {
+  font-style: italic;
+}
+
+.brewery-menu-abv {
+  font-weight: 600;
+  color: var(--accent-red, #CC2222);
+}
+
+/* Night mode */
+body.night-mode .brewery-menu-section {
+  background: var(--card-bg, #222);
+}
+
+body.night-mode .brewery-menu-beer-name {
+  color: var(--text-primary, #fff);
+}
+
+body.night-mode .brewery-menu-item {
+  border-bottom-color: rgba(255,255,255,0.08);
+}
