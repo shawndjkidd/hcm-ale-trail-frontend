@@ -167,8 +167,15 @@ const translations = {
     passwordMismatch: "Passwords do not match",
     passwordTooShort: "Password must be at least 6 characters",
     settings: "Settings",
+    selectBeerPlaceholder: "— Select a beer —",
+    notesPlaceholder: "e.g. Hoppy, citrus notes...",
+    hours: "HOURS",
+    closed: "Closed",
+    midnight: "Midnight",
+    openNow: "🟢 Open Now",
+    closedNow: "🔴 Closed",
   },
-  
+
   vn: {
     craftBeerPassport: "TUYẾN BIA HỒ CHÍ MINH",
     stamps: "TEM BIA",
@@ -337,6 +344,13 @@ const translations = {
     passwordMismatch: "Mật khẩu không khớp",
     passwordTooShort: "Mật khẩu phải có ít nhất 6 ký tự",
     settings: "Cài đặt",
+    selectBeerPlaceholder: "— Chọn bia —",
+    notesPlaceholder: "VD: Đắng, vị cam quýt...",
+    hours: "GIỜ MỞ CỬA",
+    closed: "Đóng cửa",
+    midnight: "Nửa đêm",
+    openNow: "🟢 Đang mở cửa",
+    closedNow: "🔴 Đóng cửa",
     rewardMap: {
       "Free craft beer at any trail brewery": "Bia thủ công miễn phí tại bất kỳ nhà máy bia nào",
       "Exclusive Ale Trail sticker pack": "Bộ sticker Ale Trail độc quyền",
@@ -506,8 +520,15 @@ const translations = {
     passwordMismatch: "비밀번호가 일치하지 않습니다",
     passwordTooShort: "비밀번호는 최소 6자 이상이어야 합니다",
     settings: "설정",
+    selectBeerPlaceholder: "— 맥주 선택 —",
+    notesPlaceholder: "예: 홉향, 시트러스...",
+    hours: "영업시간",
+    closed: "휴무",
+    midnight: "자정",
+    openNow: "🟢 영업 중",
+    closedNow: "🔴 영업 종료",
   },
-  
+
   jp: {
     craftBeerPassport: "ホーチミン エールトレイル",
     stamps: "ビールスタンプ",
@@ -670,6 +691,13 @@ const translations = {
     passwordMismatch: "パスワードが一致しません",
     passwordTooShort: "パスワードは6文字以上必要です",
     settings: "設定",
+    selectBeerPlaceholder: "— ビールを選ぶ —",
+    notesPlaceholder: "例: ホッピー、柑橘系...",
+    hours: "営業時間",
+    closed: "定休日",
+    midnight: "深夜0時",
+    openNow: "🟢 営業中",
+    closedNow: "🔴 閉店",
   }
 }
 

@@ -337,7 +337,7 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, b
   return (
     <div className="modal-overlay" onClick={(mandatory && step === 2) ? undefined : (step === 2 ? undefined : (mandatory ? undefined : onClose))}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        {!mandatory && step === 1 && <button className="modal-close" onClick={onClose}>✕</button>}
+        {!mandatory && step === 1 && <button className="back-btn" style={{marginBottom: '0.5rem'}} onClick={onClose}>← {t.back || 'BACK'}</button>}
 
         {step === 1 && (
           <>
@@ -361,7 +361,7 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, b
                     onChange={(e) => { setSelectedBeerId(e.target.value); setCustomName('') }}
                     style={{ marginBottom: isOther ? '0.5rem' : 0 }}
                   >
-                    <option value="">— Select a beer —</option>
+                    <option value="">{t.selectBeerPlaceholder || '— Select a beer —'}</option>
                     {menuBeers.map(b => (
                       <option key={b.id} value={b.id}>
                         {b.name}{b.style ? ` (${b.style})` : ''}{b.abv != null ? ` · ${b.abv}%` : ''}
@@ -408,7 +408,7 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, b
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="e.g. Hoppy, citrus notes..."
+                placeholder={t.notesPlaceholder || "e.g. Hoppy, citrus notes..."}
                 className="textarea-input"
                 rows="3"
               />

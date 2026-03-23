@@ -196,7 +196,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     return currentTime >= openTime && currentTime <= closeTime
   }
 
-  const formatTime = (time) => time === '00:00' ? 'Midnight' : time
+  const formatTime = (time) => time === '00:00' ? (t.midnight || 'Midnight') : time
 
   const formatHours = () => {
     const hours = brewery?.operatingHours || brewery?.operating_hours
@@ -333,7 +333,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
           className="action-btn yellow add-beer-cta"
           onClick={() => setShowAddBeer(true)}
         >
-          🍺 {isStamped ? t.addAnotherBeer : (t.checkIn || 'CHECK IN & RATE A BEER')}
+          {isStamped ? t.addAnotherBeer : (t.checkIn || 'CHECK IN & RATE A BEER')}
         </button>
       )}
 
