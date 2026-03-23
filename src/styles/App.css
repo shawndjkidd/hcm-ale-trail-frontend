@@ -6207,3 +6207,16 @@ body.night-mode .event-link-btn {
 body.night-mode .event-link-btn:hover {
   background: rgba(255, 199, 0, 0.15) !important;
 }
+
+/* FIX: MORE INFO button readability in both modes */
+.brewery-event-item .event-link-btn {
+  background: #FFC700 !important;
+  color: #000 !important;
+  border-color: #000 !important;
+}
+
+body.night-mode .brewery-event-item .event-link-btn {
+  background: #FFC700 !important;
+  color: #000 !important;
+  border-color: #000 !important;
+}
