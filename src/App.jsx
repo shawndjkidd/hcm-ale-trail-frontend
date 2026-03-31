@@ -4,16 +4,15 @@ import BreweryDetail from "./components/BreweryDetail";
 import SideQuestDetail from "./components/SideQuestDetail";
 import FAQ from "./components/FAQ";
 import MyBeers from "./components/MyBeers";
-import WelcomeModal from "./components/WelcomeModal";
 import Leaderboard from "./components/Leaderboard";
 import AuthModal from "./components/AuthModal";
 import AleTrailMap from "./components/AleTrailMap";
 import Settings from "./components/Settings";
 
 import translations from "./translations";
-import { recordCheckin } from "./lib/supabase";
+import { recordCheckin, supabase } from "./lib/supabase";
 import { TRAIL_ID } from "./config";
-import { getBreweries, getMe, logout as apiLogout, startNewRun, postCheckin, getLeaderboard, claimHat } from "./lib/api";
+import { getBreweries, getMe, logout as apiLogout, startNewRun, postCheckin, getLeaderboard, claimHat, storeLoginTokens } from "./lib/api";
 
 import "./styles/App.css";
 
@@ -97,7 +96,6 @@ export default function App() {
   const [qrValidated, setQrValidated] = useState(false);
   const [sideQuestQrValidated, setSideQuestQrValidated] = useState(false);
   const [user, setUser] = useState(null);
-  const [showWelcome, setShowWelcome] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [timerStart, setTimerStart] = useState(null);
   const [timerEnd, setTimerEnd] = useState(null);
@@ -183,6 +181,35 @@ export default function App() {
   };
 
   useEffect(() => {
+    // Handle Google OAuth redirect — Supabase puts tokens in the URL hash
+    const handleOAuthCallback = async () => {
+      const hash = window.location.hash;
+      if (!hash || !hash.includes("access_token")) return false;
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.access_token) return false;
+        if (session.user?.app_metadata?.provider !== "google") return false;
+
+        const res = await fetch("/api/auth/google", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            access_token: session.access_token,
+            refresh_token: session.refresh_token,
+            expires_at: session.expires_at,
+          }),
+        });
+        const data = await res.json().catch(() => null);
+        if (!res.ok || !data?.ok) return false;
+
+        try { window.history.replaceState({}, "", window.location.pathname); } catch {}
+        storeLoginTokens(data);
+        return data;
+      } catch {
+        return false;
+      }
+    };
+
     const savedStamps = localStorage.getItem("hcm-stamps");
     const savedBeers = localStorage.getItem("hcm-beers");
     const savedLang = localStorage.getItem("hcm-language");
@@ -200,12 +227,23 @@ export default function App() {
     if (savedLeaderboard) setLeaderboardData(JSON.parse(savedLeaderboard));
     if (savedSideQuestCheckins) setSideQuestCheckins(JSON.parse(savedSideQuestCheckins));
 
+    handleOAuthCallback().then((oauthData) => {
+      if (oauthData) {
+        const u = oauthData.user
+          ? { id: oauthData.user.id, email: oauthData.user.email }
+          : { id: null };
+        setUser(u);
+        localStorage.setItem("hcm-user", JSON.stringify(u));
+        setShowAuth(false);
+        loadMe().catch(() => {});
+      }
+    });
+
     if (savedUser) {
       setUser(JSON.parse(savedUser));
-      setShowWelcome(false);
       setShowAuth(false);
     } else {
-      setShowWelcome(true);
+      setShowAuth(true);
     }
 
     // Check for /settings route
@@ -234,11 +272,11 @@ export default function App() {
             setSideQuestQrValidated(true);
             setView("sidequest");
             setUser(u);
-            setShowWelcome(false);
+            setShowAuth(false);
             setShowAuth(false);
           } else {
             setShowAuth(true);
-            setShowWelcome(false);
+            setShowAuth(false);
           }
         }
         setInitialized(true);
@@ -265,11 +303,11 @@ export default function App() {
             setAutoOpenBeer(true);
             setView("brewery");
             setUser(u);
-            setShowWelcome(false);
+            setShowAuth(false);
             setShowAuth(false);
           } else {
             setShowAuth(true);
-            setShowWelcome(false);
+            setShowAuth(false);
           }
         }
       } else if (directBreweryId) {
@@ -344,7 +382,7 @@ export default function App() {
   const handleUserRegistration = (userData) => {
     setUser(userData);
     localStorage.setItem("hcm-user", JSON.stringify(userData));
-    setShowWelcome(false);
+    setShowAuth(false);
     if (pendingQR.current) {
       setSelectedBrewery(pendingQR.current.brewery);
       setQrValidated(true);
@@ -498,7 +536,7 @@ export default function App() {
     setUser(u);
     localStorage.setItem("hcm-user", JSON.stringify(u));
     setShowAuth(false);
-    setShowWelcome(false);
+    setShowAuth(false);
     await loadMe();
     if (pendingQR.current) {
       setSelectedBrewery(pendingQR.current.brewery);
@@ -532,9 +570,6 @@ export default function App() {
 
   return (
     <div className="app" data-lang={language}>
-      {showWelcome && (
-        <WelcomeModal language={language} setLanguage={setLanguage} onComplete={handleUserRegistration} onSignIn={() => setShowAuth(true)} />
-      )}
       {showAuth && <AuthModal onSuccess={onAuthSuccess} language={language} setLanguage={setLanguage} />}
       {view === "home" && (
         <HomePage
