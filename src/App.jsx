@@ -181,145 +181,151 @@ export default function App() {
   };
 
   useEffect(() => {
-    // Handle Google OAuth redirect — Supabase puts tokens in the URL hash
-    const handleOAuthCallback = async () => {
-      const hash = window.location.hash;
-      if (!hash || !hash.includes("access_token")) return false;
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session?.access_token) return false;
-        if (session.user?.app_metadata?.provider !== "google") return false;
+    const init = async () => {
+      // ── Restore local state ───────────────────────────────────────────────
+      const savedStamps = localStorage.getItem("hcm-stamps");
+      const savedBeers = localStorage.getItem("hcm-beers");
+      const savedLang = localStorage.getItem("hcm-language");
+      const savedUser = localStorage.getItem("hcm-user");
+      const savedTimerStart = localStorage.getItem("hcm-timer-start");
+      const savedTimerEnd = localStorage.getItem("hcm-timer-end");
+      const savedLeaderboard = localStorage.getItem("hcm-leaderboard");
+      const savedSideQuestCheckins = localStorage.getItem("hcm-sidequest-checkins");
 
-        const res = await fetch("/api/auth/google", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            access_token: session.access_token,
-            refresh_token: session.refresh_token,
-            expires_at: session.expires_at,
-          }),
-        });
-        const data = await res.json().catch(() => null);
-        if (!res.ok || !data?.ok) return false;
+      if (savedStamps) setStamps(JSON.parse(savedStamps));
+      if (savedBeers) setBeers(JSON.parse(savedBeers));
+      if (savedLang) setLanguage(savedLang);
+      if (savedTimerStart) setTimerStart(parseInt(savedTimerStart, 10));
+      if (savedTimerEnd) setTimerEnd(parseInt(savedTimerEnd, 10));
+      if (savedLeaderboard) setLeaderboardData(JSON.parse(savedLeaderboard));
+      if (savedSideQuestCheckins) setSideQuestCheckins(JSON.parse(savedSideQuestCheckins));
 
+      // ── Google OAuth callback ─────────────────────────────────────────────
+      // Must run before auth state decision to avoid flash of auth modal
+      const urlParams = new URLSearchParams(window.location.search);
+      const oauthError = urlParams.get("error");
+      const oauthErrorDesc = urlParams.get("error_description");
+
+      if (oauthError) {
+        console.log("OAuth error:", oauthError, oauthErrorDesc);
         try { window.history.replaceState({}, "", window.location.pathname); } catch {}
-        storeLoginTokens(data);
-        return data;
-      } catch {
-        return false;
+        setShowAuth(true);
+        loadBreweries().then(() => setInitialized(true));
+        return;
       }
-    };
 
-    const savedStamps = localStorage.getItem("hcm-stamps");
-    const savedBeers = localStorage.getItem("hcm-beers");
-    const savedLang = localStorage.getItem("hcm-language");
-    const savedUser = localStorage.getItem("hcm-user");
-    const savedTimerStart = localStorage.getItem("hcm-timer-start");
-    const savedTimerEnd = localStorage.getItem("hcm-timer-end");
-    const savedLeaderboard = localStorage.getItem("hcm-leaderboard");
-    const savedSideQuestCheckins = localStorage.getItem("hcm-sidequest-checkins");
+      const hash = window.location.hash;
+      if (hash && hash.includes("access_token")) {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          console.log("OAuth check: session =", session);
+          if (session?.access_token && session.user?.app_metadata?.provider === "google") {
+            const res = await fetch("/api/auth/google", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                access_token: session.access_token,
+                refresh_token: session.refresh_token,
+                expires_at: session.expires_at,
+              }),
+            });
+            const data = await res.json().catch(() => null);
+            console.log("Google auth response:", data);
+            if (res.ok && data?.ok) {
+              storeLoginTokens(data);
+              const u = data.user ? { id: data.user.id, email: data.user.email } : { id: null };
+              setUser(u);
+              localStorage.setItem("hcm-user", JSON.stringify(u));
+              try { window.history.replaceState({}, "", window.location.pathname); } catch {}
+              setShowAuth(false);
+              loadBreweries().then(() => setInitialized(true));
+              loadMe().catch(() => {});
+              return;
+            }
+          }
+        } catch (e) {
+          console.log("OAuth callback error:", e);
+        }
+        // OAuth hash present but failed — clean URL and fall through to normal auth
+        try { window.history.replaceState({}, "", window.location.pathname); } catch {}
+      }
 
-    if (savedStamps) setStamps(JSON.parse(savedStamps));
-    if (savedBeers) setBeers(JSON.parse(savedBeers));
-    if (savedLang) setLanguage(savedLang);
-    if (savedTimerStart) setTimerStart(parseInt(savedTimerStart, 10));
-    if (savedTimerEnd) setTimerEnd(parseInt(savedTimerEnd, 10));
-    if (savedLeaderboard) setLeaderboardData(JSON.parse(savedLeaderboard));
-    if (savedSideQuestCheckins) setSideQuestCheckins(JSON.parse(savedSideQuestCheckins));
-
-    handleOAuthCallback().then((oauthData) => {
-      if (oauthData) {
-        const u = oauthData.user
-          ? { id: oauthData.user.id, email: oauthData.user.email }
-          : { id: null };
-        setUser(u);
-        localStorage.setItem("hcm-user", JSON.stringify(u));
+      // ── Normal auth state ─────────────────────────────────────────────────
+      if (savedUser) {
+        setUser(JSON.parse(savedUser));
         setShowAuth(false);
-        loadMe().catch(() => {});
+      } else {
+        setShowAuth(true);
       }
-    });
 
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-      setShowAuth(false);
-    } else {
-      setShowAuth(true);
-    }
+      // ── Route handling ────────────────────────────────────────────────────
+      if (window.location.pathname === '/settings') {
+        loadBreweries().then(() => setInitialized(true));
+        setView('settings');
+        return;
+      }
 
-    // Check for /settings route
-    if (window.location.pathname === '/settings') {
-      loadBreweries().then(() => setInitialized(true));
-      setView('settings');
-      return;
-    }
+      if (window.location.pathname === '/map') {
+        loadBreweries().then(() => setInitialized(true));
+        setView('map');
+        return;
+      }
 
-    // Check for /map route
-    if (window.location.pathname === '/map') {
-      loadBreweries().then(() => setInitialized(true));
-      setView('map');
-      return;
-    }
+      const sideQuestId = parseSideQuestFromUrl();
+      if (sideQuestId) {
+        loadSideQuest(sideQuestId).then((quest) => {
+          if (quest) {
+            pendingSideQuestQR.current = { quest, questId: sideQuestId };
+            const u = savedUser ? JSON.parse(savedUser) : null;
+            if (u) {
+              setSelectedSideQuest(quest);
+              setSideQuestQrValidated(true);
+              setView("sidequest");
+              setUser(u);
+              setShowAuth(false);
+            } else {
+              setShowAuth(true);
+            }
+          }
+          setInitialized(true);
+        });
+        loadBreweries();
+        return;
+      }
 
-    // Check for side quest QR first
-    const sideQuestId = parseSideQuestFromUrl();
-    if (sideQuestId) {
-      loadSideQuest(sideQuestId).then((quest) => {
-        if (quest) {
-          pendingSideQuestQR.current = { quest, questId: sideQuestId };
-          const u = savedUser ? JSON.parse(savedUser) : null;
-          if (u) {
-            setSelectedSideQuest(quest);
-            setSideQuestQrValidated(true);
-            setView("sidequest");
-            setUser(u);
-            setShowAuth(false);
-            setShowAuth(false);
-          } else {
-            setShowAuth(true);
-            setShowAuth(false);
+      loadBreweries().then((list) => {
+        const checkinId = parseCheckinFromUrl();
+        const directBreweryId = parseBreweryFromUrl();
+
+        if (checkinId) {
+          const brewery = list.find((b) => b.id === checkinId);
+          if (brewery) {
+            try { window.history.replaceState({}, "", `/brewery/${checkinId}`); } catch {}
+            pendingQR.current = { brewery, breweryId: checkinId, autoOpenBeer: true };
+            const u = savedUser ? JSON.parse(savedUser) : null;
+            if (u) {
+              setSelectedBrewery(brewery);
+              setQrValidated(true);
+              setAutoOpenBeer(true);
+              setView("brewery");
+              setUser(u);
+              setShowAuth(false);
+            } else {
+              setShowAuth(true);
+            }
+          }
+        } else if (directBreweryId) {
+          const brewery = list.find((b) => b.id === directBreweryId);
+          if (brewery) {
+            setSelectedBrewery(brewery);
+            setView("brewery");
           }
         }
         setInitialized(true);
       });
-      loadBreweries();
-      return;
-    }
+    };
 
-    // Then check for checkin or brewery URL
-    loadBreweries().then((list) => {
-      const checkinId = parseCheckinFromUrl();
-      const directBreweryId = parseBreweryFromUrl();
-
-      if (checkinId) {
-        // QR scan check-in: auto-open beer modal, redirect URL to /brewery/[id]
-        const brewery = list.find((b) => b.id === checkinId);
-        if (brewery) {
-          try { window.history.replaceState({}, "", `/brewery/${checkinId}`); } catch {}
-          pendingQR.current = { brewery, breweryId: checkinId, autoOpenBeer: true };
-          const u = savedUser ? JSON.parse(savedUser) : null;
-          if (u) {
-            setSelectedBrewery(brewery);
-            setQrValidated(true);
-            setAutoOpenBeer(true);
-            setView("brewery");
-            setUser(u);
-            setShowAuth(false);
-            setShowAuth(false);
-          } else {
-            setShowAuth(true);
-            setShowAuth(false);
-          }
-        }
-      } else if (directBreweryId) {
-        // Direct /brewery/[id] navigation: show brewery without QR validation
-        const brewery = list.find((b) => b.id === directBreweryId);
-        if (brewery) {
-          setSelectedBrewery(brewery);
-          setView("brewery");
-        }
-      }
-      setInitialized(true);
-    });
+    init();
 
     const onPop = () => {
       const breweryId = parseBreweryFromUrl();
