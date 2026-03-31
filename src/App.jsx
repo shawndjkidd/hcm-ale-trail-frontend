@@ -542,7 +542,6 @@ export default function App() {
     setUser(u);
     localStorage.setItem("hcm-user", JSON.stringify(u));
     setShowAuth(false);
-    setShowAuth(false);
     await loadMe();
     if (pendingQR.current) {
       setSelectedBrewery(pendingQR.current.brewery);
