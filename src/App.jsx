@@ -11,7 +11,7 @@ import AleTrailMap from "./components/AleTrailMap";
 import Settings from "./components/Settings";
 
 import translations from "./translations";
-import { recordCheckin, supabase } from "./lib/supabase";
+import { recordCheckin } from "./lib/supabase";
 import { TRAIL_ID } from "./config";
 import { getBreweries, getMe, logout as apiLogout, startNewRun, postCheckin, getLeaderboard, claimHat } from "./lib/api";
 
@@ -183,38 +183,6 @@ export default function App() {
   };
 
   useEffect(() => {
-    // Handle OAuth redirect (Google sign-in returns with a hash/session)
-    const handleOAuthCallback = async () => {
-      const hash = window.location.hash;
-      if (!hash || !hash.includes("access_token")) return false;
-
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session?.access_token) return false;
-
-        const provider = session.user?.app_metadata?.provider;
-        if (provider !== "google") return false;
-
-        // Exchange Supabase Google session for our custom JWT tokens
-        const res = await fetch("/api/auth/google", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ access_token: session.access_token }),
-        });
-        const data = await res.json().catch(() => null);
-        if (!res.ok || !data?.ok) return false;
-
-        // Clean up the URL hash left by OAuth redirect
-        try { window.history.replaceState({}, "", window.location.pathname); } catch {}
-
-        const { storeLoginTokens } = await import("./lib/api");
-        storeLoginTokens(data);
-        return data;
-      } catch {
-        return false;
-      }
-    };
-
     const savedStamps = localStorage.getItem("hcm-stamps");
     const savedBeers = localStorage.getItem("hcm-beers");
     const savedLang = localStorage.getItem("hcm-language");
@@ -231,21 +199,6 @@ export default function App() {
     if (savedTimerEnd) setTimerEnd(parseInt(savedTimerEnd, 10));
     if (savedLeaderboard) setLeaderboardData(JSON.parse(savedLeaderboard));
     if (savedSideQuestCheckins) setSideQuestCheckins(JSON.parse(savedSideQuestCheckins));
-
-    // Check for Google OAuth callback before deciding auth state
-    handleOAuthCallback().then((oauthData) => {
-      if (oauthData) {
-        // Successful Google sign-in — treat same as onAuthSuccess
-        const u = oauthData.user
-          ? { id: oauthData.user.id, email: oauthData.user.email }
-          : { id: null };
-        setUser(u);
-        localStorage.setItem("hcm-user", JSON.stringify(u));
-        setShowAuth(false);
-        setShowWelcome(false);
-        loadMe().catch(() => {});
-      }
-    });
 
     if (savedUser) {
       setUser(JSON.parse(savedUser));
