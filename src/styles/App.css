@@ -6731,3 +6731,9 @@ body.night-mode .google-signin-btn:hover:not(:disabled) {
 .google-signin-btn {
   padding: 8px 12px !important;
 }
+
+
+/* Fix black logo invisible on dark night-mode background */
+body.night-mode .welcome-logo {
+  filter: invert(1) brightness(2);
+}
