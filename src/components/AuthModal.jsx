@@ -166,12 +166,9 @@ export default function AuthModal({ onSuccess, language = "en", setLanguage }) {
     }
   };
 
-  // ── Shared Google button ──────────────────────────────────────────────────
+  // ── Shared Google button (shown above form) ───────────────────────────────
   const GoogleButton = () => (
     <>
-      <div className="auth-or-divider">
-        <span>{t.orContinueWith || "OR"}</span>
-      </div>
       <button
         type="button"
         className="google-signin-btn"
@@ -179,8 +176,11 @@ export default function AuthModal({ onSuccess, language = "en", setLanguage }) {
         disabled={googleBusy || busy}
       >
         <GoogleIcon />
-        {googleBusy ? "..." : (t.signInWithGoogle || "Sign in with Google")}
+        {googleBusy ? "..." : (t.signInWithGoogle || "SIGN IN WITH GOOGLE")}
       </button>
+      <div className="auth-or-divider">
+        <span>{t.orContinueWith || "OR"}</span>
+      </div>
     </>
   );
 
@@ -218,9 +218,11 @@ export default function AuthModal({ onSuccess, language = "en", setLanguage }) {
               {t.signInSubtitle || "Welcome back! Enter your details."}
             </p>
 
+            <GoogleButton />
+
             <form onSubmit={submitLogin}>
               <div className="form-group">
-                <label>{t.yourEmail || "Email"} *</label>
+                <label>{t.yourEmail || "Email Address"} *</label>
                 <input
                   type="email"
                   className="text-input"
@@ -251,8 +253,6 @@ export default function AuthModal({ onSuccess, language = "en", setLanguage }) {
               </button>
             </form>
 
-            <GoogleButton />
-
             <p style={{ textAlign: "center", marginTop: "0.75rem" }}>
               <button
                 className="auth-link-btn"
@@ -281,6 +281,8 @@ export default function AuthModal({ onSuccess, language = "en", setLanguage }) {
           <>
             <h2 className="welcome-title">{t.createAccount || "CREATE ACCOUNT"}</h2>
             <p className="welcome-subtitle">{t.joinAleTrail || "Join the HCM Ale Trail!"}</p>
+
+            <GoogleButton />
 
             <form onSubmit={submitRegister}>
               <div className="form-group">
@@ -339,8 +341,6 @@ export default function AuthModal({ onSuccess, language = "en", setLanguage }) {
                 {busy ? "..." : (t.createAccount || "CREATE ACCOUNT")}
               </button>
             </form>
-
-            <GoogleButton />
 
             <p style={{ textAlign: "center", marginTop: "0.75rem" }}>
               <span style={{ opacity: 0.7, fontSize: "0.875rem" }}>{t.alreadyHaveAccount || "Already have an account?"} </span>
