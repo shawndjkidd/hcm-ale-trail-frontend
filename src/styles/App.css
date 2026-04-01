@@ -383,6 +383,7 @@ body {
   padding: 1.25rem;
   font-family: var(--font-display);
   font-size: 1.3rem;
+  font-weight: 700;
   border: 4px solid var(--black);
   cursor: pointer;
   margin: 0.5rem 0;
@@ -414,6 +415,7 @@ body {
 
 .add-beer-cta {
   font-size: 1.5rem !important;
+  font-weight: 700 !important;
   padding: 1.5rem !important;
   animation: bounce 2s ease-in-out infinite;
 }
@@ -773,12 +775,16 @@ body {
 .faq-title {
   font-family: var(--font-display);
   font-size: 2rem;
+  font-weight: bold;
   color: var(--red-primary);
   margin-bottom: 1rem;
   text-align: center;
 }
 
 .modal-subtitle {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
   text-align: center;
   color: var(--black);
   margin-bottom: 1.5rem;
@@ -790,7 +796,8 @@ body {
 
 .form-group label {
   display: block;
-  font-weight: bold;
+  font-family: var(--font-display);
+  font-weight: 700;
   color: var(--black);
   margin-bottom: 0.5rem;
 }
@@ -825,6 +832,11 @@ body {
 
 .star.active {
   opacity: 1;
+  filter: none;
+}
+
+.star:hover {
+  transform: scale(1.15);
 }
 
 .modal-actions {
@@ -839,6 +851,7 @@ body {
   padding: 0.75rem;
   font-family: var(--font-display);
   font-size: 1.2rem;
+  font-weight: 700;
   border: 3px solid var(--black);
   cursor: pointer;
   box-shadow: 0 3px 0 var(--black);
@@ -1317,6 +1330,7 @@ body {
 .welcome-title {
   font-family: var(--font-display);
   font-size: 2.5rem;
+  font-weight: bold;
   color: var(--red-primary);
   text-align: center;
   margin-bottom: 0.5rem;
@@ -2823,11 +2837,21 @@ body {
 }
 
 .brewery-open-status.open {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.brewery-open-status.closed {
+  background: rgba(0, 0, 0, 0.2);
+  color: #ffffff;
+}
+
+body.night-mode .brewery-open-status.open {
   background: rgba(34, 197, 94, 0.2);
   color: #22c55e;
 }
 
-.brewery-open-status.closed {
+body.night-mode .brewery-open-status.closed {
   background: rgba(239, 68, 68, 0.2);
   color: #ef4444;
 }
@@ -5686,8 +5710,9 @@ body.night-mode .settings-success {
   width: 100%;
   padding: 0.9rem;
   margin-top: 1rem;
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 1.1rem;
+  font-weight: 700;
   letter-spacing: 2px;
   background: #28A745;
   color: #fff;
