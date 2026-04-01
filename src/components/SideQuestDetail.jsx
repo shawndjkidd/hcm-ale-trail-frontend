@@ -339,7 +339,7 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
       {showCheckinModal && (
         <div className="modal-overlay" onClick={step === 2 ? undefined : () => setShowCheckinModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            {step === 1 && <button className="modal-close" onClick={() => setShowCheckinModal(false)}>✕</button>}
+            <button className="back-btn" onClick={() => { if (step === 2) { handleBackToStep1(); } else { setShowCheckinModal(false); } }} style={{ marginBottom: '1rem' }}>← {t.back || 'BACK'}</button>
 
             {step === 1 && (
               <>
