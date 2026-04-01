@@ -6688,3 +6688,46 @@ body.night-mode .google-signin-btn:hover:not(:disabled) {
 .auth-or-divider {
   margin: 0.75rem 0 0.5rem !important;
 }
+
+/* ================================================
+   TIGHTER AUTH MODAL LAYOUT
+   ================================================ */
+
+/* Reduce modal padding */
+.welcome-modal {
+  padding: 20px 24px !important;
+}
+
+/* Smaller title so CREATE ACCOUNT fits better */
+.welcome-title {
+  font-size: 2rem !important;
+  line-height: 1.1 !important;
+  margin-bottom: 0.15rem !important;
+}
+
+/* Tighter subtitle */
+.welcome-subtitle {
+  margin-bottom: 0.5rem !important;
+  font-size: 0.9rem !important;
+}
+
+/* Tighter form field gaps */
+.welcome-modal .form-group {
+  margin-bottom: 12px !important;
+}
+
+/* Tighter OR divider */
+.auth-or-divider {
+  margin: 0.4rem 0 !important;
+}
+
+/* Smaller submit button padding */
+.welcome-btn {
+  padding: 14px !important;
+  margin-top: 8px !important;
+}
+
+/* Tighter Google button */
+.google-signin-btn {
+  padding: 8px 12px !important;
+}
