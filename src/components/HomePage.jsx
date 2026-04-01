@@ -38,7 +38,7 @@ const getBreweryLogo = (brewery) => {
   return BREWERY_LOGOS[brewery?.name] || null
 }
 
-function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onSideQuestClick, sideQuestCheckins = [], onNavigate, resetCard, activeEvents = [], nightMode, toggleNightMode, user, onLogout, onSettings, hatClaimed, onHatClaimed }) {
+function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onSideQuestClick, sideQuestCheckins = [], onNavigate, resetCard, activeEvents = [], nightMode, toggleNightMode, user, onLogout, onSettings, onProfile, hatClaimed, onHatClaimed }) {
   const [showCompletionModal, setShowCompletionModal] = useState(false)
   const [showEventsPage, setShowEventsPage] = useState(false)
   const [hatClaimError, setHatClaimError] = useState(null)
@@ -160,6 +160,11 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
           <span className="toggle-sun">☀</span>
           <span className="toggle-moon">☾</span>
         </button>
+        {user && onProfile && (
+          <button className="profile-icon-btn" onClick={onProfile} title="My Profile">
+            <span className="profile-icon-emoji">👤</span>
+          </button>
+        )}
       </div>
 
       <div className="header-logo">
@@ -386,3 +391,4 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
 }
 
 export default HomePage
+
