@@ -9,7 +9,6 @@ import AuthModal from "./components/AuthModal";
 import AleTrailMap from "./components/AleTrailMap";
 import Settings from "./components/Settings";
 import OnboardingFlow from "./components/OnboardingFlow";
-import ProfileModal from "./components/ProfileModal";
 
 import translations from "./translations";
 import { recordCheckin, supabase } from "./lib/supabase";
@@ -107,7 +106,6 @@ export default function App() {
   const [autoOpenBeer, setAutoOpenBeer] = useState(false);
   const [hatClaimed, setHatClaimed] = useState(() => localStorage.getItem("hcm-hat-claimed") === "true");
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
 
   const pendingQR = useRef(null);
   const pendingSideQuestQR = useRef(null);
@@ -609,7 +607,6 @@ export default function App() {
     <div className="app" data-lang={language}>
       {showAuth && <AuthModal onSuccess={onAuthSuccess} language={language} setLanguage={setLanguage} />}
       {showOnboarding && <OnboardingFlow user={user} onComplete={handleOnboardingComplete} />}
-      {showProfile && <ProfileModal user={user} onClose={() => setShowProfile(false)} />}
       {view === "home" && (
         <HomePage
           breweries={breweries}
@@ -629,7 +626,6 @@ export default function App() {
           toggleNightMode={toggleNightMode}
           onLogout={handleLogout}
           onSettings={() => handleNavigate("settings")}
-          onProfile={() => setShowProfile(true)}
           hatClaimed={hatClaimed}
           onHatClaimed={handleHatClaimed}
         />
