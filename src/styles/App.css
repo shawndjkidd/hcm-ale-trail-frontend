@@ -5,7 +5,7 @@
    HCM ALE TRAIL - BOLD RED/YELLOW/BLACK DESIGN
    ========================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?famly=Nunito:wght@700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap');
 
@@ -6652,4 +6652,39 @@ body.night-mode .google-signin-btn {
 
 body.night-mode .google-signin-btn:hover:not(:disabled) {
   border-color: #4285F4;
+}
+
+/* ================================================
+   UI POLISH: Bolder titles, star colors, auth spacing
+   ================================================ */
+
+/* Bolder SIGN IN / CREATE ACCOUNT titles */
+.welcome-title {
+  font-weight: 900 !important;
+}
+
+/* Star ratings: gray when unselected */
+.star {
+  opacity: 0.6 !important;
+  filter: grayscale(100%) !important;
+  transition: opacity 0.2s, transform 0.2s, filter 0.2s !important;
+}
+
+/* Star ratings: red when selected */
+.star.active {
+  opacity: 1 !important;
+  filter: sepia(1) saturate(20) hue-rotate(-20deg) brightness(0.85) !important;
+}
+
+/* Tighter auth modal spacing */
+.welcome-title {
+  margin-bottom: 0.25rem !important;
+}
+
+.welcome-subtitle {
+  margin-bottom: 0.75rem !important;
+}
+
+.auth-or-divider {
+  margin: 0.75rem 0 0.5rem !important;
 }
