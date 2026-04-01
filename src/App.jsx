@@ -8,6 +8,7 @@ import Leaderboard from "./components/Leaderboard";
 import AuthModal from "./components/AuthModal";
 import AleTrailMap from "./components/AleTrailMap";
 import Settings from "./components/Settings";
+import OnboardingFlow from "./components/OnboardingFlow";
 
 import translations from "./translations";
 import { recordCheckin, supabase } from "./lib/supabase";
@@ -104,6 +105,7 @@ export default function App() {
   const [initialized, setInitialized] = useState(false);
   const [autoOpenBeer, setAutoOpenBeer] = useState(false);
   const [hatClaimed, setHatClaimed] = useState(() => localStorage.getItem("hcm-hat-claimed") === "true");
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const pendingQR = useRef(null);
   const pendingSideQuestQR = useRef(null);
@@ -182,7 +184,7 @@ export default function App() {
 
   useEffect(() => {
     const init = async () => {
-      // ── Restore local state ───────────────────────────────────────────────
+      // ââ Restore local state âââââââââââââââââââââââââââââââââââââââââââââââ
       const savedStamps = localStorage.getItem("hcm-stamps");
       const savedBeers = localStorage.getItem("hcm-beers");
       const savedLang = localStorage.getItem("hcm-language");
@@ -200,7 +202,7 @@ export default function App() {
       if (savedLeaderboard) setLeaderboardData(JSON.parse(savedLeaderboard));
       if (savedSideQuestCheckins) setSideQuestCheckins(JSON.parse(savedSideQuestCheckins));
 
-      // ── Google OAuth callback ─────────────────────────────────────────────
+      // ââ Google OAuth callback âââââââââââââââââââââââââââââââââââââââââââââ
       // Must run before auth state decision to avoid flash of auth modal
       const urlParams = new URLSearchParams(window.location.search);
       const oauthError = urlParams.get("error");
@@ -246,11 +248,11 @@ export default function App() {
         } catch (e) {
           console.log("OAuth callback error:", e);
         }
-        // OAuth hash present but failed — clean URL and fall through to normal auth
+        // OAuth hash present but failed â clean URL and fall through to normal auth
         try { window.history.replaceState({}, "", window.location.pathname); } catch {}
       }
 
-      // ── Normal auth state ─────────────────────────────────────────────────
+      // ââ Normal auth state âââââââââââââââââââââââââââââââââââââââââââââââââ
       if (savedUser) {
         setUser(JSON.parse(savedUser));
         setShowAuth(false);
@@ -258,7 +260,7 @@ export default function App() {
         setShowAuth(true);
       }
 
-      // ── Route handling ────────────────────────────────────────────────────
+      // ââ Route handling ââââââââââââââââââââââââââââââââââââââââââââââââââââ
       if (window.location.pathname === '/settings') {
         loadBreweries().then(() => setInitialized(true));
         setView('settings');
@@ -414,7 +416,7 @@ export default function App() {
         if (result?.ok) {
           console.log("Check-in saved via backend API:", breweryId);
         } else {
-          console.log("Backend check-in failed:", result?.error, "— trying Supabase direct");
+          console.log("Backend check-in failed:", result?.error, "â trying Supabase direct");
           // Fallback: direct Supabase insert
           if (user?.id) {
             const { error } = await recordCheckin(user.id, breweryId, "qr_scan");
@@ -543,6 +545,30 @@ export default function App() {
     localStorage.setItem("hcm-user", JSON.stringify(u));
     setShowAuth(false);
     await loadMe();
+    // Show onboarding for brand-new accounts (not returning logins)
+    if (authRes?._isNewUser && localStorage.getItem("hcm-onboarding-complete") !== "true") {
+      setShowOnboarding(true);
+      return; // handle pending QR after onboarding completes
+    }
+
+    if (pendingQR.current) {
+      setSelectedBrewery(pendingQR.current.brewery);
+      setQrValidated(true);
+      if (pendingQR.current.autoOpenBeer) setAutoOpenBeer(true);
+      setView("brewery");
+      pendingQR.current = null;
+    }
+    if (pendingSideQuestQR.current) {
+      setSelectedSideQuest(pendingSideQuestQR.current.quest);
+      setSideQuestQrValidated(true);
+      setView("sidequest");
+      pendingSideQuestQR.current = null;
+    }
+  };
+
+  const handleOnboardingComplete = (profile) => {
+    setShowOnboarding(false);
+    // Handle any pending QR codes that were waiting
     if (pendingQR.current) {
       setSelectedBrewery(pendingQR.current.brewery);
       setQrValidated(true);
@@ -576,6 +602,7 @@ export default function App() {
   return (
     <div className="app" data-lang={language}>
       {showAuth && <AuthModal onSuccess={onAuthSuccess} language={language} setLanguage={setLanguage} />}
+      {showOnboarding && <OnboardingFlow user={user} onComplete={handleOnboardingComplete} />}
       {view === "home" && (
         <HomePage
           breweries={breweries}
