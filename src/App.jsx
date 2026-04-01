@@ -9,6 +9,7 @@ import AuthModal from "./components/AuthModal";
 import AleTrailMap from "./components/AleTrailMap";
 import Settings from "./components/Settings";
 import OnboardingFlow from "./components/OnboardingFlow";
+import ProfileModal from "./components/ProfileModal";
 
 import translations from "./translations";
 import { recordCheckin, supabase } from "./lib/supabase";
@@ -106,6 +107,7 @@ export default function App() {
   const [autoOpenBeer, setAutoOpenBeer] = useState(false);
   const [hatClaimed, setHatClaimed] = useState(() => localStorage.getItem("hcm-hat-claimed") === "true");
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
 
   const pendingQR = useRef(null);
   const pendingSideQuestQR = useRef(null);
@@ -184,7 +186,7 @@ export default function App() {
 
   useEffect(() => {
     const init = async () => {
-      // ââ Restore local state âââââââââââââââââââââââââââââââââââââââââââââââ
+      // Ã¢ÂÂÃ¢ÂÂ Restore local state Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
       const savedStamps = localStorage.getItem("hcm-stamps");
       const savedBeers = localStorage.getItem("hcm-beers");
       const savedLang = localStorage.getItem("hcm-language");
@@ -202,7 +204,7 @@ export default function App() {
       if (savedLeaderboard) setLeaderboardData(JSON.parse(savedLeaderboard));
       if (savedSideQuestCheckins) setSideQuestCheckins(JSON.parse(savedSideQuestCheckins));
 
-      // ââ Google OAuth callback âââââââââââââââââââââââââââââââââââââââââââââ
+      // Ã¢ÂÂÃ¢ÂÂ Google OAuth callback Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
       // Must run before auth state decision to avoid flash of auth modal
       const urlParams = new URLSearchParams(window.location.search);
       const oauthError = urlParams.get("error");
@@ -242,17 +244,21 @@ export default function App() {
               setShowAuth(false);
               loadBreweries().then(() => setInitialized(true));
               loadMe().catch(() => {});
+              // Show onboarding for users who haven't completed it
+              if (localStorage.getItem("hcm-onboarding-complete") !== "true") {
+                setShowOnboarding(true);
+              }
               return;
             }
           }
         } catch (e) {
           console.log("OAuth callback error:", e);
         }
-        // OAuth hash present but failed â clean URL and fall through to normal auth
+        // OAuth hash present but failed Ã¢ÂÂ clean URL and fall through to normal auth
         try { window.history.replaceState({}, "", window.location.pathname); } catch {}
       }
 
-      // ââ Normal auth state âââââââââââââââââââââââââââââââââââââââââââââââââ
+      // Ã¢ÂÂÃ¢ÂÂ Normal auth state Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
       if (savedUser) {
         setUser(JSON.parse(savedUser));
         setShowAuth(false);
@@ -260,7 +266,7 @@ export default function App() {
         setShowAuth(true);
       }
 
-      // ââ Route handling ââââââââââââââââââââââââââââââââââââââââââââââââââââ
+      // Ã¢ÂÂÃ¢ÂÂ Route handling Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
       if (window.location.pathname === '/settings') {
         loadBreweries().then(() => setInitialized(true));
         setView('settings');
@@ -416,7 +422,7 @@ export default function App() {
         if (result?.ok) {
           console.log("Check-in saved via backend API:", breweryId);
         } else {
-          console.log("Backend check-in failed:", result?.error, "â trying Supabase direct");
+          console.log("Backend check-in failed:", result?.error, "Ã¢ÂÂ trying Supabase direct");
           // Fallback: direct Supabase insert
           if (user?.id) {
             const { error } = await recordCheckin(user.id, breweryId, "qr_scan");
@@ -603,6 +609,7 @@ export default function App() {
     <div className="app" data-lang={language}>
       {showAuth && <AuthModal onSuccess={onAuthSuccess} language={language} setLanguage={setLanguage} />}
       {showOnboarding && <OnboardingFlow user={user} onComplete={handleOnboardingComplete} />}
+      {showProfile && <ProfileModal user={user} onClose={() => setShowProfile(false)} />}
       {view === "home" && (
         <HomePage
           breweries={breweries}
@@ -622,6 +629,7 @@ export default function App() {
           toggleNightMode={toggleNightMode}
           onLogout={handleLogout}
           onSettings={() => handleNavigate("settings")}
+          onProfile={() => setShowProfile(true)}
           hatClaimed={hatClaimed}
           onHatClaimed={handleHatClaimed}
         />
