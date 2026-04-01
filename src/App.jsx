@@ -219,7 +219,7 @@ export default function App() {
         try {
           const { data: { session } } = await supabase.auth.getSession();
           console.log("OAuth check: session =", session);
-          if (session?.access_token && session.user?.app_metadata?.provider === "google") {
+          if (session?.access_token && session.user?.app_metadata?.providers?.includes("google")) {
             const res = await fetch("/api/auth/google", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
