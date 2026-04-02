@@ -242,10 +242,6 @@ export default function App() {
               setShowAuth(false);
               loadBreweries().then(() => setInitialized(true));
               loadMe().catch(() => {});
-              // Show onboarding for users who haven't completed it
-              if (localStorage.getItem("hcm-onboarding-complete") !== "true") {
-                setShowOnboarding(true);
-              }
               return;
             }
           }
