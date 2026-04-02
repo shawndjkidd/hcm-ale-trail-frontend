@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+revert: restore HomePage.jsx to pre-profile versionimport { useState, useEffect } from 'react'
 
 const Star = ({ filled, num }) => (
   <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
