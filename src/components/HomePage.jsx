@@ -137,19 +137,19 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
           className={`flag-btn-large ${language === 'vn' ? 'active' : ''}`}
           onClick={() => setLanguage('vn')}
         >
-          <img src="https://flagcdn.com/w160/vn.png" alt="Tiáº¿ng Viá»t" className="flag-img" />
+          <img src="https://flagcdn.com/w160/vn.png" alt="Tiếng Việt" className="flag-img" />
         </button>
         <button
           className={`flag-btn-large ${language === 'kr' ? 'active' : ''}`}
           onClick={() => setLanguage('kr')}
         >
-          <img src="https://flagcdn.com/w160/kr.png" alt="íêµ­ì´" className="flag-img" />
+          <img src="https://flagcdn.com/w160/kr.png" alt="한국어" className="flag-img" />
         </button>
         <button
           className={`flag-btn-large ${language === 'jp' ? 'active' : ''}`}
           onClick={() => setLanguage('jp')}
         >
-          <img src="https://flagcdn.com/w160/jp.png" alt="æ¥æ¬èª" className="flag-img" />
+          <img src="https://flagcdn.com/w160/jp.png" alt="日本語" className="flag-img" />
         </button>
         <button
           className={`night-mode-toggle${nightMode ? ' is-night' : ''}`}
@@ -157,8 +157,8 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
           title={nightMode ? 'Switch to bright mode' : 'Switch to night mode'}
           aria-label={nightMode ? 'Switch to bright mode' : 'Switch to night mode'}
         >
-          <span className="toggle-sun">â</span>
-          <span className="toggle-moon">â¾</span>
+          <span className="toggle-sun">☀</span>
+          <span className="toggle-moon">☾</span>
         </button>
       </div>
 
@@ -268,7 +268,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
                     className="color"
                   />
                 ) : (
-                  <span className="logo-placeholder">ðº</span>
+                  <span className="logo-placeholder">🍺</span>
                 )}
               </div>
               {isStamped && (
@@ -281,7 +281,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
                   <span>{t.temporarilyClosed || 'TEMPORARILY CLOSED'}</span>
                 </div>
               )}
-              {breweryEvent && <div className="event-banner">ð Event happening now!</div>}
+              {breweryEvent && <div className="event-banner">🎉 Event happening now!</div>}
             </div>
           )
         })}
@@ -300,13 +300,13 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
                   className={`side-quest-item-home ${isCompleted ? 'completed' : ''}`}
                   onClick={() => onSideQuestClick(quest)}
                 >
-                  <div className="side-quest-icon-home">{isCompleted ? 'â' : 'ð¯'}</div>
+                  <div className="side-quest-icon-home">{isCompleted ? '✅' : '🎯'}</div>
                   <div className="side-quest-info-home">
                     <div className="side-quest-name-home">{getQuestTitle(quest)}</div>
-                    {quest.reward && <div className="side-quest-reward-home">ð {t.rewardMap?.[quest.reward] || quest.reward}</div>}
+                    {quest.reward && <div className="side-quest-reward-home">🎁 {t.rewardMap?.[quest.reward] || quest.reward}</div>}
                   </div>
-                  <div className="side-quest-arrow-home">â</div>
-                  {questEvent && <div className="event-banner">ð Event happening now!</div>}
+                  <div className="side-quest-arrow-home">→</div>
+                  {questEvent && <div className="event-banner">🎉 Event happening now!</div>}
                 </div>
               )
             })}
@@ -343,8 +343,8 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
       {showCompletionModal && (
         <div className="modal-overlay">
           <div className="completion-modal">
-            <button className="modal-close" onClick={handleCloseCompletionModal}>â</button>
-            <div className="completion-icon">ð</div>
+            <button className="modal-close" onClick={handleCloseCompletionModal}>✕</button>
+            <div className="completion-icon">🎉</div>
             <h2 className="completion-title">{t.congratulations}</h2>
             <p className="completion-subtitle">{t.completedTrail}</p>
             <div className="completion-steps">
