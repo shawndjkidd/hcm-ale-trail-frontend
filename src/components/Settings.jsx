@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { changePassword, changeEmail } from '../lib/api'
 import translations from '../translations'
+import OnboardingFlow from './OnboardingFlow'
 
 export default function Settings({ user, language, onBack }) {
+  const [showOnboarding, setShowOnboarding] = useState(false)
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [busy, setBusy] = useState(false)
@@ -137,6 +139,24 @@ export default function Settings({ user, language, onBack }) {
         </div>
 
         <div className="settings-section">
+          <h2 className="settings-section-title">TRAIL PROFILE</h2>
+          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, marginBottom: 12 }}>
+            Your vibe, beer preferences, and trail avatar
+          </p>
+          <button
+            className="settings-submit-btn"
+            onClick={() => {
+              localStorage.removeItem('hcm-onboarding-complete')
+              localStorage.removeItem('hcm-onboarding-profile')
+              setShowOnboarding(true)
+            }}
+            style={{ width: '100%' }}
+          >
+            EDIT TRAIL PROFILE
+          </button>
+        </div>
+
+        <div className="settings-section">
           <h2 className="settings-section-title">{t.changePasswordTitle || 'CHANGE PASSWORD'}</h2>
           <form onSubmit={handleSubmit} className="settings-form">
             <div className="settings-field">
@@ -173,6 +193,13 @@ export default function Settings({ user, language, onBack }) {
           </form>
         </div>
       </div>
+
+      {showOnboarding && (
+        <OnboardingFlow
+          user={user}
+          onComplete={() => setShowOnboarding(false)}
+        />
+      )}
     </div>
   )
 }

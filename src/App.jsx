@@ -276,10 +276,14 @@ export default function App() {
         setUser(JSON.parse(savedUser));
         setShowAuth(false);
         // Show onboarding for returning users who haven't completed it
-        if (!localStorage.getItem("hcm-onboarding-complete")) {
+        const onboardingDone = localStorage.getItem("hcm-onboarding-complete");
+        console.log("[Onboarding] savedUser exists, onboarding-complete:", onboardingDone);
+        if (!onboardingDone) {
+          console.log("[Onboarding] Showing onboarding flow");
           setShowOnboarding(true);
         }
       } else {
+        console.log("[Onboarding] No saved user, showing auth");
         setShowAuth(true);
       }
 
