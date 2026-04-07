@@ -275,6 +275,10 @@ export default function App() {
       if (savedUser) {
         setUser(JSON.parse(savedUser));
         setShowAuth(false);
+        // Show onboarding for returning users who haven't completed it
+        if (!localStorage.getItem("hcm-onboarding-complete")) {
+          setShowOnboarding(true);
+        }
       } else {
         setShowAuth(true);
       }
