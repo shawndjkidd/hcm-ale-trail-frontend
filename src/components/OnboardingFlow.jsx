@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { saveOnboardingProfile } from '../lib/api'
 
-// Step order: lifestyle → beer styles → where from → beer experience → avatar → display name
-const STEPS = ['lifestyle', 'beer_styles', 'location', 'era', 'avatar', 'display_name']
+// Step order: lifestyle → beer styles → where from → beer experience → gender → avatar → display name
+const STEPS = ['lifestyle', 'beer_styles', 'location', 'era', 'gender', 'avatar', 'display_name']
 
 const OPTIONS = {
   lifestyle: [
@@ -35,10 +35,15 @@ const OPTIONS = {
     { value: 'seasoned', label: 'Seasoned', emoji: '🎖️', desc: 'Tried it all' },
     { value: 'og', label: 'OG', emoji: '👑', desc: 'Craft beer veteran' },
   ],
+  gender: [
+    { value: 'male', label: 'Male', emoji: '♂️' },
+    { value: 'female', label: 'Female', emoji: '♀️' },
+    { value: 'skip', label: 'Rather Not Say', emoji: '🤐' },
+  ],
   avatar: [
-    { value: 'dude', label: 'Dude', emoji: '🧔' },
-    { value: 'lady', label: 'Lady', emoji: '👩' },
-    { value: 'mystery', label: 'Mystery', emoji: '🎭' },
+    { value: 'pint', label: 'Pint', emoji: '🍺', desc: 'Classic & reliable' },
+    { value: 'chalice', label: 'Chalice', emoji: '🏆', desc: 'Refined & fancy' },
+    { value: 'growler', label: 'Growler', emoji: '🍻', desc: 'Go big or go home' },
   ],
 }
 
@@ -81,7 +86,8 @@ const STEP_TITLES = {
   location: 'Where you at?',
   location_country: 'Where from?',
   era: 'Beer experience?',
-  avatar: 'Pick your look',
+  gender: 'About you',
+  avatar: 'Pick your vessel',
   display_name: 'Trail name',
 }
 
@@ -91,7 +97,8 @@ const STEP_SUBTITLES = {
   location: 'Based in HCMC or just visiting?',
   location_country: 'Pick your home country',
   era: 'How deep is your craft beer game?',
-  avatar: 'Choose your trail avatar',
+  gender: 'Quick one for the stats',
+  avatar: 'What do you drink from on the leaderboard?',
   display_name: 'What should we call you on the leaderboard?',
 }
 
@@ -103,6 +110,7 @@ export default function OnboardingFlow({ onComplete, user }) {
     neighborhood: null,
     home_country: null,
     era: null,
+    gender: null,
     avatar: null,
     display_name: '',
   })
@@ -127,6 +135,7 @@ export default function OnboardingFlow({ onComplete, user }) {
     if (effectiveStep === 'location_country') return selections.home_country !== null
     if (effectiveStep === 'lifestyle') return selections.lifestyle !== null
     if (effectiveStep === 'era') return selections.era !== null
+    if (effectiveStep === 'gender') return selections.gender !== null
     if (effectiveStep === 'avatar') return selections.avatar !== null
     return false
   }
@@ -151,6 +160,8 @@ export default function OnboardingFlow({ onComplete, user }) {
       setSelections(prev => ({ ...prev, lifestyle: value }))
     } else if (effectiveStep === 'era') {
       setSelections(prev => ({ ...prev, era: value }))
+    } else if (effectiveStep === 'gender') {
+      setSelections(prev => ({ ...prev, gender: value }))
     } else if (effectiveStep === 'avatar') {
       setSelections(prev => ({ ...prev, avatar: value }))
     }
@@ -169,6 +180,7 @@ export default function OnboardingFlow({ onComplete, user }) {
           neighborhood: selections.neighborhood,
           home_country: selections.home_country,
           era: selections.era,
+          gender: selections.gender,
           avatar: selections.avatar,
           display_name: selections.display_name.trim(),
         }
@@ -210,6 +222,7 @@ export default function OnboardingFlow({ onComplete, user }) {
     if (effectiveStep === 'location_country') return selections.home_country === value
     if (effectiveStep === 'lifestyle') return selections.lifestyle === value
     if (effectiveStep === 'era') return selections.era === value
+    if (effectiveStep === 'gender') return selections.gender === value
     if (effectiveStep === 'avatar') return selections.avatar === value
     return false
   }
