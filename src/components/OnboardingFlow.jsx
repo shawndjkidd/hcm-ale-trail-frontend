@@ -44,6 +44,7 @@ const OPTIONS = {
     { value: 'pint', label: 'Pint', emoji: '🍺', desc: 'Classic & reliable' },
     { value: 'chalice', label: 'Chalice', emoji: '🏆', desc: 'Refined & fancy' },
     { value: 'growler', label: 'Growler', emoji: '🍻', desc: 'Go big or go home' },
+    { value: 'tower', label: 'Tower', emoji: '🗼', desc: 'Party mode activated' },
   ],
 }
 
