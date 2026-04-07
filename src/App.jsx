@@ -219,16 +219,32 @@ export default function App() {
       const hash = window.location.hash;
       if (hash && hash.includes("access_token")) {
         try {
-          const { data: { session } } = await supabase.auth.getSession();
-          console.log("OAuth check: session =", session);
-          if (session?.access_token && session.user?.app_metadata?.provider === "google") {
+          // Parse tokens directly from hash — more reliable than getSession()
+          // which can race with the Supabase client processing the hash
+          const hashParams = new URLSearchParams(hash.substring(1));
+          let accessToken = hashParams.get("access_token");
+          let refreshToken = hashParams.get("refresh_token");
+          let expiresAt = hashParams.get("expires_at");
+
+          // Fallback: try getSession if hash parsing didn't work
+          if (!accessToken) {
+            const { data: { session } } = await supabase.auth.getSession();
+            console.log("OAuth fallback getSession:", session);
+            accessToken = session?.access_token;
+            refreshToken = session?.refresh_token;
+            expiresAt = session?.expires_at;
+          }
+
+          console.log("OAuth tokens found:", !!accessToken);
+
+          if (accessToken) {
             const res = await fetch("/api/auth/google", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                access_token: session.access_token,
-                refresh_token: session.refresh_token,
-                expires_at: session.expires_at,
+                access_token: accessToken,
+                refresh_token: refreshToken,
+                expires_at: expiresAt,
               }),
             });
             const data = await res.json().catch(() => null);

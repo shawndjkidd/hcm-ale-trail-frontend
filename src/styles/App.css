@@ -3943,6 +3943,9 @@ body.night-mode .modal-close {
 body.night-mode .welcome-disclaimer {
   color: #555555;
 }
+body.night-mode .welcome-logo {
+  filter: brightness(0) invert(1);
+}
 body.night-mode .faq-tips {
   background: #1E1E1E;
   border-color: #333333;
