@@ -8,6 +8,7 @@ import Leaderboard from "./components/Leaderboard";
 import AuthModal from "./components/AuthModal";
 import AleTrailMap from "./components/AleTrailMap";
 import Settings from "./components/Settings";
+import OnboardingFlow from "./components/OnboardingFlow";
 
 import translations from "./translations";
 import { recordCheckin, supabase } from "./lib/supabase";
@@ -104,6 +105,7 @@ export default function App() {
   const [initialized, setInitialized] = useState(false);
   const [autoOpenBeer, setAutoOpenBeer] = useState(false);
   const [hatClaimed, setHatClaimed] = useState(() => localStorage.getItem("hcm-hat-claimed") === "true");
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const pendingQR = useRef(null);
   const pendingSideQuestQR = useRef(null);
@@ -238,6 +240,9 @@ export default function App() {
               localStorage.setItem("hcm-user", JSON.stringify(u));
               try { window.history.replaceState({}, "", window.location.pathname); } catch {}
               setShowAuth(false);
+              if (!localStorage.getItem("hcm-onboarding-complete")) {
+                setShowOnboarding(true);
+              }
               loadBreweries().then(() => setInitialized(true));
               loadMe().catch(() => {});
               return;
@@ -542,6 +547,10 @@ export default function App() {
     setUser(u);
     localStorage.setItem("hcm-user", JSON.stringify(u));
     setShowAuth(false);
+    // Show onboarding if user hasn't completed it yet
+    if (!localStorage.getItem("hcm-onboarding-complete")) {
+      setShowOnboarding(true);
+    }
     await loadMe();
     if (pendingQR.current) {
       setSelectedBrewery(pendingQR.current.brewery);
@@ -576,6 +585,12 @@ export default function App() {
   return (
     <div className="app" data-lang={language}>
       {showAuth && <AuthModal onSuccess={onAuthSuccess} language={language} setLanguage={setLanguage} />}
+      {showOnboarding && !showAuth && (
+        <OnboardingFlow
+          user={user}
+          onComplete={() => setShowOnboarding(false)}
+        />
+      )}
       {view === "home" && (
         <HomePage
           breweries={breweries}

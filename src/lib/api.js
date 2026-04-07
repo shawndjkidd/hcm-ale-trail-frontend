@@ -200,6 +200,13 @@ export function changeEmail(newEmail) {
   });
 }
 
+export function saveOnboardingProfile(profileData) {
+  return request(`/user/profile`, {
+    method: "POST",
+    body: profileData,
+  });
+}
+
 export function storeLoginTokens(data) {
   try {
     if (!data) return;
