@@ -1,14 +1,17 @@
 import { useState } from 'react'
 import { saveOnboardingProfile } from '../lib/api'
 
-const STEPS = ['vibe', 'beer_styles', 'era', 'group_size', 'neighborhood', 'avatar', 'display_name']
+// Step order: lifestyle → beer styles → where from → beer experience → avatar → display name
+const STEPS = ['lifestyle', 'beer_styles', 'location', 'era', 'avatar', 'display_name']
 
 const OPTIONS = {
-  vibe: [
-    { value: 'chill', label: 'Chill', emoji: '😎', desc: 'Easy going, no rush' },
-    { value: 'explorer', label: 'Explorer', emoji: '🧭', desc: 'Hit every spot!' },
-    { value: 'social', label: 'Social', emoji: '🎉', desc: 'Here for the people' },
-    { value: 'craftnerd', label: 'Craft Nerd', emoji: '🍺', desc: 'All about the beer' },
+  lifestyle: [
+    { value: 'backpacker', label: 'Backpacker', emoji: '🎒', desc: 'Seeing the world' },
+    { value: 'digital_nomad', label: 'Digital Nomad', emoji: '💻', desc: 'Working remotely' },
+    { value: 'suit', label: 'Suit & Tie', emoji: '👔', desc: 'Corporate life' },
+    { value: 'teacher_ngo', label: 'Teacher / NGO', emoji: '📚', desc: 'Making a difference' },
+    { value: 'student', label: 'Student', emoji: '🎓', desc: 'Living the dream' },
+    { value: 'just_vibing', label: 'Just Vibing', emoji: '✌️', desc: "Don't label me" },
   ],
   beer_styles: [
     { value: 'ipa', label: 'IPA', emoji: '🌿' },
@@ -18,25 +21,19 @@ const OPTIONS = {
     { value: 'wheat', label: 'Wheat', emoji: '🌾' },
     { value: 'surprise', label: 'Surprise Me', emoji: '🎲' },
   ],
+  location_hcmc: [
+    { value: 'd1', label: 'District 1', emoji: '🏙️' },
+    { value: 'd2', label: 'D2 / Thu Duc', emoji: '🌳' },
+    { value: 'd3', label: 'District 3', emoji: '🏘️' },
+    { value: 'd7', label: 'District 7', emoji: '🌆' },
+    { value: 'binh_thanh', label: 'Binh Thanh', emoji: '🏢' },
+    { value: 'other_hcmc', label: 'Other HCMC', emoji: '🛵' },
+  ],
   era: [
     { value: 'rookie', label: 'Rookie', emoji: '🌱', desc: 'New to craft beer' },
     { value: 'prime', label: 'In My Prime', emoji: '💪', desc: 'Know what I like' },
     { value: 'seasoned', label: 'Seasoned', emoji: '🎖️', desc: 'Tried it all' },
     { value: 'og', label: 'OG', emoji: '👑', desc: 'Craft beer veteran' },
-  ],
-  group_size: [
-    { value: 'solo', label: 'Solo', emoji: '🐺' },
-    { value: 'duo', label: 'Duo', emoji: '👫' },
-    { value: 'crew', label: 'Crew (3-5)', emoji: '👥' },
-    { value: 'party', label: 'Party (6+)', emoji: '🎊' },
-  ],
-  neighborhood: [
-    { value: 'd1', label: 'District 1', emoji: '🏙️' },
-    { value: 'd2', label: 'District 2 / Thu Duc', emoji: '🌳' },
-    { value: 'd3', label: 'District 3', emoji: '🏘️' },
-    { value: 'd7', label: 'District 7', emoji: '🌆' },
-    { value: 'other_vn', label: 'Other VN', emoji: '🇻🇳' },
-    { value: 'visitor', label: 'Just Visiting', emoji: '✈️' },
   ],
   avatar: [
     { value: 'dude', label: 'Dude', emoji: '🧔' },
@@ -45,22 +42,55 @@ const OPTIONS = {
   ],
 }
 
+const POPULAR_COUNTRIES = [
+  { value: 'US', label: '🇺🇸 United States' },
+  { value: 'GB', label: '🇬🇧 United Kingdom' },
+  { value: 'AU', label: '🇦🇺 Australia' },
+  { value: 'KR', label: '🇰🇷 South Korea' },
+  { value: 'JP', label: '🇯🇵 Japan' },
+  { value: 'FR', label: '🇫🇷 France' },
+  { value: 'DE', label: '🇩🇪 Germany' },
+  { value: 'CA', label: '🇨🇦 Canada' },
+  { value: 'NL', label: '🇳🇱 Netherlands' },
+  { value: 'SG', label: '🇸🇬 Singapore' },
+  { value: 'TH', label: '🇹🇭 Thailand' },
+  { value: 'NZ', label: '🇳🇿 New Zealand' },
+  { value: 'IE', label: '🇮🇪 Ireland' },
+  { value: 'SE', label: '🇸🇪 Sweden' },
+  { value: 'DK', label: '🇩🇰 Denmark' },
+  { value: 'RU', label: '🇷🇺 Russia' },
+  { value: 'IN', label: '🇮🇳 India' },
+  { value: 'CN', label: '🇨🇳 China' },
+  { value: 'TW', label: '🇹🇼 Taiwan' },
+  { value: 'PH', label: '🇵🇭 Philippines' },
+  { value: 'MY', label: '🇲🇾 Malaysia' },
+  { value: 'ID', label: '🇮🇩 Indonesia' },
+  { value: 'BR', label: '🇧🇷 Brazil' },
+  { value: 'MX', label: '🇲🇽 Mexico' },
+  { value: 'ZA', label: '🇿🇦 South Africa' },
+  { value: 'IT', label: '🇮🇹 Italy' },
+  { value: 'ES', label: '🇪🇸 Spain' },
+  { value: 'BE', label: '🇧🇪 Belgium' },
+  { value: 'CZ', label: '🇨🇿 Czech Republic' },
+  { value: 'PL', label: '🇵🇱 Poland' },
+]
+
 const STEP_TITLES = {
-  vibe: "What's your vibe?",
+  lifestyle: 'What do you do?',
   beer_styles: 'Pick your styles',
-  era: 'Your beer era?',
-  group_size: "Who's coming?",
-  neighborhood: 'Your hood?',
+  location: 'Where you at?',
+  location_country: 'Where from?',
+  era: 'Beer experience?',
   avatar: 'Pick your look',
   display_name: 'Trail name',
 }
 
 const STEP_SUBTITLES = {
-  vibe: 'How do you roll on the trail?',
+  lifestyle: "What's your deal right now?",
   beer_styles: 'Select all that sound good',
+  location: 'Based in HCMC or just visiting?',
+  location_country: 'Pick your home country',
   era: 'How deep is your craft beer game?',
-  group_size: 'Rolling solo or squad deep?',
-  neighborhood: 'Where are you based?',
   avatar: 'Choose your trail avatar',
   display_name: 'What should we call you on the leaderboard?',
 }
@@ -68,37 +98,61 @@ const STEP_SUBTITLES = {
 export default function OnboardingFlow({ onComplete, user }) {
   const [stepIndex, setStepIndex] = useState(0)
   const [selections, setSelections] = useState({
-    vibe: null,
+    lifestyle: null,
     beer_styles: [],
-    era: null,
-    group_size: null,
     neighborhood: null,
+    home_country: null,
+    era: null,
     avatar: null,
     display_name: '',
   })
+  const [locationMode, setLocationMode] = useState(null) // 'hcmc' | 'visitor'
+  const [countrySearch, setCountrySearch] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
 
+  // Dynamic step resolution — location can be 'hcmc' picker or 'country' picker
   const currentStep = STEPS[stepIndex]
+  const isLocationCountryStep = currentStep === 'location' && locationMode === 'visitor'
+  const effectiveStep = isLocationCountryStep ? 'location_country' : currentStep
+
+  const totalSteps = STEPS.length
   const isLastStep = stepIndex === STEPS.length - 1
-  const progress = ((stepIndex + 1) / STEPS.length) * 100
+  const progress = ((stepIndex + 1) / totalSteps) * 100
 
   const canAdvance = () => {
-    if (currentStep === 'beer_styles') return selections.beer_styles.length > 0
-    if (currentStep === 'display_name') return selections.display_name.trim().length > 0
-    return selections[currentStep] !== null
+    if (effectiveStep === 'beer_styles') return selections.beer_styles.length > 0
+    if (effectiveStep === 'display_name') return selections.display_name.trim().length > 0
+    if (effectiveStep === 'location') return selections.neighborhood !== null
+    if (effectiveStep === 'location_country') return selections.home_country !== null
+    if (effectiveStep === 'lifestyle') return selections.lifestyle !== null
+    if (effectiveStep === 'era') return selections.era !== null
+    if (effectiveStep === 'avatar') return selections.avatar !== null
+    return false
   }
 
   const handleSelect = (value) => {
-    if (currentStep === 'beer_styles') {
+    if (effectiveStep === 'beer_styles') {
       setSelections(prev => {
         const styles = prev.beer_styles.includes(value)
           ? prev.beer_styles.filter(s => s !== value)
           : [...prev.beer_styles, value]
         return { ...prev, beer_styles: styles }
       })
-    } else {
-      setSelections(prev => ({ ...prev, [currentStep]: value }))
+    } else if (effectiveStep === 'location') {
+      if (value === '_visitor') {
+        setLocationMode('visitor')
+      } else {
+        setSelections(prev => ({ ...prev, neighborhood: value, home_country: 'VN' }))
+      }
+    } else if (effectiveStep === 'location_country') {
+      setSelections(prev => ({ ...prev, home_country: value, neighborhood: 'visitor' }))
+    } else if (effectiveStep === 'lifestyle') {
+      setSelections(prev => ({ ...prev, lifestyle: value }))
+    } else if (effectiveStep === 'era') {
+      setSelections(prev => ({ ...prev, era: value }))
+    } else if (effectiveStep === 'avatar') {
+      setSelections(prev => ({ ...prev, avatar: value }))
     }
   }
 
@@ -110,11 +164,11 @@ export default function OnboardingFlow({ onComplete, user }) {
       setError(null)
       try {
         const payload = {
-          vibe: selections.vibe,
+          lifestyle: selections.lifestyle,
           beer_styles: selections.beer_styles,
-          era: selections.era,
-          group_size: selections.group_size,
           neighborhood: selections.neighborhood,
+          home_country: selections.home_country,
+          era: selections.era,
           avatar: selections.avatar,
           display_name: selections.display_name.trim(),
         }
@@ -133,10 +187,15 @@ export default function OnboardingFlow({ onComplete, user }) {
       }
     } else {
       setStepIndex(i => i + 1)
+      setLocationMode(null) // reset for next time
     }
   }
 
   const handleBack = () => {
+    if (isLocationCountryStep) {
+      setLocationMode(null) // go back to district/visitor picker
+      return
+    }
     if (stepIndex > 0) setStepIndex(i => i - 1)
   }
 
@@ -146,8 +205,96 @@ export default function OnboardingFlow({ onComplete, user }) {
   }
 
   const isSelected = (value) => {
-    if (currentStep === 'beer_styles') return selections.beer_styles.includes(value)
-    return selections[currentStep] === value
+    if (effectiveStep === 'beer_styles') return selections.beer_styles.includes(value)
+    if (effectiveStep === 'location') return selections.neighborhood === value
+    if (effectiveStep === 'location_country') return selections.home_country === value
+    if (effectiveStep === 'lifestyle') return selections.lifestyle === value
+    if (effectiveStep === 'era') return selections.era === value
+    if (effectiveStep === 'avatar') return selections.avatar === value
+    return false
+  }
+
+  // Filter countries by search
+  const filteredCountries = countrySearch.trim()
+    ? POPULAR_COUNTRIES.filter(c => c.label.toLowerCase().includes(countrySearch.toLowerCase()))
+    : POPULAR_COUNTRIES
+
+  // Render the location step — either HCMC districts or country picker
+  const renderLocationStep = () => {
+    if (isLocationCountryStep) {
+      return (
+        <div>
+          <div style={styles.inputWrap}>
+            <input
+              type="text"
+              value={countrySearch}
+              onChange={(e) => setCountrySearch(e.target.value)}
+              placeholder="Search country..."
+              style={{ ...styles.textInput, fontSize: 16, textAlign: 'left', padding: '12px 16px' }}
+              autoFocus
+            />
+          </div>
+          <div style={{ ...styles.grid, gridTemplateColumns: '1fr', gap: 8, maxHeight: '45vh', overflowY: 'auto' }}>
+            {filteredCountries.map(c => (
+              <button
+                key={c.value}
+                onClick={() => handleSelect(c.value)}
+                style={{
+                  ...styles.optionBtn,
+                  flexDirection: 'row',
+                  justifyContent: 'flex-start',
+                  padding: '12px 16px',
+                  gap: 12,
+                  ...(isSelected(c.value) ? styles.optionSelected : {}),
+                }}
+              >
+                <span style={{ ...styles.optionLabel, fontSize: 16 }}>{c.label}</span>
+              </button>
+            ))}
+            {filteredCountries.length === 0 && (
+              <div style={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', padding: 20 }}>
+                No match — try a different search
+              </div>
+            )}
+          </div>
+        </div>
+      )
+    }
+
+    // Default: HCMC districts + "visiting" option
+    return (
+      <div style={styles.grid}>
+        {OPTIONS.location_hcmc.map(opt => (
+          <button
+            key={opt.value}
+            onClick={() => handleSelect(opt.value)}
+            style={{
+              ...styles.optionBtn,
+              ...(isSelected(opt.value) ? styles.optionSelected : {}),
+            }}
+          >
+            <span style={styles.optionEmoji}>{opt.emoji}</span>
+            <span style={styles.optionLabel}>{opt.label}</span>
+          </button>
+        ))}
+        <button
+          onClick={() => handleSelect('_visitor')}
+          style={{
+            ...styles.optionBtn,
+            gridColumn: '1 / -1',
+            flexDirection: 'row',
+            justifyContent: 'center',
+            gap: 8,
+            background: 'rgba(255,209,0,0.15)',
+            border: '3px solid rgba(255,209,0,0.4)',
+          }}
+        >
+          <span style={styles.optionEmoji}>✈️</span>
+          <span style={styles.optionLabel}>Just Visiting</span>
+          <span style={styles.optionDesc}> — pick your country next</span>
+        </button>
+      </div>
+    )
   }
 
   return (
@@ -160,7 +307,7 @@ export default function OnboardingFlow({ onComplete, user }) {
       {/* Header */}
       <div style={styles.header}>
         <div style={styles.stepCount}>
-          {stepIndex + 1} / {STEPS.length}
+          {stepIndex + 1} / {totalSteps}
         </div>
         <button onClick={handleSkip} style={styles.skipBtn}>
           Skip
@@ -168,12 +315,12 @@ export default function OnboardingFlow({ onComplete, user }) {
       </div>
 
       {/* Title */}
-      <h2 style={styles.title}>{STEP_TITLES[currentStep]}</h2>
-      <p style={styles.subtitle}>{STEP_SUBTITLES[currentStep]}</p>
+      <h2 style={styles.title}>{STEP_TITLES[effectiveStep]}</h2>
+      <p style={styles.subtitle}>{STEP_SUBTITLES[effectiveStep]}</p>
 
       {/* Options */}
       <div style={styles.optionsContainer}>
-        {currentStep === 'display_name' ? (
+        {effectiveStep === 'display_name' ? (
           <div style={styles.inputWrap}>
             <input
               type="text"
@@ -186,9 +333,11 @@ export default function OnboardingFlow({ onComplete, user }) {
             />
             <div style={styles.charCount}>{selections.display_name.length}/50</div>
           </div>
+        ) : effectiveStep === 'location' || effectiveStep === 'location_country' ? (
+          renderLocationStep()
         ) : (
           <div style={styles.grid}>
-            {OPTIONS[currentStep]?.map(opt => (
+            {OPTIONS[effectiveStep]?.map(opt => (
               <button
                 key={opt.value}
                 onClick={() => handleSelect(opt.value)}
@@ -211,7 +360,7 @@ export default function OnboardingFlow({ onComplete, user }) {
 
       {/* Nav buttons */}
       <div style={styles.navRow}>
-        {stepIndex > 0 ? (
+        {stepIndex > 0 || isLocationCountryStep ? (
           <button onClick={handleBack} style={styles.backBtn}>Back</button>
         ) : <div />}
         <button
