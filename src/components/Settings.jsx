@@ -140,20 +140,70 @@ export default function Settings({ user, language, onBack }) {
 
         <div className="settings-section">
           <h2 className="settings-section-title">TRAIL PROFILE</h2>
-          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, marginBottom: 12 }}>
-            Your vibe, beer preferences, and trail avatar
-          </p>
-          <button
-            className="settings-submit-btn"
-            onClick={() => {
-              localStorage.removeItem('hcm-onboarding-complete')
-              localStorage.removeItem('hcm-onboarding-profile')
-              setShowOnboarding(true)
-            }}
-            style={{ width: '100%' }}
-          >
-            EDIT TRAIL PROFILE
-          </button>
+          {(() => {
+            const profile = JSON.parse(localStorage.getItem('hcm-onboarding-profile') || 'null')
+            if (!profile || !profile.lifestyle) return (
+              <div>
+                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, marginBottom: 12 }}>
+                  Tell us about yourself to personalize your trail
+                </p>
+                <button
+                  className="settings-submit-btn"
+                  onClick={() => setShowOnboarding(true)}
+                  style={{ width: '100%' }}
+                >
+                  SET UP TRAIL PROFILE
+                </button>
+              </div>
+            )
+            const labels = {
+              backpacker: '🎒 Backpacker', digital_nomad: '💻 Digital Nomad', suit: '👔 Suit & Tie',
+              teacher_ngo: '📚 Teacher/NGO', student: '🎓 Student', just_vibing: '✌️ Just Vibing',
+              rookie: '🌱 Rookie', prime: '💪 In My Prime', seasoned: '🎖️ Seasoned', og: '👑 OG',
+              male: 'Male', female: 'Female',
+              glass: '◇ Glass', pint: '◆ Pint', growler: '⬡ Growler', tower: '⬢ Tower',
+              d1: 'District 1', d2: 'D2/Thu Duc', d3: 'District 3', d7: 'District 7',
+              binh_thanh: 'Binh Thanh', other_hcmc: 'Other HCMC', visitor: 'Visiting',
+            }
+            const fieldStyle = { display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.1)' }
+            const labelStyle = { color: 'rgba(255,255,255,0.6)', fontSize: 13 }
+            const valueStyle = { color: '#FFD100', fontSize: 13, fontWeight: 800 }
+            return (
+              <div>
+                <div style={fieldStyle}>
+                  <span style={labelStyle}>Lifestyle</span>
+                  <span style={valueStyle}>{labels[profile.lifestyle] || profile.lifestyle}</span>
+                </div>
+                <div style={fieldStyle}>
+                  <span style={labelStyle}>Beer Styles</span>
+                  <span style={valueStyle}>{(profile.beer_styles || []).map(s => s.toUpperCase()).join(', ')}</span>
+                </div>
+                <div style={fieldStyle}>
+                  <span style={labelStyle}>Location</span>
+                  <span style={valueStyle}>{labels[profile.neighborhood] || profile.neighborhood}{profile.home_country && profile.home_country !== 'VN' ? ` (${profile.home_country})` : ''}</span>
+                </div>
+                <div style={fieldStyle}>
+                  <span style={labelStyle}>Beer Experience</span>
+                  <span style={valueStyle}>{labels[profile.era] || profile.era}</span>
+                </div>
+                <div style={fieldStyle}>
+                  <span style={labelStyle}>Gender</span>
+                  <span style={valueStyle}>{labels[profile.gender] || '—'}</span>
+                </div>
+                <div style={{ ...fieldStyle, borderBottom: 'none' }}>
+                  <span style={labelStyle}>Vessel</span>
+                  <span style={valueStyle}>{labels[profile.avatar] || profile.avatar}</span>
+                </div>
+                <button
+                  className="settings-submit-btn"
+                  onClick={() => setShowOnboarding(true)}
+                  style={{ width: '100%', marginTop: 12 }}
+                >
+                  EDIT TRAIL PROFILE
+                </button>
+              </div>
+            )
+          })()}
         </div>
 
         <div className="settings-section">

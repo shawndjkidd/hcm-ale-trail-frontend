@@ -1,6 +1,41 @@
 import { useState } from 'react'
 import { saveOnboardingProfile } from '../lib/api'
 
+// Beer vessel SVG icons — single color silhouettes
+const VesselIcon = ({ type, size = 40 }) => {
+  const s = { width: size, height: size, display: 'block' }
+  if (type === 'glass') return (
+    <svg viewBox="0 0 40 40" style={s} fill="currentColor">
+      <path d="M14 6h12l-1.5 20h-9L14 6z" opacity="0.9"/>
+      <rect x="17" y="26" width="6" height="4" rx="1"/>
+      <rect x="13" y="30" width="14" height="3" rx="1.5"/>
+    </svg>
+  )
+  if (type === 'pint') return (
+    <svg viewBox="0 0 40 40" style={s} fill="currentColor">
+      <path d="M11 5h18l-2.5 28h-13L11 5z" opacity="0.9"/>
+      <rect x="11" y="5" width="18" height="5" rx="1" opacity="0.6"/>
+    </svg>
+  )
+  if (type === 'growler') return (
+    <svg viewBox="0 0 40 40" style={s} fill="currentColor">
+      <rect x="16" y="3" width="8" height="4" rx="2"/>
+      <path d="M14 7h12c1 0 2 1 2 2v2c0 1-0.5 2-1.5 2.5L25 14v17c0 2-1.5 3-3 3h-4c-1.5 0-3-1-3-3V14l-1.5-.5C12.5 13 12 12 12 11V9c0-1 1-2 2-2z" opacity="0.9"/>
+    </svg>
+  )
+  if (type === 'tower') return (
+    <svg viewBox="0 0 40 40" style={s} fill="currentColor">
+      <rect x="17" y="2" width="6" height="3" rx="1"/>
+      <circle cx="20" cy="8" r="4"/>
+      <rect x="18" y="12" width="4" height="16" rx="1" opacity="0.9"/>
+      <path d="M23 20h4c1 0 1.5.5 1.5 1.5v2c0 1-.5 1.5-1.5 1.5h-4" opacity="0.7"/>
+      <rect x="14" y="28" width="12" height="4" rx="2"/>
+      <rect x="12" y="32" width="16" height="3" rx="1.5"/>
+    </svg>
+  )
+  return null
+}
+
 // Step order: lifestyle → beer styles → where from → beer experience → gender → avatar → display name
 const STEPS = ['lifestyle', 'beer_styles', 'location', 'era', 'gender', 'avatar', 'display_name']
 
@@ -41,10 +76,10 @@ const OPTIONS = {
     { value: 'skip', label: 'Rather Not Say', emoji: '🤐' },
   ],
   avatar: [
-    { value: 'glass', label: 'Glass', emoji: '◇', desc: 'Light & easy' },
-    { value: 'pint', label: 'Pint', emoji: '◆', desc: 'Classic & reliable' },
-    { value: 'growler', label: 'Growler', emoji: '⬡', desc: 'Go big or go home' },
-    { value: 'tower', label: 'Tower', emoji: '⬢', desc: 'Party mode activated' },
+    { value: 'glass', label: 'Glass', icon: 'glass', desc: 'Light & easy' },
+    { value: 'pint', label: 'Pint', icon: 'pint', desc: 'Classic & reliable' },
+    { value: 'growler', label: 'Growler', icon: 'growler', desc: 'Go big or go home' },
+    { value: 'tower', label: 'Tower', icon: 'tower', desc: 'Party mode activated' },
   ],
 }
 
@@ -103,7 +138,7 @@ const STEP_SUBTITLES = {
   display_name: 'What should we call you on the leaderboard?',
 }
 
-export default function OnboardingFlow({ onComplete, user }) {
+export default function OnboardingFlow({ onComplete, onClose, user }) {
   const [stepIndex, setStepIndex] = useState(0)
   const [selections, setSelections] = useState({
     lifestyle: null,
@@ -323,9 +358,16 @@ export default function OnboardingFlow({ onComplete, user }) {
         <div style={styles.stepCount}>
           {stepIndex + 1} / {totalSteps}
         </div>
-        <button onClick={handleSkip} style={styles.skipBtn}>
-          Skip
-        </button>
+        <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+          <button onClick={handleSkip} style={styles.skipBtn}>
+            Skip
+          </button>
+          {onClose && (
+            <button onClick={onClose} style={styles.closeBtn}>
+              ✕
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Title */}
@@ -360,7 +402,13 @@ export default function OnboardingFlow({ onComplete, user }) {
                   ...(isSelected(opt.value) ? styles.optionSelected : {}),
                 }}
               >
-                <span style={styles.optionEmoji}>{opt.emoji}</span>
+                {opt.icon ? (
+                  <span style={{ ...styles.optionEmoji, color: isSelected(opt.value) ? '#FFD100' : '#fff' }}>
+                    <VesselIcon type={opt.icon} size={40} />
+                  </span>
+                ) : (
+                  <span style={styles.optionEmoji}>{opt.emoji}</span>
+                )}
                 <span style={styles.optionLabel}>{opt.label}</span>
                 {opt.desc && <span style={styles.optionDesc}>{opt.desc}</span>}
               </button>
@@ -436,6 +484,19 @@ const styles = {
     fontWeight: 700,
     cursor: 'pointer',
     textDecoration: 'underline',
+  },
+  closeBtn: {
+    background: 'rgba(0,0,0,0.3)',
+    border: '2px solid rgba(255,255,255,0.3)',
+    borderRadius: 8,
+    width: 32,
+    height: 32,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#fff',
+    fontSize: 16,
+    cursor: 'pointer',
   },
   title: {
     color: '#FFD100',

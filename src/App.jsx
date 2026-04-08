@@ -172,6 +172,13 @@ export default function App() {
         setHatClaimed(true);
         localStorage.setItem("hcm-hat-claimed", "true");
       }
+      // Sync profile/onboarding data from server
+      if (r.profile) {
+        localStorage.setItem("hcm-onboarding-profile", JSON.stringify(r.profile));
+        if (r.profile.onboarding_completed_at) {
+          localStorage.setItem("hcm-onboarding-complete", "true");
+        }
+      }
       return r;
     }
     return null;
@@ -613,6 +620,7 @@ export default function App() {
         <OnboardingFlow
           user={user}
           onComplete={() => setShowOnboarding(false)}
+          onClose={() => setShowOnboarding(false)}
         />
       )}
       {view === "home" && (
