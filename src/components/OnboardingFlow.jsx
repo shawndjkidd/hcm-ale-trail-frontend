@@ -42,7 +42,7 @@ const OPTIONS = {
   ],
   avatar: [
     { value: 'pint', label: 'Pint', emoji: '🍺', desc: 'Classic & reliable' },
-    { value: 'chalice', label: 'Chalice', emoji: '🏆', desc: 'Refined & fancy' },
+    { value: 'glass', label: 'Glass', emoji: '🥂', desc: 'Keep it classy' },
     { value: 'growler', label: 'Growler', emoji: '🍻', desc: 'Go big or go home' },
     { value: 'tower', label: 'Tower', emoji: '🗼', desc: 'Party mode activated' },
   ],
