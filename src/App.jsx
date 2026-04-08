@@ -263,11 +263,13 @@ export default function App() {
               localStorage.setItem("hcm-user", JSON.stringify(u));
               try { window.history.replaceState({}, "", window.location.pathname); } catch {}
               setShowAuth(false);
-              if (!localStorage.getItem("hcm-onboarding-complete")) {
-                setShowOnboarding(true);
-              }
               loadBreweries().then(() => setInitialized(true));
-              loadMe().catch(() => {});
+              // loadMe syncs onboarding flag from server — check AFTER it completes
+              loadMe().then(() => {
+                if (!localStorage.getItem("hcm-onboarding-complete")) {
+                  setShowOnboarding(true);
+                }
+              }).catch(() => {});
               return;
             }
           }
@@ -282,13 +284,8 @@ export default function App() {
       if (savedUser) {
         setUser(JSON.parse(savedUser));
         setShowAuth(false);
-        // Show onboarding for returning users who haven't completed it
-        const onboardingDone = localStorage.getItem("hcm-onboarding-complete");
-        console.log("[Onboarding] savedUser exists, onboarding-complete:", onboardingDone);
-        if (!onboardingDone) {
-          console.log("[Onboarding] Showing onboarding flow");
-          setShowOnboarding(true);
-        }
+        // Don't check onboarding here — let loadMe sync the flag from server first
+        // The onboarding check happens after loadMe completes (see useEffect below)
       } else {
         console.log("[Onboarding] No saved user, showing auth");
         setShowAuth(true);
@@ -578,11 +575,11 @@ export default function App() {
     setUser(u);
     localStorage.setItem("hcm-user", JSON.stringify(u));
     setShowAuth(false);
-    // Show onboarding if user hasn't completed it yet
+    // loadMe syncs onboarding flag from server — check AFTER it completes
+    await loadMe();
     if (!localStorage.getItem("hcm-onboarding-complete")) {
       setShowOnboarding(true);
     }
-    await loadMe();
     if (pendingQR.current) {
       setSelectedBrewery(pendingQR.current.brewery);
       setQrValidated(true);
@@ -600,7 +597,12 @@ export default function App() {
 
   useEffect(() => {
     if (user?.id) {
-      loadMe().catch(() => {});
+      loadMe().then(() => {
+        // After server sync, check if onboarding is needed
+        if (!localStorage.getItem("hcm-onboarding-complete")) {
+          setShowOnboarding(true);
+        }
+      }).catch(() => {});
     }
   }, [user?.id]);
 
