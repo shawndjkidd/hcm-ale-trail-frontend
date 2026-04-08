@@ -1,85 +1,51 @@
 import { useState } from 'react'
 import { saveOnboardingProfile } from '../lib/api'
-
-// Beer vessel SVG icons — single color silhouettes
-const VesselIcon = ({ type, size = 40 }) => {
-  const s = { width: size, height: size, display: 'block' }
-  if (type === 'glass') return (
-    <svg viewBox="0 0 40 40" style={s} fill="currentColor">
-      <path d="M14 6h12l-1.5 20h-9L14 6z" opacity="0.9"/>
-      <rect x="17" y="26" width="6" height="4" rx="1"/>
-      <rect x="13" y="30" width="14" height="3" rx="1.5"/>
-    </svg>
-  )
-  if (type === 'pint') return (
-    <svg viewBox="0 0 40 40" style={s} fill="currentColor">
-      <path d="M11 5h18l-2.5 28h-13L11 5z" opacity="0.9"/>
-      <rect x="11" y="5" width="18" height="5" rx="1" opacity="0.6"/>
-    </svg>
-  )
-  if (type === 'growler') return (
-    <svg viewBox="0 0 40 40" style={s} fill="currentColor">
-      <rect x="16" y="3" width="8" height="4" rx="2"/>
-      <path d="M14 7h12c1 0 2 1 2 2v2c0 1-0.5 2-1.5 2.5L25 14v17c0 2-1.5 3-3 3h-4c-1.5 0-3-1-3-3V14l-1.5-.5C12.5 13 12 12 12 11V9c0-1 1-2 2-2z" opacity="0.9"/>
-    </svg>
-  )
-  if (type === 'tower') return (
-    <svg viewBox="0 0 40 40" style={s} fill="currentColor">
-      <rect x="17" y="2" width="6" height="3" rx="1"/>
-      <circle cx="20" cy="8" r="4"/>
-      <rect x="18" y="12" width="4" height="16" rx="1" opacity="0.9"/>
-      <path d="M23 20h4c1 0 1.5.5 1.5 1.5v2c0 1-.5 1.5-1.5 1.5h-4" opacity="0.7"/>
-      <rect x="14" y="28" width="12" height="4" rx="2"/>
-      <rect x="12" y="32" width="16" height="3" rx="1.5"/>
-    </svg>
-  )
-  return null
-}
+import TrailIcon from './TrailIcons'
 
 // Step order: lifestyle → beer styles → where from → beer experience → gender → avatar → display name
 const STEPS = ['lifestyle', 'beer_styles', 'location', 'era', 'gender', 'avatar', 'display_name']
 
 const OPTIONS = {
   lifestyle: [
-    { value: 'backpacker', label: 'Backpacker', emoji: '🎒', desc: 'Seeing the world' },
-    { value: 'digital_nomad', label: 'Digital Nomad', emoji: '💻', desc: 'Working remotely' },
-    { value: 'suit', label: 'Suit & Tie', emoji: '👔', desc: 'Corporate life' },
-    { value: 'teacher_ngo', label: 'Teacher / NGO', emoji: '📚', desc: 'Making a difference' },
-    { value: 'student', label: 'Student', emoji: '🎓', desc: 'Living the dream' },
-    { value: 'just_vibing', label: 'Just Vibing', emoji: '✌️', desc: "Don't label me" },
+    { value: 'backpacker', label: 'Backpacker', desc: 'Seeing the world' },
+    { value: 'digital_nomad', label: 'Digital Nomad', desc: 'Working remotely' },
+    { value: 'suit', label: 'Suit & Tie', desc: 'Corporate life' },
+    { value: 'teacher_ngo', label: 'Teacher / NGO', desc: 'Making a difference' },
+    { value: 'student', label: 'Student', desc: 'Living the dream' },
+    { value: 'just_vibing', label: 'Just Vibing', desc: "Don't label me" },
   ],
   beer_styles: [
-    { value: 'ipa', label: 'IPA', emoji: '🌿' },
-    { value: 'lager', label: 'Lager', emoji: '🍺' },
-    { value: 'stout', label: 'Stout', emoji: '🖤' },
-    { value: 'sour', label: 'Sour', emoji: '🍋' },
-    { value: 'wheat', label: 'Wheat', emoji: '🌾' },
-    { value: 'surprise', label: 'Surprise Me', emoji: '🎲' },
+    { value: 'ipa', label: 'IPA' },
+    { value: 'lager', label: 'Lager' },
+    { value: 'stout', label: 'Stout' },
+    { value: 'sour', label: 'Sour' },
+    { value: 'wheat', label: 'Wheat' },
+    { value: 'surprise', label: 'Surprise Me' },
   ],
   location_hcmc: [
-    { value: 'd1', label: 'District 1', emoji: '🏙️' },
-    { value: 'd2', label: 'D2 / Thu Duc', emoji: '🌳' },
-    { value: 'd3', label: 'District 3', emoji: '🏘️' },
-    { value: 'd7', label: 'District 7', emoji: '🌆' },
-    { value: 'binh_thanh', label: 'Binh Thanh', emoji: '🏢' },
-    { value: 'other_hcmc', label: 'Other HCMC', emoji: '🛵' },
+    { value: 'd1', label: 'District 1' },
+    { value: 'd2', label: 'D2 / Thu Duc' },
+    { value: 'd3', label: 'District 3' },
+    { value: 'd7', label: 'District 7' },
+    { value: 'binh_thanh', label: 'Binh Thanh' },
+    { value: 'other_hcmc', label: 'Other HCMC' },
   ],
   era: [
-    { value: 'rookie', label: 'Rookie', emoji: '🌱', desc: 'New to craft beer' },
-    { value: 'prime', label: 'In My Prime', emoji: '💪', desc: 'Know what I like' },
-    { value: 'seasoned', label: 'Seasoned', emoji: '🎖️', desc: 'Tried it all' },
-    { value: 'og', label: 'OG', emoji: '👑', desc: 'Craft beer veteran' },
+    { value: 'rookie', label: 'Rookie', desc: 'New to craft beer' },
+    { value: 'prime', label: 'In My Prime', desc: 'Know what I like' },
+    { value: 'seasoned', label: 'Seasoned', desc: 'Tried it all' },
+    { value: 'og', label: 'OG', desc: 'Craft beer veteran' },
   ],
   gender: [
-    { value: 'male', label: 'Male', emoji: '♂️' },
-    { value: 'female', label: 'Female', emoji: '♀️' },
-    { value: 'skip', label: 'Rather Not Say', emoji: '🤐' },
+    { value: 'male', label: 'Male' },
+    { value: 'female', label: 'Female' },
+    { value: 'skip', label: 'Rather Not Say' },
   ],
   avatar: [
-    { value: 'glass', label: 'Glass', icon: 'glass', desc: 'Light & easy' },
-    { value: 'pint', label: 'Pint', icon: 'pint', desc: 'Classic & reliable' },
-    { value: 'growler', label: 'Growler', icon: 'growler', desc: 'Go big or go home' },
-    { value: 'tower', label: 'Tower', icon: 'tower', desc: 'Party mode activated' },
+    { value: 'glass', label: 'Glass', desc: 'Light & easy' },
+    { value: 'pint', label: 'Pint', desc: 'Classic & reliable' },
+    { value: 'growler', label: 'Growler', desc: 'Go big or go home' },
+    { value: 'tower', label: 'Tower', desc: 'Party mode activated' },
   ],
 }
 
@@ -138,17 +104,24 @@ const STEP_SUBTITLES = {
   display_name: 'What should we call you on the leaderboard?',
 }
 
-export default function OnboardingFlow({ onComplete, onClose, user }) {
-  const [stepIndex, setStepIndex] = useState(0)
+export default function OnboardingFlow({ onComplete, onClose, user, initialStep }) {
+  // If initialStep is provided, jump straight to that step
+  const startIndex = initialStep ? STEPS.indexOf(initialStep) : 0
+  const [stepIndex, setStepIndex] = useState(startIndex >= 0 ? startIndex : 0)
+  const [singleFieldMode] = useState(!!initialStep)
+
+  // Load existing profile data as defaults when editing a single field
+  const existingProfile = JSON.parse(localStorage.getItem('hcm-onboarding-profile') || 'null')
+
   const [selections, setSelections] = useState({
-    lifestyle: null,
-    beer_styles: [],
-    neighborhood: null,
-    home_country: null,
-    era: null,
-    gender: null,
-    avatar: null,
-    display_name: '',
+    lifestyle: existingProfile?.lifestyle || null,
+    beer_styles: existingProfile?.beer_styles || [],
+    neighborhood: existingProfile?.neighborhood || null,
+    home_country: existingProfile?.home_country || null,
+    era: existingProfile?.era || null,
+    gender: existingProfile?.gender || null,
+    avatar: existingProfile?.avatar || null,
+    display_name: existingProfile?.display_name || '',
   })
   const [locationMode, setLocationMode] = useState(null) // 'hcmc' | 'visitor'
   const [countrySearch, setCountrySearch] = useState('')
@@ -161,7 +134,7 @@ export default function OnboardingFlow({ onComplete, onClose, user }) {
   const effectiveStep = isLocationCountryStep ? 'location_country' : currentStep
 
   const totalSteps = STEPS.length
-  const isLastStep = stepIndex === STEPS.length - 1
+  const isLastStep = singleFieldMode || stepIndex === STEPS.length - 1
   const progress = ((stepIndex + 1) / totalSteps) * 100
 
   const canAdvance = () => {
@@ -203,45 +176,52 @@ export default function OnboardingFlow({ onComplete, onClose, user }) {
     }
   }
 
+  const handleSave = async () => {
+    setSaving(true)
+    setError(null)
+    try {
+      const payload = {
+        lifestyle: selections.lifestyle,
+        beer_styles: selections.beer_styles,
+        neighborhood: selections.neighborhood,
+        home_country: selections.home_country,
+        era: selections.era,
+        gender: selections.gender,
+        avatar: selections.avatar,
+        display_name: selections.display_name.trim(),
+      }
+      const res = await saveOnboardingProfile(payload)
+      if (res?.ok) {
+        localStorage.setItem('hcm-onboarding-complete', 'true')
+        localStorage.setItem('hcm-onboarding-profile', JSON.stringify(payload))
+        onComplete()
+      } else {
+        setError(res?.error || 'Failed to save — tap to retry')
+      }
+    } catch (e) {
+      setError('Network error — tap to retry')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const handleNext = async () => {
     if (!canAdvance()) return
-
     if (isLastStep) {
-      setSaving(true)
-      setError(null)
-      try {
-        const payload = {
-          lifestyle: selections.lifestyle,
-          beer_styles: selections.beer_styles,
-          neighborhood: selections.neighborhood,
-          home_country: selections.home_country,
-          era: selections.era,
-          gender: selections.gender,
-          avatar: selections.avatar,
-          display_name: selections.display_name.trim(),
-        }
-        const res = await saveOnboardingProfile(payload)
-        if (res?.ok) {
-          localStorage.setItem('hcm-onboarding-complete', 'true')
-          localStorage.setItem('hcm-onboarding-profile', JSON.stringify(payload))
-          onComplete()
-        } else {
-          setError(res?.error || 'Failed to save — tap to retry')
-        }
-      } catch (e) {
-        setError('Network error — tap to retry')
-      } finally {
-        setSaving(false)
-      }
+      await handleSave()
     } else {
       setStepIndex(i => i + 1)
-      setLocationMode(null) // reset for next time
+      setLocationMode(null)
     }
   }
 
   const handleBack = () => {
     if (isLocationCountryStep) {
-      setLocationMode(null) // go back to district/visitor picker
+      setLocationMode(null)
+      return
+    }
+    if (singleFieldMode) {
+      onClose?.()
       return
     }
     if (stepIndex > 0) setStepIndex(i => i - 1)
@@ -262,6 +242,9 @@ export default function OnboardingFlow({ onComplete, onClose, user }) {
     if (effectiveStep === 'avatar') return selections.avatar === value
     return false
   }
+
+  // Icon color for selected vs unselected
+  const iconColor = (value) => isSelected(value) ? '#FFD100' : 'rgba(255,255,255,0.85)'
 
   // Filter countries by search
   const filteredCountries = countrySearch.trim()
@@ -322,7 +305,9 @@ export default function OnboardingFlow({ onComplete, onClose, user }) {
               ...(isSelected(opt.value) ? styles.optionSelected : {}),
             }}
           >
-            <span style={styles.optionEmoji}>{opt.emoji}</span>
+            <span style={styles.iconWrap}>
+              <TrailIcon type="district" size={36} color={isSelected(opt.value) ? '#FFD100' : 'rgba(255,255,255,0.85)'} />
+            </span>
             <span style={styles.optionLabel}>{opt.label}</span>
           </button>
         ))}
@@ -338,7 +323,9 @@ export default function OnboardingFlow({ onComplete, onClose, user }) {
             border: '3px solid rgba(255,209,0,0.4)',
           }}
         >
-          <span style={styles.optionEmoji}>✈️</span>
+          <span style={styles.iconWrap}>
+            <TrailIcon type="visitor" size={28} color="rgba(255,255,255,0.9)" />
+          </span>
           <span style={styles.optionLabel}>Just Visiting</span>
           <span style={styles.optionDesc}> — pick your country next</span>
         </button>
@@ -356,12 +343,14 @@ export default function OnboardingFlow({ onComplete, onClose, user }) {
       {/* Header */}
       <div style={styles.header}>
         <div style={styles.stepCount}>
-          {stepIndex + 1} / {totalSteps}
+          {singleFieldMode ? 'Edit' : `${stepIndex + 1} / ${totalSteps}`}
         </div>
         <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-          <button onClick={handleSkip} style={styles.skipBtn}>
-            Skip
-          </button>
+          {!singleFieldMode && (
+            <button onClick={handleSkip} style={styles.skipBtn}>
+              Skip
+            </button>
+          )}
           {onClose && (
             <button onClick={onClose} style={styles.closeBtn}>
               ✕
@@ -402,13 +391,9 @@ export default function OnboardingFlow({ onComplete, onClose, user }) {
                   ...(isSelected(opt.value) ? styles.optionSelected : {}),
                 }}
               >
-                {opt.icon ? (
-                  <span style={{ ...styles.optionEmoji, color: isSelected(opt.value) ? '#FFD100' : '#fff' }}>
-                    <VesselIcon type={opt.icon} size={40} />
-                  </span>
-                ) : (
-                  <span style={styles.optionEmoji}>{opt.emoji}</span>
-                )}
+                <span style={styles.iconWrap}>
+                  <TrailIcon type={opt.value} size={40} color={iconColor(opt.value)} />
+                </span>
                 <span style={styles.optionLabel}>{opt.label}</span>
                 {opt.desc && <span style={styles.optionDesc}>{opt.desc}</span>}
               </button>
@@ -422,8 +407,10 @@ export default function OnboardingFlow({ onComplete, onClose, user }) {
 
       {/* Nav buttons */}
       <div style={styles.navRow}>
-        {stepIndex > 0 || isLocationCountryStep ? (
-          <button onClick={handleBack} style={styles.backBtn}>Back</button>
+        {stepIndex > 0 || isLocationCountryStep || singleFieldMode ? (
+          <button onClick={handleBack} style={styles.backBtn}>
+            {singleFieldMode ? 'Cancel' : 'Back'}
+          </button>
         ) : <div />}
         <button
           onClick={handleNext}
@@ -433,7 +420,7 @@ export default function OnboardingFlow({ onComplete, onClose, user }) {
             opacity: canAdvance() && !saving ? 1 : 0.5,
           }}
         >
-          {saving ? 'Saving...' : isLastStep ? "Let's Go!" : 'Next'}
+          {saving ? 'Saving...' : singleFieldMode ? 'Save' : isLastStep ? "Let's Go!" : 'Next'}
         </button>
       </div>
     </div>
@@ -542,8 +529,11 @@ const styles = {
     borderColor: '#FFD100',
     transform: 'scale(1.03)',
   },
-  optionEmoji: {
-    fontSize: 32,
+  iconWrap: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 40,
   },
   optionLabel: {
     color: '#fff',

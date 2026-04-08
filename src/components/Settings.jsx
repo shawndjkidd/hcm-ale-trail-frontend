@@ -2,9 +2,26 @@ import { useState } from 'react'
 import { changePassword, changeEmail } from '../lib/api'
 import translations from '../translations'
 import OnboardingFlow from './OnboardingFlow'
+import TrailIcon from './TrailIcons'
+
+// Maps for display labels
+const LABELS = {
+  backpacker: 'Backpacker', digital_nomad: 'Digital Nomad', suit: 'Suit & Tie',
+  teacher_ngo: 'Teacher / NGO', student: 'Student', just_vibing: 'Just Vibing',
+  rookie: 'Rookie', prime: 'In My Prime', seasoned: 'Seasoned', og: 'OG',
+  male: 'Male', female: 'Female', skip: 'Rather Not Say',
+  glass: 'Glass', pint: 'Pint', growler: 'Growler', tower: 'Tower',
+  d1: 'District 1', d2: 'D2 / Thu Duc', d3: 'District 3', d7: 'District 7',
+  binh_thanh: 'Binh Thanh', other_hcmc: 'Other HCMC', visitor: 'Visiting',
+  ipa: 'IPA', lager: 'Lager', stout: 'Stout', sour: 'Sour', wheat: 'Wheat', surprise: 'Surprise Me',
+}
+
+// Which icon type to use for location values (all map to 'district' except visitor)
+const locationIconType = (val) => val === 'visitor' ? 'visitor' : 'district'
 
 export default function Settings({ user, language, onBack }) {
   const [showOnboarding, setShowOnboarding] = useState(false)
+  const [editField, setEditField] = useState(null) // which field to edit: 'lifestyle', 'beer_styles', etc.
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [busy, setBusy] = useState(false)
@@ -18,7 +35,12 @@ export default function Settings({ user, language, onBack }) {
   const [emailError, setEmailError] = useState('')
   const [emailSuccess, setEmailSuccess] = useState(false)
 
+  // Force re-read from localStorage
+  const [, setRefresh] = useState(0)
+
   const t = translations[language]
+
+  const profile = JSON.parse(localStorage.getItem('hcm-onboarding-profile') || 'null')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -76,6 +98,91 @@ export default function Settings({ user, language, onBack }) {
     setNewEmail('')
     setEmailError('')
     setEmailSuccess(false)
+  }
+
+  const handleFieldEdit = (field) => {
+    setEditField(field)
+  }
+
+  const handleEditComplete = () => {
+    setEditField(null)
+    setRefresh(n => n + 1) // re-read localStorage
+  }
+
+  // Render a single profile row with icon, label, value, and tap-to-edit
+  const ProfileRow = ({ label, field, value, iconType, iconSize = 24 }) => (
+    <button
+      onClick={() => handleFieldEdit(field)}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        width: '100%',
+        padding: '12px 0',
+        borderBottom: '1px solid rgba(255,255,255,0.1)',
+        background: 'none',
+        border: 'none',
+        borderBottom: '1px solid rgba(255,255,255,0.1)',
+        cursor: 'pointer',
+        textAlign: 'left',
+      }}
+    >
+      <div style={{ width: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <TrailIcon type={iconType} size={iconSize} color="#FFD100" />
+      </div>
+      <div style={{ flex: 1, marginLeft: 12 }}>
+        <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+          {label}
+        </div>
+        <div style={{ color: '#fff', fontSize: 14, fontWeight: 800, marginTop: 2 }}>
+          {value || '—'}
+        </div>
+      </div>
+      <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 18, flexShrink: 0, paddingLeft: 8 }}>›</div>
+    </button>
+  )
+
+  // Beer styles row — shows multiple icons
+  const BeerStylesRow = () => {
+    const styles = profile?.beer_styles || []
+    return (
+      <button
+        onClick={() => handleFieldEdit('beer_styles')}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          width: '100%',
+          padding: '12px 0',
+          background: 'none',
+          border: 'none',
+          borderBottom: '1px solid rgba(255,255,255,0.1)',
+          cursor: 'pointer',
+          textAlign: 'left',
+        }}
+      >
+        <div style={{ width: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <TrailIcon type={styles[0] || 'lager'} size={24} color="#FFD100" />
+        </div>
+        <div style={{ flex: 1, marginLeft: 12 }}>
+          <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+            Beer Styles
+          </div>
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 4, flexWrap: 'wrap' }}>
+            {styles.length > 0 ? styles.map(s => (
+              <div key={s} style={{
+                display: 'flex', alignItems: 'center', gap: 4,
+                background: 'rgba(255,209,0,0.15)', borderRadius: 6, padding: '3px 8px',
+              }}>
+                <TrailIcon type={s} size={16} color="#FFD100" />
+                <span style={{ color: '#FFD100', fontSize: 12, fontWeight: 800 }}>{LABELS[s] || s.toUpperCase()}</span>
+              </div>
+            )) : (
+              <span style={{ color: '#fff', fontSize: 14, fontWeight: 800 }}>—</span>
+            )}
+          </div>
+        </div>
+        <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 18, flexShrink: 0, paddingLeft: 8 }}>›</div>
+      </button>
+    )
   }
 
   return (
@@ -140,70 +247,71 @@ export default function Settings({ user, language, onBack }) {
 
         <div className="settings-section">
           <h2 className="settings-section-title">TRAIL PROFILE</h2>
-          {(() => {
-            const profile = JSON.parse(localStorage.getItem('hcm-onboarding-profile') || 'null')
-            if (!profile || !profile.lifestyle) return (
-              <div>
-                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, marginBottom: 12 }}>
-                  Tell us about yourself to personalize your trail
-                </p>
-                <button
-                  className="settings-submit-btn"
-                  onClick={() => setShowOnboarding(true)}
-                  style={{ width: '100%' }}
-                >
-                  SET UP TRAIL PROFILE
-                </button>
-              </div>
-            )
-            const labels = {
-              backpacker: '🎒 Backpacker', digital_nomad: '💻 Digital Nomad', suit: '👔 Suit & Tie',
-              teacher_ngo: '📚 Teacher/NGO', student: '🎓 Student', just_vibing: '✌️ Just Vibing',
-              rookie: '🌱 Rookie', prime: '💪 In My Prime', seasoned: '🎖️ Seasoned', og: '👑 OG',
-              male: 'Male', female: 'Female',
-              glass: '◇ Glass', pint: '◆ Pint', growler: '⬡ Growler', tower: '⬢ Tower',
-              d1: 'District 1', d2: 'D2/Thu Duc', d3: 'District 3', d7: 'District 7',
-              binh_thanh: 'Binh Thanh', other_hcmc: 'Other HCMC', visitor: 'Visiting',
-            }
-            const fieldStyle = { display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.1)' }
-            const labelStyle = { color: 'rgba(255,255,255,0.6)', fontSize: 13 }
-            const valueStyle = { color: '#FFD100', fontSize: 13, fontWeight: 800 }
-            return (
-              <div>
-                <div style={fieldStyle}>
-                  <span style={labelStyle}>Lifestyle</span>
-                  <span style={valueStyle}>{labels[profile.lifestyle] || profile.lifestyle}</span>
-                </div>
-                <div style={fieldStyle}>
-                  <span style={labelStyle}>Beer Styles</span>
-                  <span style={valueStyle}>{(profile.beer_styles || []).map(s => s.toUpperCase()).join(', ')}</span>
-                </div>
-                <div style={fieldStyle}>
-                  <span style={labelStyle}>Location</span>
-                  <span style={valueStyle}>{labels[profile.neighborhood] || profile.neighborhood}{profile.home_country && profile.home_country !== 'VN' ? ` (${profile.home_country})` : ''}</span>
-                </div>
-                <div style={fieldStyle}>
-                  <span style={labelStyle}>Beer Experience</span>
-                  <span style={valueStyle}>{labels[profile.era] || profile.era}</span>
-                </div>
-                <div style={fieldStyle}>
-                  <span style={labelStyle}>Gender</span>
-                  <span style={valueStyle}>{labels[profile.gender] || '—'}</span>
-                </div>
-                <div style={{ ...fieldStyle, borderBottom: 'none' }}>
-                  <span style={labelStyle}>Vessel</span>
-                  <span style={valueStyle}>{labels[profile.avatar] || profile.avatar}</span>
-                </div>
-                <button
-                  className="settings-submit-btn"
-                  onClick={() => setShowOnboarding(true)}
-                  style={{ width: '100%', marginTop: 12 }}
-                >
-                  EDIT TRAIL PROFILE
-                </button>
-              </div>
-            )
-          })()}
+          {(!profile || !profile.lifestyle) ? (
+            <div>
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, marginBottom: 12 }}>
+                Tell us about yourself to personalize your trail
+              </p>
+              <button
+                className="settings-submit-btn"
+                onClick={() => setShowOnboarding(true)}
+                style={{ width: '100%' }}
+              >
+                SET UP TRAIL PROFILE
+              </button>
+            </div>
+          ) : (
+            <div style={{ margin: '0 -4px' }}>
+              <ProfileRow
+                label="Lifestyle"
+                field="lifestyle"
+                value={LABELS[profile.lifestyle] || profile.lifestyle}
+                iconType={profile.lifestyle}
+              />
+              <BeerStylesRow />
+              <ProfileRow
+                label="Location"
+                field="location"
+                value={
+                  (LABELS[profile.neighborhood] || profile.neighborhood || '') +
+                  (profile.home_country && profile.home_country !== 'VN' ? ` (${profile.home_country})` : '')
+                }
+                iconType={locationIconType(profile.neighborhood)}
+              />
+              <ProfileRow
+                label="Beer Experience"
+                field="era"
+                value={LABELS[profile.era] || profile.era}
+                iconType={profile.era}
+              />
+              <ProfileRow
+                label="Gender"
+                field="gender"
+                value={LABELS[profile.gender] || '—'}
+                iconType={profile.gender || 'skip'}
+              />
+              <ProfileRow
+                label="Vessel"
+                field="avatar"
+                value={LABELS[profile.avatar] || profile.avatar}
+                iconType={profile.avatar}
+              />
+              <ProfileRow
+                label="Trail Name"
+                field="display_name"
+                value={profile.display_name || '—'}
+                iconType={profile.avatar || 'pint'}
+                iconSize={20}
+              />
+              <button
+                className="settings-submit-btn"
+                onClick={() => setShowOnboarding(true)}
+                style={{ width: '100%', marginTop: 16 }}
+              >
+                EDIT ALL
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="settings-section">
@@ -244,10 +352,22 @@ export default function Settings({ user, language, onBack }) {
         </div>
       </div>
 
+      {/* Full onboarding flow (edit all) */}
       {showOnboarding && (
         <OnboardingFlow
           user={user}
-          onComplete={() => setShowOnboarding(false)}
+          onComplete={() => { setShowOnboarding(false); setRefresh(n => n + 1) }}
+          onClose={() => setShowOnboarding(false)}
+        />
+      )}
+
+      {/* Single-field editor */}
+      {editField && (
+        <OnboardingFlow
+          user={user}
+          initialStep={editField}
+          onComplete={handleEditComplete}
+          onClose={() => setEditField(null)}
         />
       )}
     </div>
