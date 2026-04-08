@@ -1,51 +1,52 @@
 import { useState } from 'react'
 import { saveOnboardingProfile } from '../lib/api'
 import TrailIcon from './TrailIcons'
+import translations from '../translations'
 
 // Step order: lifestyle → beer styles → where from → beer experience → gender → avatar → display name
 const STEPS = ['lifestyle', 'beer_styles', 'location', 'era', 'gender', 'avatar', 'display_name']
 
 const OPTIONS = {
   lifestyle: [
-    { value: 'backpacker', label: 'Backpacker', desc: 'Seeing the world' },
-    { value: 'digital_nomad', label: 'Digital Nomad', desc: 'Working remotely' },
-    { value: 'suit', label: 'Suit & Tie', desc: 'Corporate life' },
-    { value: 'teacher_ngo', label: 'Teacher / NGO', desc: 'Making a difference' },
-    { value: 'student', label: 'Student', desc: 'Living the dream' },
-    { value: 'just_vibing', label: 'Just Vibing', desc: "Don't label me" },
+    { value: 'backpacker', labelKey: 'optBackpacker', descKey: 'descBackpacker' },
+    { value: 'digital_nomad', labelKey: 'optDigitalNomad', descKey: 'descDigitalNomad' },
+    { value: 'suit', labelKey: 'optSuit', descKey: 'descSuit' },
+    { value: 'teacher_ngo', labelKey: 'optTeacherNgo', descKey: 'descTeacherNgo' },
+    { value: 'student', labelKey: 'optStudent', descKey: 'descStudent' },
+    { value: 'just_vibing', labelKey: 'optJustVibing', descKey: 'descJustVibing' },
   ],
   beer_styles: [
-    { value: 'ipa', label: 'IPA' },
-    { value: 'lager', label: 'Lager' },
-    { value: 'stout', label: 'Stout' },
-    { value: 'sour', label: 'Sour' },
-    { value: 'wheat', label: 'Wheat' },
-    { value: 'surprise', label: 'Surprise Me' },
+    { value: 'ipa', labelKey: 'optIpa' },
+    { value: 'lager', labelKey: 'optLager' },
+    { value: 'stout', labelKey: 'optStout' },
+    { value: 'sour', labelKey: 'optSour' },
+    { value: 'wheat', labelKey: 'optWheat' },
+    { value: 'surprise', labelKey: 'optSurprise' },
   ],
   location_hcmc: [
-    { value: 'd1', label: 'District 1' },
-    { value: 'd2', label: 'D2 / Thu Duc' },
-    { value: 'd3', label: 'District 3' },
-    { value: 'd7', label: 'District 7' },
-    { value: 'binh_thanh', label: 'Binh Thanh' },
-    { value: 'other_hcmc', label: 'Other HCMC' },
+    { value: 'd1', labelKey: 'optDistrict1' },
+    { value: 'd2', labelKey: 'optD2' },
+    { value: 'd3', labelKey: 'optDistrict3' },
+    { value: 'd7', labelKey: 'optDistrict7' },
+    { value: 'binh_thanh', labelKey: 'optBinhThanh' },
+    { value: 'other_hcmc', labelKey: 'optOtherHcmc' },
   ],
   era: [
-    { value: 'rookie', label: 'Rookie', desc: 'New to craft beer' },
-    { value: 'prime', label: 'In My Prime', desc: 'Know what I like' },
-    { value: 'seasoned', label: 'Seasoned', desc: 'Tried it all' },
-    { value: 'og', label: 'OG', desc: 'Craft beer veteran' },
+    { value: 'rookie', labelKey: 'optRookie', descKey: 'descRookie' },
+    { value: 'prime', labelKey: 'optPrime', descKey: 'descPrime' },
+    { value: 'seasoned', labelKey: 'optSeasoned', descKey: 'descSeasoned' },
+    { value: 'og', labelKey: 'optOg', descKey: 'descOg' },
   ],
   gender: [
-    { value: 'male', label: 'Male' },
-    { value: 'female', label: 'Female' },
-    { value: 'skip', label: 'Rather Not Say' },
+    { value: 'male', labelKey: 'optMale' },
+    { value: 'female', labelKey: 'optFemale' },
+    { value: 'skip', labelKey: 'optSkip' },
   ],
   avatar: [
-    { value: 'glass', label: 'Glass', desc: 'Light & easy' },
-    { value: 'pint', label: 'Pint', desc: 'Classic & reliable' },
-    { value: 'growler', label: 'Growler', desc: 'Go big or go home' },
-    { value: 'tower', label: 'Tower', desc: 'Party mode activated' },
+    { value: 'glass', labelKey: 'optGlass', descKey: 'descGlass' },
+    { value: 'pint', labelKey: 'optPint', descKey: 'descPint' },
+    { value: 'growler', labelKey: 'optGrowler', descKey: 'descGrowler' },
+    { value: 'tower', labelKey: 'optTower', descKey: 'descTower' },
   ],
 }
 
@@ -82,35 +83,15 @@ const POPULAR_COUNTRIES = [
   { value: 'PL', label: '🇵🇱 Poland' },
 ]
 
-const STEP_TITLES = {
-  lifestyle: 'What do you do?',
-  beer_styles: 'Pick your styles',
-  location: 'Where you at?',
-  location_country: 'Where from?',
-  era: 'Beer experience?',
-  gender: 'About you',
-  avatar: 'Pick your vessel',
-  display_name: 'Trail name',
-}
+export default function OnboardingFlow({ onComplete, onClose, user, language = 'en', initialStep }) {
+  const t = translations[language] || translations.en
 
-const STEP_SUBTITLES = {
-  lifestyle: "What's your deal right now?",
-  beer_styles: 'Select all that sound good',
-  location: 'Based in HCMC or just visiting?',
-  location_country: 'Pick your home country',
-  era: 'How deep is your craft beer game?',
-  gender: 'Quick one for the stats',
-  avatar: 'What do you drink from on the leaderboard?',
-  display_name: 'What should we call you on the leaderboard?',
-}
-
-export default function OnboardingFlow({ onComplete, onClose, user, initialStep }) {
   // If initialStep is provided, jump straight to that step
   const startIndex = initialStep ? STEPS.indexOf(initialStep) : 0
   const [stepIndex, setStepIndex] = useState(startIndex >= 0 ? startIndex : 0)
   const [singleFieldMode] = useState(!!initialStep)
 
-  // Load existing profile data as defaults when editing a single field
+  // Load existing profile data as defaults when editing
   const existingProfile = JSON.parse(localStorage.getItem('hcm-onboarding-profile') || 'null')
 
   const [selections, setSelections] = useState({
@@ -123,12 +104,11 @@ export default function OnboardingFlow({ onComplete, onClose, user, initialStep 
     avatar: existingProfile?.avatar || null,
     display_name: existingProfile?.display_name || '',
   })
-  const [locationMode, setLocationMode] = useState(null) // 'hcmc' | 'visitor'
+  const [locationMode, setLocationMode] = useState(null)
   const [countrySearch, setCountrySearch] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
 
-  // Dynamic step resolution — location can be 'hcmc' picker or 'country' picker
   const currentStep = STEPS[stepIndex]
   const isLocationCountryStep = currentStep === 'location' && locationMode === 'visitor'
   const effectiveStep = isLocationCountryStep ? 'location_country' : currentStep
@@ -136,6 +116,29 @@ export default function OnboardingFlow({ onComplete, onClose, user, initialStep 
   const totalSteps = STEPS.length
   const isLastStep = singleFieldMode || stepIndex === STEPS.length - 1
   const progress = ((stepIndex + 1) / totalSteps) * 100
+
+  // Translated step titles and subtitles
+  const STEP_TITLES = {
+    lifestyle: t.onboardingLifestyleTitle,
+    beer_styles: t.onboardingBeerStylesTitle,
+    location: t.onboardingLocationTitle,
+    location_country: t.onboardingCountryTitle,
+    era: t.onboardingEraTitle,
+    gender: t.onboardingGenderTitle,
+    avatar: t.onboardingAvatarTitle,
+    display_name: t.onboardingDisplayNameTitle,
+  }
+
+  const STEP_SUBTITLES = {
+    lifestyle: t.onboardingLifestyleSubtitle,
+    beer_styles: t.onboardingBeerStylesSubtitle,
+    location: t.onboardingLocationSubtitle,
+    location_country: t.onboardingCountrySubtitle,
+    era: t.onboardingEraSubtitle,
+    gender: t.onboardingGenderSubtitle,
+    avatar: t.onboardingAvatarSubtitle,
+    display_name: t.onboardingDisplayNameSubtitle,
+  }
 
   const canAdvance = () => {
     if (effectiveStep === 'beer_styles') return selections.beer_styles.length > 0
@@ -196,10 +199,10 @@ export default function OnboardingFlow({ onComplete, onClose, user, initialStep 
         localStorage.setItem('hcm-onboarding-profile', JSON.stringify(payload))
         onComplete()
       } else {
-        setError(res?.error || 'Failed to save — tap to retry')
+        setError(res?.error || t.onboardingSaveError)
       }
     } catch (e) {
-      setError('Network error — tap to retry')
+      setError(t.onboardingNetworkError)
     } finally {
       setSaving(false)
     }
@@ -243,15 +246,12 @@ export default function OnboardingFlow({ onComplete, onClose, user, initialStep 
     return false
   }
 
-  // Icon color for selected vs unselected
   const iconColor = (value) => isSelected(value) ? '#FFD100' : 'rgba(255,255,255,0.85)'
 
-  // Filter countries by search
   const filteredCountries = countrySearch.trim()
     ? POPULAR_COUNTRIES.filter(c => c.label.toLowerCase().includes(countrySearch.toLowerCase()))
     : POPULAR_COUNTRIES
 
-  // Render the location step — either HCMC districts or country picker
   const renderLocationStep = () => {
     if (isLocationCountryStep) {
       return (
@@ -261,7 +261,7 @@ export default function OnboardingFlow({ onComplete, onClose, user, initialStep 
               type="text"
               value={countrySearch}
               onChange={(e) => setCountrySearch(e.target.value)}
-              placeholder="Search country..."
+              placeholder={t.onboardingSearchCountry}
               style={{ ...styles.textInput, fontSize: 16, textAlign: 'left', padding: '12px 16px' }}
               autoFocus
             />
@@ -285,7 +285,7 @@ export default function OnboardingFlow({ onComplete, onClose, user, initialStep 
             ))}
             {filteredCountries.length === 0 && (
               <div style={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', padding: 20 }}>
-                No match — try a different search
+                {t.onboardingNoMatch}
               </div>
             )}
           </div>
@@ -293,7 +293,6 @@ export default function OnboardingFlow({ onComplete, onClose, user, initialStep 
       )
     }
 
-    // Default: HCMC districts + "visiting" option
     return (
       <div style={styles.grid}>
         {OPTIONS.location_hcmc.map(opt => (
@@ -308,7 +307,7 @@ export default function OnboardingFlow({ onComplete, onClose, user, initialStep 
             <span style={styles.iconWrap}>
               <TrailIcon type="district" size={36} color={isSelected(opt.value) ? '#FFD100' : 'rgba(255,255,255,0.85)'} />
             </span>
-            <span style={styles.optionLabel}>{opt.label}</span>
+            <span style={styles.optionLabel}>{t[opt.labelKey] || opt.labelKey}</span>
           </button>
         ))}
         <button
@@ -326,29 +325,36 @@ export default function OnboardingFlow({ onComplete, onClose, user, initialStep 
           <span style={styles.iconWrap}>
             <TrailIcon type="visitor" size={28} color="rgba(255,255,255,0.9)" />
           </span>
-          <span style={styles.optionLabel}>Just Visiting</span>
-          <span style={styles.optionDesc}> — pick your country next</span>
+          <span style={styles.optionLabel}>{t.onboardingJustVisiting}</span>
+          <span style={styles.optionDesc}>{t.onboardingPickCountryNext}</span>
         </button>
       </div>
     )
   }
 
+  // Button text based on state
+  const nextBtnText = saving
+    ? t.onboardingSaving
+    : singleFieldMode
+      ? t.onboardingSave
+      : isLastStep
+        ? t.onboardingLetsGo
+        : t.onboardingNext
+
   return (
     <div style={styles.container}>
-      {/* Progress bar */}
       <div style={styles.progressBar}>
         <div style={{ ...styles.progressFill, width: `${progress}%` }} />
       </div>
 
-      {/* Header */}
       <div style={styles.header}>
         <div style={styles.stepCount}>
-          {singleFieldMode ? 'Edit' : `${stepIndex + 1} / ${totalSteps}`}
+          {singleFieldMode ? t.onboardingEdit : `${stepIndex + 1} / ${totalSteps}`}
         </div>
         <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
           {!singleFieldMode && (
             <button onClick={handleSkip} style={styles.skipBtn}>
-              Skip
+              {t.onboardingSkip}
             </button>
           )}
           {onClose && (
@@ -359,11 +365,9 @@ export default function OnboardingFlow({ onComplete, onClose, user, initialStep 
         </div>
       </div>
 
-      {/* Title */}
       <h2 style={styles.title}>{STEP_TITLES[effectiveStep]}</h2>
       <p style={styles.subtitle}>{STEP_SUBTITLES[effectiveStep]}</p>
 
-      {/* Options */}
       <div style={styles.optionsContainer}>
         {effectiveStep === 'display_name' ? (
           <div style={styles.inputWrap}>
@@ -394,22 +398,20 @@ export default function OnboardingFlow({ onComplete, onClose, user, initialStep 
                 <span style={styles.iconWrap}>
                   <TrailIcon type={opt.value} size={40} color={iconColor(opt.value)} />
                 </span>
-                <span style={styles.optionLabel}>{opt.label}</span>
-                {opt.desc && <span style={styles.optionDesc}>{opt.desc}</span>}
+                <span style={styles.optionLabel}>{t[opt.labelKey] || opt.labelKey}</span>
+                {opt.descKey && <span style={styles.optionDesc}>{t[opt.descKey] || opt.descKey}</span>}
               </button>
             ))}
           </div>
         )}
       </div>
 
-      {/* Error */}
       {error && <div style={styles.error}>{error}</div>}
 
-      {/* Nav buttons */}
       <div style={styles.navRow}>
         {stepIndex > 0 || isLocationCountryStep || singleFieldMode ? (
           <button onClick={handleBack} style={styles.backBtn}>
-            {singleFieldMode ? 'Cancel' : 'Back'}
+            {singleFieldMode ? t.onboardingCancel : t.onboardingBack}
           </button>
         ) : <div />}
         <button
@@ -420,7 +422,7 @@ export default function OnboardingFlow({ onComplete, onClose, user, initialStep 
             opacity: canAdvance() && !saving ? 1 : 0.5,
           }}
         >
-          {saving ? 'Saving...' : singleFieldMode ? 'Save' : isLastStep ? "Let's Go!" : 'Next'}
+          {nextBtnText}
         </button>
       </div>
     </div>

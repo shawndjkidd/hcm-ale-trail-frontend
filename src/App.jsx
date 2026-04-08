@@ -621,6 +621,7 @@ export default function App() {
       {showOnboarding && !showAuth && (
         <OnboardingFlow
           user={user}
+          language={language}
           onComplete={() => setShowOnboarding(false)}
           onClose={() => setShowOnboarding(false)}
         />
