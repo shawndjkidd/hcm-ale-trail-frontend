@@ -29,7 +29,6 @@ const OPTIONS = {
     { value: 'd3', labelKey: 'optDistrict3' },
     { value: 'd7', labelKey: 'optDistrict7' },
     { value: 'binh_thanh', labelKey: 'optBinhThanh' },
-    { value: 'other_hcmc', labelKey: 'optOtherHcmc' },
   ],
   era: [
     { value: 'rookie', labelKey: 'optRookie', descKey: 'descRookie' },
