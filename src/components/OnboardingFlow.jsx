@@ -142,7 +142,7 @@ export default function OnboardingFlow({ onComplete, onClose, user, language = '
 
   const canAdvance = () => {
     if (effectiveStep === 'beer_styles') return selections.beer_styles.length > 0
-    if (effectiveStep === 'display_name') return selections.display_name.trim().length > 0
+    if (effectiveStep === 'display_name') return true // name is optional
     if (effectiveStep === 'location') return selections.neighborhood !== null
     if (effectiveStep === 'location_country') return selections.home_country !== null
     if (effectiveStep === 'lifestyle') return selections.lifestyle !== null
@@ -230,7 +230,24 @@ export default function OnboardingFlow({ onComplete, onClose, user, language = '
     if (stepIndex > 0) setStepIndex(i => i - 1)
   }
 
-  const handleSkip = () => {
+  const handleSkip = async () => {
+    // Save whatever answers we have so far, then complete
+    const payload = {
+      lifestyle: selections.lifestyle,
+      beer_styles: selections.beer_styles,
+      neighborhood: selections.neighborhood,
+      home_country: selections.home_country,
+      era: selections.era,
+      gender: selections.gender,
+      avatar: selections.avatar,
+      display_name: selections.display_name.trim(),
+    }
+    // Only save to server if we have at least one answer
+    const hasAny = payload.lifestyle || payload.beer_styles.length > 0 || payload.era || payload.avatar
+    if (hasAny) {
+      try { await saveOnboardingProfile(payload) } catch {}
+      localStorage.setItem('hcm-onboarding-profile', JSON.stringify(payload))
+    }
     localStorage.setItem('hcm-onboarding-complete', 'true')
     onComplete()
   }

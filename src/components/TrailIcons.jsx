@@ -5,41 +5,50 @@ export default function TrailIcon({ type, size = 32, color = 'currentColor' }) {
   const s = { width: size, height: size, display: 'block', flexShrink: 0 }
 
   // ── LIFESTYLE ──────────────────────────────────────────────
+
+  // Backpack
   if (type === 'backpacker') return (
     <svg viewBox="0 0 32 32" style={s} fill={color}>
-      <rect x="10" y="4" width="12" height="18" rx="3"/>
-      <rect x="12" y="7" width="8" height="4" rx="1" fill="rgba(0,0,0,0.3)"/>
-      <rect x="8" y="10" width="2" height="8" rx="1"/>
-      <rect x="22" y="10" width="2" height="8" rx="1"/>
-      <rect x="13" y="22" width="2" height="5" rx="1"/>
-      <rect x="17" y="22" width="2" height="5" rx="1"/>
+      <rect x="8" y="10" width="16" height="18" rx="4"/>
+      <rect x="11" y="13" width="10" height="6" rx="1.5" fill="rgba(0,0,0,0.3)"/>
+      <path d="M12 10V7a4 4 0 018 0v3" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round"/>
+      <rect x="13" y="21" width="6" height="4" rx="1" fill="rgba(0,0,0,0.25)"/>
     </svg>
   )
+
+  // Laptop / MacBook
   if (type === 'digital_nomad') return (
     <svg viewBox="0 0 32 32" style={s} fill={color}>
-      <rect x="4" y="8" width="24" height="15" rx="2"/>
-      <rect x="6" y="10" width="20" height="11" rx="1" fill="rgba(0,0,0,0.3)"/>
-      <rect x="8" y="24" width="16" height="2" rx="1"/>
-      <circle cx="16" cy="15" r="2" fill="rgba(0,0,0,0.3)"/>
+      <rect x="5" y="6" width="22" height="15" rx="2"/>
+      <rect x="7" y="8" width="18" height="11" rx="1" fill="rgba(0,0,0,0.3)"/>
+      <path d="M2 22h28a1 1 0 010 2H2a1 1 0 010-2z" opacity="0.8"/>
+      <rect x="12" y="22" width="8" height="2" rx="0.5" opacity="0.5"/>
     </svg>
   )
+
+  // Briefcase
   if (type === 'suit') return (
     <svg viewBox="0 0 32 32" style={s} fill={color}>
-      <path d="M8 10L16 4l8 6v18H8V10z"/>
-      <path d="M14 4h4v8l-2 2-2-2V4z" fill="rgba(0,0,0,0.3)"/>
-      <circle cx="16" cy="18" r="1.5" fill="rgba(0,0,0,0.3)"/>
-      <circle cx="16" cy="23" r="1.5" fill="rgba(0,0,0,0.3)"/>
+      <rect x="3" y="12" width="26" height="16" rx="3"/>
+      <path d="M11 12V9a3 3 0 013-3h4a3 3 0 013 3v3" fill="none" stroke={color} strokeWidth="2.5"/>
+      <rect x="3" y="17" width="26" height="3" rx="0" opacity="0.7"/>
+      <rect x="14" y="16" width="4" height="5" rx="1" fill="rgba(0,0,0,0.3)"/>
     </svg>
   )
+
+  // Book
   if (type === 'teacher_ngo') return (
     <svg viewBox="0 0 32 32" style={s} fill={color}>
-      <rect x="6" y="6" width="16" height="20" rx="2"/>
-      <rect x="9" y="10" width="10" height="1.5" rx="0.75" fill="rgba(0,0,0,0.3)"/>
-      <rect x="9" y="14" width="10" height="1.5" rx="0.75" fill="rgba(0,0,0,0.3)"/>
-      <rect x="9" y="18" width="7" height="1.5" rx="0.75" fill="rgba(0,0,0,0.3)"/>
-      <path d="M22 12l4-4v20l-4-4V12z" opacity="0.7"/>
+      <path d="M6 4h10v24H8a2 2 0 01-2-2V4z"/>
+      <path d="M16 4h10v22a2 2 0 01-2 2H16V4z" opacity="0.8"/>
+      <rect x="8" y="8" width="6" height="1.5" rx="0.75" fill="rgba(0,0,0,0.3)"/>
+      <rect x="8" y="12" width="6" height="1.5" rx="0.75" fill="rgba(0,0,0,0.3)"/>
+      <rect x="8" y="16" width="4" height="1.5" rx="0.75" fill="rgba(0,0,0,0.3)"/>
+      <path d="M16 6v22" stroke="rgba(0,0,0,0.2)" strokeWidth="1"/>
     </svg>
   )
+
+  // Graduation cap
   if (type === 'student') return (
     <svg viewBox="0 0 32 32" style={s} fill={color}>
       <path d="M16 4L2 12l14 8 14-8L16 4z"/>
@@ -47,94 +56,142 @@ export default function TrailIcon({ type, size = 32, color = 'currentColor' }) {
       <rect x="27" y="12" width="2" height="12" rx="1" opacity="0.6"/>
     </svg>
   )
+
+  // Sunglasses — chill / just vibing
   if (type === 'just_vibing') return (
     <svg viewBox="0 0 32 32" style={s} fill={color}>
-      <path d="M14 6c-1 0-2 1-2 2v5c0 2 1.5 4 4 4s4-2 4-4V8c0-1-1-2-2-2" opacity="0.8"/>
-      <path d="M10 16c-2 0-3 1-3 3v2c0 1 .5 2 1.5 2" opacity="0.6"/>
-      <path d="M22 16c2 0 3 1 3 3v2c0 1-.5 2-1.5 2" opacity="0.6"/>
-      <circle cx="16" cy="24" r="4"/>
+      <path d="M3 14h26" stroke={color} strokeWidth="2.5" strokeLinecap="round"/>
+      <rect x="3" y="13" width="11" height="8" rx="3"/>
+      <rect x="18" y="13" width="11" height="8" rx="3"/>
+      <rect x="5" y="15" width="7" height="4" rx="1.5" fill="rgba(0,0,0,0.35)"/>
+      <rect x="20" y="15" width="7" height="4" rx="1.5" fill="rgba(0,0,0,0.35)"/>
+      <path d="M14 16c1-1 3-1 4 0" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"/>
     </svg>
   )
 
   // ── BEER STYLES ────────────────────────────────────────────
+
+  // Hop cone
   if (type === 'ipa') return (
     <svg viewBox="0 0 32 32" style={s} fill={color}>
-      <path d="M16 2c-2 0-4 3-4 6 0 2 1 3.5 2.5 4.5L13 28h6l-1.5-15.5C19 11.5 20 10 20 8c0-3-2-6-4-6z"/>
-      <path d="M10 7c-1.5 0-3 1.5-3 3s1 2 2 2.5" opacity="0.6"/>
-      <path d="M22 7c1.5 0 3 1.5 3 3s-1 2-2 2.5" opacity="0.6"/>
+      <ellipse cx="16" cy="14" rx="4" ry="5"/>
+      <ellipse cx="11" cy="12" rx="3.5" ry="4" transform="rotate(-15 11 12)" opacity="0.75"/>
+      <ellipse cx="21" cy="12" rx="3.5" ry="4" transform="rotate(15 21 12)" opacity="0.75"/>
+      <ellipse cx="12" cy="18" rx="3" ry="3.5" transform="rotate(-10 12 18)" opacity="0.6"/>
+      <ellipse cx="20" cy="18" rx="3" ry="3.5" transform="rotate(10 20 18)" opacity="0.6"/>
+      <ellipse cx="16" cy="20" rx="3" ry="3" opacity="0.5"/>
+      <rect x="15" y="22" width="2" height="7" rx="1"/>
+      <path d="M13 27c0 2 6 2 6 0" fill="none" stroke={color} strokeWidth="1.5"/>
     </svg>
   )
+
+  // Beer mug with handle
   if (type === 'lager') return (
     <svg viewBox="0 0 32 32" style={s} fill={color}>
-      <rect x="10" y="6" width="12" height="22" rx="2"/>
-      <rect x="12" y="6" width="8" height="5" rx="1" fill="rgba(0,0,0,0.3)"/>
-      <rect x="22" y="10" width="4" height="10" rx="2" opacity="0.6"/>
+      <rect x="7" y="6" width="14" height="22" rx="2"/>
+      <rect x="9" y="6" width="10" height="5" rx="1" fill="rgba(0,0,0,0.3)"/>
+      <path d="M21 10h4a3 3 0 013 3v4a3 3 0 01-3 3h-4" opacity="0.6"/>
     </svg>
   )
+
+  // Coffee bean / dark chocolate bar — dark, rich stout
   if (type === 'stout') return (
     <svg viewBox="0 0 32 32" style={s} fill={color}>
-      <path d="M10 4h12l1 24H9L10 4z"/>
-      <rect x="10" y="4" width="12" height="8" rx="1" opacity="0.9"/>
-      <rect x="12" y="6" width="8" height="4" rx="1" fill="rgba(0,0,0,0.3)"/>
+      <rect x="8" y="4" width="16" height="24" rx="2"/>
+      <line x1="8" y1="10" x2="24" y2="10" stroke="rgba(0,0,0,0.3)" strokeWidth="1.5"/>
+      <line x1="8" y1="16" x2="24" y2="16" stroke="rgba(0,0,0,0.3)" strokeWidth="1.5"/>
+      <line x1="8" y1="22" x2="24" y2="22" stroke="rgba(0,0,0,0.3)" strokeWidth="1.5"/>
+      <line x1="16" y1="4" x2="16" y2="28" stroke="rgba(0,0,0,0.3)" strokeWidth="1.5"/>
+      <rect x="8" y="4" width="16" height="6" rx="2" opacity="0.85"/>
     </svg>
   )
+
+  // Lemon wedge
   if (type === 'sour') return (
     <svg viewBox="0 0 32 32" style={s} fill={color}>
-      <circle cx="16" cy="16" r="11"/>
-      <path d="M11 13c0-1 1-2 2-1s0 3-1 3" fill="rgba(0,0,0,0.3)"/>
-      <path d="M19 13c0-1 1-2 2-1s0 3-1 3" fill="rgba(0,0,0,0.3)"/>
-      <path d="M12 21c1.5 1.5 5 1.5 8 0" stroke="rgba(0,0,0,0.3)" strokeWidth="2" fill="none" strokeLinecap="round"/>
+      <path d="M16 4A14 14 0 0030 18H2A14 14 0 0116 4z"/>
+      <path d="M16 8v9" stroke="rgba(0,0,0,0.3)" strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M12 9l3 8" stroke="rgba(0,0,0,0.3)" strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M20 9l-3 8" stroke="rgba(0,0,0,0.3)" strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M9 12l5.5 5" stroke="rgba(0,0,0,0.3)" strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M23 12l-5.5 5" stroke="rgba(0,0,0,0.3)" strokeWidth="1.5" strokeLinecap="round"/>
+      <rect x="2" y="17" width="28" height="4" rx="2" opacity="0.7"/>
     </svg>
   )
+
+  // Wheat stalk
   if (type === 'wheat') return (
     <svg viewBox="0 0 32 32" style={s} fill={color}>
-      <rect x="15" y="14" width="2" height="16" rx="1"/>
-      <ellipse cx="16" cy="12" rx="3" ry="4"/>
-      <ellipse cx="11" cy="14" rx="2.5" ry="3.5" transform="rotate(-20 11 14)" opacity="0.7"/>
-      <ellipse cx="21" cy="14" rx="2.5" ry="3.5" transform="rotate(20 21 14)" opacity="0.7"/>
-      <ellipse cx="9" cy="19" rx="2" ry="3" transform="rotate(-30 9 19)" opacity="0.5"/>
-      <ellipse cx="23" cy="19" rx="2" ry="3" transform="rotate(30 23 19)" opacity="0.5"/>
+      <rect x="15" y="16" width="2" height="14" rx="1"/>
+      <ellipse cx="16" cy="10" rx="3" ry="5"/>
+      <ellipse cx="11.5" cy="12" rx="2.5" ry="4" transform="rotate(-25 11.5 12)" opacity="0.75"/>
+      <ellipse cx="20.5" cy="12" rx="2.5" ry="4" transform="rotate(25 20.5 12)" opacity="0.75"/>
+      <ellipse cx="9" cy="17" rx="2" ry="3" transform="rotate(-35 9 17)" opacity="0.55"/>
+      <ellipse cx="23" cy="17" rx="2" ry="3" transform="rotate(35 23 17)" opacity="0.55"/>
     </svg>
   )
+
+  // Question mark — surprise me
   if (type === 'surprise') return (
     <svg viewBox="0 0 32 32" style={s} fill={color}>
-      <rect x="6" y="6" width="20" height="20" rx="4"/>
-      <circle cx="11" cy="13" r="2.5" fill="rgba(0,0,0,0.3)"/>
-      <circle cx="21" cy="13" r="2.5" fill="rgba(0,0,0,0.3)"/>
-      <circle cx="11" cy="22" r="2.5" fill="rgba(0,0,0,0.3)"/>
-      <circle cx="21" cy="22" r="2.5" fill="rgba(0,0,0,0.3)"/>
-      <circle cx="16" cy="17.5" r="2.5" fill="rgba(0,0,0,0.3)"/>
+      <circle cx="16" cy="16" r="13" opacity="0.25"/>
+      <path d="M12 12a5 5 0 019.5 1.5c0 2.5-3 3-3.5 5.5" fill="none" stroke={color} strokeWidth="3" strokeLinecap="round"/>
+      <circle cx="16" cy="24" r="2"/>
     </svg>
   )
 
   // ── BEER EXPERIENCE ────────────────────────────────────────
+
+  // Single beer bottle — beginner
   if (type === 'rookie') return (
     <svg viewBox="0 0 32 32" style={s} fill={color}>
-      <rect x="14" y="16" width="4" height="12" rx="2"/>
-      <ellipse cx="16" cy="12" rx="5" ry="6"/>
-      <path d="M13 9c1-2 5-2 6 0" stroke="rgba(0,0,0,0.3)" strokeWidth="1.5" fill="none"/>
+      <rect x="13" y="2" width="6" height="4" rx="1"/>
+      <path d="M13 6h6l1 4h-8l1-4z" opacity="0.7"/>
+      <rect x="11" y="10" width="10" height="18" rx="2"/>
+      <rect x="12" y="14" width="8" height="6" rx="1" fill="rgba(0,0,0,0.3)"/>
     </svg>
   )
+
+  // Six-pack — knows their stuff
   if (type === 'prime') return (
     <svg viewBox="0 0 32 32" style={s} fill={color}>
-      <path d="M16 4l-6 4v8l6 4 6-4V8l-6-4z"/>
-      <path d="M16 20v8" stroke={color} strokeWidth="3" strokeLinecap="round"/>
-      <path d="M10 26h12" stroke={color} strokeWidth="3" strokeLinecap="round"/>
+      <rect x="3" y="8" width="8" height="14" rx="1.5"/>
+      <rect x="12" y="8" width="8" height="14" rx="1.5"/>
+      <rect x="21" y="8" width="8" height="14" rx="1.5"/>
+      <rect x="3" y="23" width="8" height="5" rx="1.5" opacity="0.6"/>
+      <rect x="12" y="23" width="8" height="5" rx="1.5" opacity="0.6"/>
+      <rect x="21" y="23" width="8" height="5" rx="1.5" opacity="0.6"/>
+      <rect x="4" y="11" width="6" height="4" rx="0.5" fill="rgba(0,0,0,0.25)"/>
+      <rect x="13" y="11" width="6" height="4" rx="0.5" fill="rgba(0,0,0,0.25)"/>
+      <rect x="22" y="11" width="6" height="4" rx="0.5" fill="rgba(0,0,0,0.25)"/>
     </svg>
   )
+
+  // Beer flight paddle — tried it all
   if (type === 'seasoned') return (
     <svg viewBox="0 0 32 32" style={s} fill={color}>
-      <path d="M16 2l4 8h8l-6.5 5 2.5 9L16 19l-8 5 2.5-9L4 10h8l4-8z"/>
+      <rect x="2" y="20" width="28" height="4" rx="2"/>
+      <rect x="26" y="18" width="4" height="8" rx="2" opacity="0.6"/>
+      <path d="M5 20v-6a3 3 0 016 0v6" opacity="0.9"/>
+      <path d="M13 20v-8a3 3 0 016 0v8" opacity="0.8"/>
+      <path d="M21 20v-6a3 3 0 016 0v6" opacity="0.7"/>
+      <rect x="6" y="12" width="4" height="2" rx="0.5" fill="rgba(0,0,0,0.3)"/>
+      <rect x="14" y="10" width="4" height="2" rx="0.5" fill="rgba(0,0,0,0.3)"/>
+      <rect x="22" y="12" width="4" height="2" rx="0.5" fill="rgba(0,0,0,0.3)"/>
     </svg>
   )
+
+  // Beer barrel / keg — OG veteran
   if (type === 'og') return (
     <svg viewBox="0 0 32 32" style={s} fill={color}>
-      <path d="M6 14L9 6h14l3 8-2 4H8l-2-4z"/>
-      <circle cx="11" cy="10" r="1.5" fill="rgba(0,0,0,0.3)"/>
-      <circle cx="16" cy="8" r="2" fill="rgba(0,0,0,0.3)"/>
-      <circle cx="21" cy="10" r="1.5" fill="rgba(0,0,0,0.3)"/>
-      <rect x="8" y="18" width="16" height="4" rx="1"/>
-      <rect x="10" y="22" width="12" height="6" rx="1" opacity="0.7"/>
+      <ellipse cx="16" cy="6" rx="10" ry="4"/>
+      <ellipse cx="16" cy="26" rx="10" ry="4" opacity="0.8"/>
+      <rect x="6" y="6" width="20" height="20" rx="0"/>
+      <path d="M6 6c0 0-2 8-2 10s2 10 2 10" fill="none" stroke={color} strokeWidth="1"/>
+      <path d="M26 6c0 0 2 8 2 10s-2 10-2 10" fill="none" stroke={color} strokeWidth="1"/>
+      <ellipse cx="16" cy="16" rx="10" ry="4.5" fill="rgba(0,0,0,0.2)"/>
+      <circle cx="16" cy="16" r="3" fill="rgba(0,0,0,0.3)"/>
+      <rect x="14.5" y="13" width="3" height="2" rx="0.5" fill="rgba(0,0,0,0.3)"/>
     </svg>
   )
 
@@ -161,6 +218,8 @@ export default function TrailIcon({ type, size = 32, color = 'currentColor' }) {
   )
 
   // ── VESSELS / AVATARS ──────────────────────────────────────
+
+  // Pilsner glass — tapered
   if (type === 'glass') return (
     <svg viewBox="0 0 32 32" style={s} fill={color}>
       <path d="M11 4h10l-1.5 16h-7L11 4z"/>
@@ -168,46 +227,129 @@ export default function TrailIcon({ type, size = 32, color = 'currentColor' }) {
       <rect x="10" y="24" width="12" height="3" rx="1.5"/>
     </svg>
   )
+
+  // Pint glass — classic
   if (type === 'pint') return (
     <svg viewBox="0 0 32 32" style={s} fill={color}>
       <path d="M9 3h14l-2 26h-10L9 3z"/>
       <rect x="9" y="3" width="14" height="5" rx="1" opacity="0.6"/>
     </svg>
   )
+
+  // Growler jug — round body with handle and cap
   if (type === 'growler') return (
     <svg viewBox="0 0 32 32" style={s} fill={color}>
       <rect x="13" y="2" width="6" height="3" rx="1.5"/>
-      <path d="M11 5h10c1 0 2 1 2 2v2c0 1-.5 1.5-1.5 2L20 12v14c0 2-1.5 3-3 3h-2c-1.5 0-3-1-3-3V12l-1.5-1C9.5 10.5 9 10 9 9V7c0-1 1-2 2-2z"/>
-    </svg>
-  )
-  if (type === 'tower') return (
-    <svg viewBox="0 0 32 32" style={s} fill={color}>
-      <rect x="14" y="1" width="4" height="2" rx="1"/>
-      <circle cx="16" cy="6" r="3"/>
-      <rect x="14.5" y="9" width="3" height="14" rx="1"/>
-      <path d="M18 14h3c1 0 1.5.5 1.5 1.5v2c0 1-.5 1.5-1.5 1.5h-3" opacity="0.7"/>
-      <rect x="11" y="23" width="10" height="3" rx="1.5"/>
-      <rect x="9" y="26" width="14" height="3" rx="1.5"/>
+      <path d="M14 5h4l1 3h-6l1-3z" opacity="0.7"/>
+      <ellipse cx="16" cy="18" rx="9" ry="10"/>
+      <path d="M25 14c2 0 3 1.5 3 3v3c0 1.5-1 3-3 3" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round"/>
+      <rect x="13" y="8" width="6" height="3" rx="1" opacity="0.7"/>
     </svg>
   )
 
-  // ── LOCATION ───────────────────────────────────────────────
-  if (type === 'district') return (
+  // Beer tower — tall cylinder with tap/spout
+  if (type === 'tower') return (
     <svg viewBox="0 0 32 32" style={s} fill={color}>
-      <rect x="4" y="14" width="8" height="14" rx="1"/>
-      <rect x="12" y="8" width="8" height="20" rx="1" opacity="0.8"/>
-      <rect x="20" y="12" width="8" height="16" rx="1" opacity="0.6"/>
-      <rect x="6" y="17" width="2" height="2" rx="0.5" fill="rgba(0,0,0,0.3)"/>
-      <rect x="6" y="22" width="2" height="2" rx="0.5" fill="rgba(0,0,0,0.3)"/>
-      <rect x="14" y="11" width="2" height="2" rx="0.5" fill="rgba(0,0,0,0.3)"/>
-      <rect x="14" y="17" width="2" height="2" rx="0.5" fill="rgba(0,0,0,0.3)"/>
+      <ellipse cx="16" cy="5" rx="5" ry="2.5"/>
+      <rect x="11" y="5" width="10" height="18" rx="0"/>
+      <ellipse cx="16" cy="23" rx="5" ry="2.5" opacity="0.8"/>
+      <rect x="13" y="2" width="6" height="3" rx="1"/>
+      <path d="M21 15h4l1 3h-2v3h-3" opacity="0.75"/>
+      <circle cx="24" cy="21" r="1.5" fill="rgba(0,0,0,0.3)"/>
+      <rect x="9" y="25" width="14" height="3" rx="1.5"/>
+      <rect x="7" y="28" width="18" height="2" rx="1"/>
     </svg>
   )
-  if (type === 'visitor') return (
+
+  // ── LOCATION — HCMC DISTRICTS ─────────────────────────────
+
+  // District 1 — Bitexco Financial Tower (helipad skyscraper)
+  if (type === 'd1' || type === 'district') return (
     <svg viewBox="0 0 32 32" style={s} fill={color}>
-      <path d="M4 16L16 4l8 6-8 12H8l-4-6z" opacity="0.8"/>
-      <path d="M16 4l12 8-4 6-8-2V4z"/>
-      <rect x="14" y="22" width="4" height="8" rx="1" opacity="0.5"/>
+      <path d="M14 28h4V6l-2-3-2 3v22z"/>
+      <path d="M11 28h10l-1-8h-8l-1 8z" opacity="0.7"/>
+      <path d="M18 14h5c1 0 1 1 0 2h-5" opacity="0.6"/>
+      <rect x="15" y="8" width="2" height="2" rx="0.5" fill="rgba(0,0,0,0.3)"/>
+      <rect x="15" y="12" width="2" height="2" rx="0.5" fill="rgba(0,0,0,0.3)"/>
+      <rect x="15" y="20" width="2" height="2" rx="0.5" fill="rgba(0,0,0,0.3)"/>
+    </svg>
+  )
+
+  // D2 / Thu Duc — Landmark 81 (tallest building, tapered top)
+  if (type === 'd2') return (
+    <svg viewBox="0 0 32 32" style={s} fill={color}>
+      <path d="M14 28h4V4l-2-2-2 2v24z"/>
+      <path d="M12 28h8V12h-8v16z" opacity="0.6"/>
+      <path d="M10 28h12V18H10v10z" opacity="0.4"/>
+      <rect x="15" y="6" width="2" height="1.5" rx="0.5" fill="rgba(0,0,0,0.3)"/>
+      <rect x="15" y="10" width="2" height="1.5" rx="0.5" fill="rgba(0,0,0,0.3)"/>
+      <rect x="13" y="15" width="2" height="1.5" rx="0.5" fill="rgba(0,0,0,0.3)"/>
+      <rect x="17" y="15" width="2" height="1.5" rx="0.5" fill="rgba(0,0,0,0.3)"/>
+    </svg>
+  )
+
+  // District 3 — Notre-Dame Cathedral (twin spires)
+  if (type === 'd3') return (
+    <svg viewBox="0 0 32 32" style={s} fill={color}>
+      <rect x="8" y="14" width="16" height="14" rx="1"/>
+      <path d="M10 14V10l2-4 2 4v4" opacity="0.9"/>
+      <path d="M18 14V10l2-4 2 4v4" opacity="0.9"/>
+      <path d="M10 3l2-1 2 1" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M18 3l2-1 2 1" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round"/>
+      <circle cx="16" cy="18" r="3" fill="rgba(0,0,0,0.3)"/>
+      <rect x="14" y="22" width="4" height="6" rx="1" fill="rgba(0,0,0,0.3)"/>
+    </svg>
+  )
+
+  // District 7 — modern building / Crescent shape
+  if (type === 'd7') return (
+    <svg viewBox="0 0 32 32" style={s} fill={color}>
+      <rect x="4" y="12" width="10" height="16" rx="1"/>
+      <rect x="18" y="8" width="10" height="20" rx="1" opacity="0.8"/>
+      <rect x="6" y="15" width="3" height="2" rx="0.5" fill="rgba(0,0,0,0.3)"/>
+      <rect x="6" y="20" width="3" height="2" rx="0.5" fill="rgba(0,0,0,0.3)"/>
+      <rect x="6" y="25" width="3" height="2" rx="0.5" fill="rgba(0,0,0,0.3)"/>
+      <rect x="20" y="11" width="3" height="2" rx="0.5" fill="rgba(0,0,0,0.3)"/>
+      <rect x="20" y="16" width="3" height="2" rx="0.5" fill="rgba(0,0,0,0.3)"/>
+      <rect x="20" y="21" width="3" height="2" rx="0.5" fill="rgba(0,0,0,0.3)"/>
+      <rect x="24" y="11" width="3" height="2" rx="0.5" fill="rgba(0,0,0,0.3)"/>
+      <rect x="24" y="16" width="3" height="2" rx="0.5" fill="rgba(0,0,0,0.3)"/>
+    </svg>
+  )
+
+  // Binh Thanh — bridge (Saigon Bridge area)
+  if (type === 'binh_thanh') return (
+    <svg viewBox="0 0 32 32" style={s} fill={color}>
+      <rect x="2" y="18" width="28" height="4" rx="1"/>
+      <rect x="4" y="14" width="3" height="8" rx="0.5"/>
+      <rect x="25" y="14" width="3" height="8" rx="0.5"/>
+      <path d="M5 14c0-5 5-8 11-8s11 3 11 8" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+      <line x1="10" y1="10" x2="10" y2="18" stroke={color} strokeWidth="1.5"/>
+      <line x1="16" y1="6" x2="16" y2="18" stroke={color} strokeWidth="1.5"/>
+      <line x1="22" y1="10" x2="22" y2="18" stroke={color} strokeWidth="1.5"/>
+    </svg>
+  )
+
+  // Other HCMC — motorbike / scooter
+  if (type === 'other_hcmc') return (
+    <svg viewBox="0 0 32 32" style={s} fill={color}>
+      <circle cx="8" cy="24" r="5"/>
+      <circle cx="8" cy="24" r="2.5" fill="rgba(0,0,0,0.3)"/>
+      <circle cx="24" cy="24" r="5"/>
+      <circle cx="24" cy="24" r="2.5" fill="rgba(0,0,0,0.3)"/>
+      <path d="M13 24h6" stroke={color} strokeWidth="2"/>
+      <path d="M12 24l3-8h6l3 2-2 6" fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round"/>
+      <path d="M15 16l-3-4h4" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+
+  // Visitor — globe / world
+  if (type === 'visitor') return (
+    <svg viewBox="0 0 32 32" style={s} fill="none" stroke={color} strokeWidth="2">
+      <circle cx="16" cy="16" r="12"/>
+      <ellipse cx="16" cy="16" rx="5" ry="12"/>
+      <path d="M4 12h24" strokeWidth="1.5"/>
+      <path d="M4 20h24" strokeWidth="1.5"/>
     </svg>
   )
 
