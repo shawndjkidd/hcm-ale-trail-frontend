@@ -5392,8 +5392,8 @@ body.night-mode .ale-trail-map-page {
 /* ========== SETTINGS PAGE ========== */
 .settings-page {
   min-height: 100vh;
-  background: var(--white, #fff);
-  color: var(--black, #000);
+  background: #1a1a1a;
+  color: #f0f0f0;
   font-family: var(--font-display, 'Inter', 'Impact', sans-serif);
   padding-bottom: 2rem;
 }
@@ -5444,9 +5444,10 @@ body.night-mode .ale-trail-map-page {
 }
 
 .settings-section {
-  border: 3px solid var(--black, #000);
+  border: 3px solid #333;
   border-radius: 6px;
   overflow: hidden;
+  background: #222;
 }
 
 .settings-section-title {
@@ -5458,7 +5459,7 @@ body.night-mode .ale-trail-map-page {
   text-transform: uppercase;
   margin: 0;
   padding: 0.6rem 1rem;
-  border-bottom: 3px solid var(--black, #000);
+  border-bottom: 3px solid #333;
 }
 
 .settings-field {
@@ -5473,16 +5474,16 @@ body.night-mode .ale-trail-map-page {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #555;
+  color: #aaa;
 }
 
 .settings-email-display {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--black, #000);
+  color: #f0f0f0;
   padding: 0.5rem 0.75rem;
-  background: #f4f4f4;
-  border: 2px solid #ddd;
+  background: #2a2a2a;
+  border: 2px solid #444;
   border-radius: 4px;
   word-break: break-all;
 }
@@ -5494,7 +5495,7 @@ body.night-mode .ale-trail-map-page {
 }
 
 .settings-form .settings-field {
-  border-bottom: 2px solid #eee;
+  border-bottom: 2px solid #333;
 }
 
 .settings-form .settings-field:last-of-type {
@@ -5505,10 +5506,10 @@ body.night-mode .ale-trail-map-page {
   font-size: 1rem;
   font-family: inherit;
   padding: 0.55rem 0.75rem;
-  border: 2px solid var(--black, #000);
+  border: 2px solid #555;
   border-radius: 4px;
-  background: var(--white, #fff);
-  color: var(--black, #000);
+  background: #2a2a2a;
+  color: #f0f0f0;
   width: 100%;
   box-sizing: border-box;
 }
@@ -5522,10 +5523,10 @@ body.night-mode .ale-trail-map-page {
 .settings-error {
   margin: 0 1rem 0.75rem;
   padding: 0.6rem 0.85rem;
-  background: #fff0f0;
-  border: 2px solid var(--red-primary, #E31E24);
+  background: #2a0000;
+  border: 2px solid #ff4444;
   border-radius: 4px;
-  color: var(--red-primary, #E31E24);
+  color: #ff6666;
   font-size: 0.875rem;
   font-weight: 600;
 }
@@ -5533,10 +5534,10 @@ body.night-mode .ale-trail-map-page {
 .settings-success {
   margin: 0 1rem 0.75rem;
   padding: 0.6rem 0.85rem;
-  background: #f0fff4;
-  border: 2px solid #00B050;
+  background: #002a10;
+  border: 2px solid #00c060;
   border-radius: 4px;
-  color: #006d2c;
+  color: #00e070;
   font-size: 0.875rem;
   font-weight: 600;
 }
@@ -5546,7 +5547,7 @@ body.night-mode .ale-trail-map-page {
   padding: 0.75rem 1.5rem;
   background: var(--red-primary, #E31E24);
   color: var(--white, #fff);
-  border: 3px solid var(--black, #000);
+  border: 3px solid #444;
   border-radius: 4px;
   font-family: inherit;
   font-size: 0.9rem;
@@ -5566,43 +5567,7 @@ body.night-mode .ale-trail-map-page {
   cursor: not-allowed;
 }
 
-/* Night mode overrides */
-body.night-mode .settings-page {
-  background: #1a1a1a;
-  color: #f0f0f0;
-}
-
-body.night-mode .settings-email-display {
-  background: #2a2a2a;
-  border-color: #444;
-  color: #f0f0f0;
-}
-
-body.night-mode .settings-input {
-  background: #2a2a2a;
-  border-color: #555;
-  color: #f0f0f0;
-}
-
-body.night-mode .settings-label {
-  color: #aaa;
-}
-
-body.night-mode .settings-form .settings-field {
-  border-bottom-color: #333;
-}
-
-body.night-mode .settings-error {
-  background: #2a0000;
-  border-color: #ff4444;
-  color: #ff6666;
-}
-
-body.night-mode .settings-success {
-  background: #002a10;
-  border-color: #00c060;
-  color: #00e070;
-}
+/* Settings page is always dark — no night-mode overrides needed */
 
 /* ============================================
    PIN VERIFICATION STEP (AddBeerModal Step 2)
@@ -6498,8 +6463,8 @@ body.night-mode .brewery-event-item.event-new-release {
   letter-spacing: 1px;
   padding: 0.3rem 0.75rem;
   background: transparent;
-  color: var(--text-secondary, #888);
-  border: 2px solid #aaa;
+  color: #aaa;
+  border: 2px solid #555;
   border-radius: 6px;
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
@@ -6530,8 +6495,8 @@ body.night-mode .brewery-event-item.event-new-release {
   font-size: 0.85rem;
   letter-spacing: 1px;
   background: transparent;
-  color: var(--text-secondary, #888);
-  border: 2px solid #aaa;
+  color: #aaa;
+  border: 2px solid #555;
   border-radius: 6px;
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
@@ -6542,25 +6507,7 @@ body.night-mode .brewery-event-item.event-new-release {
   color: #CC2222;
 }
 
-/* Dark mode */
-body.night-mode .settings-edit-btn {
-  color: #aaa;
-  border-color: #555;
-}
-
-body.night-mode .settings-edit-btn:hover {
-  border-color: #FFC700;
-  color: #FFC700;
-}
-
-body.night-mode .settings-cancel-btn {
-  color: #aaa;
-  border-color: #555;
-}
-
-body.night-mode .settings-cancel-btn:hover {
-  border-color: #CC2222;
-  color: #CC2222;
+/* Settings page is always dark — night-mode overrides removed
 }
 
 /* ── Google Sign-In ──────────────────────────────────────────────────────── */
@@ -6635,6 +6582,7 @@ body.night-mode .google-signin-btn:hover:not(:disabled) {
 /* ============================================
    TRAIL PROFILE ROWS (Settings page)
    ============================================ */
+/* Profile rows — always dark to match settings page */
 .profile-row {
   display: flex;
   align-items: center;
@@ -6642,7 +6590,7 @@ body.night-mode .google-signin-btn:hover:not(:disabled) {
   padding: 12px 16px;
   background: none;
   border: none;
-  border-bottom: 1px solid rgba(0,0,0,0.08);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
   cursor: pointer;
   text-align: left;
 }
@@ -6665,7 +6613,7 @@ body.night-mode .google-signin-btn:hover:not(:disabled) {
 }
 
 .profile-row-label {
-  color: #888;
+  color: rgba(255,255,255,0.5);
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
@@ -6673,14 +6621,14 @@ body.night-mode .google-signin-btn:hover:not(:disabled) {
 }
 
 .profile-row-value {
-  color: #1a1a1a;
+  color: #fff;
   font-size: 14px;
   font-weight: 800;
   margin-top: 2px;
 }
 
 .profile-row-chevron {
-  color: rgba(0,0,0,0.25);
+  color: rgba(255,255,255,0.3);
   font-size: 18px;
   flex-shrink: 0;
   padding-left: 8px;
@@ -6704,32 +6652,7 @@ body.night-mode .google-signin-btn:hover:not(:disabled) {
 }
 
 .profile-row-chip span {
-  color: #b89700;
+  color: #FFD100;
   font-size: 12px;
   font-weight: 800;
-}
-
-/* Night mode overrides for profile rows */
-body.night-mode .profile-row {
-  border-bottom-color: rgba(255,255,255,0.1);
-}
-
-body.night-mode .profile-row-label {
-  color: rgba(255,255,255,0.5);
-}
-
-body.night-mode .profile-row-value {
-  color: #fff;
-}
-
-body.night-mode .profile-row-chevron {
-  color: rgba(255,255,255,0.3);
-}
-
-body.night-mode .profile-row-chip {
-  background: rgba(255,209,0,0.15);
-}
-
-body.night-mode .profile-row-chip span {
-  color: #FFD100;
 }

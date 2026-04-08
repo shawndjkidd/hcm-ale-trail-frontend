@@ -24,11 +24,11 @@ const OPTIONS = {
     { value: 'surprise', labelKey: 'optSurprise' },
   ],
   location_hcmc: [
-    { value: 'd1', labelKey: 'optDistrict1' },
+    { value: 'd1', labelKey: 'optD1D3' },
     { value: 'd2', labelKey: 'optD2' },
-    { value: 'd3', labelKey: 'optDistrict3' },
     { value: 'd7', labelKey: 'optDistrict7' },
     { value: 'binh_thanh', labelKey: 'optBinhThanh' },
+    { value: 'other_hcmc', labelKey: 'optOtherHcmc' },
   ],
   era: [
     { value: 'rookie', labelKey: 'optRookie', descKey: 'descRookie' },
@@ -282,7 +282,7 @@ export default function OnboardingFlow({ onComplete, onClose, user, language = '
               autoFocus
             />
           </div>
-          <div style={{ ...styles.grid, gridTemplateColumns: '1fr', gap: 8, maxHeight: '45vh', overflowY: 'auto' }}>
+          <div style={{ ...styles.grid, gridTemplateColumns: '1fr', gap: 8, maxHeight: '45vh', overflowY: 'auto', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
             {filteredCountries.map(c => (
               <button
                 key={c.value}
@@ -330,19 +330,14 @@ export default function OnboardingFlow({ onComplete, onClose, user, language = '
           onClick={() => handleSelect('_visitor')}
           style={{
             ...styles.optionBtn,
-            gridColumn: '1 / -1',
-            flexDirection: 'row',
-            justifyContent: 'center',
-            gap: 8,
-            background: 'rgba(255,209,0,0.15)',
-            border: '3px solid rgba(255,209,0,0.4)',
+            background: 'rgba(255,209,0,0.12)',
+            border: '3px solid rgba(255,209,0,0.35)',
           }}
         >
           <span style={styles.iconWrap}>
-            <TrailIcon type="visitor" size={28} color="rgba(255,255,255,0.9)" />
+            <TrailIcon type="visitor" size={36} color="rgba(255,255,255,0.9)" />
           </span>
           <span style={styles.optionLabel}>{t.onboardingJustVisiting}</span>
-          <span style={styles.optionDesc}>{t.onboardingPickCountryNext}</span>
         </button>
       </div>
     )
@@ -562,6 +557,7 @@ const styles = {
     gap: 4,
     cursor: 'pointer',
     transition: 'all 0.15s ease',
+    outline: 'none',
   },
   optionSelected: {
     background: 'rgba(0,0,0,0.6)',
