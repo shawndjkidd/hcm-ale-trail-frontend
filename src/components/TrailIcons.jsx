@@ -190,6 +190,15 @@ export default function TrailIcon({ type, size = 32, color = 'currentColor' }) {
       <line x1="12" y1="26" x2="20" y2="26"/>
     </svg>
   )
+  if (type === 'other') return (
+    <svg viewBox="0 0 32 32" style={s} fill="none" stroke={color} strokeWidth="2.5">
+      <circle cx="16" cy="16" r="7"/>
+      <line x1="16" y1="9" x2="16" y2="2"/>
+      <line x1="16" y1="23" x2="16" y2="30"/>
+      <line x1="21" y1="11" x2="26" y2="6"/>
+      <polyline points="22,6 26,6 26,10"/>
+    </svg>
+  )
   if (type === 'skip') return (
     <svg viewBox="0 0 32 32" style={s} fill={color}>
       <circle cx="16" cy="16" r="12" opacity="0.3"/>

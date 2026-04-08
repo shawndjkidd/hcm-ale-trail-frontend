@@ -39,7 +39,7 @@ const OPTIONS = {
   gender: [
     { value: 'male', labelKey: 'optMale' },
     { value: 'female', labelKey: 'optFemale' },
-    { value: 'skip', labelKey: 'optSkip' },
+    { value: 'other', labelKey: 'optOther' },
   ],
   avatar: [
     { value: 'glass', labelKey: 'optGlass', descKey: 'descGlass' },
@@ -419,6 +419,27 @@ export default function OnboardingFlow({ onComplete, onClose, user, language = '
               </button>
             ))}
           </div>
+          {effectiveStep === 'gender' && (
+            <button
+              onClick={() => handleSelect('skip')}
+              style={{
+                ...styles.optionBtn,
+                flexDirection: 'row',
+                justifyContent: 'center',
+                gap: 8,
+                padding: '10px 16px',
+                marginTop: 12,
+                background: 'rgba(255,255,255,0.1)',
+                border: '2px solid rgba(255,255,255,0.2)',
+                ...(isSelected('skip') ? { ...styles.optionSelected, background: 'rgba(0,0,0,0.6)' } : {}),
+              }}
+            >
+              <TrailIcon type="skip" size={20} color={isSelected('skip') ? '#FFD100' : 'rgba(255,255,255,0.6)'} />
+              <span style={{ ...styles.optionLabel, fontSize: 13, color: isSelected('skip') ? '#FFD100' : 'rgba(255,255,255,0.6)' }}>
+                {t.optSkip}
+              </span>
+            </button>
+          )}
         )}
       </div>
 
