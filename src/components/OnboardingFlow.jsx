@@ -321,7 +321,7 @@ export default function OnboardingFlow({ onComplete, onClose, user, language = '
             }}
           >
             <span style={styles.iconWrap}>
-              <TrailIcon type="district" size={36} color={isSelected(opt.value) ? '#FFD100' : 'rgba(255,255,255,0.85)'} />
+              <TrailIcon type={opt.value} size={36} color={isSelected(opt.value) ? '#FFD100' : 'rgba(255,255,255,0.85)'} />
             </span>
             <span style={styles.optionLabel}>{t[opt.labelKey] || opt.labelKey}</span>
           </button>
