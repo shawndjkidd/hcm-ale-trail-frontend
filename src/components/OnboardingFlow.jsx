@@ -41,10 +41,10 @@ const OPTIONS = {
     { value: 'skip', label: 'Rather Not Say', emoji: '🤐' },
   ],
   avatar: [
-    { value: 'pint', label: 'Pint', emoji: '🍺', desc: 'Classic & reliable' },
-    { value: 'glass', label: 'Glass', emoji: '🥂', desc: 'Keep it classy' },
-    { value: 'growler', label: 'Growler', emoji: '🍻', desc: 'Go big or go home' },
-    { value: 'tower', label: 'Tower', emoji: '🗼', desc: 'Party mode activated' },
+    { value: 'glass', label: 'Glass', emoji: '◇', desc: 'Light & easy' },
+    { value: 'pint', label: 'Pint', emoji: '◆', desc: 'Classic & reliable' },
+    { value: 'growler', label: 'Growler', emoji: '⬡', desc: 'Go big or go home' },
+    { value: 'tower', label: 'Tower', emoji: '⬢', desc: 'Party mode activated' },
   ],
 }
 

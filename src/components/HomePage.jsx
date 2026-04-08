@@ -237,10 +237,13 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
       </div>
 
       <div className="nav-row-full">
-        <button className="nav-btn-half yellow" onClick={() => onNavigate('mybeers')}>
+        <button className="nav-btn-third yellow" onClick={() => onNavigate('settings')}>
+          {t.profile || 'PROFILE'}
+        </button>
+        <button className="nav-btn-third yellow" onClick={() => onNavigate('mybeers')}>
           {t.myBeers}
         </button>
-        <button className="nav-btn-half yellow" onClick={() => onNavigate('leaderboard')}>
+        <button className="nav-btn-third yellow" onClick={() => onNavigate('leaderboard')}>
           {t.leaderboard}
         </button>
       </div>
@@ -328,11 +331,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         <button className="reset-btn" onClick={resetCard}>
           {t.resetCard}
         </button>
-        {user && onSettings && (
-          <button className="logout-link" onClick={onSettings}>
-            {t.settings || 'Settings'}
-          </button>
-        )}
         {user && onLogout && (
           <button className="logout-link" onClick={onLogout}>
             {t.logOut || 'Log out'}

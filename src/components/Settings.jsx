@@ -82,7 +82,7 @@ export default function Settings({ user, language, onBack }) {
     <div className="settings-page">
       <div className="settings-header">
         <button className="settings-back-btn" onClick={onBack}>← {t.back || 'BACK'}</button>
-        <h1 className="settings-title">{t.settingsTitle || 'SETTINGS'}</h1>
+        <h1 className="settings-title">{t.profile || 'PROFILE'}</h1>
       </div>
 
       <div className="settings-content">
