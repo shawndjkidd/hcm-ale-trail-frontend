@@ -7102,4 +7102,192 @@ body.night-mode .settings-submit-btn {
   border-color: #444;
 }
 
-/* Remove old "always dark" comment override */
+/* ============================================
+   COMPLETION MODAL — LIGHT MODE OVERRIDES
+   In light mode, modal bg is yellow (#FFD100).
+   All inner text must be dark. Night mode keeps
+   white text on dark (#1E1E1E) background.
+   ============================================ */
+
+/* Merch section inside completion modal */
+.completion-merch {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+body.night-mode .completion-merch {
+  background: rgba(255, 209, 0, 0.08);
+  border-color: rgba(255, 209, 0, 0.25);
+}
+
+.completion-merch-title {
+  color: #8B5E00;
+}
+body.night-mode .completion-merch-title {
+  color: #FFD100;
+}
+
+.completion-merch-item {
+  background: rgba(0, 0, 0, 0.06);
+}
+body.night-mode .completion-merch-item {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.completion-merch-name {
+  color: #1a1a1a;
+}
+body.night-mode .completion-merch-name {
+  color: #fff;
+}
+
+.completion-merch-status {
+  color: rgba(0, 0, 0, 0.5);
+}
+body.night-mode .completion-merch-status {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.completion-merch-status.pending {
+  color: #8B5E00;
+}
+body.night-mode .completion-merch-status.pending {
+  color: #FFD100;
+}
+
+/* Brewery picker */
+.brewery-picker-item {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.15);
+  color: #1a1a1a;
+}
+body.night-mode .brewery-picker-item {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+.brewery-picker-item:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+body.night-mode .brewery-picker-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* PIN inputs */
+.pin-digit {
+  border-color: rgba(0, 0, 0, 0.25);
+  background: rgba(255, 255, 255, 0.7);
+  color: #1a1a1a;
+}
+body.night-mode .pin-digit {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.pin-instruction {
+  color: rgba(0, 0, 0, 0.5);
+}
+body.night-mode .pin-instruction {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Claim loading text */
+.claim-loading {
+  color: rgba(0, 0, 0, 0.5);
+}
+body.night-mode .claim-loading {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Back button inside modal */
+.completion-back-btn {
+  color: rgba(0, 0, 0, 0.5);
+}
+.completion-back-btn:hover {
+  color: #1a1a1a;
+}
+body.night-mode .completion-back-btn {
+  color: rgba(255, 255, 255, 0.6);
+}
+body.night-mode .completion-back-btn:hover {
+  color: #fff;
+}
+
+/* Success state */
+.claim-success-name {
+  color: #1a1a1a;
+}
+body.night-mode .claim-success-name {
+  color: #fff;
+}
+
+.claim-success-item {
+  background: rgba(76, 175, 80, 0.12);
+  border-color: rgba(76, 175, 80, 0.3);
+}
+body.night-mode .claim-success-item {
+  background: rgba(76, 175, 80, 0.15);
+}
+
+/* ============================================
+   COMPLETION MODAL — LAYOUT FIXES
+   Fix congratulations text overflow / centering
+   ============================================ */
+.completion-modal {
+  text-align: center;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+.completion-title {
+  font-size: clamp(1.5rem, 6vw, 2.5rem);
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Remove bounce from completion icon */
+.completion-icon {
+  animation: none;
+}
+
+/* ─── Back nav button (replaces X close) ─── */
+.completion-back-nav {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: none;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--black, #000);
+  cursor: pointer;
+}
+.completion-back-nav:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+body.night-mode .completion-back-nav {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ccc;
+}
+body.night-mode .completion-back-nav:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+/* ─── Floating button — on-brand styling ─── */
+.floating-claim-btn {
+  background: var(--red-primary, #E31E24);
+  border: 3px solid var(--black, #000);
+  box-shadow: 0 4px 0 var(--black, #000), 0 6px 20px rgba(0,0,0,0.3);
+  color: #fff;
+  animation: none;
+}
+.floating-claim-btn:active {
+  box-shadow: 0 2px 0 var(--black, #000);
+  transform: translateX(-50%) translateY(2px);
+}

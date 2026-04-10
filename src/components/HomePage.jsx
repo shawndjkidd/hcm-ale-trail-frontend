@@ -449,12 +449,12 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
       {showCompletionModal && (
         <div className="modal-overlay">
           <div className="completion-modal">
-            <button className="modal-close" onClick={handleCloseCompletionModal}>✕</button>
+            <button className="completion-back-nav" onClick={handleCloseCompletionModal}>← {t.back || 'BACK'}</button>
 
             {/* ─── STEP: rewards (default view) ─── */}
             {claimStep === 'rewards' && (
               <>
-                <div className="completion-icon">🎉</div>
+                <div className="completion-icon">🍻</div>
                 <h2 className="completion-title">{t.congratulations}</h2>
                 <p className="completion-subtitle">{t.completedTrail}</p>
 
@@ -583,7 +583,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
             {/* ─── STEP: success ─── */}
             {claimStep === 'success' && claimSuccess && (
               <>
-                <div className="completion-icon claim-success-bounce">🎉</div>
+                <div className="completion-icon claim-success-bounce">✅</div>
                 <h2 className="completion-title">{t.merchClaimSuccess || 'Enjoy your reward!'}</h2>
                 <p className="completion-subtitle">
                   {t.merchClaimedAt || 'Picked up at'} <strong>{claimSuccess.breweryName}</strong>
@@ -608,8 +608,8 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
       {/* Floating claim button — always visible when unclaimed merch exists */}
       {isComplete && hasUnclaimedMerch && !showCompletionModal && (
         <button className="floating-claim-btn" onClick={openClaimModal}>
-          <span className="floating-claim-icon">🎁</span>
-          <span className="floating-claim-label">{t.claimRewards || 'Claim Rewards'}</span>
+          <span className="floating-claim-icon">🧢</span>
+          <span className="floating-claim-label">{t.claimRewards || 'Claim Free Hat'}</span>
         </button>
       )}
     </div>
