@@ -6718,3 +6718,200 @@ body.night-mode .google-signin-btn:hover:not(:disabled) {
 .completion-merch-status.pending {
   color: #FFD100;
 }
+
+/* ─── Merch claim button on each item ─── */
+.merch-claim-btn {
+  background: #e8a430;
+  color: #1a1a1a;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.merch-claim-btn:hover {
+  background: #FFD100;
+}
+
+/* ─── Unclaimed rewards banner ─── */
+.unclaimed-rewards-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #e8a430 0%, #d4881f 100%);
+  color: #1a1a1a;
+  padding: 14px 16px;
+  border-radius: 12px;
+  margin: 12px 0;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 14px;
+  animation: banner-pulse 2s ease-in-out infinite;
+  box-shadow: 0 2px 12px rgba(232, 164, 48, 0.3);
+}
+.unclaimed-rewards-banner:active {
+  transform: scale(0.98);
+}
+.unclaimed-rewards-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.unclaimed-rewards-text {
+  flex: 1;
+}
+.unclaimed-rewards-arrow {
+  font-size: 18px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+@keyframes banner-pulse {
+  0%, 100% { box-shadow: 0 2px 12px rgba(232, 164, 48, 0.3); }
+  50% { box-shadow: 0 2px 20px rgba(232, 164, 48, 0.5); }
+}
+
+/* ─── Brewery picker grid ─── */
+.brewery-picker {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 16px 0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.brewery-picker-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+}
+.brewery-picker-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #e8a430;
+}
+.brewery-picker-logo {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.brewery-picker-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 6px;
+}
+.brewery-picker-name {
+  flex: 1;
+  line-height: 1.2;
+}
+
+/* ─── PIN input row (merch claim) ─── */
+.pin-input-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 20px 0 10px;
+}
+.pin-digit {
+  width: 52px;
+  height: 60px;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 800;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  outline: none;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+.pin-digit:focus {
+  border-color: #e8a430;
+}
+.pin-digit.pin-error {
+  border-color: #ff4444;
+  animation: none;
+}
+.pin-instruction {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 4px 0 0;
+  text-align: center;
+}
+
+/* ─── PIN shake animation ─── */
+@keyframes pin-shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+.pin-shake {
+  animation: pin-shake 0.4s ease-in-out;
+}
+
+/* ─── Claim loading ─── */
+.claim-loading {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  margin: 8px 0;
+}
+
+/* ─── Back button ─── */
+.completion-back-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 16px;
+  padding: 8px 16px;
+}
+.completion-back-btn:hover {
+  color: #fff;
+}
+
+/* ─── Success animation ─── */
+@keyframes success-bounce {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.claim-success-bounce {
+  animation: success-bounce 0.5s ease-out;
+}
+.claim-success-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(76, 175, 80, 0.15);
+  border: 2px solid rgba(76, 175, 80, 0.3);
+  border-radius: 12px;
+  padding: 14px 20px;
+  margin: 16px 0;
+}
+.claim-success-icon {
+  font-size: 24px;
+}
+.claim-success-name {
+  font-weight: 700;
+  font-size: 16px;
+  color: #fff;
+}

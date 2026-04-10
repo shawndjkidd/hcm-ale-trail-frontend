@@ -157,6 +157,13 @@ export function getMyMerchandise(trailId = TRAIL_ID) {
   return request(`/trails/${trailId}/me/merchandise`);
 }
 
+export function claimMerchandise(merchId, breweryId, code, trailId = TRAIL_ID) {
+  return request(`/trails/${trailId}/me/merchandise/${merchId}/claim`, {
+    method: "POST",
+    body: { brewery_id: breweryId, code },
+  });
+}
+
 export function getBreweryDetail(trailId = TRAIL_ID, breweryId) {
   return request(`/trails/${trailId}/breweries/${breweryId}`);
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 
 const Star = ({ filled, num }) => (
   <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -18,7 +18,7 @@ const Star = ({ filled, num }) => (
 )
 import translations from '../translations'
 import EventsPage from './EventsPage'
-import { claimHat, getMyMerchandise } from '../lib/api'
+import { claimHat, getMyMerchandise, claimMerchandise } from '../lib/api'
 
 const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a921'
 
@@ -41,10 +41,20 @@ const getBreweryLogo = (brewery) => {
 function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onSideQuestClick, sideQuestCheckins = [], onNavigate, resetCard, activeEvents = [], nightMode, toggleNightMode, user, onLogout, onSettings, hatClaimed, onHatClaimed }) {
   const [showCompletionModal, setShowCompletionModal] = useState(false)
   const [showEventsPage, setShowEventsPage] = useState(false)
-  const [hatClaimError, setHatClaimError] = useState(null)
-  const [claimingHat, setClaimingHat] = useState(false)
   const [sideQuests, setSideQuests] = useState([])
   const [merchItems, setMerchItems] = useState(null) // null = not loaded, [] = loaded but empty
+
+  // Claim flow state
+  const [claimStep, setClaimStep] = useState('rewards') // 'rewards' | 'brewery' | 'pin' | 'success' | 'error'
+  const [claimingItem, setClaimingItem] = useState(null) // the merch item being claimed
+  const [selectedBrewery, setSelectedBrewery] = useState(null)
+  const [pinDigits, setPinDigits] = useState(['', '', '', ''])
+  const [pinError, setPinError] = useState(false)
+  const [pinShake, setPinShake] = useState(false)
+  const [claimBusy, setClaimBusy] = useState(false)
+  const [claimError, setClaimError] = useState(null)
+  const [claimSuccess, setClaimSuccess] = useState(null) // { breweryName, itemName }
+  const pinRefs = [useRef(null), useRef(null), useRef(null), useRef(null)]
 
   const t = translations[language]
   const requiredBreweries = breweries.filter(b => b.status !== 'temporarily_closed')
@@ -52,6 +62,15 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
   const totalCount = breweries.length || 8
   const progress = Math.min((stamps.length / requiredCount) * 100, 100)
   const isComplete = stamps.length >= requiredCount
+
+  // Check if user has unclaimed merch (for the banner)
+  const hasUnclaimedMerch = merchItems && merchItems.some(item => !item.pickedUp)
+
+  const fetchMerchItems = useCallback(() => {
+    getMyMerchandise().then(res => {
+      if (res?.ok) setMerchItems(res.merchandise || [])
+    }).catch(() => {})
+  }, [])
 
   useEffect(() => {
     const fetchSideQuests = async () => {
@@ -68,40 +87,124 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
     fetchSideQuests()
   }, [])
 
+  // Fetch merch status when trail is complete (for banner + modal)
+  useEffect(() => {
+    if (isComplete) {
+      fetchMerchItems()
+    }
+  }, [isComplete, fetchMerchItems])
+
+  // Show completion modal on first completion
   useEffect(() => {
     if (isComplete && !localStorage.getItem('hcm-completion-modal-shown')) {
       setShowCompletionModal(true)
-      // Fetch merch items when trail is complete
-      getMyMerchandise().then(res => {
-        if (res?.ok) setMerchItems(res.merchandise || [])
-      }).catch(() => {})
     }
   }, [isComplete])
 
   const handleCloseCompletionModal = () => {
     setShowCompletionModal(false)
-    setHatClaimError(null)
+    setClaimStep('rewards')
+    setClaimingItem(null)
+    setSelectedBrewery(null)
+    setPinDigits(['', '', '', ''])
+    setPinError(false)
+    setClaimError(null)
     localStorage.setItem('hcm-completion-modal-shown', 'true')
   }
 
-  const handleClaimHat = async () => {
-    setHatClaimError(null)
-    setClaimingHat(true)
+  const openClaimModal = () => {
+    setClaimStep('rewards')
+    setClaimingItem(null)
+    setSelectedBrewery(null)
+    setPinDigits(['', '', '', ''])
+    setPinError(false)
+    setClaimError(null)
+    setClaimSuccess(null)
+    setShowCompletionModal(true)
+  }
+
+  const handleStartClaim = (item) => {
+    setClaimingItem(item)
+    setClaimStep('brewery')
+    setClaimError(null)
+  }
+
+  const handleSelectBrewery = (brewery) => {
+    setSelectedBrewery(brewery)
+    setClaimStep('pin')
+    setPinDigits(['', '', '', ''])
+    setPinError(false)
+    setClaimError(null)
+    setTimeout(() => pinRefs[0]?.current?.focus(), 100)
+  }
+
+  const handlePinInput = (index, value) => {
+    if (!/^\d?$/.test(value)) return
+    const newDigits = [...pinDigits]
+    newDigits[index] = value
+    setPinDigits(newDigits)
+    setPinError(false)
+
+    if (value && index < 3) {
+      pinRefs[index + 1]?.current?.focus()
+    }
+
+    // Auto-submit when all 4 digits entered
+    if (value && index === 3 && newDigits.every(d => d !== '')) {
+      handlePinSubmit(newDigits.join(''))
+    }
+  }
+
+  const handlePinKeyDown = (index, e) => {
+    if (e.key === 'Backspace' && !pinDigits[index] && index > 0) {
+      pinRefs[index - 1]?.current?.focus()
+    }
+  }
+
+  const handlePinSubmit = async (pin) => {
+    if (!claimingItem || !selectedBrewery || pin.length !== 4) return
+    setClaimBusy(true)
+    setClaimError(null)
     try {
-      const res = await claimHat()
+      const res = await claimMerchandise(claimingItem.id, selectedBrewery.id, pin)
       if (res?.ok) {
-        onHatClaimed()
-        if (!res.alreadyClaimed) {
-          setShowCompletionModal(false)
-        }
+        setClaimSuccess({ breweryName: res.breweryName || selectedBrewery.name, itemName: res.itemName || claimingItem.name })
+        setClaimStep('success')
+        // Refresh merch items to update pickup status
+        fetchMerchItems()
+        if (onHatClaimed) onHatClaimed()
+      } else if (res?.error === 'Invalid code') {
+        setPinError(true)
+        setPinShake(true)
+        setPinDigits(['', '', '', ''])
+        setTimeout(() => { setPinShake(false); pinRefs[0]?.current?.focus() }, 500)
+      } else if (res?.data?.outOfStock) {
+        setClaimError(t.merchOutOfStock || 'Out of stock at this location. Try another brewery!')
+        setClaimStep('brewery')
+      } else if (res?.data?.alreadyClaimed) {
+        setClaimError(t.merchAlreadyClaimed || 'You already claimed this item!')
+        setClaimStep('rewards')
+        fetchMerchItems()
       } else {
-        setHatClaimError(res?.error || 'Failed to claim hat. Please try again.')
+        setClaimError(res?.error || 'Something went wrong. Please try again.')
       }
     } catch {
-      setHatClaimError('Failed to claim hat. Please try again.')
+      setClaimError('Something went wrong. Please try again.')
     } finally {
-      setClaimingHat(false)
+      setClaimBusy(false)
     }
+  }
+
+  const handleBackFromPin = () => {
+    setClaimStep('brewery')
+    setPinDigits(['', '', '', ''])
+    setPinError(false)
+  }
+
+  const handleBackFromBrewery = () => {
+    setClaimStep('rewards')
+    setClaimingItem(null)
+    setSelectedBrewery(null)
   }
 
   const getQuestTitle = (quest) => {
@@ -331,6 +434,15 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         </button>
       </div>
 
+      {/* Unclaimed rewards banner — shows after modal dismissed */}
+      {isComplete && hasUnclaimedMerch && !showCompletionModal && (
+        <div className="unclaimed-rewards-banner" onClick={openClaimModal}>
+          <span className="unclaimed-rewards-icon">🎁</span>
+          <span className="unclaimed-rewards-text">{t.unclaimedRewards || 'You have unclaimed rewards! Tap to collect.'}</span>
+          <span className="unclaimed-rewards-arrow">→</span>
+        </div>
+      )}
+
       <div className="footer">
         <div className="footer-year">HCM ALE TRAIL 2026</div>
         <button className="reset-btn" onClick={resetCard}>
@@ -347,58 +459,154 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         <div className="modal-overlay">
           <div className="completion-modal">
             <button className="modal-close" onClick={handleCloseCompletionModal}>✕</button>
-            <div className="completion-icon">🎉</div>
-            <h2 className="completion-title">{t.congratulations}</h2>
-            <p className="completion-subtitle">{t.completedTrail}</p>
 
-            {/* Show merch items if available */}
-            {merchItems && merchItems.length > 0 && (
-              <div className="completion-merch">
-                <div className="completion-merch-title">{t.yourRewards || 'YOUR REWARDS'}</div>
-                {merchItems.map(item => (
-                  <div key={item.id} className={`completion-merch-item ${item.pickedUp ? 'picked-up' : ''}`}>
-                    <div className="completion-merch-icon">{item.pickedUp ? '✅' : '🎁'}</div>
-                    <div className="completion-merch-info">
-                      <div className="completion-merch-name">{item.name}</div>
-                      {item.pickedUp ? (
-                        <div className="completion-merch-status">{t.merchPickedUp || 'Collected!'}</div>
-                      ) : (
-                        <div className="completion-merch-status pending">{t.merchReady || 'Ready to collect at any brewery'}</div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div className="completion-steps">
-              <div className="completion-step">
-                <div className="step-number-circle">1</div>
-                <div className="step-text">{t.completionStep1}</div>
-              </div>
-              <div className="completion-step">
-                <div className="step-number-circle">2</div>
-                <div className="step-text">{t.completionStep2}</div>
-              </div>
-              <div className="completion-step">
-                <div className="step-number-circle">3</div>
-                <div className="step-text">{t.completionStep3}</div>
-              </div>
-            </div>
-            {hatClaimError && (
-              <div className="hat-claim-error">{hatClaimError}</div>
-            )}
-            {!hatClaimed ? (
-              <button className="completion-ok-btn" onClick={handleClaimHat} disabled={claimingHat}>
-                {claimingHat ? '...' : (merchItems && merchItems.length > 0 ? (t.claimRewards || 'CLAIM MY REWARDS!') : t.claimHat)}
-              </button>
-            ) : (
+            {/* ─── STEP: rewards (default view) ─── */}
+            {claimStep === 'rewards' && (
               <>
-                <div className="hat-claimed-message">
-                  {t.hatClaimed}
+                <div className="completion-icon">🎉</div>
+                <h2 className="completion-title">{t.congratulations}</h2>
+                <p className="completion-subtitle">{t.completedTrail}</p>
+
+                {merchItems && merchItems.length > 0 && (
+                  <div className="completion-merch">
+                    <div className="completion-merch-title">{t.yourRewards || 'YOUR REWARDS'}</div>
+                    {merchItems.map(item => (
+                      <div key={item.id} className={`completion-merch-item ${item.pickedUp ? 'picked-up' : ''}`}>
+                        <div className="completion-merch-icon">{item.pickedUp ? '✅' : '🎁'}</div>
+                        <div className="completion-merch-info">
+                          <div className="completion-merch-name">{item.name}</div>
+                          {item.pickedUp ? (
+                            <div className="completion-merch-status">{t.merchPickedUp || 'Collected!'}</div>
+                          ) : (
+                            <div className="completion-merch-status pending">{t.merchReady || 'Ready to collect at any brewery'}</div>
+                          )}
+                        </div>
+                        {!item.pickedUp && (
+                          <button className="merch-claim-btn" onClick={() => handleStartClaim(item)}>
+                            {t.claimNow || 'CLAIM'}
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {claimError && <div className="hat-claim-error">{claimError}</div>}
+
+                <div className="completion-steps">
+                  <div className="completion-step">
+                    <div className="step-number-circle">1</div>
+                    <div className="step-text">{t.completionStep1Merch || 'Show a staff member your completed card'}</div>
+                  </div>
+                  <div className="completion-step">
+                    <div className="step-number-circle">2</div>
+                    <div className="step-text">{t.completionStep2Merch || 'Tap CLAIM and the staff will enter their code'}</div>
+                  </div>
+                  <div className="completion-step">
+                    <div className="step-number-circle">3</div>
+                    <div className="step-text">{t.completionStep3}</div>
+                  </div>
                 </div>
+
                 <button className="completion-ok-btn claimed" onClick={handleCloseCompletionModal}>
                   {t.close}
+                </button>
+              </>
+            )}
+
+            {/* ─── STEP: brewery picker ─── */}
+            {claimStep === 'brewery' && claimingItem && (
+              <>
+                <div className="completion-icon">📍</div>
+                <h2 className="completion-title">{t.selectBrewery || 'Which brewery are you at?'}</h2>
+                <p className="completion-subtitle">{t.selectBreweryDesc || 'Show a staff member and they\'ll confirm your pickup'}</p>
+
+                {claimError && <div className="hat-claim-error">{claimError}</div>}
+
+                <div className="brewery-picker">
+                  {breweries.filter(b => b.status !== 'temporarily_closed').map(brewery => (
+                    <button
+                      key={brewery.id}
+                      className="brewery-picker-item"
+                      onClick={() => handleSelectBrewery(brewery)}
+                    >
+                      <div className="brewery-picker-logo">
+                        {getBreweryLogo(brewery) ? (
+                          <img src={getBreweryLogo(brewery)} alt={brewery.name} />
+                        ) : (
+                          <span>🍺</span>
+                        )}
+                      </div>
+                      <div className="brewery-picker-name">{brewery.name}</div>
+                    </button>
+                  ))}
+                </div>
+
+                <button className="completion-back-btn" onClick={handleBackFromBrewery}>
+                  ← {t.back || 'Back'}
+                </button>
+              </>
+            )}
+
+            {/* ─── STEP: PIN entry ─── */}
+            {claimStep === 'pin' && selectedBrewery && (
+              <>
+                <div className="completion-icon">🔑</div>
+                <h2 className="completion-title">{t.staffVerify || 'Staff Verification'}</h2>
+                <p className="completion-subtitle">
+                  {t.handToStaff || 'Hand your phone to the staff at'} <strong>{selectedBrewery.name}</strong>
+                </p>
+                <p className="pin-instruction">{t.enterPinMerch || 'Staff: enter your brewery code to confirm pickup'}</p>
+
+                <div className={`pin-input-row ${pinShake ? 'pin-shake' : ''}`}>
+                  {pinDigits.map((digit, i) => (
+                    <input
+                      key={i}
+                      ref={pinRefs[i]}
+                      type="tel"
+                      inputMode="numeric"
+                      maxLength={1}
+                      value={digit}
+                      onChange={(e) => handlePinInput(i, e.target.value)}
+                      onKeyDown={(e) => handlePinKeyDown(i, e)}
+                      className={`pin-digit ${pinError ? 'pin-error' : ''}`}
+                      disabled={claimBusy}
+                      autoComplete="off"
+                    />
+                  ))}
+                </div>
+
+                {pinError && (
+                  <div className="hat-claim-error">{t.wrongPin || 'Wrong code. Try again.'}</div>
+                )}
+                {claimBusy && (
+                  <div className="claim-loading">{t.verifying || 'Verifying...'}</div>
+                )}
+
+                <button className="completion-back-btn" onClick={handleBackFromPin}>
+                  ← {t.back || 'Back'}
+                </button>
+              </>
+            )}
+
+            {/* ─── STEP: success ─── */}
+            {claimStep === 'success' && claimSuccess && (
+              <>
+                <div className="completion-icon claim-success-bounce">🎉</div>
+                <h2 className="completion-title">{t.merchClaimSuccess || 'Enjoy your reward!'}</h2>
+                <p className="completion-subtitle">
+                  {t.merchClaimedAt || 'Picked up at'} <strong>{claimSuccess.breweryName}</strong>
+                </p>
+                <div className="claim-success-item">
+                  <span className="claim-success-icon">✅</span>
+                  <span className="claim-success-name">{claimSuccess.itemName}</span>
+                </div>
+
+                <button className="completion-ok-btn" onClick={() => {
+                  setClaimStep('rewards')
+                  setClaimSuccess(null)
+                }}>
+                  {t.done || 'DONE'}
                 </button>
               </>
             )}
