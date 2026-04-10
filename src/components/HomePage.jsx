@@ -176,9 +176,11 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
   const handlePinSubmit = async (pin) => {
     if (!claimingItem || !selectedBrewery || pin.length !== 4) return
 
-    // Validate client-side first using same codes as stamp check-in
-    const expectedCode = selectedBrewery?.manual_code || selectedBrewery?.manualCode || BREWERY_CODES[selectedBrewery.name] || ''
-    if (pin !== expectedCode) {
+    // Validate client-side: accept hardcoded code OR database code (whichever matches)
+    const hardcoded = BREWERY_CODES[selectedBrewery.name] || ''
+    const dbCode = selectedBrewery?.manual_code || selectedBrewery?.manualCode || ''
+    const pinValid = (hardcoded && pin === hardcoded) || (dbCode && pin === dbCode)
+    if (!pinValid) {
       setPinError(true)
       setPinShake(true)
       setPinDigits(['', '', '', ''])
@@ -189,7 +191,9 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
     setClaimBusy(true)
     setClaimError(null)
     try {
-      const res = await claimMerchandise(claimingItem.id, selectedBrewery.id, pin)
+      // Send the hardcoded code to backend if that's what matched, so backend accepts it too
+      const codeToSend = (hardcoded && pin === hardcoded) ? hardcoded : pin
+      const res = await claimMerchandise(claimingItem.id, selectedBrewery.id, codeToSend)
       if (res?.ok) {
         setClaimSuccess({ breweryName: res.breweryName || selectedBrewery.name, itemName: res.itemName || claimingItem.name })
         setClaimStep('success')
@@ -529,7 +533,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
             {/* ─── STEP: brewery picker ─── */}
             {claimStep === 'brewery' && claimingItem && (
               <>
-                <div className="completion-icon">📍</div>
+                <button className="modal-back-nav" onClick={() => { setClaimStep('rewards'); setClaimingItem(null); }}>← {t.back || 'BACK'}</button>
                 <h2 className="completion-title">{t.selectBrewery || 'Which brewery are you at?'}</h2>
                 <p className="completion-subtitle">{t.selectBreweryDesc || 'Show a staff member and they\'ll confirm your pickup'}</p>
 
@@ -560,7 +564,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
             {/* ─── STEP: PIN entry ─── */}
             {claimStep === 'pin' && selectedBrewery && (
               <>
-                <div className="completion-icon">🔑</div>
+                <button className="modal-back-nav" onClick={() => { setClaimStep('brewery'); setSelectedBrewery(null); setPinDigits(['','','','']); setPinError(false); }}>← {t.back || 'BACK'}</button>
                 <h2 className="completion-title">{t.staffVerify || 'Staff Verification'}</h2>
                 <p className="completion-subtitle">
                   {t.handToStaff || 'Hand your phone to the staff at'} <strong>{selectedBrewery.name}</strong>

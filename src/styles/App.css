@@ -7561,9 +7561,9 @@ body.night-mode .top-rated-section .section-title {
   color: var(--white, #fff) !important;
 }
 
-/* ─── Modal: standard padding (no back button) ─── */
-.completion-modal {
-  padding-top: 2rem !important;
+/* ─── Modal: extra top padding when back-nav is present ─── */
+.completion-modal:has(.modal-back-nav) {
+  padding-top: 3.5rem !important;
 }
 
 /* ─── CONGRATULATIONS: fit on one line, no truncation ─── */
