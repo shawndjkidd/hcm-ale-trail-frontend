@@ -396,45 +396,47 @@ export default function OnboardingFlow({ onComplete, onClose, user, language = '
         ) : effectiveStep === 'location' || effectiveStep === 'location_country' ? (
           renderLocationStep()
         ) : (
-          <div style={styles.grid}>
-            {OPTIONS[effectiveStep]?.map(opt => (
+          <>
+            <div style={styles.grid}>
+              {OPTIONS[effectiveStep]?.map(opt => (
+                <button
+                  key={opt.value}
+                  onClick={() => handleSelect(opt.value)}
+                  style={{
+                    ...styles.optionBtn,
+                    ...(isSelected(opt.value) ? styles.optionSelected : {}),
+                  }}
+                >
+                  <span style={styles.iconWrap}>
+                    <TrailIcon type={opt.value} size={40} color={iconColor(opt.value)} />
+                  </span>
+                  <span style={styles.optionLabel}>{t[opt.labelKey] || opt.labelKey}</span>
+                  {opt.descKey && <span style={styles.optionDesc}>{t[opt.descKey] || opt.descKey}</span>}
+                </button>
+              ))}
+            </div>
+            {effectiveStep === 'gender' && (
               <button
-                key={opt.value}
-                onClick={() => handleSelect(opt.value)}
+                onClick={() => handleSelect('skip')}
                 style={{
                   ...styles.optionBtn,
-                  ...(isSelected(opt.value) ? styles.optionSelected : {}),
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  gap: 8,
+                  padding: '10px 16px',
+                  marginTop: 12,
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '2px solid rgba(255,255,255,0.2)',
+                  ...(isSelected('skip') ? { ...styles.optionSelected, background: 'rgba(0,0,0,0.6)' } : {}),
                 }}
               >
-                <span style={styles.iconWrap}>
-                  <TrailIcon type={opt.value} size={40} color={iconColor(opt.value)} />
+                <TrailIcon type="skip" size={20} color={isSelected('skip') ? '#FFD100' : 'rgba(255,255,255,0.6)'} />
+                <span style={{ ...styles.optionLabel, fontSize: 13, color: isSelected('skip') ? '#FFD100' : 'rgba(255,255,255,0.6)' }}>
+                  {t.optSkip}
                 </span>
-                <span style={styles.optionLabel}>{t[opt.labelKey] || opt.labelKey}</span>
-                {opt.descKey && <span style={styles.optionDesc}>{t[opt.descKey] || opt.descKey}</span>}
               </button>
-            ))}
-          </div>
-          {effectiveStep === 'gender' && (
-            <button
-              onClick={() => handleSelect('skip')}
-              style={{
-                ...styles.optionBtn,
-                flexDirection: 'row',
-                justifyContent: 'center',
-                gap: 8,
-                padding: '10px 16px',
-                marginTop: 12,
-                background: 'rgba(255,255,255,0.1)',
-                border: '2px solid rgba(255,255,255,0.2)',
-                ...(isSelected('skip') ? { ...styles.optionSelected, background: 'rgba(0,0,0,0.6)' } : {}),
-              }}
-            >
-              <TrailIcon type="skip" size={20} color={isSelected('skip') ? '#FFD100' : 'rgba(255,255,255,0.6)'} />
-              <span style={{ ...styles.optionLabel, fontSize: 13, color: isSelected('skip') ? '#FFD100' : 'rgba(255,255,255,0.6)' }}>
-                {t.optSkip}
-              </span>
-            </button>
-          )}
+            )}
+          </>
         )}
       </div>
 
