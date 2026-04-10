@@ -554,9 +554,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
                   ))}
                 </div>
 
-                <button className="completion-back-btn" onClick={handleBackFromBrewery}>
-                  ← {t.back || 'Back'}
-                </button>
               </>
             )}
 
@@ -595,9 +592,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
                   <div className="claim-loading">{t.verifying || 'Verifying...'}</div>
                 )}
 
-                <button className="completion-back-btn" onClick={handleBackFromPin}>
-                  ← {t.back || 'Back'}
-                </button>
+                {/* Back handled by top nav or close */}
               </>
             )}
 

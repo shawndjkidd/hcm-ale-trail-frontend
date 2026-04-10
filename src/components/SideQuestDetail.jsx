@@ -339,7 +339,7 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
       {showCheckinModal && (
         <div className="modal-overlay" onClick={step === 2 ? undefined : () => setShowCheckinModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            {step === 1 && <button className="modal-close" onClick={() => setShowCheckinModal(false)}>✕</button>}
+            <button className="modal-back-nav" onClick={() => { if (step === 2) { handleBackToStep1() } else { setShowCheckinModal(false) } }}>← {t.back || 'BACK'}</button>
 
             {step === 1 && (
               <>
@@ -431,9 +431,7 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
                   {isChecking ? '...' : (t.confirmStamp || 'CONFIRM STAMP ✓')}
                 </button>
 
-                <button className="btn-back-to-beer" onClick={handleBackToStep1}>
-                  ← {t.editBeer || 'Edit details'}
-                </button>
+                {/* Back handled by top nav button */}
               </div>
             )}
           </div>
