@@ -6656,3 +6656,65 @@ body.night-mode .google-signin-btn:hover:not(:disabled) {
   font-size: 12px;
   font-weight: 800;
 }
+
+/* ── Completion Modal — Merchandise rewards ── */
+.completion-merch {
+  margin: 16px 0;
+  background: rgba(255, 209, 0, 0.08);
+  border: 2px solid rgba(255, 209, 0, 0.25);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.completion-merch-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #FFD100;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.completion-merch-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  margin-bottom: 6px;
+}
+
+.completion-merch-item:last-child {
+  margin-bottom: 0;
+}
+
+.completion-merch-item.picked-up {
+  opacity: 0.7;
+}
+
+.completion-merch-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.completion-merch-info {
+  flex: 1;
+  text-align: left;
+}
+
+.completion-merch-name {
+  font-weight: 700;
+  font-size: 15px;
+  color: #fff;
+}
+
+.completion-merch-status {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 2px;
+}
+
+.completion-merch-status.pending {
+  color: #FFD100;
+}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import QRCode from 'qrcode';
-import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, mergeRatings, updateAdminAccount, TRAIL_ID } from './adminApi';
+import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, mergeRatings, updateAdminAccount, getBreweryMerchandise, restockMerchandise, TRAIL_ID } from './adminApi';
 
 const DAY_NAMES = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 const DAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -71,6 +71,14 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   const [beerForm, setBeerForm] = useState({ name: '', style: '', abv: '' });
   const [savingBeer, setSavingBeer] = useState(false);
   const [editingBeer, setEditingBeer] = useState(null); // beer object being edited
+
+  // Merchandise / Stock
+  const [brewMerch, setBrewMerch] = useState([]);
+  const [brewRestocks, setBrewRestocks] = useState([]);
+  const [merchLoading, setMerchLoading] = useState(false);
+  const [showBrewRestockModal, setShowBrewRestockModal] = useState(false);
+  const [brewRestockForm, setBrewRestockForm] = useState({ merchId: null, quantity: '', notes: '' });
+  const [brewRestocking, setBrewRestocking] = useState(false);
 
   const breweryId = propBreweryId || selectedBreweryId;
 
@@ -328,6 +336,36 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
     if (activeTab === 'beers' && breweryId) loadBeers();
   }, [activeTab, breweryId]);
 
+  const loadMerch = async () => {
+    if (!breweryId) return;
+    setMerchLoading(true);
+    const result = await getBreweryMerchandise(breweryId);
+    if (result.ok) {
+      setBrewMerch(result.merchandise || []);
+      setBrewRestocks(result.recentRestocks || []);
+    }
+    setMerchLoading(false);
+  };
+
+  useEffect(() => {
+    if (activeTab === 'stock' && breweryId) loadMerch();
+  }, [activeTab, breweryId]);
+
+  const handleBrewRestockSubmit = async () => {
+    const qty = Number(brewRestockForm.quantity);
+    if (!qty || qty <= 0) return;
+    setBrewRestocking(true);
+    const result = await restockMerchandise(breweryId, brewRestockForm.merchId, qty, brewRestockForm.notes);
+    if (result.ok) {
+      await loadMerch();
+      setShowBrewRestockModal(false);
+      setBrewRestockForm({ merchId: null, quantity: '', notes: '' });
+    } else {
+      alert(result.error || 'Failed to restock');
+    }
+    setBrewRestocking(false);
+  };
+
   const handleCreateBeer = async () => {
     if (!beerForm.name.trim()) {
       alert('Beer name is required');
@@ -488,6 +526,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
         <button className={`admin-tab ${activeTab === 'competition' ? 'active' : ''}`} onClick={() => setActiveTab('competition')}>Trail Competition</button>
         <button className={`admin-tab ${activeTab === 'events' ? 'active' : ''}`} onClick={() => setActiveTab('events')}>Events ({events.length})</button>
         <button className={`admin-tab ${activeTab === 'beers' ? 'active' : ''}`} onClick={() => setActiveTab('beers')}>Beer Menu</button>
+        <button className={`admin-tab ${activeTab === 'stock' ? 'active' : ''}`} onClick={() => setActiveTab('stock')}>Stock{brewMerch.some(m => m.lowStock) ? ' ⚠️' : ''}</button>
         <button className={`admin-tab ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>Settings</button>
       </div>
 
@@ -963,6 +1002,105 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
 
           </div>{/* end right column */}
         </div>
+      )}
+
+      {activeTab === 'stock' && (
+        <>
+          <div className="admin-card">
+            <h3 className="admin-card-title">Merchandise Stock</h3>
+            {merchLoading ? (
+              <p style={{ color: 'var(--admin-text-muted)' }}>Loading stock data...</p>
+            ) : brewMerch.length === 0 ? (
+              <p style={{ color: 'var(--admin-text-muted)' }}>No merchandise items configured for this trail yet. Ask HQ to add items.</p>
+            ) : (
+              <div>
+                {brewMerch.map(item => (
+                  <div key={item.id} className="admin-card" style={{ marginBottom: 12, background: 'var(--admin-bg-tertiary)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <h4 style={{ margin: 0, fontSize: 16 }}>{item.name}</h4>
+                      {item.lowStock && <span className="admin-badge admin-badge-error">LOW STOCK</span>}
+                    </div>
+                    {item.description && <p style={{ color: 'var(--admin-text-muted)', margin: '4px 0 0', fontSize: 13 }}>{item.description}</p>}
+
+                    <div style={{ display: 'flex', gap: 24, marginTop: 12, flexWrap: 'wrap' }}>
+                      <div>
+                        <div style={{ fontSize: 12, color: 'var(--admin-text-muted)', textTransform: 'uppercase' }}>In Stock</div>
+                        <div style={{ fontSize: 28, fontWeight: 700, color: item.lowStock ? '#ef4444' : 'inherit' }}>{item.quantity}</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 12, color: 'var(--admin-text-muted)', textTransform: 'uppercase' }}>Picked Up</div>
+                        <div style={{ fontSize: 28, fontWeight: 700 }}>{item.pickupCount}</div>
+                      </div>
+                      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'flex-end' }}>
+                        <button className="admin-btn admin-btn-primary" style={{ width: 'auto' }}
+                          onClick={() => { setBrewRestockForm({ merchId: item.id, quantity: '', notes: '' }); setShowBrewRestockModal(true); }}>
+                          + Restock
+                        </button>
+                      </div>
+                    </div>
+
+                    {item.stockUpdatedAt && (
+                      <div style={{ fontSize: 11, color: 'var(--admin-text-muted)', marginTop: 8 }}>
+                        Last updated: {new Date(item.stockUpdatedAt).toLocaleString()}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Recent restock history */}
+          {brewRestocks.length > 0 && (
+            <div className="admin-card">
+              <h3 className="admin-card-title">Recent Restocks</h3>
+              <table className="admin-table">
+                <thead>
+                  <tr><th>Item</th><th>Qty Added</th><th>Notes</th><th>Date</th></tr>
+                </thead>
+                <tbody>
+                  {brewRestocks.map((r, i) => (
+                    <tr key={i}>
+                      <td>{brewMerch.find(m => m.id === r.merchandise_id)?.name || '—'}</td>
+                      <td>+{r.quantity}</td>
+                      <td>{r.notes || '—'}</td>
+                      <td>{new Date(r.created_at).toLocaleDateString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Restock Modal */}
+          {showBrewRestockModal && (
+            <div className="admin-modal-overlay" onClick={() => setShowBrewRestockModal(false)}>
+              <div className="admin-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 400 }}>
+                <h3 className="admin-card-title">Restock</h3>
+                <p style={{ color: 'var(--admin-text-muted)', fontSize: 13, marginBottom: 12 }}>
+                  {brewMerch.find(m => m.id === brewRestockForm.merchId)?.name}
+                </p>
+                <div className="admin-form-group">
+                  <label className="admin-label">Quantity to Add</label>
+                  <input className="admin-input" type="number" min="1" value={brewRestockForm.quantity}
+                    onChange={e => setBrewRestockForm({ ...brewRestockForm, quantity: e.target.value })} autoFocus />
+                </div>
+                <div className="admin-form-group">
+                  <label className="admin-label">Notes (optional)</label>
+                  <input className="admin-input" value={brewRestockForm.notes}
+                    onChange={e => setBrewRestockForm({ ...brewRestockForm, notes: e.target.value })} placeholder="e.g. Received 20 hats" />
+                </div>
+                <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+                  <button className="admin-btn admin-btn-primary" style={{ width: 'auto' }} onClick={handleBrewRestockSubmit}
+                    disabled={brewRestocking || !brewRestockForm.quantity || Number(brewRestockForm.quantity) <= 0}>
+                    {brewRestocking ? 'Restocking...' : 'Confirm Restock'}
+                  </button>
+                  <button className="admin-btn admin-btn-secondary" style={{ width: 'auto' }} onClick={() => setShowBrewRestockModal(false)}>Cancel</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

@@ -4,7 +4,9 @@ import {
   getTrailOverview, getTrailEvents, getAdminLeaderboard, exportParticipants,
   deleteEvent, createTrailEvent, getTrailBreweries, createBrewery, updateBrewery,
   deleteBrewery, getSideQuests, createSideQuest, updateSideQuest, deleteSideQuest,
-  getTrailBeerRatings, getMergeSuggestions, mergeRatings, createBreweryStaff, getBreweryLogin, TRAIL_ID
+  getTrailBeerRatings, getMergeSuggestions, mergeRatings, createBreweryStaff, getBreweryLogin,
+  getTrailMerchandise, createMerchandiseItem, updateMerchandiseItem, restockMerchandise,
+  TRAIL_ID
 } from './adminApi';
 
 const generateStaffEmail = (name) => name.toLowerCase().replace(/[^a-z0-9]/g, '') + '@aletrail.com';
@@ -65,17 +67,27 @@ export default function HQDashboard() {
   const [qrBreweryUrl, setQrBreweryUrl] = useState('');
   const [loadingBreweryQr, setLoadingBreweryQr] = useState(false);
 
+  // Merchandise / Stock
+  const [merchandise, setMerchandise] = useState([]);
+  const [showMerchForm, setShowMerchForm] = useState(false);
+  const [merchForm, setMerchForm] = useState({ name: '', description: '', low_stock_threshold: 5 });
+  const [savingMerch, setSavingMerch] = useState(false);
+  const [restockForm, setRestockForm] = useState({ merchId: null, breweryId: null, quantity: '', notes: '' });
+  const [showRestockModal, setShowRestockModal] = useState(false);
+  const [restocking, setRestocking] = useState(false);
+
   const loadData = async (from, to) => {
     setLoading(true);
     setError('');
     try {
-      const [overviewResult, eventsResult, leaderboardResult, breweriesResult, questsResult, ratingsResult] = await Promise.all([
+      const [overviewResult, eventsResult, leaderboardResult, breweriesResult, questsResult, ratingsResult, merchResult] = await Promise.all([
         getTrailOverview(TRAIL_ID, from, to),
         getTrailEvents(TRAIL_ID),
         getAdminLeaderboard(TRAIL_ID, 50),
         getTrailBreweries(TRAIL_ID).catch(() => ({ ok: false })),
         getSideQuests(TRAIL_ID).catch(() => ({ ok: false })),
-        getTrailBeerRatings(TRAIL_ID).catch(() => ({ ok: false }))
+        getTrailBeerRatings(TRAIL_ID).catch(() => ({ ok: false })),
+        getTrailMerchandise(TRAIL_ID).catch(() => ({ ok: false }))
       ]);
       if (overviewResult.ok) setData(overviewResult);
       else setError(overviewResult.error || 'Failed to load data');
@@ -84,6 +96,7 @@ export default function HQDashboard() {
       if (breweriesResult.ok) setBreweries(breweriesResult.breweries || []);
       if (questsResult.ok) setSideQuests(questsResult.sideQuests || []);
       if (ratingsResult.ok) setBeerRatings([...(ratingsResult.ratings || [])].sort((a, b) => new Date(b.createdAt || b.created_at) - new Date(a.createdAt || a.created_at)));
+      if (merchResult.ok) setMerchandise(merchResult.merchandise || []);
     } catch (err) {
       setError(err.message || 'Failed to load data');
     }
@@ -125,6 +138,38 @@ export default function HQDashboard() {
       alert(result.error || 'Export failed');
     }
     setExporting(false);
+  };
+
+  // ---- Merchandise handlers ----
+  const handleCreateMerch = async () => {
+    if (!merchForm.name.trim()) return;
+    setSavingMerch(true);
+    const result = await createMerchandiseItem(TRAIL_ID, merchForm);
+    if (result.ok) {
+      setMerchandise(prev => [...prev, { ...result.item, totalStock: 0, totalPickups: 0, byBrewery: {}, lowStockBreweries: [] }]);
+      setShowMerchForm(false);
+      setMerchForm({ name: '', description: '', low_stock_threshold: 5 });
+    } else {
+      alert(result.error || 'Failed to create');
+    }
+    setSavingMerch(false);
+  };
+
+  const handleRestockSubmit = async () => {
+    const qty = Number(restockForm.quantity);
+    if (!qty || qty <= 0) return;
+    setRestocking(true);
+    const result = await restockMerchandise(restockForm.breweryId, restockForm.merchId, qty, restockForm.notes);
+    if (result.ok) {
+      // Refresh merch data
+      const merchResult = await getTrailMerchandise(TRAIL_ID).catch(() => ({ ok: false }));
+      if (merchResult.ok) setMerchandise(merchResult.merchandise || []);
+      setShowRestockModal(false);
+      setRestockForm({ merchId: null, breweryId: null, quantity: '', notes: '' });
+    } else {
+      alert(result.error || 'Failed to restock');
+    }
+    setRestocking(false);
   };
 
   const handleDeleteEvent = async (eventId) => {
@@ -457,6 +502,7 @@ export default function HQDashboard() {
         <button className={`admin-tab ${activeTab === 'events' ? 'active' : ''}`} onClick={() => setActiveTab('events')}>Events ({events.length})</button>
         <button className={`admin-tab ${activeTab === 'sidequests' ? 'active' : ''}`} onClick={() => setActiveTab('sidequests')}>Side Quests ({sideQuests.length})</button>
         <button className={`admin-tab ${activeTab === 'leaderboard' ? 'active' : ''}`} onClick={() => setActiveTab('leaderboard')}>Leaderboard</button>
+        <button className={`admin-tab ${activeTab === 'stock' ? 'active' : ''}`} onClick={() => setActiveTab('stock')}>Stock{merchandise.some(m => m.lowStockBreweries?.length > 0) ? ' ⚠️' : ''}</button>
         <button className={`admin-tab ${activeTab === 'export' ? 'active' : ''}`} onClick={() => setActiveTab('export')}>Export</button>
       </div>
 
@@ -761,6 +807,154 @@ export default function HQDashboard() {
               </div>
             ))}
           </div>
+        </>
+      )}
+
+      {activeTab === 'stock' && (
+        <>
+          <div className="admin-card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 className="admin-card-title" style={{ margin: 0 }}>Merchandise Items</h3>
+              <button className="admin-btn admin-btn-primary" style={{ width: 'auto' }} onClick={() => setShowMerchForm(true)}>+ Add Item</button>
+            </div>
+
+            {showMerchForm && (
+              <div className="admin-card" style={{ background: 'var(--admin-bg-tertiary)', marginBottom: 16 }}>
+                <div className="admin-form-group">
+                  <label className="admin-label">Item Name *</label>
+                  <input className="admin-input" value={merchForm.name} onChange={e => setMerchForm({ ...merchForm, name: e.target.value })} placeholder="e.g. Ale Trail Hat" />
+                </div>
+                <div className="admin-form-group">
+                  <label className="admin-label">Description</label>
+                  <input className="admin-input" value={merchForm.description} onChange={e => setMerchForm({ ...merchForm, description: e.target.value })} placeholder="Optional description" />
+                </div>
+                <div className="admin-form-group">
+                  <label className="admin-label">Low Stock Alert Threshold</label>
+                  <input className="admin-input" type="number" value={merchForm.low_stock_threshold} onChange={e => setMerchForm({ ...merchForm, low_stock_threshold: Number(e.target.value) })} min="0" />
+                </div>
+                <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                  <button className="admin-btn admin-btn-primary" style={{ width: 'auto' }} onClick={handleCreateMerch} disabled={savingMerch}>{savingMerch ? 'Saving...' : 'Create'}</button>
+                  <button className="admin-btn admin-btn-secondary" style={{ width: 'auto' }} onClick={() => { setShowMerchForm(false); setMerchForm({ name: '', description: '', low_stock_threshold: 5 }); }}>Cancel</button>
+                </div>
+              </div>
+            )}
+
+            {merchandise.length === 0 ? (
+              <p style={{ color: 'var(--admin-text-muted)' }}>No merchandise items yet. Add your first item to start tracking stock.</p>
+            ) : (
+              <div>
+                {merchandise.map(item => (
+                  <div key={item.id} className="admin-card" style={{ marginBottom: 12, background: 'var(--admin-bg-tertiary)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div>
+                        <h4 style={{ margin: '0 0 4px', fontSize: 16 }}>{item.name}</h4>
+                        {item.description && <p style={{ color: 'var(--admin-text-muted)', margin: '0 0 8px', fontSize: 13 }}>{item.description}</p>}
+                      </div>
+                      <span className={`admin-badge ${item.active ? 'admin-badge-success' : 'admin-badge-error'}`}>{item.active ? 'Active' : 'Inactive'}</span>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: 24, marginTop: 12, flexWrap: 'wrap' }}>
+                      <div>
+                        <div style={{ fontSize: 12, color: 'var(--admin-text-muted)', textTransform: 'uppercase' }}>Total Stock</div>
+                        <div style={{ fontSize: 24, fontWeight: 700 }}>{item.totalStock}</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 12, color: 'var(--admin-text-muted)', textTransform: 'uppercase' }}>Picked Up</div>
+                        <div style={{ fontSize: 24, fontWeight: 700 }}>{item.totalPickups}</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 12, color: 'var(--admin-text-muted)', textTransform: 'uppercase' }}>Low Stock Locations</div>
+                        <div style={{ fontSize: 24, fontWeight: 700, color: item.lowStockBreweries?.length > 0 ? '#ef4444' : 'inherit' }}>
+                          {item.lowStockBreweries?.length || 0}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Per-brewery breakdown */}
+                    {Object.keys(item.byBrewery || {}).length > 0 && (
+                      <div style={{ marginTop: 12 }}>
+                        <div style={{ fontSize: 12, color: 'var(--admin-text-muted)', textTransform: 'uppercase', marginBottom: 6 }}>By Location</div>
+                        <table className="admin-table">
+                          <thead>
+                            <tr><th>Brewery</th><th>Stock</th><th>Pickups</th><th>Actions</th></tr>
+                          </thead>
+                          <tbody>
+                            {Object.entries(item.byBrewery).map(([bId, info]) => {
+                              const brew = breweries.find(b => b.id === bId);
+                              const isLow = info.stock <= item.low_stock_threshold;
+                              return (
+                                <tr key={bId}>
+                                  <td>{brew?.name || bId.slice(0, 8)}</td>
+                                  <td style={{ color: isLow ? '#ef4444' : 'inherit', fontWeight: isLow ? 700 : 400 }}>
+                                    {info.stock}{isLow ? ' ⚠️' : ''}
+                                  </td>
+                                  <td>{info.pickups}</td>
+                                  <td>
+                                    <button className="admin-btn admin-btn-secondary" style={{ width: 'auto', padding: '4px 10px', fontSize: 12 }}
+                                      onClick={() => { setRestockForm({ merchId: item.id, breweryId: bId, quantity: '', notes: '' }); setShowRestockModal(true); }}>
+                                      Restock
+                                    </button>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {/* Quick restock for breweries with no stock yet */}
+                    {breweries.filter(b => b.status !== 'inactive' && !item.byBrewery?.[b.id]).length > 0 && (
+                      <div style={{ marginTop: 8 }}>
+                        <details>
+                          <summary style={{ fontSize: 12, color: 'var(--admin-text-muted)', cursor: 'pointer' }}>
+                            Add stock to new locations ({breweries.filter(b => b.status !== 'inactive' && !item.byBrewery?.[b.id]).length} without stock)
+                          </summary>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                            {breweries.filter(b => b.status !== 'inactive' && !item.byBrewery?.[b.id]).map(b => (
+                              <button key={b.id} className="admin-btn admin-btn-secondary" style={{ width: 'auto', padding: '4px 10px', fontSize: 12 }}
+                                onClick={() => { setRestockForm({ merchId: item.id, breweryId: b.id, quantity: '', notes: '' }); setShowRestockModal(true); }}>
+                                + {b.name}
+                              </button>
+                            ))}
+                          </div>
+                        </details>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Restock Modal */}
+          {showRestockModal && (
+            <div className="admin-modal-overlay" onClick={() => setShowRestockModal(false)}>
+              <div className="admin-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 400 }}>
+                <h3 className="admin-card-title">Restock</h3>
+                <p style={{ color: 'var(--admin-text-muted)', fontSize: 13, marginBottom: 12 }}>
+                  {merchandise.find(m => m.id === restockForm.merchId)?.name} → {breweries.find(b => b.id === restockForm.breweryId)?.name}
+                </p>
+                <div className="admin-form-group">
+                  <label className="admin-label">Quantity to Add</label>
+                  <input className="admin-input" type="number" min="1" value={restockForm.quantity}
+                    onChange={e => setRestockForm({ ...restockForm, quantity: e.target.value })} autoFocus />
+                </div>
+                <div className="admin-form-group">
+                  <label className="admin-label">Notes (optional)</label>
+                  <input className="admin-input" value={restockForm.notes}
+                    onChange={e => setRestockForm({ ...restockForm, notes: e.target.value })} placeholder="e.g. Delivery from supplier" />
+                </div>
+                <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+                  <button className="admin-btn admin-btn-primary" style={{ width: 'auto' }} onClick={handleRestockSubmit}
+                    disabled={restocking || !restockForm.quantity || Number(restockForm.quantity) <= 0}>
+                    {restocking ? 'Restocking...' : 'Confirm Restock'}
+                  </button>
+                  <button className="admin-btn admin-btn-secondary" style={{ width: 'auto' }} onClick={() => setShowRestockModal(false)}>Cancel</button>
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )}
 

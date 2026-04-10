@@ -153,6 +153,10 @@ export function claimHat(trailId = TRAIL_ID) {
   return request(`/trails/${trailId}/me/claim-hat`, { method: "POST" });
 }
 
+export function getMyMerchandise(trailId = TRAIL_ID) {
+  return request(`/trails/${trailId}/me/merchandise`);
+}
+
 export function getBreweryDetail(trailId = TRAIL_ID, breweryId) {
   return request(`/trails/${trailId}/breweries/${breweryId}`);
 }

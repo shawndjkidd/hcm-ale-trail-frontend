@@ -42,6 +42,10 @@ Within `App`, a `view` state variable drives which component renders (`"home"`, 
 
 Vanilla CSS in `src/styles/App.css` — no CSS framework. Mobile-first design. **File is ~6200+ lines — never replace it, only append new styles at the end.**
 
+## Browser Access
+
+We use **Brave** (not Chrome) as our primary browser. Claude always has access to Brave via the Claude in Chrome extension (which works in any Chromium browser). When you need to interact with any website — Supabase dashboard, Vercel, the live app, admin panel, or anything else — ask for browser access and use Brave. Never assume you can't reach a page; just ask to connect. The Supabase project ID is `gfubghgsrehabqanaosp`.
+
 ## Important Rules
 
 - **Deploy directly to main** — `dfe` / `dbe` commit and push straight to main. No PR workflow in practice.

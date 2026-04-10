@@ -18,7 +18,7 @@ const Star = ({ filled, num }) => (
 )
 import translations from '../translations'
 import EventsPage from './EventsPage'
-import { claimHat } from '../lib/api'
+import { claimHat, getMyMerchandise } from '../lib/api'
 
 const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a921'
 
@@ -44,6 +44,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
   const [hatClaimError, setHatClaimError] = useState(null)
   const [claimingHat, setClaimingHat] = useState(false)
   const [sideQuests, setSideQuests] = useState([])
+  const [merchItems, setMerchItems] = useState(null) // null = not loaded, [] = loaded but empty
 
   const t = translations[language]
   const requiredBreweries = breweries.filter(b => b.status !== 'temporarily_closed')
@@ -70,6 +71,10 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
   useEffect(() => {
     if (isComplete && !localStorage.getItem('hcm-completion-modal-shown')) {
       setShowCompletionModal(true)
+      // Fetch merch items when trail is complete
+      getMyMerchandise().then(res => {
+        if (res?.ok) setMerchItems(res.merchandise || [])
+      }).catch(() => {})
     }
   }, [isComplete])
 
@@ -345,6 +350,27 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
             <div className="completion-icon">🎉</div>
             <h2 className="completion-title">{t.congratulations}</h2>
             <p className="completion-subtitle">{t.completedTrail}</p>
+
+            {/* Show merch items if available */}
+            {merchItems && merchItems.length > 0 && (
+              <div className="completion-merch">
+                <div className="completion-merch-title">{t.yourRewards || 'YOUR REWARDS'}</div>
+                {merchItems.map(item => (
+                  <div key={item.id} className={`completion-merch-item ${item.pickedUp ? 'picked-up' : ''}`}>
+                    <div className="completion-merch-icon">{item.pickedUp ? '✅' : '🎁'}</div>
+                    <div className="completion-merch-info">
+                      <div className="completion-merch-name">{item.name}</div>
+                      {item.pickedUp ? (
+                        <div className="completion-merch-status">{t.merchPickedUp || 'Collected!'}</div>
+                      ) : (
+                        <div className="completion-merch-status pending">{t.merchReady || 'Ready to collect at any brewery'}</div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div className="completion-steps">
               <div className="completion-step">
                 <div className="step-number-circle">1</div>
@@ -364,7 +390,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
             )}
             {!hatClaimed ? (
               <button className="completion-ok-btn" onClick={handleClaimHat} disabled={claimingHat}>
-                {claimingHat ? '...' : t.claimHat}
+                {claimingHat ? '...' : (merchItems && merchItems.length > 0 ? (t.claimRewards || 'CLAIM MY REWARDS!') : t.claimHat)}
               </button>
             ) : (
               <>

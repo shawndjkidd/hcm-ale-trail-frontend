@@ -393,6 +393,90 @@ export async function updateAdminAccount({ email, currentPassword, password }) {
   }
 }
 
+// ==================== MERCHANDISE / STOCK ====================
+
+export async function getTrailMerchandise(trailId) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/merchandise`, { headers: authHeaders() });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function createMerchandiseItem(trailId, itemData) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/merchandise`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify(itemData)
+    });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function updateMerchandiseItem(trailId, merchId, itemData) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/merchandise/${merchId}`, {
+      method: 'PATCH',
+      headers: authHeaders(),
+      body: JSON.stringify(itemData)
+    });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function deleteMerchandiseItem(trailId, merchId) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/merchandise/${merchId}`, {
+      method: 'DELETE',
+      headers: authHeaders()
+    });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function getBreweryMerchandise(breweryId) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/merchandise`, { headers: authHeaders() });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function restockMerchandise(breweryId, merchId, quantity, notes) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/merchandise/${merchId}/restock`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ quantity, notes })
+    });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function recordMerchPickup(breweryId, merchId, participantId) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/merchandise/${merchId}/pickup`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ participant_id: participantId })
+    });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
 // ==================== LOGIN ====================
 
 
