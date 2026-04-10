@@ -7560,6 +7560,11 @@ body.night-mode .top-rated-section .section-title {
   color: var(--white, #fff) !important;
 }
 
+/* ─── Modal: extra top padding for absolute back button ─── */
+.completion-modal {
+  padding-top: 3.5rem !important;
+}
+
 /* ─── CONGRATULATIONS: fit on one line, no truncation ─── */
 .completion-title {
   font-size: 1.5rem !important;
@@ -7571,7 +7576,7 @@ body.night-mode .top-rated-section .section-title {
   hyphens: none !important;
   -webkit-hyphens: none !important;
   -ms-hyphens: none !important;
-  margin-top: 0.5rem;
+  margin-top: 0;
 }
 
 /* ─── Remove the cheesy beer emoji icon ─── */
@@ -7787,4 +7792,53 @@ body.night-mode .brewery-picker-name {
 body.night-mode .pin-digit {
   border-color: #555 !important;
   box-shadow: none;
+}
+
+/* ============================================
+   MODAL BACK NAV — replaces ✕ close button
+   Green retro button, top-left of modal.
+   Used in side quest check-in and similar modals.
+   ============================================ */
+.modal-back-nav {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 10;
+  background: var(--green-primary, #4CAF50);
+  border: 3px solid var(--black, #000);
+  border-radius: 4px;
+  padding: 6px 14px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--white, #fff);
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--black, #000);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.modal-back-nav:hover {
+  background: #43A047;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--black, #000);
+}
+.modal-back-nav:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--black, #000);
+}
+body.night-mode .modal-back-nav {
+  background: #333;
+  border-color: #555;
+  color: #4CAF50;
+  box-shadow: none;
+}
+body.night-mode .modal-back-nav:hover {
+  background: #444;
+  color: #66BB6A;
+}
+
+/* Extra top padding on modal-content when back-nav is present */
+.modal-content:has(.modal-back-nav) {
+  padding-top: 3.5rem;
 }
