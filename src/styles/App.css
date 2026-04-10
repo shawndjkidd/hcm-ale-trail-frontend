@@ -7302,91 +7302,115 @@ body.night-mode .completion-back-nav:hover {
 }
 
 /* ============================================
-   PROFILE PAGE — RETRO RESTYLE
-   Match the bold beer-punk aesthetic of the
-   rest of the app: thick black borders,
-   box-shadows, heavy text, bold colors.
+   PROFILE PAGE — CARD-BASED RESTYLE
+   Each profile field is its own card, matching
+   the brewery cards on the home page.
    ============================================ */
 
-/* Profile rows — thick dividers, more padding */
-.profile-row {
-  padding: 14px 16px;
-  border-bottom: 3px solid var(--black, #000);
+/* Section heading (standalone, not inside a card) */
+.profile-section-heading {
+  font-family: var(--font-display, 'Inter', 'Impact', sans-serif);
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--white, #fff);
+  text-align: center;
+  margin: 0;
+  padding: 0.6rem 0;
+  background: var(--yellow-primary, #FFD100);
+  color: var(--black, #000);
+  border: 4px solid var(--black, #000);
+  border-radius: 4px;
+  box-shadow: 4px 4px 0 var(--black, #000);
 }
-.profile-row:last-of-type {
-  border-bottom: none;
-}
-body.night-mode .profile-row {
-  border-bottom-color: #444;
+body.night-mode .profile-section-heading {
+  background: #333;
+  color: #FFD100;
+  border-color: #555;
+  box-shadow: none;
 }
 
-/* Icon — red circle background so yellow icons pop */
-.profile-row-icon {
-  width: 38px;
-  height: 38px;
-  background: var(--red-primary, #E31E24);
-  border-radius: 50%;
-  border: 2px solid var(--black, #000);
+/* Grid of profile cards */
+.profile-cards-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Each profile row is its own card */
+.profile-row-card {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--white, #fff);
+  border: 3px solid var(--black, #000);
+  border-radius: 4px;
+  box-shadow: 3px 3px 0 var(--black, #000);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.profile-row-card:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--black, #000);
+}
+.profile-row-card:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--black, #000);
+}
+body.night-mode .profile-row-card {
+  background: #2a2a2a;
+  border-color: #444;
+  box-shadow: none;
+}
+
+/* Icon — simple dark, no background circle */
+.profile-row-card .profile-row-icon {
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  font-size: 18px;
-}
-body.night-mode .profile-row-icon {
-  background: #333;
-  border-color: #555;
 }
 
-/* Labels — bolder and darker */
-.profile-row-label {
+/* Labels — red accent */
+.profile-row-card .profile-row-label {
   color: var(--red-primary, #E31E24);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 900;
   letter-spacing: 1px;
+  text-transform: uppercase;
 }
-body.night-mode .profile-row-label {
-  color: rgba(255,255,255,0.5);
+body.night-mode .profile-row-card .profile-row-label {
+  color: #888;
 }
 
-/* Values — heavy black text */
-.profile-row-value {
+/* Values — heavy black */
+.profile-row-card .profile-row-value {
   color: var(--black, #000);
   font-size: 15px;
   font-weight: 900;
+  margin-top: 1px;
 }
-body.night-mode .profile-row-value {
+body.night-mode .profile-row-card .profile-row-value {
   color: #fff;
 }
 
-/* Chevron — bolder */
-.profile-row-chevron {
-  color: var(--black, #000);
-  font-size: 20px;
+/* Chevron */
+.profile-row-card .profile-row-chevron {
+  color: var(--red-primary, #E31E24);
+  font-size: 22px;
   font-weight: 900;
 }
-body.night-mode .profile-row-chevron {
-  color: rgba(255,255,255,0.4);
-}
-
-/* Chips — bolder with border */
-.profile-row-chip {
-  background: var(--yellow-primary, #FFD100);
-  border: 2px solid var(--black, #000);
-  border-radius: 4px;
-  padding: 3px 10px;
-}
-.profile-row-chip span {
-  color: var(--black, #000);
-  font-size: 12px;
-  font-weight: 900;
-}
-body.night-mode .profile-row-chip {
-  background: rgba(255,209,0,0.2);
-  border-color: #555;
-}
-body.night-mode .profile-row-chip span {
-  color: #FFD100;
+body.night-mode .profile-row-card .profile-row-chevron {
+  color: #666;
 }
 
 /* Section cards — thicker retro borders */
@@ -7439,6 +7463,7 @@ body.night-mode .settings-email-display {
   cursor: pointer;
   padding: 0.4rem 1rem;
   box-shadow: 2px 2px 0 var(--black, #000);
+  transition: transform 0.1s, box-shadow 0.1s;
 }
 .settings-edit-btn:hover {
   transform: translate(-1px, -1px);
@@ -7451,7 +7476,7 @@ body.night-mode .settings-edit-btn {
   box-shadow: none;
 }
 
-/* Edit All / Submit button — yellow retro, half width, centered */
+/* Edit All / Submit button — yellow retro, centered */
 .settings-submit-btn {
   background: var(--yellow-primary, #FFD100);
   color: var(--black, #000);
@@ -7461,10 +7486,10 @@ body.night-mode .settings-edit-btn {
   font-size: 1rem;
   font-weight: 900;
   letter-spacing: 1px;
+  text-transform: uppercase;
   padding: 0.75rem 1.5rem;
-  width: 60% !important;
-  max-width: 280px;
-  margin: 16px auto !important;
+  width: 100%;
+  margin: 0;
   display: block;
   cursor: pointer;
   transition: transform 0.1s, box-shadow 0.1s;
