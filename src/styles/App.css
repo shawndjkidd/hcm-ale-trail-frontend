@@ -7560,17 +7560,17 @@ body.night-mode .top-rated-section .section-title {
   color: var(--white, #fff) !important;
 }
 
-/* ─── CONGRATULATIONS: single line, no hyphenation ─── */
+/* ─── CONGRATULATIONS: fit on one line, no truncation ─── */
 .completion-title {
-  font-size: clamp(1.3rem, 5.5vw, 2.2rem);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  word-break: normal;
-  overflow-wrap: normal;
-  hyphens: none;
-  -webkit-hyphens: none;
-  -ms-hyphens: none;
+  font-size: 1.5rem !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  hyphens: none !important;
+  -webkit-hyphens: none !important;
+  -ms-hyphens: none !important;
   margin-top: 0.5rem;
 }
 
@@ -7702,6 +7702,14 @@ body.night-mode .completion-back-btn {
 }
 body.night-mode .completion-back-btn:hover {
   color: #66BB6A;
+}
+
+/* ─── Merch container: no outer box ─── */
+.completion-merch {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0;
 }
 
 /* ─── Merch items: retro card style ─── */
