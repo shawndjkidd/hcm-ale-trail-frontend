@@ -7379,6 +7379,12 @@ body.night-mode .profile-row-card {
   justify-content: center;
   flex-shrink: 0;
 }
+/* Force icon SVGs to yellow in dark mode */
+body.night-mode .profile-row-card .profile-row-icon svg,
+body.night-mode .profile-row-card .profile-row-icon svg * {
+  fill: #FFD100 !important;
+  stroke: #FFD100 !important;
+}
 
 /* Labels — red accent */
 .profile-row-card .profile-row-label {
@@ -7538,4 +7544,239 @@ body.night-mode .settings-input {
 }
 body.night-mode .top-rated-section .section-title {
   color: #FFC700;
+}
+
+/* ============================================
+   COMPLETION MODAL — FULL OVERHAUL
+   Retro beer-punk styling: thick borders,
+   box-shadows, bold colors. Removes amateur
+   gray close btn, numbered circles, cheesy
+   emoji icon. Matches app design language.
+   ============================================ */
+
+/* ─── Remove the gray CLOSE override ─── */
+.completion-ok-btn.claimed {
+  background: var(--red-primary, #E31E24) !important;
+  color: var(--white, #fff) !important;
+}
+
+/* ─── CONGRATULATIONS: single line, no hyphenation ─── */
+.completion-title {
+  font-size: clamp(1.3rem, 5.5vw, 2.2rem);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: none;
+  -webkit-hyphens: none;
+  -ms-hyphens: none;
+  margin-top: 0.5rem;
+}
+
+/* ─── Remove the cheesy beer emoji icon ─── */
+.completion-icon {
+  display: none;
+}
+
+/* ─── Step badges (emoji-based, replacing number circles) ─── */
+.step-badge {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  flex-shrink: 0;
+  background: var(--white, #fff);
+  border: 3px solid var(--black, #000);
+  border-radius: 8px;
+  box-shadow: 3px 3px 0 var(--black, #000);
+}
+body.night-mode .step-badge {
+  background: #2a2a2a;
+  border-color: #555;
+  box-shadow: none;
+}
+
+/* ─── Step text: black in light mode ─── */
+.step-text {
+  color: var(--black, #000) !important;
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+body.night-mode .step-text {
+  color: #f0f0f0 !important;
+}
+
+/* ─── Steps container: retro card ─── */
+.completion-steps {
+  background: rgba(255, 255, 255, 0.5);
+  border: 3px solid var(--black, #000);
+  border-radius: 6px;
+  padding: 16px;
+  margin: 1.5rem 0;
+  box-shadow: 3px 3px 0 var(--black, #000);
+}
+body.night-mode .completion-steps {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: #444;
+  box-shadow: none;
+}
+
+/* ─── Each step row: better alignment ─── */
+.completion-step {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 14px;
+  text-align: left;
+}
+.completion-step:last-child {
+  margin-bottom: 0;
+}
+
+/* ─── Hide old step-number-circle (in case any remain) ─── */
+.step-number-circle {
+  display: none;
+}
+
+/* ─── Back nav button: retro red styling ─── */
+.completion-back-nav {
+  background: var(--red-primary, #E31E24);
+  border: 3px solid var(--black, #000);
+  border-radius: 4px;
+  padding: 6px 14px;
+  color: var(--white, #fff);
+  font-weight: 900;
+  box-shadow: 2px 2px 0 var(--black, #000);
+}
+.completion-back-nav:hover {
+  background: #c41a20;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--black, #000);
+}
+body.night-mode .completion-back-nav {
+  background: #333;
+  border-color: #555;
+  color: #FFD100;
+  box-shadow: none;
+}
+body.night-mode .completion-back-nav:hover {
+  background: #444;
+  color: #FFD100;
+}
+
+/* ─── Back button in brewery/PIN steps: green retro ─── */
+.completion-back-btn {
+  background: var(--green-primary, #4CAF50);
+  color: var(--white, #fff);
+  border: 3px solid var(--black, #000);
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-family: var(--font-display, inherit);
+  font-size: 0.9rem;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 16px;
+  box-shadow: 3px 3px 0 var(--black, #000);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.completion-back-btn:hover {
+  color: var(--white, #fff);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--black, #000);
+}
+.completion-back-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--black, #000);
+}
+body.night-mode .completion-back-btn {
+  background: #333;
+  color: #4CAF50;
+  border-color: #555;
+  box-shadow: none;
+}
+body.night-mode .completion-back-btn:hover {
+  color: #66BB6A;
+}
+
+/* ─── Merch items: retro card style ─── */
+.completion-merch-item {
+  border: 2px solid var(--black, #000);
+  border-radius: 4px;
+  box-shadow: 2px 2px 0 var(--black, #000);
+  background: rgba(255, 255, 255, 0.6);
+  margin-bottom: 8px;
+}
+body.night-mode .completion-merch-item {
+  border-color: #444;
+  box-shadow: none;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ─── CLAIM button: retro green ─── */
+.merch-claim-btn {
+  background: var(--green-primary, #4CAF50);
+  color: var(--white, #fff);
+  border: 3px solid var(--black, #000);
+  border-radius: 4px;
+  font-weight: 900;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  padding: 6px 14px;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--black, #000);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.merch-claim-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--black, #000);
+}
+.merch-claim-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--black, #000);
+}
+
+/* ─── Brewery picker items: retro card style ─── */
+.brewery-picker-item {
+  border: 3px solid var(--black, #000) !important;
+  border-radius: 4px !important;
+  box-shadow: 3px 3px 0 var(--black, #000);
+  background: rgba(255, 255, 255, 0.6) !important;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.brewery-picker-item:hover {
+  background: rgba(255, 255, 255, 0.8) !important;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--black, #000);
+}
+body.night-mode .brewery-picker-item {
+  border-color: #444 !important;
+  box-shadow: none;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ─── Brewery picker name: dark text ─── */
+.brewery-picker-name {
+  color: var(--black, #000);
+  font-weight: 800;
+}
+body.night-mode .brewery-picker-name {
+  color: #fff;
+}
+
+/* ─── PIN digit inputs: retro style ─── */
+.pin-digit {
+  border: 3px solid var(--black, #000) !important;
+  border-radius: 4px !important;
+  font-weight: 900;
+  box-shadow: 2px 2px 0 var(--black, #000);
+}
+body.night-mode .pin-digit {
+  border-color: #555 !important;
+  box-shadow: none;
 }

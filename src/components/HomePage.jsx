@@ -454,7 +454,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
             {/* ─── STEP: rewards (default view) ─── */}
             {claimStep === 'rewards' && (
               <>
-                <div className="completion-icon">🍻</div>
                 <h2 className="completion-title">{t.congratulations}</h2>
                 <p className="completion-subtitle">{t.completedTrail}</p>
 
@@ -486,20 +485,20 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
 
                 <div className="completion-steps">
                   <div className="completion-step">
-                    <div className="step-number-circle">1</div>
+                    <div className="step-badge">👋</div>
                     <div className="step-text">{t.completionStep1Merch || 'Show a staff member your completed card'}</div>
                   </div>
                   <div className="completion-step">
-                    <div className="step-number-circle">2</div>
+                    <div className="step-badge">📱</div>
                     <div className="step-text">{t.completionStep2Merch || 'Tap CLAIM and the staff will enter their code'}</div>
                   </div>
                   <div className="completion-step">
-                    <div className="step-number-circle">3</div>
+                    <div className="step-badge">🧢</div>
                     <div className="step-text">{t.completionStep3}</div>
                   </div>
                 </div>
 
-                <button className="completion-ok-btn claimed" onClick={handleCloseCompletionModal}>
+                <button className="completion-ok-btn" onClick={handleCloseCompletionModal}>
                   {t.close}
                 </button>
               </>
