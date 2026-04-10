@@ -434,15 +434,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         </button>
       </div>
 
-      {/* Unclaimed rewards banner — shows after modal dismissed */}
-      {isComplete && hasUnclaimedMerch && !showCompletionModal && (
-        <div className="unclaimed-rewards-banner" onClick={openClaimModal}>
-          <span className="unclaimed-rewards-icon">🎁</span>
-          <span className="unclaimed-rewards-text">{t.unclaimedRewards || 'You have unclaimed rewards! Tap to collect.'}</span>
-          <span className="unclaimed-rewards-arrow">→</span>
-        </div>
-      )}
-
       <div className="footer">
         <div className="footer-year">HCM ALE TRAIL 2026</div>
         <button className="reset-btn" onClick={resetCard}>
@@ -612,6 +603,14 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
             )}
           </div>
         </div>
+      )}
+
+      {/* Floating claim button — always visible when unclaimed merch exists */}
+      {isComplete && hasUnclaimedMerch && !showCompletionModal && (
+        <button className="floating-claim-btn" onClick={openClaimModal}>
+          <span className="floating-claim-icon">🎁</span>
+          <span className="floating-claim-label">{t.claimRewards || 'Claim Rewards'}</span>
+        </button>
       )}
     </div>
   )

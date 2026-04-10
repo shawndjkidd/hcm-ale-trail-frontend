@@ -5567,7 +5567,7 @@ body.night-mode .ale-trail-map-page {
   cursor: not-allowed;
 }
 
-/* Settings page is always dark — no night-mode overrides needed */
+/* Settings page now supports light/dark modes — see overrides at end of file */
 
 /* ============================================
    PIN VERIFICATION STEP (AddBeerModal Step 2)
@@ -6915,3 +6915,191 @@ body.night-mode .google-signin-btn:hover:not(:disabled) {
   font-size: 16px;
   color: #fff;
 }
+
+/* ─── Floating claim rewards button ─── */
+.floating-claim-btn {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #e8a430 0%, #d4881f 100%);
+  color: #1a1a1a;
+  border: 3px solid rgba(0,0,0,0.15);
+  border-radius: 50px;
+  padding: 14px 28px;
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(232, 164, 48, 0.45), 0 2px 8px rgba(0,0,0,0.2);
+  animation: floating-pulse 2.5s ease-in-out infinite;
+  white-space: nowrap;
+}
+.floating-claim-btn:active {
+  transform: translateX(-50%) scale(0.95);
+}
+.floating-claim-icon {
+  font-size: 20px;
+}
+.floating-claim-label {
+  text-transform: uppercase;
+}
+@keyframes floating-pulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(232, 164, 48, 0.45), 0 2px 8px rgba(0,0,0,0.2); }
+  50% { box-shadow: 0 4px 30px rgba(232, 164, 48, 0.7), 0 2px 12px rgba(0,0,0,0.25); }
+}
+
+/* ============================================
+   SETTINGS / PROFILE — LIGHT MODE OVERRIDES
+   Default (no .night-mode) is light mode.
+   The settings page was originally styled dark-only.
+   These rules make it work on light backgrounds.
+   ============================================ */
+
+/* Page background */
+.settings-page {
+  background: #f5f5f5;
+  color: #1a1a1a;
+}
+body.night-mode .settings-page {
+  background: #1a1a1a;
+  color: #f0f0f0;
+}
+
+/* Section cards */
+.settings-section {
+  border-color: #ddd;
+  background: #fff;
+}
+body.night-mode .settings-section {
+  border-color: #333;
+  background: #222;
+}
+
+/* Section title bar */
+.settings-section-title {
+  border-bottom-color: #ddd;
+}
+body.night-mode .settings-section-title {
+  border-bottom-color: #333;
+}
+
+/* Labels */
+.settings-label {
+  color: #666;
+}
+body.night-mode .settings-label {
+  color: #aaa;
+}
+
+/* Email display */
+.settings-email-display {
+  color: #1a1a1a;
+  background: #f0f0f0;
+  border-color: #ccc;
+}
+body.night-mode .settings-email-display {
+  color: #f0f0f0;
+  background: #2a2a2a;
+  border-color: #444;
+}
+
+/* Input fields */
+.settings-input {
+  color: #1a1a1a;
+  background: #fff;
+  border-color: #ccc;
+}
+body.night-mode .settings-input {
+  color: #f0f0f0;
+  background: #2a2a2a;
+  border-color: #555;
+}
+
+/* Form field dividers */
+.settings-form .settings-field {
+  border-bottom-color: #eee;
+}
+body.night-mode .settings-form .settings-field {
+  border-bottom-color: #333;
+}
+
+/* Profile rows */
+.profile-row {
+  border-bottom-color: rgba(0,0,0,0.08);
+}
+body.night-mode .profile-row {
+  border-bottom-color: rgba(255,255,255,0.1);
+}
+
+.profile-row-label {
+  color: rgba(0,0,0,0.45);
+}
+body.night-mode .profile-row-label {
+  color: rgba(255,255,255,0.5);
+}
+
+.profile-row-value {
+  color: #1a1a1a;
+}
+body.night-mode .profile-row-value {
+  color: #fff;
+}
+
+.profile-row-chevron {
+  color: rgba(0,0,0,0.25);
+}
+body.night-mode .profile-row-chevron {
+  color: rgba(255,255,255,0.3);
+}
+
+/* Profile chips */
+.profile-row-chip {
+  background: rgba(232, 164, 48, 0.12);
+}
+body.night-mode .profile-row-chip {
+  background: rgba(255,209,0,0.15);
+}
+
+.profile-row-chip span {
+  color: #b87a00;
+}
+body.night-mode .profile-row-chip span {
+  color: #FFD100;
+}
+
+/* Error/success in light mode */
+.settings-error {
+  background: #fff0f0;
+  border-color: #ff4444;
+  color: #cc0000;
+}
+body.night-mode .settings-error {
+  background: #2a0000;
+  color: #ff6666;
+}
+
+.settings-success {
+  background: #f0fff5;
+  border-color: #00c060;
+  color: #007a3a;
+}
+body.night-mode .settings-success {
+  background: #002a10;
+  color: #00e070;
+}
+
+/* Submit button border in light mode */
+.settings-submit-btn {
+  border-color: #ccc;
+}
+body.night-mode .settings-submit-btn {
+  border-color: #444;
+}
+
+/* Remove old "always dark" comment override */
