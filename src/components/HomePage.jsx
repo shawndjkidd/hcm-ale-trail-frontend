@@ -429,7 +429,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
                 )}
               </div>
               {/* temp-closed-overlay removed — now using inline badge like completed cards */}
-              {breweryEvent && <div className="event-banner">🎉 Event happening now!</div>}
+              {breweryEvent && <div className="event-banner">Event happening now!</div>}
             </div>
           )
         })}
@@ -448,13 +448,13 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
                   className={`side-quest-item-home ${isCompleted ? 'completed' : ''}`}
                   onClick={() => onSideQuestClick(quest)}
                 >
-                  <div className="side-quest-icon-home">{isCompleted ? '✅' : '🎯'}</div>
+                  <div className={`side-quest-icon-home ${isCompleted ? 'sq-icon-done' : ''}`}>{isCompleted ? '✓' : '?'}</div>
                   <div className="side-quest-info-home">
                     <div className="side-quest-name-home">{getQuestTitle(quest)}</div>
-                    {quest.reward && <div className="side-quest-reward-home">🎁 {t.rewardMap?.[quest.reward] || quest.reward}</div>}
+                    {quest.reward && <div className="side-quest-reward-home">{t.rewardMap?.[quest.reward] || quest.reward}</div>}
                   </div>
                   <div className="side-quest-arrow-home">→</div>
-                  {questEvent && <div className="event-banner">🎉 Event happening now!</div>}
+                  {questEvent && <div className="event-banner">Event happening now!</div>}
                 </div>
               )
             })}

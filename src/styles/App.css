@@ -9129,12 +9129,12 @@ body.night-mode .ev-card-link {
 /* Stamped card treatment */
 .brewery-item.stamped {
   background: #f0ebe3;
-  border-color: #2d8a4e;
+  border-color: var(--green-primary, #00B050);
 }
 
 /* Number turns green with a big checkmark */
 .brewery-number-done {
-  background: #2d8a4e !important;
+  background: var(--green-primary, #00B050) !important;
   color: #fff !important;
 }
 .brewery-check {
@@ -9147,7 +9147,7 @@ body.night-mode .ev-card-link {
 .stamped-badge {
   display: inline-block;
   margin-top: 4px;
-  background: #27ae60;
+  background: var(--green-primary, #00B050);
   color: #fff;
   padding: 2px 10px;
   border-radius: 3px;
@@ -9169,14 +9169,14 @@ body.night-mode .ev-card-link {
 /* Night mode — stamped cards */
 body.night-mode .brewery-item.stamped {
   background: #1a2e1f;
-  border-color: #2d8a4e;
+  border-color: var(--green-primary, #00B050);
 }
 body.night-mode .brewery-number-done {
-  background: #2d8a4e !important;
+  background: var(--green-primary, #00B050) !important;
   color: #fff !important;
 }
 body.night-mode .stamped-badge {
-  background: #2d8a4e;
+  background: var(--green-primary, #00B050);
 }
 body.night-mode .brewery-item.stamped .brewery-name {
   color: #e0e0e0;
@@ -9292,4 +9292,41 @@ body.night-mode .brewery-item.temp-closed .brewery-district {
 /* Hide old temp-closed-overlay diagonal banner */
 .temp-closed-overlay {
   display: none !important;
+}
+
+/* =====================================================
+   SIDE QUEST ICONS — replace emojis with styled circles
+   ===================================================== */
+.side-quest-icon-home {
+  width: 36px !important;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.15);
+  border: 3px solid rgba(0, 0, 0, 0.3);
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display, 'Rubik', sans-serif);
+  font-weight: 900;
+  font-size: 1.1rem !important;
+  color: rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
+}
+.side-quest-icon-home.sq-icon-done {
+  background: var(--green-primary, #00B050);
+  border-color: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  font-size: 1.3rem !important;
+}
+
+/* Night mode side quest icons */
+body.night-mode .side-quest-icon-home {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.35);
+}
+body.night-mode .side-quest-icon-home.sq-icon-done {
+  background: var(--green-primary, #00B050) !important;
+  border-color: rgba(0, 0, 0, 0.3);
+  color: #fff;
 }
