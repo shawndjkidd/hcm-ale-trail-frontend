@@ -7961,3 +7961,84 @@ body.night-mode .profile-edit-all-btn {
 .settings-section > .settings-field:first-child {
   padding-top: 1rem;
 }
+
+/* ============================================
+   PROFILE PAGE — PREMIUM POLISH
+   Edit indicator, 2-col grid, accent borders
+   ============================================ */
+
+/* Edit pencil icon next to trail name */
+.profile-hero-edit-icon {
+  display: inline-block;
+  font-size: 0.7em;
+  margin-left: 0.4rem;
+  opacity: 0.5;
+  vertical-align: middle;
+  transition: opacity 0.2s;
+}
+.profile-hero-name:hover .profile-hero-edit-icon {
+  opacity: 1;
+}
+
+/* 2-column grid for profile cards */
+.profile-cards-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+/* Edit All button spans full width */
+.profile-cards-grid .profile-edit-all-btn {
+  grid-column: 1 / -1;
+}
+/* On very small screens, fall back to single column */
+@media (max-width: 360px) {
+  .profile-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Profile cards — accent left border */
+.profile-row-card {
+  border-left: 5px solid var(--red-primary, #E31E24) !important;
+  position: relative;
+}
+.profile-row-card[data-accent="yellow"] {
+  border-left-color: var(--yellow-primary, #FFD100) !important;
+}
+.profile-row-card[data-accent="green"] {
+  border-left-color: #4CAF50 !important;
+}
+.profile-row-card[data-accent="red"] {
+  border-left-color: var(--red-primary, #E31E24) !important;
+}
+.profile-row-card[data-accent="blue"] {
+  border-left-color: #2196F3 !important;
+}
+
+/* Tighter card padding for 2-col layout */
+.profile-cards-grid .profile-row-card {
+  padding: 10px 12px;
+}
+.profile-cards-grid .profile-row-card .profile-row-value {
+  font-size: 13px;
+}
+.profile-cards-grid .profile-row-card .profile-row-label {
+  font-size: 9px;
+}
+.profile-cards-grid .profile-row-card .profile-row-chevron {
+  font-size: 18px;
+}
+
+/* Dark mode accent borders */
+body.night-mode .profile-row-card[data-accent="yellow"] {
+  border-left-color: #FFD100 !important;
+}
+body.night-mode .profile-row-card[data-accent="green"] {
+  border-left-color: #66BB6A !important;
+}
+body.night-mode .profile-row-card[data-accent="red"] {
+  border-left-color: #E31E24 !important;
+}
+body.night-mode .profile-row-card[data-accent="blue"] {
+  border-left-color: #42A5F5 !important;
+}

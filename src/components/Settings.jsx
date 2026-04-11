@@ -68,8 +68,8 @@ export default function Settings({ user, language, onBack }) {
 
   const handleEditComplete = () => { setEditField(null); setRefresh(n => n + 1) }
 
-  const ProfileRow = ({ rowLabel, field, value, iconType, iconSize = 24 }) => (
-    <button onClick={() => setEditField(field)} className="profile-row-card">
+  const ProfileRow = ({ rowLabel, field, value, iconType, iconSize = 24, accent }) => (
+    <button onClick={() => setEditField(field)} className="profile-row-card" data-accent={accent || 'red'}>
       <div className="profile-row-icon">
         <TrailIcon type={iconType} size={iconSize} color="#333" />
       </div>
@@ -85,7 +85,7 @@ export default function Settings({ user, language, onBack }) {
     const styles = profile?.beer_styles || []
     const displayValue = styles.length > 0 ? styles.map(s => label(s)).join(', ') : '—'
     return (
-      <button onClick={() => setEditField('beer_styles')} className="profile-row-card">
+      <button onClick={() => setEditField('beer_styles')} className="profile-row-card" data-accent="red">
         <div className="profile-row-icon">
           <TrailIcon type={styles[0] || 'lager'} size={24} color="#333" />
         </div>
@@ -114,6 +114,7 @@ export default function Settings({ user, language, onBack }) {
             </div>
             <button className="profile-hero-name" onClick={() => setEditField('display_name')}>
               {profile.display_name}
+              <span className="profile-hero-edit-icon">✎</span>
             </button>
             <div className="profile-hero-sub">{user?.email || ''}</div>
           </div>
@@ -132,20 +133,20 @@ export default function Settings({ user, language, onBack }) {
         ) : (
           <div className="profile-cards-grid">
             <ProfileRow rowLabel={t.profileLifestyle} field="lifestyle"
-              value={label(profile.lifestyle)} iconType={profile.lifestyle} />
+              value={label(profile.lifestyle)} iconType={profile.lifestyle} accent="yellow" />
             <BeerStylesRow />
             <ProfileRow rowLabel={t.profileLocation} field="location"
               value={
                 (label(profile.neighborhood) || '') +
                 (profile.home_country && profile.home_country !== 'VN' ? ` (${profile.home_country})` : '')
               }
-              iconType={locationIconType(profile.neighborhood)} />
+              iconType={locationIconType(profile.neighborhood)} accent="green" />
             <ProfileRow rowLabel={t.profileExperience} field="era"
-              value={label(profile.era)} iconType={profile.era} />
+              value={label(profile.era)} iconType={profile.era} accent="red" />
             <ProfileRow rowLabel={t.profileGender} field="gender"
-              value={label(profile.gender) || '—'} iconType={profile.gender || 'skip'} />
+              value={label(profile.gender) || '—'} iconType={profile.gender || 'skip'} accent="blue" />
             <ProfileRow rowLabel={t.profileVessel} field="avatar"
-              value={label(profile.avatar)} iconType={profile.avatar} />
+              value={label(profile.avatar)} iconType={profile.avatar} accent="yellow" />
             <button className="profile-edit-all-btn" onClick={() => setShowOnboarding(true)}>
               {t.editAll || 'EDIT ALL'}
             </button>
