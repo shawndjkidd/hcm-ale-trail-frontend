@@ -592,11 +592,12 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
                 {pinError && (
                   <div className="hat-claim-error">{t.wrongPin || 'Wrong code. Try again.'}</div>
                 )}
+                {claimError && (
+                  <div className="hat-claim-error">{claimError}</div>
+                )}
                 {claimBusy && (
                   <div className="claim-loading">{t.verifying || 'Verifying...'}</div>
                 )}
-
-                {/* Back handled by top nav or close */}
               </>
             )}
 
