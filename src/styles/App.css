@@ -9424,3 +9424,297 @@ body.night-mode .sq-arrow {
 body.night-mode .sq-chevron {
   color: var(--green-primary, #00B050);
 }
+
+/* =====================================================
+   BREWERY DETAIL — REDESIGNED SECTION CARDS
+   ===================================================== */
+
+/* Section card container */
+.bd-section-card {
+  background: #fff;
+  border: 4px solid var(--black);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0.75rem 0;
+  box-shadow: 4px 4px 0 var(--black);
+}
+
+/* Red header bar — clickable */
+.bd-section-header {
+  background: var(--red-primary, #C73E3A);
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.bd-section-header:active {
+  background: #B33530;
+}
+
+/* Section title in header */
+.bd-section-title {
+  font-family: var(--font-display, 'Anton', Impact, sans-serif);
+  color: #fff;
+  font-size: 1.1rem;
+  margin: 0;
+  letter-spacing: 2px;
+}
+
+/* Right side of header: badges + chevron */
+.bd-section-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Header badges */
+.bd-header-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.bd-badge-open {
+  background: rgba(0, 176, 80, 0.3);
+}
+.bd-badge-closed {
+  background: rgba(255, 50, 50, 0.3);
+}
+.bd-badge-count {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Chevron toggle arrow */
+.bd-chevron {
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 300;
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+.bd-chevron-open {
+  transform: rotate(180deg);
+}
+
+/* Section body (content area) */
+.bd-section-body {
+  padding: 6px 14px 10px;
+}
+
+/* ---- Hours rows ---- */
+.bd-hours-list {
+  display: flex;
+  flex-direction: column;
+}
+.bd-hours-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 8px;
+  border-radius: 4px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.bd-hours-row:last-child {
+  border-bottom: none;
+}
+.bd-hours-today {
+  background: #FFF8E1;
+}
+.bd-hours-day {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #333;
+}
+.bd-hours-today .bd-hours-day {
+  color: var(--red-primary, #C73E3A);
+  font-weight: 800;
+}
+.bd-today-marker {
+  color: var(--red-primary, #C73E3A);
+}
+.bd-hours-time {
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: #555;
+}
+.bd-hours-today .bd-hours-time {
+  color: #111;
+  font-weight: 700;
+}
+.bd-hours-closed .bd-hours-day,
+.bd-hours-closed .bd-hours-time {
+  color: #CC2222;
+}
+.bd-hours-na {
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  font-size: 0.85rem;
+  padding: 8px 0;
+}
+
+/* ---- Social buttons — horizontal row ---- */
+.bd-social-row {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 0.75rem;
+}
+.bd-social-btn {
+  flex: 1;
+  padding: 14px 6px;
+  border: 3px solid var(--black);
+  border-radius: 4px;
+  color: #fff;
+  font-family: var(--font-display, 'Anton', Impact, sans-serif);
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 var(--black);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.bd-social-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--black);
+}
+.bd-social-maps { background: #4CAF50; }
+.bd-social-instagram { background: #C2185B; }
+.bd-social-facebook { background: #1976D2; }
+
+/* ---- Our Beers — scrollable body ---- */
+.bd-beers-scroll {
+  max-height: 320px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.bd-beer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 4px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.bd-beer-row:last-child {
+  border-bottom: none;
+}
+.bd-beer-info {
+  flex: 1;
+  min-width: 0;
+}
+.bd-beer-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #111;
+}
+.bd-beer-style {
+  font-size: 0.8rem;
+  color: #888;
+}
+.bd-beer-abv {
+  background: #FFF8E1;
+  color: var(--red-primary, #C73E3A);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+  margin-left: 8px;
+}
+
+/* ---- My Beers rows ---- */
+.bd-mybeer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 4px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.bd-mybeer-row:last-child {
+  border-bottom: none;
+}
+.bd-mybeer-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #111;
+}
+.bd-mybeer-rating {
+  font-size: 0.95rem;
+  color: #FFB300;
+  letter-spacing: 1px;
+}
+
+/* =====================================================
+   BREWERY DETAIL REDESIGN — NIGHT MODE
+   ===================================================== */
+body.night-mode .bd-section-card {
+  background: #1E1E1E;
+  border-color: #333;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+}
+body.night-mode .bd-section-header {
+  background: #8B1A1A;
+}
+body.night-mode .bd-section-header:active {
+  background: #7A1515;
+}
+body.night-mode .bd-section-title {
+  color: #FFD100;
+}
+body.night-mode .bd-hours-row {
+  border-bottom-color: #333;
+}
+body.night-mode .bd-hours-today {
+  background: rgba(255, 209, 0, 0.1);
+}
+body.night-mode .bd-hours-day {
+  color: #ccc;
+}
+body.night-mode .bd-hours-today .bd-hours-day {
+  color: #FFD100;
+}
+body.night-mode .bd-today-marker {
+  color: #FFD100;
+}
+body.night-mode .bd-hours-time {
+  color: #aaa;
+}
+body.night-mode .bd-hours-today .bd-hours-time {
+  color: #fff;
+}
+body.night-mode .bd-hours-closed .bd-hours-day,
+body.night-mode .bd-hours-closed .bd-hours-time {
+  color: #CC4444;
+}
+body.night-mode .bd-social-row .bd-social-btn {
+  border-color: #444;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+}
+body.night-mode .bd-beer-row {
+  border-bottom-color: #333;
+}
+body.night-mode .bd-beer-name {
+  color: #eee;
+}
+body.night-mode .bd-beer-style {
+  color: #777;
+}
+body.night-mode .bd-beer-abv {
+  background: rgba(255, 209, 0, 0.1);
+  color: #FFB300;
+}
+body.night-mode .bd-mybeer-row {
+  border-bottom-color: #333;
+}
+body.night-mode .bd-mybeer-name {
+  color: #eee;
+}
+body.night-mode .bd-mybeer-rating {
+  color: #FFB300;
+}

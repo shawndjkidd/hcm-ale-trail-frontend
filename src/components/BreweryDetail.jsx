@@ -78,6 +78,10 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
   const [eventsLoading, setEventsLoading] = useState(true)
   const [menuBeers, setMenuBeers] = useState([])
   const [menuBeersLoading, setMenuBeersLoading] = useState(true)
+  const [hoursOpen, setHoursOpen] = useState(true)
+  const [eventsOpen, setEventsOpen] = useState(true)
+  const [beersMenuOpen, setBeersMenuOpen] = useState(false)
+  const [myBeersOpen, setMyBeersOpen] = useState(true)
 
   const t = translations[language]
   const isStamped = stamps.includes(brewery?.id)
@@ -316,13 +320,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
           </div>
         )}
         <h1 className="brewery-title">{brewery?.name || 'Brewery'}</h1>
-        <p className="brewery-address">📍 {brewery?.address || ''}</p>
-
-        {openStatus !== null && (
-          <div className={`brewery-open-status ${openStatus ? 'open' : 'closed'}`}>
-            {openStatus ? (t.openNow || '🟢 Open Now') : (t.closedNow || '🔴 Closed')}
-          </div>
-        )}
+        <p className="brewery-address">{brewery?.address || ''}</p>
 
         <p className="brewery-description">{getDescription()}</p>
       </div>
@@ -337,141 +335,159 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
         </button>
       )}
 
-      {/* 3. Two-column: Hours + Social Buttons */}
-      <div className="brewery-hours-social-row">
-        {/* Left: Operating Hours */}
-        <div className="brewery-hours-compact">
-          <h3 className="brewery-hours-compact-title">{t.hours || 'HOURS'}</h3>
-          {hoursData && hoursData.length > 0 ? (
-            <div className="brewery-hours-compact-grid">
-              {hoursData.map((item, index) => (
-                <div key={index} className={`brewery-hours-compact-row ${item.hours === (t.closed || 'Closed') ? 'closed-day' : ''}`}>
-                  <span className="brewery-hours-compact-day">{item.day}</span>
-                  <span className="brewery-hours-compact-time">{item.hours}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="brewery-hours-compact-na">{t.hoursNotAvailable || 'Hours not available'}</p>
-          )}
+      {/* 3. Hours — collapsible card with red header */}
+      <div className="bd-section-card">
+        <div className="bd-section-header" onClick={() => setHoursOpen(!hoursOpen)}>
+          <h3 className="bd-section-title">{t.hours || 'HOURS'}</h3>
+          <div className="bd-section-header-right">
+            {openStatus !== null && (
+              <span className={`bd-header-badge ${openStatus ? 'bd-badge-open' : 'bd-badge-closed'}`}>
+                {openStatus ? (t.openNow || 'OPEN NOW') : (t.closedNow || 'CLOSED')}
+              </span>
+            )}
+            <span className={`bd-chevron ${hoursOpen ? 'bd-chevron-open' : ''}`}>&#9662;</span>
+          </div>
         </div>
-
-        {/* Right: Social Buttons stacked */}
-        <div className="brewery-social-stack">
-          {breweryInfo.maps && (
-            <a
-              href={breweryInfo.maps}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="social-stack-btn green"
-            >
-              {t.maps}
-            </a>
-          )}
-          {breweryInfo.instagram && (
-            <a
-              href={breweryInfo.instagram}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="social-stack-btn instagram"
-            >
-              {t.instagram}
-            </a>
-          )}
-          {breweryInfo.facebook && (
-            <a
-              href={breweryInfo.facebook}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="social-stack-btn facebook"
-            >
-              {t.facebook}
-            </a>
-          )}
-        </div>
-      </div>
-
-      {/* 4. Upcoming Events */}
-      <div className="brewery-events-section">
-        <h3 className="brewery-events-title">{t.upcomingEvents || 'UPCOMING EVENTS'}</h3>
-        {eventsLoading ? (
-          <p className="events-loading-text">{t.loading || 'Loading...'}</p>
-        ) : breweryEvents.length > 0 ? (
-          breweryEvents.map(event => (
-            <div key={event.id} className={`brewery-event-item ${event.category === 'new_release' ? 'event-new-release' : ''}`}>
-              <div className="event-category-tag-row">
-                {event.category === 'new_release' ? (
-                  <span className="event-category-tag new-release">🍺 {t.newRelease || 'NEW RELEASE'}</span>
-                ) : (
-                  <span className="event-category-tag event-type">🎉 {t.event || 'EVENT'}</span>
-                )}
+        {hoursOpen && (
+          <div className="bd-section-body">
+            {hoursData && hoursData.length > 0 ? (
+              <div className="bd-hours-list">
+                {hoursData.map((item, index) => {
+                  const dayLabels = DAY_LABELS[language] || DAY_LABELS.en
+                  const todayIndex = new Date().getDay()
+                  const isToday = index === todayIndex
+                  const isClosed = item.hours === (t.closed || 'Closed')
+                  return (
+                    <div key={index} className={`bd-hours-row ${isToday ? 'bd-hours-today' : ''} ${isClosed ? 'bd-hours-closed' : ''}`}>
+                      <span className="bd-hours-day">
+                        {isToday && <span className="bd-today-marker">&#9656; </span>}{item.day}
+                      </span>
+                      <span className="bd-hours-time">{item.hours}</span>
+                    </div>
+                  )
+                })}
               </div>
-              <div className="brewery-event-header">
-                <span className="brewery-event-name">{getEventTitle(event)}</span>
-                <span className="brewery-event-date">{formatEventDate(event.startsAt)}</span>
-              </div>
-              <div className="brewery-event-time">🕐 {formatEventTime(event.startsAt)}</div>
-              {getEventDescription(event) && (
-                <div className="brewery-event-desc">{getEventDescription(event)}</div>
-              )}
-              {event.link && (
-                <a
-                  href={event.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="event-link-btn"
-                  style={{ marginTop: '8px' }}
-                >
-                  {t.moreInfo || 'MORE INFO'}
-                </a>
-              )}
-            </div>
-          ))
-        ) : (
-          <p className="no-events">{t.noEvents || 'No upcoming events'}</p>
+            ) : (
+              <p className="bd-hours-na">{t.hoursNotAvailable || 'Hours not available'}</p>
+            )}
+          </div>
         )}
       </div>
 
-      {/* 5. Our Beers (brewery menu) */}
-      {!menuBeersLoading && menuBeers.length > 0 && (
-        <div className="brewery-menu-section">
-          <h3 className="brewery-menu-title">{t.ourBeers || 'OUR BEERS'}</h3>
-          <div className="brewery-menu-list">
-            {menuBeers.map(beer => (
-              <div key={beer.id} className="brewery-menu-item">
-                <div className="brewery-menu-beer-name">{beer.name}</div>
-                <div className="brewery-menu-beer-details">
-                  {beer.style && <span className="brewery-menu-style">{beer.style}</span>}
-                  {beer.abv != null && <span className="brewery-menu-abv">{beer.abv}%</span>}
+      {/* 4. Social Buttons — horizontal row */}
+      <div className="bd-social-row">
+        {breweryInfo.maps && (
+          <a href={breweryInfo.maps} target="_blank" rel="noopener noreferrer" className="bd-social-btn bd-social-maps">
+            {t.maps}
+          </a>
+        )}
+        {breweryInfo.instagram && (
+          <a href={breweryInfo.instagram} target="_blank" rel="noopener noreferrer" className="bd-social-btn bd-social-instagram">
+            {t.instagram}
+          </a>
+        )}
+        {breweryInfo.facebook && (
+          <a href={breweryInfo.facebook} target="_blank" rel="noopener noreferrer" className="bd-social-btn bd-social-facebook">
+            {t.facebook}
+          </a>
+        )}
+      </div>
+
+      {/* 5. Upcoming Events — collapsible card */}
+      <div className="bd-section-card">
+        <div className="bd-section-header" onClick={() => setEventsOpen(!eventsOpen)}>
+          <h3 className="bd-section-title">{t.upcomingEvents || 'UPCOMING EVENTS'}</h3>
+          <span className={`bd-chevron ${eventsOpen ? 'bd-chevron-open' : ''}`}>&#9662;</span>
+        </div>
+        {eventsOpen && (
+          <div className="bd-section-body">
+            {eventsLoading ? (
+              <p className="events-loading-text">{t.loading || 'Loading...'}</p>
+            ) : breweryEvents.length > 0 ? (
+              breweryEvents.map(event => (
+                <div key={event.id} className={`brewery-event-item ${event.category === 'new_release' ? 'event-new-release' : ''}`}>
+                  <div className="event-category-tag-row">
+                    {event.category === 'new_release' ? (
+                      <span className="event-category-tag new-release">{t.newRelease || 'NEW RELEASE'}</span>
+                    ) : (
+                      <span className="event-category-tag event-type">{t.event || 'EVENT'}</span>
+                    )}
+                  </div>
+                  <div className="brewery-event-header">
+                    <span className="brewery-event-name">{getEventTitle(event)}</span>
+                    <span className="brewery-event-date">{formatEventDate(event.startsAt)}</span>
+                  </div>
+                  <div className="brewery-event-time">{formatEventTime(event.startsAt)}</div>
+                  {getEventDescription(event) && (
+                    <div className="brewery-event-desc">{getEventDescription(event)}</div>
+                  )}
+                  {event.link && (
+                    <a href={event.link} target="_blank" rel="noopener noreferrer" className="event-link-btn" style={{ marginTop: '8px' }}>
+                      {t.moreInfo || 'MORE INFO'}
+                    </a>
+                  )}
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="no-events">{t.noEvents || 'No upcoming events'}</p>
+            )}
           </div>
+        )}
+      </div>
+
+      {/* 6. Our Beers — collapsible card, starts CLOSED */}
+      {!menuBeersLoading && menuBeers.length > 0 && (
+        <div className="bd-section-card">
+          <div className="bd-section-header" onClick={() => setBeersMenuOpen(!beersMenuOpen)}>
+            <h3 className="bd-section-title">{t.ourBeers || 'OUR BEERS'}</h3>
+            <div className="bd-section-header-right">
+              <span className="bd-header-badge bd-badge-count">{menuBeers.length} {menuBeers.length === 1 ? 'beer' : 'beers'}</span>
+              <span className={`bd-chevron ${beersMenuOpen ? 'bd-chevron-open' : ''}`}>&#9662;</span>
+            </div>
+          </div>
+          {beersMenuOpen && (
+            <div className="bd-section-body bd-beers-scroll">
+              {menuBeers.map(beer => (
+                <div key={beer.id} className="bd-beer-row">
+                  <div className="bd-beer-info">
+                    <div className="bd-beer-name">{beer.name}</div>
+                    {beer.style && <div className="bd-beer-style">{beer.style}</div>}
+                  </div>
+                  {beer.abv != null && <span className="bd-beer-abv">{beer.abv}%</span>}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
-      {/* 6. Hashtag / Copy Handle */}
+      {/* 7. Hashtag / Copy Handle */}
       <div className="hashtag-section">
         <div className="hashtag-text">
           {t.tag || "Tag"}: {breweryInfo.instagramHandle}
         </div>
         <button className="copy-btn" onClick={copyInstagramHandle}>
-          📋 {t.copyHandle}
+          {t.copyHandle}
         </button>
       </div>
 
-      {/* 7. My Beers (user's rated beers at this brewery) */}
+      {/* 8. My Beers — collapsible card */}
       {breweryBeers.length > 0 && (
-        <div className="brewery-beers">
-          <h3>{t.myBeersHere || 'MY BEERS'}</h3>
-          {breweryBeers.map(beer => (
-            <div key={beer.id} className="beer-item">
-              <div className="beer-name">{beer.name}</div>
-              <div className="beer-rating">
-                {'⭐'.repeat(beer.rating)}
-              </div>
+        <div className="bd-section-card">
+          <div className="bd-section-header" onClick={() => setMyBeersOpen(!myBeersOpen)}>
+            <h3 className="bd-section-title">{t.myBeersHere || 'MY BEERS'}</h3>
+            <span className={`bd-chevron ${myBeersOpen ? 'bd-chevron-open' : ''}`}>&#9662;</span>
+          </div>
+          {myBeersOpen && (
+            <div className="bd-section-body">
+              {breweryBeers.map(beer => (
+                <div key={beer.id} className="bd-mybeer-row">
+                  <span className="bd-mybeer-name">{beer.name}</span>
+                  <span className="bd-mybeer-rating">{'★'.repeat(beer.rating)}</span>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
       )}
 
