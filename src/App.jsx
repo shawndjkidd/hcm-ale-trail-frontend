@@ -13,7 +13,7 @@ import OnboardingFlow from "./components/OnboardingFlow";
 import translations from "./translations";
 import { recordCheckin, supabase } from "./lib/supabase";
 import { TRAIL_ID } from "./config";
-import { getBreweries, getMe, logout as apiLogout, startNewRun, postCheckin, getLeaderboard, claimHat, storeLoginTokens } from "./lib/api";
+import { getBreweries, getMe, logout as apiLogout, startNewRun, postCheckin, getLeaderboard, claimHat, storeLoginTokens, getAccessToken, setTokens } from "./lib/api";
 
 import "./styles/App.css";
 
@@ -278,6 +278,25 @@ export default function App() {
         }
         // OAuth hash present but failed — clean URL and fall through to normal auth
         try { window.history.replaceState({}, "", window.location.pathname); } catch {}
+      }
+
+      // ── Sync tokens from Supabase session if missing ─────────────────────
+      // If hcm-access-token is missing but Supabase has a valid session,
+      // extract tokens so API calls (merch, etc.) work on page reload
+      if (!getAccessToken() && savedUser) {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.access_token) {
+            setTokens({
+              access_token: session.access_token,
+              refresh_token: session.refresh_token,
+              expires_at: session.expires_at,
+            });
+            console.log("[Auth] Synced tokens from Supabase session");
+          }
+        } catch (e) {
+          console.log("[Auth] Failed to sync Supabase session:", e);
+        }
       }
 
       // ── Normal auth state ─────────────────────────────────────────────────
