@@ -9340,6 +9340,19 @@ body.night-mode .side-quest-icon-home.sq-icon-done {
 /* =====================================================
    SIDE QUEST CARDS — cooler distinctive style
    ===================================================== */
+
+/* Fix double-margin: side-quests-section already has 12px side margins,
+   so remove the brewery-list inner margin to match brewery card width */
+.side-quests-section .brewery-list {
+  margin-left: 0;
+  margin-right: 0;
+}
+/* Remove side-quests-section side margin, use same as brewery-list (0 12px) */
+.side-quests-section {
+  margin-left: 12px !important;
+  margin-right: 12px !important;
+}
+
 .sq-card {
   border-color: var(--green-primary, #00B050) !important;
   box-shadow: 4px 4px 0 rgba(0, 176, 80, 0.4) !important;
@@ -9361,6 +9374,10 @@ body.night-mode .side-quest-icon-home.sq-icon-done {
   height: 28px;
   color: #fff;
   filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+}
+.sq-card .brewery-info {
+  min-width: 0;
+  overflow: hidden;
 }
 .sq-name {
   white-space: nowrap;
