@@ -438,22 +438,29 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
       {sideQuests.length > 0 && (
         <div className="side-quests-section">
           <h2 className="side-quests-section-title">{t.sideQuests || 'SIDE QUESTS'}</h2>
-          <div className="side-quest-list-home">
-            {sideQuests.map((quest) => {
+          <div className="brewery-list">
+            {sideQuests.map((quest, index) => {
               const isCompleted = sideQuestCheckins.includes(quest.id)
               const questEvent = activeEvents.find(e => e.sideQuestId === quest.id)
               return (
                 <div
                   key={quest.id}
-                  className={`side-quest-item-home ${isCompleted ? 'completed' : ''}`}
+                  className={`brewery-item sq-card ${isCompleted ? 'stamped' : ''}`}
                   onClick={() => onSideQuestClick(quest)}
                 >
-                  <div className={`side-quest-icon-home ${isCompleted ? 'sq-icon-done' : ''}`}>{isCompleted ? '✓' : '?'}</div>
-                  <div className="side-quest-info-home">
-                    <div className="side-quest-name-home">{getQuestTitle(quest)}</div>
-                    {quest.reward && <div className="side-quest-reward-home">{t.rewardMap?.[quest.reward] || quest.reward}</div>}
+                  <div className={`brewery-number sq-number ${isCompleted ? 'brewery-number-done' : ''}`}>
+                    {isCompleted ? <span className="brewery-check">✓</span> : <span className="sq-icon">?</span>}
                   </div>
-                  <div className="side-quest-arrow-home">→</div>
+                  <div className="brewery-info">
+                    <div className="brewery-name">{getQuestTitle(quest)}</div>
+                    {quest.reward && <div className="brewery-district">{t.rewardMap?.[quest.reward] || quest.reward}</div>}
+                    {isCompleted && (
+                      <div className="stamped-badge">{(t.completed || 'COMPLETED!').toUpperCase()}</div>
+                    )}
+                  </div>
+                  <div className="brewery-logo sq-arrow">
+                    <span>→</span>
+                  </div>
                   {questEvent && <div className="event-banner">Event happening now!</div>}
                 </div>
               )

@@ -9336,3 +9336,43 @@ body.night-mode .side-quest-icon-home.sq-icon-done {
   border-color: rgba(0, 0, 0, 0.3);
   color: #fff;
 }
+
+/* =====================================================
+   SIDE QUEST CARDS — brewery-item layout match
+   ===================================================== */
+.sq-number {
+  background: var(--green-primary, #00B050) !important;
+  color: #fff !important;
+}
+.sq-icon {
+  font-family: var(--font-display, 'Rubik', sans-serif);
+  font-weight: 900;
+  font-size: 2rem;
+}
+.sq-arrow {
+  border-left: 4px dashed var(--black) !important;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--black);
+}
+.sq-arrow span {
+  font-size: 1.5rem;
+}
+
+/* Side quest section title */
+.side-quests-section-title {
+  margin-top: 24px;
+}
+
+/* Night mode — side quest number */
+body.night-mode .sq-number {
+  background: var(--green-primary, #00B050) !important;
+  color: #fff !important;
+}
+body.night-mode .sq-arrow {
+  border-left-color: #444 !important;
+  color: #ccc;
+}
+body.night-mode .sq-arrow span {
+  color: #ccc;
+}
