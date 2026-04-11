@@ -106,8 +106,54 @@ export default function Settings({ user, language, onBack }) {
       </div>
 
       <div className="settings-content">
+        {/* ─── Hero: Trail Name + Avatar ─── */}
+        {profile && profile.display_name && (
+          <div className="profile-hero">
+            <div className="profile-hero-avatar">
+              <TrailIcon type={profile.avatar || 'pint'} size={48} color="#fff" />
+            </div>
+            <button className="profile-hero-name" onClick={() => setEditField('display_name')}>
+              {profile.display_name}
+            </button>
+            <div className="profile-hero-sub">{user?.email || ''}</div>
+          </div>
+        )}
+
+        {/* ─── Trail Profile Cards ─── */}
+        {(!profile || !profile.lifestyle) ? (
+          <div className="settings-section">
+            <p className="profile-row-label" style={{ fontSize: 14, marginBottom: 12, padding: '12px 16px 0' }}>
+              {t.trailProfileDesc || 'Tell us about yourself to personalize your trail'}
+            </p>
+            <button className="settings-submit-btn" onClick={() => setShowOnboarding(true)} style={{ width: '100%' }}>
+              {t.setUpTrailProfile || 'SET UP TRAIL PROFILE'}
+            </button>
+          </div>
+        ) : (
+          <div className="profile-cards-grid">
+            <ProfileRow rowLabel={t.profileLifestyle} field="lifestyle"
+              value={label(profile.lifestyle)} iconType={profile.lifestyle} />
+            <BeerStylesRow />
+            <ProfileRow rowLabel={t.profileLocation} field="location"
+              value={
+                (label(profile.neighborhood) || '') +
+                (profile.home_country && profile.home_country !== 'VN' ? ` (${profile.home_country})` : '')
+              }
+              iconType={locationIconType(profile.neighborhood)} />
+            <ProfileRow rowLabel={t.profileExperience} field="era"
+              value={label(profile.era)} iconType={profile.era} />
+            <ProfileRow rowLabel={t.profileGender} field="gender"
+              value={label(profile.gender) || '—'} iconType={profile.gender || 'skip'} />
+            <ProfileRow rowLabel={t.profileVessel} field="avatar"
+              value={label(profile.avatar)} iconType={profile.avatar} />
+            <button className="profile-edit-all-btn" onClick={() => setShowOnboarding(true)}>
+              {t.editAll || 'EDIT ALL'}
+            </button>
+          </div>
+        )}
+
+        {/* ─── Account Section ─── */}
         <div className="settings-section">
-          <h2 className="settings-section-title">{t.accountInfo || 'ACCOUNT'}</h2>
           <div className="settings-field">
             <label className="settings-label">{t.yourEmail || 'Email'}</label>
             {!editingEmail ? (
@@ -144,41 +190,7 @@ export default function Settings({ user, language, onBack }) {
           </div>
         </div>
 
-        <h2 className="profile-section-heading">{t.trailProfile || 'TRAIL PROFILE'}</h2>
-        {(!profile || !profile.lifestyle) ? (
-          <div className="settings-section">
-            <p className="profile-row-label" style={{ fontSize: 14, marginBottom: 12, padding: '12px 16px 0' }}>
-              {t.trailProfileDesc || 'Tell us about yourself to personalize your trail'}
-            </p>
-            <button className="settings-submit-btn" onClick={() => setShowOnboarding(true)} style={{ width: '100%' }}>
-              {t.setUpTrailProfile || 'SET UP TRAIL PROFILE'}
-            </button>
-          </div>
-        ) : (
-          <div className="profile-cards-grid">
-            <ProfileRow rowLabel={t.profileLifestyle} field="lifestyle"
-              value={label(profile.lifestyle)} iconType={profile.lifestyle} />
-            <BeerStylesRow />
-            <ProfileRow rowLabel={t.profileLocation} field="location"
-              value={
-                (label(profile.neighborhood) || '') +
-                (profile.home_country && profile.home_country !== 'VN' ? ` (${profile.home_country})` : '')
-              }
-              iconType={locationIconType(profile.neighborhood)} />
-            <ProfileRow rowLabel={t.profileExperience} field="era"
-              value={label(profile.era)} iconType={profile.era} />
-            <ProfileRow rowLabel={t.profileGender} field="gender"
-              value={label(profile.gender) || '—'} iconType={profile.gender || 'skip'} />
-            <ProfileRow rowLabel={t.profileVessel} field="avatar"
-              value={label(profile.avatar)} iconType={profile.avatar} />
-            <ProfileRow rowLabel={t.profileTrailName} field="display_name"
-              value={profile.display_name || '—'} iconType={profile.avatar || 'pint'} iconSize={20} />
-            <button className="settings-submit-btn" onClick={() => setShowOnboarding(true)}>
-              {t.editAll || 'EDIT ALL'}
-            </button>
-          </div>
-        )}
-
+        {/* ─── Change Password ─── */}
         <div className="settings-section">
           <h2 className="settings-section-title">{t.changePasswordTitle || 'CHANGE PASSWORD'}</h2>
           <form onSubmit={handleSubmit} className="settings-form">
