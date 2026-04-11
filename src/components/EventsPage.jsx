@@ -13,6 +13,7 @@ const DEMO_EVENTS = [
     description: 'Test your beer knowledge and win prizes. Teams of up to 4 people welcome.',
     startsAt: '2025-05-10T19:00:00+07:00',
     endsAt: '2025-05-10T22:00:00+07:00',
+    link: 'https://www.instagram.com/biacraft.artisanales/',
   },
   {
     id: 'demo-2',
@@ -22,6 +23,7 @@ const DEMO_EVENTS = [
     description: 'A bold new West Coast IPA with tropical hop notes. First 50 pints get a free glass.',
     startsAt: '2025-05-15T17:00:00+07:00',
     endsAt: '2025-05-15T23:00:00+07:00',
+    link: 'https://www.instagram.com/heartofdarkness.craft/',
   },
   {
     id: 'demo-3',
@@ -31,6 +33,7 @@ const DEMO_EVENTS = [
     description: 'Local bands, smoked ribs, and cold craft beer. No cover charge.',
     startsAt: '2025-05-17T18:00:00+07:00',
     endsAt: '2025-05-17T23:30:00+07:00',
+    link: 'https://www.instagram.com/roosterbeers/',
   },
 ]
 
