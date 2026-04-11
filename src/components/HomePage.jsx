@@ -393,10 +393,15 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
               className={`brewery-item ${isStamped ? 'stamped' : ''}`}
               onClick={() => onBreweryClick(brewery)}
             >
-              <div className="brewery-number">{index + 1}</div>
+              <div className={`brewery-number ${isStamped ? 'brewery-number-done' : ''}`}>
+                {isStamped ? <span className="brewery-check">✓</span> : index + 1}
+              </div>
               <div className="brewery-info">
                 <div className="brewery-name">{brewery.name}</div>
                 <div className="brewery-district">{brewery.district}</div>
+                {isStamped && (
+                  <div className="stamped-badge">{(t.completed || 'COMPLETED!').toUpperCase()}</div>
+                )}
               </div>
               <div className="brewery-logo">
                 {getBreweryLogo(brewery) ? (
@@ -409,11 +414,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
                   <span className="logo-placeholder">🍺</span>
                 )}
               </div>
-              {isStamped && (
-                <div className="completed-stamp">
-                  <div className="stamp-text">{(t.completed || 'Completed!').toUpperCase()}</div>
-                </div>
-              )}
               {brewery.status === 'temporarily_closed' && (
                 <div className="temp-closed-overlay">
                   <span>{t.temporarilyClosed || 'TEMPORARILY CLOSED'}</span>

@@ -9116,3 +9116,71 @@ body.night-mode .ev-card-link {
   border-color: #555;
   box-shadow: none;
 }
+
+/* =====================================================
+   BREWERY CARD — COMPLETED STAMP REDESIGN
+   ===================================================== */
+
+/* Hide old diagonal stamp (replaced by new design) */
+.completed-stamp {
+  display: none !important;
+}
+
+/* Stamped card treatment */
+.brewery-item.stamped {
+  background: #f0ebe3;
+  border-color: #2d8a4e;
+}
+
+/* Number turns green with a big checkmark */
+.brewery-number-done {
+  background: #2d8a4e !important;
+  color: #fff !important;
+}
+.brewery-check {
+  font-size: 2.4rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+/* Completed badge under brewery name */
+.stamped-badge {
+  display: inline-block;
+  margin-top: 4px;
+  background: #27ae60;
+  color: #fff;
+  padding: 2px 10px;
+  border-radius: 3px;
+  font-family: var(--font-display, 'Rubik', sans-serif);
+  font-weight: 800;
+  font-size: 0.55rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+/* Stamped card — brewery name stays dark for legibility */
+.brewery-item.stamped .brewery-name {
+  color: #1a1a1a;
+}
+.brewery-item.stamped .brewery-district {
+  color: #555;
+}
+
+/* Night mode — stamped cards */
+body.night-mode .brewery-item.stamped {
+  background: #1a2e1f;
+  border-color: #2d8a4e;
+}
+body.night-mode .brewery-number-done {
+  background: #2d8a4e !important;
+  color: #fff !important;
+}
+body.night-mode .stamped-badge {
+  background: #2d8a4e;
+}
+body.night-mode .brewery-item.stamped .brewery-name {
+  color: #e0e0e0;
+}
+body.night-mode .brewery-item.stamped .brewery-district {
+  color: #999;
+}
