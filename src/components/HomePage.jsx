@@ -1,19 +1,30 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 
-const Star = ({ filled, num }) => (
-  <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-    <svg viewBox="0 0 24 24" className={`progress-star ${filled ? 'complete' : 'incomplete'}`}>
-      <polygon
-        points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
-        fill="currentColor"
-        stroke="var(--black)"
+const PintGlass = ({ filled, num }) => (
+  <div className={`pint-icon ${filled ? 'pint-filled' : 'pint-empty'}`}>
+    <svg viewBox="0 0 32 40" className="pint-svg">
+      {/* Glass outline */}
+      <path
+        d="M6 2 L26 2 L24 36 C24 38 22 39 20 39 L12 39 C10 39 8 38 8 36 Z"
+        fill={filled ? 'var(--pint-fill, #FFD100)' : 'var(--pint-empty, rgba(255,255,255,0.15))'}
+        stroke="var(--pint-stroke, #000)"
         strokeWidth="1.5"
         strokeLinejoin="round"
       />
+      {/* Beer liquid level (only when filled) */}
+      {filled && (
+        <path
+          d="M7.2 8 L24.8 8 L23.2 33 C23.2 34.5 21.8 35.5 20 35.5 L12 35.5 C10.2 35.5 8.8 34.5 8.8 33 Z"
+          fill="var(--pint-beer, #F5A623)"
+          opacity="0.6"
+        />
+      )}
+      {/* Foam top (only when filled) */}
+      {filled && (
+        <ellipse cx="16" cy="8" rx="8.8" ry="2.5" fill="var(--pint-foam, #fff)" opacity="0.5" />
+      )}
     </svg>
-    <span className={`star-number ${filled ? 'star-number-complete' : 'star-number-incomplete'}`}>
-      {num}
-    </span>
+    <span className="pint-num">{num}</span>
   </div>
 )
 import translations from '../translations'
@@ -359,14 +370,14 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         </div>
         <div className="progress-stars">
           {breweries.slice(0, totalCount).map((brewery, i) => (
-            <Star
+            <PintGlass
               key={i}
               num={i + 1}
               filled={stamps.includes(brewery.id) || brewery.status === 'temporarily_closed'}
             />
           ))}
           {Array.from({ length: Math.max(0, totalCount - breweries.length) }, (_, i) => (
-            <Star key={`extra-${i}`} num={breweries.length + i + 1} filled={false} />
+            <PintGlass key={`extra-${i}`} num={breweries.length + i + 1} filled={false} />
           ))}
         </div>
       </div>
@@ -390,17 +401,20 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
           return (
             <div
               key={brewery.id}
-              className={`brewery-item ${isStamped ? 'stamped' : ''}`}
+              className={`brewery-item ${isStamped ? 'stamped' : ''} ${brewery.status === 'temporarily_closed' && !isStamped ? 'temp-closed' : ''}`}
               onClick={() => onBreweryClick(brewery)}
             >
-              <div className={`brewery-number ${isStamped ? 'brewery-number-done' : ''}`}>
-                {isStamped ? <span className="brewery-check">✓</span> : index + 1}
+              <div className={`brewery-number ${isStamped ? 'brewery-number-done' : ''} ${brewery.status === 'temporarily_closed' && !isStamped ? 'brewery-number-closed' : ''}`}>
+                {isStamped ? <span className="brewery-check">✓</span> : (brewery.status === 'temporarily_closed' ? <span className="brewery-check">✕</span> : index + 1)}
               </div>
               <div className="brewery-info">
                 <div className="brewery-name">{brewery.name}</div>
                 <div className="brewery-district">{brewery.district}</div>
                 {isStamped && (
                   <div className="stamped-badge">{(t.completed || 'COMPLETED!').toUpperCase()}</div>
+                )}
+                {brewery.status === 'temporarily_closed' && !isStamped && (
+                  <div className="closed-badge">{t.temporarilyClosed || 'TEMPORARILY CLOSED'}</div>
                 )}
               </div>
               <div className="brewery-logo">
@@ -414,11 +428,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
                   <span className="logo-placeholder">🍺</span>
                 )}
               </div>
-              {brewery.status === 'temporarily_closed' && (
-                <div className="temp-closed-overlay">
-                  <span>{t.temporarilyClosed || 'TEMPORARILY CLOSED'}</span>
-                </div>
-              )}
+              {/* temp-closed-overlay removed — now using inline badge like completed cards */}
               {breweryEvent && <div className="event-banner">🎉 Event happening now!</div>}
             </div>
           )
