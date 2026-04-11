@@ -9718,3 +9718,122 @@ body.night-mode .bd-mybeer-name {
 body.night-mode .bd-mybeer-rating {
   color: #FFB300;
 }
+
+/* ============================================
+   AUTH MODAL REDESIGN — Option A (compact, no white inset)
+   ============================================ */
+
+/* Tighter modal padding */
+.welcome-modal {
+  padding: 16px 14px;
+  border-radius: 4px;
+}
+
+/* Smaller logo */
+.welcome-logo {
+  width: 110px;
+  margin: 0 auto 10px;
+}
+
+/* Smaller title */
+.welcome-title {
+  font-size: 1.6rem;
+  margin-bottom: 2px;
+  letter-spacing: 1px;
+}
+
+/* Tighter subtitle */
+.welcome-subtitle {
+  font-size: 0.8rem;
+  margin-bottom: 12px;
+}
+
+/* Tighter form groups */
+.welcome-modal .form-group {
+  margin-bottom: 10px;
+}
+
+/* Bold uppercase labels */
+.welcome-modal .form-group label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+/* Bold black-bordered inputs on yellow */
+.welcome-modal .text-input {
+  padding: 10px 12px;
+  border: 3px solid var(--black);
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+/* Forgot password right-aligned row */
+.auth-forgot-row {
+  text-align: right;
+  margin-bottom: 10px;
+}
+.auth-forgot-row .auth-link-btn {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Tighter sign-in button */
+.welcome-btn {
+  padding: 14px;
+  font-size: 1.2rem;
+  margin-top: 0;
+  letter-spacing: 1px;
+}
+
+/* OR divider tighter */
+.auth-or-divider {
+  margin: 10px 0;
+}
+
+/* Google button tighter */
+.google-signin-btn {
+  padding: 10px 1rem;
+  border: 2px solid var(--black);
+}
+
+/* Bottom links */
+.auth-bottom-link {
+  text-align: center;
+  margin-top: 10px;
+}
+.auth-bottom-link span {
+  opacity: 0.7;
+  font-size: 0.8rem;
+}
+.auth-bottom-link .auth-link-btn {
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+/* Disclaimer tighter */
+.welcome-disclaimer {
+  margin-top: 10px;
+  font-size: 0.65rem;
+}
+
+/* ── Night mode overrides for auth redesign ── */
+body.night-mode .welcome-modal .text-input {
+  border-color: #555;
+  background: #222;
+  color: #eee;
+}
+body.night-mode .auth-forgot-row .auth-link-btn {
+  color: #FFB300;
+}
+body.night-mode .auth-bottom-link span {
+  color: #777;
+}
+body.night-mode .auth-bottom-link .auth-link-btn {
+  color: #FFB300;
+}
+body.night-mode .google-signin-btn {
+  border-color: #555;
+}

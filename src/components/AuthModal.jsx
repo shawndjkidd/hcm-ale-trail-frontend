@@ -231,7 +231,7 @@ export default function AuthModal({ onSuccess, language = "en", setLanguage }) {
                   required
                 />
               </div>
-              <div className="form-group">
+              <div className="form-group" style={{ marginBottom: "4px" }}>
                 <label>{t.password || "Password"} *</label>
                 <input
                   type="password"
@@ -244,6 +244,16 @@ export default function AuthModal({ onSuccess, language = "en", setLanguage }) {
                 />
               </div>
 
+              <div className="auth-forgot-row">
+                <button
+                  className="auth-link-btn"
+                  type="button"
+                  onClick={() => switchMode("forgot")}
+                >
+                  {t.forgotPassword || "Forgot password?"}
+                </button>
+              </div>
+
               {err && <div className="form-error">{err}</div>}
 
               <button className="welcome-btn" type="submit" disabled={busy}>
@@ -253,33 +263,23 @@ export default function AuthModal({ onSuccess, language = "en", setLanguage }) {
 
             <GoogleButton />
 
-            <p style={{ textAlign: "center", marginTop: "0.75rem" }}>
-              <button
-                className="auth-link-btn"
-                type="button"
-                onClick={() => switchMode("forgot")}
-              >
-                {t.forgotPassword || "Forgot password?"}
-              </button>
-            </p>
-
-            <p style={{ textAlign: "center", marginTop: "0.5rem" }}>
-              <span style={{ opacity: 0.7, fontSize: "0.875rem" }}>{t.noAccount || "No account?"} </span>
+            <div className="auth-bottom-link">
+              <span>{t.noAccount || "No account?"} </span>
               <button
                 className="auth-link-btn"
                 type="button"
                 onClick={() => switchMode("register")}
               >
-                {t.createOne || "Create one"}
+                {t.signUp || "Sign up"}
               </button>
-            </p>
+            </div>
           </>
         )}
 
         {/* ── Register mode ── */}
         {mode === "register" && (
           <>
-            <h2 className="welcome-title">{t.createAccount || "CREATE ACCOUNT"}</h2>
+            <h2 className="welcome-title">{t.signUp || "SIGN UP"}</h2>
             <p className="welcome-subtitle">{t.joinAleTrail || "Join the HCM Ale Trail!"}</p>
 
             <form onSubmit={submitRegister}>
@@ -336,14 +336,14 @@ export default function AuthModal({ onSuccess, language = "en", setLanguage }) {
               {info && <div className="form-info">{info}</div>}
 
               <button className="welcome-btn" type="submit" disabled={busy}>
-                {busy ? "..." : (t.createAccount || "CREATE ACCOUNT")}
+                {busy ? "..." : (t.signUp || "SIGN UP")}
               </button>
             </form>
 
             <GoogleButton />
 
-            <p style={{ textAlign: "center", marginTop: "0.75rem" }}>
-              <span style={{ opacity: 0.7, fontSize: "0.875rem" }}>{t.alreadyHaveAccount || "Already have an account?"} </span>
+            <div className="auth-bottom-link">
+              <span>{t.alreadyHaveAccount || "Already have an account?"} </span>
               <button
                 className="auth-link-btn"
                 type="button"
@@ -351,7 +351,7 @@ export default function AuthModal({ onSuccess, language = "en", setLanguage }) {
               >
                 {t.signIn || "Sign in"}
               </button>
-            </p>
+            </div>
           </>
         )}
 
@@ -385,7 +385,7 @@ export default function AuthModal({ onSuccess, language = "en", setLanguage }) {
               </button>
             </form>
 
-            <p style={{ textAlign: "center", marginTop: "0.75rem" }}>
+            <div className="auth-bottom-link">
               <button
                 className="auth-link-btn"
                 type="button"
@@ -393,7 +393,7 @@ export default function AuthModal({ onSuccess, language = "en", setLanguage }) {
               >
                 {t.backToSignIn || "← Back to sign in"}
               </button>
-            </p>
+            </div>
           </>
         )}
 
