@@ -27,6 +27,13 @@ const PintGlass = ({ filled, num }) => (
     <span className="pint-num">{num}</span>
   </div>
 )
+const QuestIcon = () => (
+  <svg viewBox="0 0 24 24" className="quest-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="currentColor" opacity="0.9"/>
+    <circle cx="12" cy="9" r="3" fill="#fff" opacity="0.9"/>
+  </svg>
+)
+
 import translations from '../translations'
 import EventsPage from './EventsPage'
 import { claimHat, getMyMerchandise, claimMerchandise } from '../lib/api'
@@ -449,17 +456,17 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
                   onClick={() => onSideQuestClick(quest)}
                 >
                   <div className={`brewery-number sq-number ${isCompleted ? 'brewery-number-done' : ''}`}>
-                    {isCompleted ? <span className="brewery-check">✓</span> : <span className="sq-icon">?</span>}
+                    {isCompleted ? <span className="brewery-check">✓</span> : <span className="sq-quest-icon"><QuestIcon /></span>}
                   </div>
                   <div className="brewery-info">
-                    <div className="brewery-name">{getQuestTitle(quest)}</div>
-                    {quest.reward && <div className="brewery-district">{t.rewardMap?.[quest.reward] || quest.reward}</div>}
+                    <div className="brewery-name sq-name">{getQuestTitle(quest)}</div>
+                    {quest.reward && <div className="brewery-district sq-reward">{t.rewardMap?.[quest.reward] || quest.reward}</div>}
                     {isCompleted && (
                       <div className="stamped-badge">{(t.completed || 'COMPLETED!').toUpperCase()}</div>
                     )}
                   </div>
                   <div className="brewery-logo sq-arrow">
-                    <span>→</span>
+                    <span className="sq-chevron">&rsaquo;</span>
                   </div>
                   {questEvent && <div className="event-banner">Event happening now!</div>}
                 </div>

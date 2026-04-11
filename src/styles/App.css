@@ -9338,25 +9338,50 @@ body.night-mode .side-quest-icon-home.sq-icon-done {
 }
 
 /* =====================================================
-   SIDE QUEST CARDS — brewery-item layout match
+   SIDE QUEST CARDS — cooler distinctive style
    ===================================================== */
+.sq-card {
+  border-color: var(--green-primary, #00B050) !important;
+  box-shadow: 4px 4px 0 rgba(0, 176, 80, 0.4) !important;
+}
+.sq-card:hover {
+  box-shadow: 6px 6px 0 rgba(0, 176, 80, 0.5) !important;
+}
 .sq-number {
-  background: var(--green-primary, #00B050) !important;
+  background: linear-gradient(135deg, #00B050 0%, #00913E 100%) !important;
   color: #fff !important;
 }
-.sq-icon {
-  font-family: var(--font-display, 'Rubik', sans-serif);
-  font-weight: 900;
-  font-size: 2rem;
+.sq-quest-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.quest-svg {
+  width: 28px;
+  height: 28px;
+  color: #fff;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+}
+.sq-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sq-reward {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .sq-arrow {
-  border-left: 4px dashed var(--black) !important;
-  font-size: 1.5rem;
-  font-weight: 900;
-  color: var(--black);
+  border-left: 3px solid var(--green-primary, #00B050) !important;
 }
-.sq-arrow span {
-  font-size: 1.5rem;
+.sq-chevron {
+  font-size: 2rem;
+  font-weight: 300;
+  color: var(--green-primary, #00B050);
+  line-height: 1;
 }
 
 /* Side quest section title */
@@ -9364,15 +9389,21 @@ body.night-mode .side-quest-icon-home.sq-icon-done {
   margin-top: 24px;
 }
 
-/* Night mode — side quest number */
+/* Night mode — side quest cards */
+body.night-mode .sq-card {
+  border-color: var(--green-primary, #00B050) !important;
+  box-shadow: 4px 4px 0 rgba(0, 176, 80, 0.25) !important;
+}
+body.night-mode .sq-card:hover {
+  box-shadow: 6px 6px 0 rgba(0, 176, 80, 0.35) !important;
+}
 body.night-mode .sq-number {
-  background: var(--green-primary, #00B050) !important;
+  background: linear-gradient(135deg, #00B050 0%, #00913E 100%) !important;
   color: #fff !important;
 }
 body.night-mode .sq-arrow {
-  border-left-color: #444 !important;
-  color: #ccc;
+  border-left-color: rgba(0, 176, 80, 0.4) !important;
 }
-body.night-mode .sq-arrow span {
-  color: #ccc;
+body.night-mode .sq-chevron {
+  color: var(--green-primary, #00B050);
 }
