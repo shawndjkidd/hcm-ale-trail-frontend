@@ -9239,28 +9239,32 @@ body.night-mode .brewery-item.stamped .brewery-district {
    TEMPORARILY CLOSED — CARD REDESIGN
    ===================================================== */
 .brewery-item.temp-closed {
-  background: #e8e0d8;
-  border-color: #888;
-  opacity: 0.75;
+  background: #b5a89c;
+  border-color: #666;
+  opacity: 0.45;
 }
 .brewery-number-closed {
-  background: #888 !important;
-  color: #fff !important;
+  background: #666 !important;
+  color: #999 !important;
 }
 .brewery-number-closed .brewery-check {
   font-size: 1.8rem;
+  color: #999;
 }
 .brewery-item.temp-closed .brewery-name {
-  color: #666;
+  color: #555;
 }
 .brewery-item.temp-closed .brewery-district {
-  color: #888;
+  color: #777;
+}
+.brewery-item.temp-closed .brewery-logo img {
+  filter: grayscale(1) opacity(0.4);
 }
 .closed-badge {
   display: inline-block;
   margin-top: 4px;
-  background: #888;
-  color: #fff;
+  background: #666;
+  color: #ccc;
   padding: 2px 10px;
   border-radius: 3px;
   font-family: var(--font-display, 'Rubik', sans-serif);
@@ -9272,21 +9276,23 @@ body.night-mode .brewery-item.stamped .brewery-district {
 
 /* Night mode — temporarily closed */
 body.night-mode .brewery-item.temp-closed {
-  background: #1a1a1a;
-  border-color: #555;
-  opacity: 0.65;
+  background: #0e0e0e;
+  border-color: #333;
+  opacity: 0.35;
 }
 body.night-mode .brewery-number-closed {
-  background: #555 !important;
+  background: #333 !important;
+  color: #555 !important;
 }
 body.night-mode .closed-badge {
-  background: #555;
+  background: #333;
+  color: #666;
 }
 body.night-mode .brewery-item.temp-closed .brewery-name {
-  color: #777;
+  color: #444;
 }
 body.night-mode .brewery-item.temp-closed .brewery-district {
-  color: #666;
+  color: #333;
 }
 
 /* Hide old temp-closed-overlay diagonal banner */
