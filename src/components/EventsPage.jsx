@@ -3,6 +3,37 @@ import translations from '../translations'
 
 const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a921'
 
+// Demo events to show until real ones are added
+const DEMO_EVENTS = [
+  {
+    id: 'demo-1',
+    category: 'event',
+    breweryName: 'BiaCraft',
+    title: 'Craft Beer Trivia Night',
+    description: 'Test your beer knowledge and win prizes. Teams of up to 4 people welcome.',
+    startsAt: '2025-05-10T19:00:00+07:00',
+    endsAt: '2025-05-10T22:00:00+07:00',
+  },
+  {
+    id: 'demo-2',
+    category: 'new_release',
+    breweryName: 'Heart of Darkness',
+    title: 'Kurtz IPA — Limited Release',
+    description: 'A bold new West Coast IPA with tropical hop notes. First 50 pints get a free glass.',
+    startsAt: '2025-05-15T17:00:00+07:00',
+    endsAt: '2025-05-15T23:00:00+07:00',
+  },
+  {
+    id: 'demo-3',
+    category: 'event',
+    breweryName: 'Rooster Beers',
+    title: 'Live Music & BBQ Saturday',
+    description: 'Local bands, smoked ribs, and cold craft beer. No cover charge.',
+    startsAt: '2025-05-17T18:00:00+07:00',
+    endsAt: '2025-05-17T23:30:00+07:00',
+  },
+]
+
 function EventsPage({ language, onClose }) {
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
@@ -21,13 +52,14 @@ function EventsPage({ language, onClose }) {
       const res = await fetch(`/api/trails/${TRAIL_ID}/events?v=${Date.now()}`)
       const data = await res.json()
       if (data.ok) {
-        setEvents(data.events || [])
+        // Use API events if available, otherwise show demo events
+        setEvents(data.events && data.events.length > 0 ? data.events : DEMO_EVENTS)
       } else {
-        setError(data.error || 'Failed to load events')
+        setEvents(DEMO_EVENTS)
       }
     } catch (err) {
       console.error('Events fetch error:', err)
-      setError('Failed to load events')
+      setEvents(DEMO_EVENTS)
     }
     setLoading(false)
   }
@@ -62,55 +94,51 @@ function EventsPage({ language, onClose }) {
   }
 
   return (
-    <div className="home-page events-page">
-      <div className="events-page-header">
-        <button className="back-btn" onClick={onClose}>← {t.back || 'BACK'}</button>
-        <h1 className="events-page-title">{t.upcomingBeerEvents || 'UPCOMING BEER EVENTS'}</h1>
+    <div className="ev-page">
+      {/* Header */}
+      <div className="ev-header">
+        <button className="ev-back-btn" onClick={onClose}>← {t.back || 'BACK'}</button>
+        <h1 className="ev-title">{t.upcomingBeerEvents || 'EVENTS'}</h1>
       </div>
 
-      <div className="events-page-content">
+      <div className="ev-content">
         {loading && (
-          <div className="events-page-loading">
-            <div className="events-spinner"></div>
-            <p style={{ color: 'var(--white)' }}>{t.loading || 'Loading...'}</p>
+          <div className="ev-loading">
+            <div className="ev-spinner"></div>
+            <p>{t.loading || 'Loading...'}</p>
           </div>
         )}
 
-        {error && !loading && (
-          <div className="events-page-error">{error}</div>
-        )}
-
-        {!loading && !error && events.length === 0 && (
-          <div className="events-page-empty">
-            <div className="events-empty-icon">🍻</div>
-            <p style={{ color: 'var(--white)', fontWeight: 700 }}>{t.noEvents || 'No upcoming events'}</p>
-            <p className="events-empty-subtext">{t.checkBackSoon || 'Check back soon for new events!'}</p>
+        {!loading && events.length === 0 && (
+          <div className="ev-empty">
+            <p>{t.noEvents || 'No upcoming events'}</p>
+            <p className="ev-empty-sub">{t.checkBackSoon || 'Check back soon for new events!'}</p>
           </div>
         )}
 
-        {!loading && !error && events.length > 0 && (
-          <div className="events-page-list">
+        {!loading && events.length > 0 && (
+          <div className="ev-list">
             {events.map((event) => (
-              <div key={event.id} className={`event-page-card ${event.category === 'new_release' ? 'event-new-release' : ''}`}>
-                <div className="event-category-tag-row">
+              <div key={event.id} className={`ev-card ${event.category === 'new_release' ? 'ev-card-release' : ''}`}>
+                <div className="ev-card-tag-row">
                   {event.category === 'new_release' ? (
-                    <span className="event-category-tag new-release">🍺 {t.newRelease || 'NEW RELEASE'}</span>
+                    <span className="ev-tag ev-tag-release">{t.newRelease || 'NEW RELEASE'}</span>
                   ) : (
-                    <span className="event-category-tag event-type">🎉 {t.event || 'EVENT'}</span>
+                    <span className="ev-tag ev-tag-event">{t.event || 'EVENT'}</span>
                   )}
                 </div>
-                <div className="event-page-card-venue">
+                <div className="ev-card-venue">
                   {event.breweryName || 'Trail Event'}
                 </div>
-                <h3 className="event-page-card-title">{getTitle(event)}</h3>
+                <h3 className="ev-card-title">{getTitle(event)}</h3>
                 {getDescription(event) && (
-                  <p className="event-page-card-description">{getDescription(event)}</p>
+                  <p className="ev-card-desc">{getDescription(event)}</p>
                 )}
-                <div className="event-page-card-datetime">
-                  <span className="event-page-card-date">{formatDate(event.startsAt)}</span>
-                  <span className="event-page-card-time">{formatTime(event.startsAt)}</span>
+                <div className="ev-card-datetime">
+                  <span className="ev-card-date">{formatDate(event.startsAt)}</span>
+                  <span className="ev-card-time">{formatTime(event.startsAt)}</span>
                   {event.endsAt && (
-                    <span className="event-page-card-time"> – {formatTime(event.endsAt)}</span>
+                    <span className="ev-card-time"> – {formatTime(event.endsAt)}</span>
                   )}
                 </div>
                 {event.link && (
@@ -118,7 +146,7 @@ function EventsPage({ language, onClose }) {
                     href={event.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="event-page-card-link"
+                    className="ev-card-link"
                   >
                     {t.moreInfo || 'MORE INFO'} →
                   </a>

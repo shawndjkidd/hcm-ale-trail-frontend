@@ -14,7 +14,7 @@ function FAQ({ language, onBack }) {
       <div className="tg-content">
         {/* Hero */}
         <div className="tg-hero">
-          <div className="tg-hero-icon">🍺</div>
+          <div className="tg-hero-icon-text">TRAIL GUIDE</div>
           <h2 className="tg-hero-title">{t.howToPlay || 'HOW TO PLAY'}</h2>
           <p className="tg-hero-sub">{t.trailGuideSubtitle || 'Your guide to the HCM Ale Trail'}</p>
         </div>
@@ -47,7 +47,7 @@ function FAQ({ language, onBack }) {
             <div className="tg-step-num">★</div>
             <div className="tg-step-body">
               <div className="tg-step-text">{t.step4}</div>
-              <div className="tg-step-prize">🎁 {t.bonusUnlocked || 'BONUS UNLOCKED!'}</div>
+              <div className="tg-step-prize">{t.bonusUnlocked || 'BONUS UNLOCKED!'}</div>
             </div>
           </div>
         </div>
