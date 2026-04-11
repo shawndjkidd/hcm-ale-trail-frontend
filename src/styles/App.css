@@ -8042,3 +8042,330 @@ body.night-mode .profile-row-card[data-accent="red"] {
 body.night-mode .profile-row-card[data-accent="blue"] {
   border-left-color: #42A5F5 !important;
 }
+
+/* ============================================
+   MY BEERS PAGE — COMPLETE REDESIGN
+   Red background, retro cards, proper header,
+   star ratings, clean brewery groups.
+   ============================================ */
+
+/* Page container */
+.mb-page {
+  min-height: 100vh;
+  background: var(--red-primary, #E31E24);
+  font-family: var(--font-display, 'Inter', 'Impact', sans-serif);
+}
+body.night-mode .mb-page {
+  background: #111;
+}
+
+/* Header bar */
+.mb-header {
+  background: var(--red-primary, #E31E24);
+  color: var(--white, #fff);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 4px solid var(--black, #000);
+}
+body.night-mode .mb-header {
+  background: #1a1a1a;
+  border-bottom-color: #333;
+}
+
+.mb-back-btn {
+  background: none;
+  border: 2px solid var(--white, #fff);
+  color: var(--white, #fff);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+.mb-back-btn:hover {
+  background: rgba(255,255,255,0.15);
+}
+
+.mb-title {
+  font-size: 1.4rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+/* Content area */
+.mb-content {
+  padding: 1.25rem;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* ── Stats row ── */
+.mb-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.mb-stat {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  border: 3px solid var(--black, #000);
+  border-radius: 4px;
+  padding: 0.8rem 0.5rem;
+  text-align: center;
+  box-shadow: 3px 3px 0 var(--black, #000);
+}
+body.night-mode .mb-stat {
+  background: linear-gradient(135deg, #1a1a1a 0%, #222 100%);
+  border-color: #444;
+  box-shadow: none;
+}
+
+.mb-stat-num {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--yellow-primary, #FFD100);
+  line-height: 1;
+}
+
+.mb-stat-label {
+  font-size: 0.65rem;
+  font-weight: 900;
+  color: rgba(255,255,255,0.7);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 0.3rem;
+}
+
+/* Star stat accent */
+.mb-stat-star .mb-stat-label {
+  color: var(--yellow-primary, #FFD100);
+}
+
+/* ── Star rating component ── */
+.mb-stars {
+  display: inline-flex;
+  gap: 1px;
+  flex-shrink: 0;
+}
+.mb-star {
+  font-size: 0.9rem;
+  line-height: 1;
+}
+.mb-star.filled {
+  color: var(--yellow-primary, #FFD100);
+}
+.mb-star.empty {
+  color: rgba(0,0,0,0.15);
+}
+body.night-mode .mb-star.empty {
+  color: rgba(255,255,255,0.15);
+}
+
+/* ── Section titles ── */
+.mb-section-title {
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  text-align: center;
+  margin: 0 0 0.75rem;
+  color: var(--white, #fff);
+}
+
+/* ── Top Rated section ── */
+.mb-top-section {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  border: 4px solid var(--black, #000);
+  border-radius: 6px;
+  padding: 1.2rem;
+  box-shadow: 4px 4px 0 var(--black, #000);
+  position: relative;
+  overflow: hidden;
+}
+.mb-top-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: var(--yellow-primary, #FFD100);
+}
+body.night-mode .mb-top-section {
+  background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
+  border-color: #444;
+  box-shadow: none;
+}
+
+.mb-top-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mb-top-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,255,255,0.05);
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  padding: 10px 12px;
+  transition: background 0.15s;
+}
+.mb-top-card:hover {
+  background: rgba(255,255,255,0.08);
+}
+.mb-top-card[data-rank="1"] {
+  border-color: #FFD700;
+  background: rgba(255, 215, 0, 0.08);
+}
+.mb-top-card[data-rank="2"] {
+  border-color: #C0C0C0;
+}
+.mb-top-card[data-rank="3"] {
+  border-color: #CD7F32;
+}
+
+.mb-top-rank {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.mb-top-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mb-top-name {
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: var(--white, #fff);
+  display: block;
+}
+
+.mb-top-brewery {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.5);
+  display: block;
+  margin-top: 1px;
+}
+
+/* ── All Beers section ── */
+.mb-all-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mb-all-section .mb-section-title {
+  margin-bottom: 0.25rem;
+}
+
+.mb-brewery-card {
+  background: var(--white, #fff);
+  border: 4px solid var(--black, #000);
+  border-radius: 4px;
+  box-shadow: 4px 4px 0 var(--black, #000);
+  overflow: hidden;
+}
+body.night-mode .mb-brewery-card {
+  background: #1e1e1e;
+  border-color: #444;
+  box-shadow: none;
+}
+
+.mb-brewery-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.7rem 1rem;
+  background: var(--black, #000);
+}
+body.night-mode .mb-brewery-header {
+  background: #2a2a2a;
+}
+
+.mb-brewery-name {
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: var(--yellow-primary, #FFD100);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.mb-brewery-count {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mb-brewery-beers {
+  display: flex;
+  flex-direction: column;
+}
+
+.mb-beer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+.mb-beer-row:last-child {
+  border-bottom: none;
+}
+body.night-mode .mb-beer-row {
+  border-bottom-color: rgba(255,255,255,0.08);
+}
+
+.mb-beer-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mb-beer-name {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--black, #000);
+  display: block;
+}
+body.night-mode .mb-beer-name {
+  color: #fff;
+}
+
+.mb-beer-notes {
+  font-size: 0.75rem;
+  color: rgba(0,0,0,0.45);
+  font-style: italic;
+  display: block;
+  margin-top: 2px;
+}
+body.night-mode .mb-beer-notes {
+  color: rgba(255,255,255,0.4);
+}
+
+/* ── Empty state ── */
+.mb-empty {
+  background: rgba(0,0,0,0.15);
+  border: 4px solid var(--black, #000);
+  border-radius: 6px;
+  padding: 2rem;
+  text-align: center;
+  color: var(--white, #fff);
+  font-weight: 700;
+}
+body.night-mode .mb-empty {
+  background: #1e1e1e;
+  border-color: #444;
+}
