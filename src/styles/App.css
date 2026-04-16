@@ -9847,7 +9847,7 @@ body.night-mode .google-signin-btn {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.75);
   z-index: 10000;
   display: flex;
   align-items: center;
@@ -9862,14 +9862,15 @@ body.night-mode .google-signin-btn {
 }
 
 .milestone-modal {
-  background: #fff;
-  border-radius: 20px;
-  padding: 40px 30px;
-  max-width: 380px;
+  background: #FFD100;
+  border: 5px solid #000;
+  border-radius: 8px;
+  padding: 32px 24px 28px;
+  max-width: 360px;
   width: 100%;
   text-align: center;
   animation: milestoneSlideUp 0.4s ease;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 6px 6px 0 #000;
 }
 
 @keyframes milestoneSlideUp {
@@ -9878,9 +9879,9 @@ body.night-mode .google-signin-btn {
 }
 
 .milestone-emoji {
-  font-size: 64px;
+  font-size: 56px;
   line-height: 1;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   animation: milestoneBounce 0.6s ease 0.3s both;
 }
 
@@ -9893,91 +9894,114 @@ body.night-mode .google-signin-btn {
 
 .milestone-title {
   font-family: 'Anton', sans-serif;
-  font-size: 1.8rem;
-  margin: 0 0 4px 0;
-  letter-spacing: 1px;
+  font-size: 2rem;
+  color: #000;
+  margin: 0 0 2px 0;
+  letter-spacing: 2px;
   text-transform: uppercase;
 }
 
 .milestone-subtitle {
+  font-family: 'Anton', sans-serif;
   font-size: 1rem;
-  color: #666;
-  margin: 0 0 20px 0;
-  font-weight: 600;
+  color: #333;
+  letter-spacing: 1px;
+  margin: 0 0 16px 0;
+  text-transform: uppercase;
 }
 
 .milestone-progress {
-  margin: 0 auto 20px;
-  max-width: 280px;
+  margin: 0 auto 16px;
+  max-width: 260px;
 }
 
 .milestone-progress-bar {
-  height: 12px;
-  background: #e5e7eb;
-  border-radius: 6px;
+  height: 14px;
+  background: #000;
+  border-radius: 4px;
   overflow: hidden;
   margin-bottom: 6px;
+  border: 3px solid #000;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .milestone-progress-fill {
   height: 100%;
-  border-radius: 6px;
+  border-radius: 2px;
   transition: width 1s ease 0.4s;
 }
 
 .milestone-progress-text {
+  font-family: 'Anton', sans-serif;
   font-size: 0.85rem;
-  color: #888;
-  font-weight: 600;
+  color: #333;
+  letter-spacing: 1px;
 }
 
 .milestone-message {
-  font-size: 0.95rem;
-  color: #444;
+  font-size: 0.9rem;
+  color: #222;
   line-height: 1.5;
-  margin: 0 0 16px 0;
+  margin: 0 0 12px 0;
+  font-weight: 600;
 }
 
 .milestone-remaining {
-  font-size: 0.85rem;
-  color: #999;
-  font-weight: 600;
-  margin: 0 0 20px 0;
+  font-family: 'Anton', sans-serif;
+  font-size: 0.9rem;
+  color: #555;
+  letter-spacing: 1px;
+  margin: 0 0 18px 0;
+  text-transform: uppercase;
 }
 
 .milestone-close-btn {
-  border: none;
+  border: 4px solid #000;
   color: #fff;
   font-family: 'Anton', sans-serif;
-  font-size: 1.1rem;
-  letter-spacing: 2px;
+  font-size: 1.2rem;
+  letter-spacing: 3px;
   text-transform: uppercase;
   padding: 12px 40px;
-  border-radius: 30px;
+  border-radius: 4px;
   cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 4px 4px 0 #000;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.milestone-close-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 #000;
 }
 
 .milestone-close-btn:active {
-  transform: scale(0.96);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #000;
 }
 
 /* Dark mode */
 body.night-mode .milestone-modal {
-  background: #1a1a1a;
+  background: #b8a800;
+  border-color: #444;
+  box-shadow: 6px 6px 0 #444;
 }
 body.night-mode .milestone-title {
-  color: inherit;
+  color: #000;
 }
 body.night-mode .milestone-subtitle {
-  color: #aaa;
+  color: #222;
 }
 body.night-mode .milestone-message {
-  color: #ccc;
+  color: #111;
 }
 body.night-mode .milestone-remaining {
-  color: #888;
+  color: #333;
 }
 body.night-mode .milestone-progress-bar {
   background: #333;
+  border-color: #444;
+}
+body.night-mode .milestone-close-btn {
+  border-color: #444;
+  box-shadow: 4px 4px 0 #444;
 }

@@ -267,6 +267,16 @@ const translations = {
     descGrowler: "Go big or go home", descTower: "Party mode activated",
     onboardingNetworkError: "Network error — tap to retry",
     onboardingSaveError: "Failed to save — tap to retry",
+    // Milestone nudge modal
+    milestone5Title: "YOU'RE ON FIRE!",
+    milestone5Subtitle: "5 breweries down",
+    milestone5Message: "You've passed the halfway mark! Keep the momentum going — the finish line is closer than you think.",
+    milestone7Title: "ALMOST THERE!",
+    milestone7Subtitle: "Just 1 more to go!",
+    milestone7Message: "One more brewery and you'll earn your Ale Trail hat. Let's finish this!",
+    milestoneBreweries: "breweries",
+    milestoneRemaining: "remaining",
+    milestoneLetsGo: "LET'S GO!",
   },
 
   vn: {
@@ -533,6 +543,15 @@ const translations = {
     descGrowler: "Lớn hoặc về nhà", descTower: "Chế độ tiệc tùng",
     onboardingNetworkError: "Lỗi mạng — nhấn để thử lại",
     onboardingSaveError: "Lưu thất bại — nhấn để thử lại",
+    milestone5Title: "BẠN ĐANG CHÁY!",
+    milestone5Subtitle: "Đã xong 5 nhà máy bia",
+    milestone5Message: "Bạn đã vượt qua nửa chặng đường! Giữ đà nhé — đích đến gần hơn bạn nghĩ.",
+    milestone7Title: "SẮP ĐẾN RỒI!",
+    milestone7Subtitle: "Chỉ còn 1 nơi nữa!",
+    milestone7Message: "Thêm 1 nhà máy bia nữa là bạn nhận mũ Ale Trail. Hoàn thành nào!",
+    milestoneBreweries: "nhà máy bia",
+    milestoneRemaining: "còn lại",
+    milestoneLetsGo: "ĐI THÔI!",
     rewardMap: {
       "Free craft beer at any trail brewery": "Bia thủ công miễn phí tại bất kỳ nhà máy bia nào",
       "Exclusive Ale Trail sticker pack": "Bộ sticker Ale Trail độc quyền",
@@ -804,6 +823,15 @@ const translations = {
     descGrowler: "크게 가거나 집에 가거나", descTower: "파티 모드",
     onboardingNetworkError: "네트워크 오류 — 다시 시도하려면 탭하세요",
     onboardingSaveError: "저장 실패 — 다시 시도하려면 탭하세요",
+    milestone5Title: "불타오르고 있어요!",
+    milestone5Subtitle: "5곳 완료",
+    milestone5Message: "반 이상 왔어요! 계속 달려요 — 결승선이 생각보다 가까워요.",
+    milestone7Title: "거의 다 왔어요!",
+    milestone7Subtitle: "딱 1곳 남았어요!",
+    milestone7Message: "한 곳만 더 가면 Ale Trail 모자를 받아요. 끝내볼까요!",
+    milestoneBreweries: "양조장",
+    milestoneRemaining: "남음",
+    milestoneLetsGo: "가자!",
   },
 
   jp: {
@@ -1070,6 +1098,15 @@ const translations = {
     descGrowler: "大きくいくか帰るか", descTower: "パーティーモード",
     onboardingNetworkError: "ネットワークエラー — タップして再試行",
     onboardingSaveError: "保存に失敗 — タップして再試行",
+    milestone5Title: "絶好調！",
+    milestone5Subtitle: "5か所クリア",
+    milestone5Message: "半分以上達成！この調子で — ゴールは思ったより近いよ。",
+    milestone7Title: "もう少し！",
+    milestone7Subtitle: "あと1か所！",
+    milestone7Message: "あと1か所でAle Trailの帽子ゲット。最後まで行こう！",
+    milestoneBreweries: "ブルワリー",
+    milestoneRemaining: "残り",
+    milestoneLetsGo: "行こう！",
   }
 }
 
