@@ -59,7 +59,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   const [descriptionMessage, setDescriptionMessage] = useState('');
 
   const [showEventForm, setShowEventForm] = useState(false);
-  const [eventForm, setEventForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '' });
+  const [eventForm, setEventForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', category: 'event' });
   const [savingEvent, setSavingEvent] = useState(false);
 
   const [mergeTargets, setMergeTargets] = useState({}); // key: ratingName -> targetName
@@ -311,13 +311,14 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       starts_at: new Date(eventForm.startsAt).toISOString(),
       ends_at: eventForm.endsAt ? new Date(eventForm.endsAt).toISOString() : null,
       link: eventForm.link || null,
-      status: 'active'
+      status: 'active',
+      category: eventForm.category || 'event'
     };
     const result = await createBreweryEvent(breweryId, eventData);
     if (result.ok) {
       setEvents([...events, result.event]);
       setShowEventForm(false);
-      setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '' });
+      setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', category: 'event' });
     } else {
       alert(result.error || 'Failed to create event');
     }
@@ -720,6 +721,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                 <div className="admin-form-group"><label className="admin-form-label">Start Date/Time *</label><input type="datetime-local" className="admin-form-input" value={eventForm.startsAt} onChange={(e) => setEventForm({...eventForm, startsAt: e.target.value})} /></div>
                 <div className="admin-form-group"><label className="admin-form-label">End Date/Time</label><input type="datetime-local" className="admin-form-input" value={eventForm.endsAt} onChange={(e) => setEventForm({...eventForm, endsAt: e.target.value})} /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Link</label><input type="url" className="admin-form-input" value={eventForm.link} onChange={(e) => setEventForm({...eventForm, link: e.target.value})} /></div>
+                <div className="admin-form-group"><label className="admin-form-label">Category</label><select className="admin-form-input" value={eventForm.category} onChange={(e) => setEventForm({...eventForm, category: e.target.value})}><option value="event">Event</option><option value="new_release">New Release</option></select></div>
                 <div style={{ display: 'flex', gap: 12, marginTop: 20 }}><button className="admin-btn admin-btn-primary" onClick={handleCreateEvent} disabled={savingEvent}>{savingEvent ? 'Creating...' : 'Create Event'}</button><button className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={() => setShowEventForm(false)}>Cancel</button></div>
               </div>
             </div>

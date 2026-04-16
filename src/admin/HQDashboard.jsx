@@ -38,7 +38,7 @@ export default function HQDashboard() {
   const [exporting, setExporting] = useState(false);
 
   const [showEventForm, setShowEventForm] = useState(false);
-  const [eventForm, setEventForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '' });
+  const [eventForm, setEventForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '', category: 'event' });
   const [savingEvent, setSavingEvent] = useState(false);
 
   const [showBreweryForm, setShowBreweryForm] = useState(false);
@@ -192,6 +192,7 @@ export default function HQDashboard() {
       ends_at: eventForm.endsAt ? new Date(eventForm.endsAt).toISOString() : null,
       link: eventForm.link || null,
       status: 'active',
+      category: eventForm.category || 'event',
       ...(eventForm.linkedTo === 'brewery' && eventForm.linkedId ? { brewery_id: eventForm.linkedId } : {}),
       ...(eventForm.linkedTo === 'side_quest' && eventForm.linkedId ? { side_quest_id: eventForm.linkedId } : {}),
     };
@@ -199,7 +200,7 @@ export default function HQDashboard() {
     if (result.ok) {
       setEvents([...events, result.event]);
       setShowEventForm(false);
-      setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '' });
+      setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '', category: 'event' });
     } else {
       alert(result.error || 'Failed to create event');
     }
@@ -644,6 +645,7 @@ export default function HQDashboard() {
                 <div className="admin-form-group"><label className="admin-form-label">Start Date/Time *</label><input type="datetime-local" className="admin-form-input" value={eventForm.startsAt} onChange={(e) => setEventForm({...eventForm, startsAt: e.target.value})} /></div>
                 <div className="admin-form-group"><label className="admin-form-label">End Date/Time</label><input type="datetime-local" className="admin-form-input" value={eventForm.endsAt} onChange={(e) => setEventForm({...eventForm, endsAt: e.target.value})} /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Link (optional)</label><input type="url" className="admin-form-input" value={eventForm.link} onChange={(e) => setEventForm({...eventForm, link: e.target.value})} /></div>
+                <div className="admin-form-group"><label className="admin-form-label">Category</label><select className="admin-form-input" value={eventForm.category} onChange={(e) => setEventForm({...eventForm, category: e.target.value})}><option value="event">Event</option><option value="new_release">New Release</option></select></div>
                 <div className="admin-form-group"><label className="admin-form-label">Link to venue</label><select className="admin-form-input" value={eventForm.linkedTo} onChange={(e) => setEventForm({...eventForm, linkedTo: e.target.value, linkedId: ''})}><option value="none">None (trail-wide)</option><option value="brewery">Brewery</option><option value="side_quest">Side Quest</option></select></div>
                 {eventForm.linkedTo === 'brewery' && (<div className="admin-form-group"><label className="admin-form-label">Select brewery</label><select className="admin-form-input" value={eventForm.linkedId} onChange={(e) => setEventForm({...eventForm, linkedId: e.target.value})}><option value="">— choose —</option>{breweries.map(b => (<option key={b.id} value={b.id}>{b.name}</option>))}</select></div>)}
                 {eventForm.linkedTo === 'side_quest' && (<div className="admin-form-group"><label className="admin-form-label">Select side quest</label><select className="admin-form-input" value={eventForm.linkedId} onChange={(e) => setEventForm({...eventForm, linkedId: e.target.value})}><option value="">— choose —</option>{sideQuests.map(q => (<option key={q.id} value={q.id}>{typeof q.title === 'string' ? q.title : (q.title?.en || 'Untitled')}</option>))}</select></div>)}
@@ -653,7 +655,7 @@ export default function HQDashboard() {
           )}
           <div className="admin-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}><h3 className="admin-card-title" style={{ marginBottom: 0 }}>Trail-Wide Events ({trailEvents.length})</h3><button className="admin-btn admin-btn-primary admin-btn-small" onClick={() => setShowEventForm(true)}>+ Create Event</button></div>
-            {trailEvents.length === 0 ? (<div className="admin-empty">No trail-wide events yet</div>) : (<table className="admin-table"><thead><tr><th>Event</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>{trailEvents.map((event) => (<tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><span className={`admin-badge ${event.status === 'active' ? 'active' : 'inactive'}`}>{event.status}</span></td><td><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></td></tr>))}</tbody></table>)}
+            {trailEvents.length === 0 ? (<div className="admin-empty">No trail-wide events yet</div>) : (<table className="admin-table"><thead><tr><th>Event</th><th>Category</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>{trailEvents.map((event) => (<tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td><span className={`admin-badge ${event.category === 'new_release' ? 'active' : ''}`}>{event.category === 'new_release' ? 'New Release' : 'Event'}</span></td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><span className={`admin-badge ${event.status === 'active' ? 'active' : 'inactive'}`}>{event.status}</span></td><td><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></td></tr>))}</tbody></table>)}
           </div>
           <div className="admin-card" style={{ marginTop: 20 }}><h3 className="admin-card-title">Brewery Events ({breweryEvents.length})</h3>{breweryEvents.length === 0 ? (<div className="admin-empty">No brewery events yet</div>) : (<table className="admin-table"><thead><tr><th>Event</th><th>Brewery</th><th>Date</th><th>Actions</th></tr></thead><tbody>{breweryEvents.map((event) => (<tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td>{event.breweryName}</td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></td></tr>))}</tbody></table>)}</div>
           <div className="admin-card" style={{ marginTop: 20 }}><h3 className="admin-card-title">Side Quest Events ({sideQuestEvents.length})</h3>{sideQuestEvents.length === 0 ? (<div className="admin-empty">No side quest events yet</div>) : (<table className="admin-table"><thead><tr><th>Event</th><th>Side Quest</th><th>Date</th><th>Actions</th></tr></thead><tbody>{sideQuestEvents.map((event) => (<tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td>{event.sideQuestTitle || event.sideQuestId || '--'}</td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></td></tr>))}</tbody></table>)}</div>
