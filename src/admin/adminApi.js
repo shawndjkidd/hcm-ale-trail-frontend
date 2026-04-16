@@ -322,6 +322,19 @@ export async function updateBreweryBeer(breweryId, beerId, beerData) {
   }
 }
 
+export async function bulkUploadBeers(breweryId, beers) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/beers/bulk`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ beers })
+    });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
 export async function deleteBreweryBeer(breweryId, beerId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/beers/${beerId}`, {

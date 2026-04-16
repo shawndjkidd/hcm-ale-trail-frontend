@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import QRCode from 'qrcode';
-import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, mergeRatings, updateAdminAccount, getBreweryMerchandise, restockMerchandise, TRAIL_ID } from './adminApi';
+import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, bulkUploadBeers, mergeRatings, updateAdminAccount, getBreweryMerchandise, restockMerchandise, TRAIL_ID } from './adminApi';
 
 const DAY_NAMES = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 const DAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -72,6 +72,10 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   const [beerForm, setBeerForm] = useState({ name: '', style: '', abv: '' });
   const [savingBeer, setSavingBeer] = useState(false);
   const [editingBeer, setEditingBeer] = useState(null); // beer object being edited
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
+  const [bulkText, setBulkText] = useState('');
+  const [bulkParsed, setBulkParsed] = useState([]);
+  const [bulkUploading, setBulkUploading] = useState(false);
 
   // Merchandise / Stock
   const [brewMerch, setBrewMerch] = useState([]);
@@ -490,6 +494,63 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
     setBeerForm({ name: '', style: '', abv: '' });
   };
 
+  const parseBulkText = (text) => {
+    const lines = text.trim().split('\n').filter(l => l.trim());
+    if (lines.length === 0) return [];
+    // Detect separator: tab or comma
+    const sep = lines[0].includes('\t') ? '\t' : ',';
+    // Check if first line is a header
+    const firstCols = lines[0].split(sep).map(s => s.trim().toLowerCase());
+    const isHeader = firstCols.some(c => ['name', 'beer', 'beer name', 'style', 'abv'].includes(c));
+    const dataLines = isHeader ? lines.slice(1) : lines;
+    return dataLines.map(line => {
+      const cols = line.split(sep).map(s => s.trim());
+      return {
+        name: cols[0] || '',
+        style: cols[1] || '',
+        abv: cols[2] || '',
+      };
+    }).filter(b => b.name);
+  };
+
+  const handleBulkTextChange = (text) => {
+    setBulkText(text);
+    setBulkParsed(parseBulkText(text));
+  };
+
+  const handleCsvFile = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const text = ev.target?.result || '';
+      setBulkText(text);
+      setBulkParsed(parseBulkText(text));
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  const handleBulkSubmit = async () => {
+    if (bulkParsed.length === 0) return;
+    setBulkUploading(true);
+    const result = await bulkUploadBeers(breweryId, bulkParsed.map(b => ({
+      name: b.name,
+      style: b.style || null,
+      abv: b.abv !== '' ? parseFloat(b.abv) : null,
+    })));
+    if (result.ok) {
+      setBeers(prev => [...prev, ...(result.beers || [])].sort((a, b) => a.name.localeCompare(b.name)));
+      setShowBulkUpload(false);
+      setBulkText('');
+      setBulkParsed([]);
+      alert(`Successfully added ${result.count} beer${result.count !== 1 ? 's' : ''}!`);
+    } else {
+      alert(result.error || 'Bulk upload failed');
+    }
+    setBulkUploading(false);
+  };
+
   const handleMergeRating = async (oldName) => {
     const target = mergeTargets[oldName];
     if (!target) return;
@@ -824,10 +885,59 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
               </div>
             </div>
           )}
+          {showBulkUpload && (
+            <div className="admin-modal-overlay" onClick={() => setShowBulkUpload(false)}>
+              <div className="admin-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 600 }}>
+                <h3 style={{ marginBottom: 8 }}>Bulk Import Beers</h3>
+                <p style={{ color: 'var(--admin-text-muted)', fontSize: 13, marginBottom: 16 }}>
+                  Add multiple beers at once. Upload a CSV file or paste data from a spreadsheet. Format: <strong>Name, Style, ABV</strong> (one beer per line). Style and ABV are optional.
+                </p>
+                <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+                  <label className="admin-btn admin-btn-small" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)', cursor: 'pointer', margin: 0 }}>
+                    📄 Choose CSV File
+                    <input type="file" accept=".csv,.tsv,.txt" onChange={handleCsvFile} style={{ display: 'none' }} />
+                  </label>
+                  <span style={{ color: 'var(--admin-text-muted)', fontSize: 13, alignSelf: 'center' }}>or paste below</span>
+                </div>
+                <textarea
+                  className="admin-form-input"
+                  rows={8}
+                  value={bulkText}
+                  onChange={(e) => handleBulkTextChange(e.target.value)}
+                  placeholder={"Saigon IPA, IPA, 6.5\nMidnight Stout, Stout, 5.2\nLemongrass Lager, Lager, 4.8"}
+                  style={{ fontFamily: 'monospace', fontSize: 13 }}
+                />
+                {bulkParsed.length > 0 && (
+                  <div style={{ marginTop: 12 }}>
+                    <p style={{ fontWeight: 600, fontSize: 13, marginBottom: 8 }}>Preview ({bulkParsed.length} beer{bulkParsed.length !== 1 ? 's' : ''} found):</p>
+                    <div style={{ maxHeight: 200, overflow: 'auto', border: '1px solid var(--admin-border)', borderRadius: 4 }}>
+                      <table className="admin-table" style={{ margin: 0 }}>
+                        <thead><tr><th>Name</th><th>Style</th><th>ABV</th></tr></thead>
+                        <tbody>
+                          {bulkParsed.map((b, i) => (
+                            <tr key={i}><td>{b.name}</td><td style={{ color: 'var(--admin-text-muted)' }}>{b.style || '—'}</td><td style={{ color: 'var(--admin-text-muted)' }}>{b.abv || '—'}</td></tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
+                  <button className="admin-btn admin-btn-primary" onClick={handleBulkSubmit} disabled={bulkUploading || bulkParsed.length === 0}>
+                    {bulkUploading ? 'Uploading...' : `Import ${bulkParsed.length} Beer${bulkParsed.length !== 1 ? 's' : ''}`}
+                  </button>
+                  <button className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={() => setShowBulkUpload(false)}>Cancel</button>
+                </div>
+              </div>
+            </div>
+          )}
           <div className="admin-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <h3 className="admin-card-title" style={{ marginBottom: 0 }}>Beer Menu</h3>
-              <button className="admin-btn admin-btn-primary admin-btn-small" onClick={() => setShowBeerForm(true)}>+ Add Beer</button>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button className="admin-btn admin-btn-small" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={() => setShowBulkUpload(true)}>↑ Bulk Import</button>
+                <button className="admin-btn admin-btn-primary admin-btn-small" onClick={() => setShowBeerForm(true)}>+ Add Beer</button>
+              </div>
             </div>
             <p style={{ color: 'var(--admin-text-muted)', fontSize: 13, marginBottom: 16 }}>
               These beers appear as options in the app's beer rating dropdown. Customers can still type a custom name if theirs isn't listed.
