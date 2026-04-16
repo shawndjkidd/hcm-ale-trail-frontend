@@ -6,6 +6,7 @@ import {
   deleteBrewery, getSideQuests, createSideQuest, updateSideQuest, deleteSideQuest,
   getTrailBeerRatings, getMergeSuggestions, mergeRatings, createBreweryStaff, getBreweryLogin,
   getTrailMerchandise, createMerchandiseItem, updateMerchandiseItem, restockMerchandise,
+  getTrailAnalytics,
   TRAIL_ID
 } from './adminApi';
 
@@ -52,6 +53,9 @@ export default function HQDashboard() {
   const [editingQuest, setEditingQuest] = useState(null);
   const [questForm, setQuestForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', reward: '', pin: '', address: '', district: '', mapsUrl: '', instagramUrl: '', facebookUrl: '', instagramHandle: '', hasVenueDashboard: false, status: 'active' });
   const [savingQuest, setSavingQuest] = useState(false);
+
+  const [analytics, setAnalytics] = useState(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
   const [mergeSuggestions, setMergeSuggestions] = useState(null); // null = not loaded
   const [loadingMerge, setLoadingMerge] = useState(false);
@@ -117,6 +121,13 @@ export default function HQDashboard() {
     }
     loadData(from, to);
   }, [dateRange, fromDate, toDate]);
+
+  const loadAnalytics = async () => {
+    setAnalyticsLoading(true);
+    const result = await getTrailAnalytics(TRAIL_ID, 'trail');
+    if (result.ok) setAnalytics(result);
+    setAnalyticsLoading(false);
+  };
 
   const formatTime = (ms) => {
     if (!ms) return '--';
@@ -562,6 +573,7 @@ export default function HQDashboard() {
         <button className={`admin-tab ${activeTab === 'sidequests' ? 'active' : ''}`} onClick={() => setActiveTab('sidequests')}>Side Quests ({sideQuests.length})</button>
         <button className={`admin-tab ${activeTab === 'leaderboard' ? 'active' : ''}`} onClick={() => setActiveTab('leaderboard')}>Leaderboard</button>
         <button className={`admin-tab ${activeTab === 'stock' ? 'active' : ''}`} onClick={() => setActiveTab('stock')}>Stock{merchandise.some(m => m.lowStockBreweries?.length > 0) ? ' ⚠️' : ''}</button>
+        <button className={`admin-tab ${activeTab === 'analytics' ? 'active' : ''}`} onClick={() => { setActiveTab('analytics'); if (!analytics) loadAnalytics(); }}>Analytics</button>
         <button className={`admin-tab ${activeTab === 'export' ? 'active' : ''}`} onClick={() => setActiveTab('export')}>Export</button>
       </div>
 
@@ -1015,6 +1027,227 @@ export default function HQDashboard() {
               </div>
             </div>
           )}
+        </>
+      )}
+
+      {activeTab === 'analytics' && (
+        <>
+          {analyticsLoading && <div className="admin-loading"><div className="admin-spinner" /></div>}
+          {analytics && (() => {
+            const d = analytics.demographics;
+            const f = analytics.funnel;
+            const t = analytics.timing;
+            const vibeLabels = { backpacker: 'Backpacker', digital_nomad: 'Digital Nomad', suit: 'Suit', teacher_ngo: 'Teacher/NGO', student: 'Student', just_vibing: 'Just Vibing', unknown: 'Not Set' };
+            const eraLabels = { rookie: 'Rookie', prime: 'Prime', seasoned: 'Seasoned', og: 'OG', unknown: 'Not Set' };
+            const styleLabels = { ipa: 'IPA', lager: 'Lager', stout: 'Stout', sour: 'Sour', wheat: 'Wheat', surprise: 'Surprise Me' };
+            const sortedEntries = (obj, labels) => Object.entries(obj || {}).sort((a, b) => b[1] - a[1]).map(([k, v]) => [labels?.[k] || k, v]);
+            const maxVal = (obj) => Math.max(...Object.values(obj || { _: 1 }), 1);
+
+            return (
+              <>
+                {/* KPIs */}
+                <div className="admin-kpi-grid">
+                  <div className="admin-kpi-card"><div className="admin-kpi-label">Total Participants</div><div className="admin-kpi-value primary">{d.totalParticipants}</div></div>
+                  <div className="admin-kpi-card"><div className="admin-kpi-label">Completed Onboarding</div><div className="admin-kpi-value">{d.onboardedCount}<span style={{ fontSize: 14, color: 'var(--admin-text-muted)' }}> ({d.onboardingRate}%)</span></div></div>
+                  <div className="admin-kpi-card"><div className="admin-kpi-label">Local vs Visitor</div><div className="admin-kpi-value">{d.localVsVisitor.localPercent}%<span style={{ fontSize: 14, color: 'var(--admin-text-muted)' }}> local</span></div><div className="admin-kpi-subtext">{d.localVsVisitor.locals} locals · {d.localVsVisitor.visitors} visitors</div></div>
+                  <div className="admin-kpi-card"><div className="admin-kpi-label">Nudge Candidates</div><div className="admin-kpi-value warning">{(analytics.nudgeCandidates || []).length}</div><div className="admin-kpi-subtext">close to finishing</div></div>
+                </div>
+
+                {/* Completion Funnel */}
+                <div className="admin-card">
+                  <h3 className="admin-card-title">Completion Funnel</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
+                    {f.steps.map((step, i) => {
+                      const pct = f.steps[0].count > 0 ? Math.round((step.count / f.steps[0].count) * 100) : 0;
+                      return (
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <div style={{ width: 160, fontSize: 13, color: 'var(--admin-text-muted)', textAlign: 'right', flexShrink: 0 }}>{step.label}</div>
+                          <div style={{ flex: 1, background: 'var(--admin-border)', borderRadius: 4, height: 28, position: 'relative', overflow: 'hidden' }}>
+                            <div style={{ width: `${pct}%`, height: '100%', background: i <= 2 ? 'var(--admin-primary)' : i <= 4 ? 'var(--admin-warning)' : 'var(--admin-success)', borderRadius: 4, transition: 'width 0.5s', minWidth: pct > 0 ? 2 : 0 }} />
+                            <span style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', fontSize: 12, fontWeight: 600, color: '#fff' }}>{step.count} ({pct}%)</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="admin-grid-2">
+                  {/* Demographics: Vibe */}
+                  <div className="admin-card">
+                    <h3 className="admin-card-title">Lifestyle / Vibe</h3>
+                    {sortedEntries(d.byVibe, vibeLabels).map(([label, count]) => (
+                      <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                        <div style={{ width: 110, fontSize: 13, flexShrink: 0 }}>{label}</div>
+                        <div style={{ flex: 1, background: 'var(--admin-border)', borderRadius: 3, height: 20, overflow: 'hidden' }}>
+                          <div style={{ width: `${(count / maxVal(d.byVibe)) * 100}%`, height: '100%', background: 'var(--admin-primary)', borderRadius: 3 }} />
+                        </div>
+                        <div style={{ width: 40, fontSize: 13, textAlign: 'right', color: 'var(--admin-text-muted)' }}>{count}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Demographics: Era */}
+                  <div className="admin-card">
+                    <h3 className="admin-card-title">Experience Level</h3>
+                    {sortedEntries(d.byEra, eraLabels).map(([label, count]) => (
+                      <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                        <div style={{ width: 80, fontSize: 13, flexShrink: 0 }}>{label}</div>
+                        <div style={{ flex: 1, background: 'var(--admin-border)', borderRadius: 3, height: 20, overflow: 'hidden' }}>
+                          <div style={{ width: `${(count / maxVal(d.byEra)) * 100}%`, height: '100%', background: 'var(--admin-warning)', borderRadius: 3 }} />
+                        </div>
+                        <div style={{ width: 40, fontSize: 13, textAlign: 'right', color: 'var(--admin-text-muted)' }}>{count}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="admin-grid-2">
+                  {/* Beer Style Preferences */}
+                  <div className="admin-card">
+                    <h3 className="admin-card-title">Beer Style Preferences</h3>
+                    <p style={{ color: 'var(--admin-text-muted)', fontSize: 12, marginBottom: 12 }}>What users selected during onboarding (multi-select)</p>
+                    {sortedEntries(d.beerStylePreferences, styleLabels).map(([label, count]) => (
+                      <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                        <div style={{ width: 100, fontSize: 13, flexShrink: 0 }}>{label}</div>
+                        <div style={{ flex: 1, background: 'var(--admin-border)', borderRadius: 3, height: 20, overflow: 'hidden' }}>
+                          <div style={{ width: `${(count / maxVal(d.beerStylePreferences)) * 100}%`, height: '100%', background: '#d97706', borderRadius: 3 }} />
+                        </div>
+                        <div style={{ width: 40, fontSize: 13, textAlign: 'right', color: 'var(--admin-text-muted)' }}>{count}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Top Countries */}
+                  <div className="admin-card">
+                    <h3 className="admin-card-title">Top Countries</h3>
+                    {sortedEntries(d.byCountry, {}).slice(0, 10).map(([label, count]) => (
+                      <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                        <div style={{ width: 60, fontSize: 13, flexShrink: 0 }}>{label || '—'}</div>
+                        <div style={{ flex: 1, background: 'var(--admin-border)', borderRadius: 3, height: 20, overflow: 'hidden' }}>
+                          <div style={{ width: `${(count / maxVal(d.byCountry)) * 100}%`, height: '100%', background: 'var(--admin-success)', borderRadius: 3 }} />
+                        </div>
+                        <div style={{ width: 40, fontSize: 13, textAlign: 'right', color: 'var(--admin-text-muted)' }}>{count}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Engagement by Segment */}
+                <div className="admin-card">
+                  <h3 className="admin-card-title">Avg Check-ins by Segment</h3>
+                  <p style={{ color: 'var(--admin-text-muted)', fontSize: 12, marginBottom: 16 }}>Which user segments are most engaged on the trail?</p>
+                  <div className="admin-grid-2" style={{ gap: 24 }}>
+                    <div>
+                      <p style={{ fontWeight: 600, fontSize: 13, marginBottom: 8 }}>By Lifestyle</p>
+                      <table className="admin-table"><thead><tr><th>Vibe</th><th>Avg Check-ins</th><th>Users</th></tr></thead><tbody>
+                        {Object.entries(analytics.engagement.avgCheckinsByVibe || {}).sort((a, b) => b[1].avg - a[1].avg).map(([k, v]) => (
+                          <tr key={k}><td>{vibeLabels[k] || k}</td><td><strong>{v.avg}</strong></td><td style={{ color: 'var(--admin-text-muted)' }}>{v.count}</td></tr>
+                        ))}
+                      </tbody></table>
+                    </div>
+                    <div>
+                      <p style={{ fontWeight: 600, fontSize: 13, marginBottom: 8 }}>By Experience</p>
+                      <table className="admin-table"><thead><tr><th>Era</th><th>Avg Check-ins</th><th>Users</th></tr></thead><tbody>
+                        {Object.entries(analytics.engagement.avgCheckinsByEra || {}).sort((a, b) => b[1].avg - a[1].avg).map(([k, v]) => (
+                          <tr key={k}><td>{eraLabels[k] || k}</td><td><strong>{v.avg}</strong></td><td style={{ color: 'var(--admin-text-muted)' }}>{v.count}</td></tr>
+                        ))}
+                      </tbody></table>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Timing Patterns */}
+                <div className="admin-grid-2">
+                  <div className="admin-card">
+                    <h3 className="admin-card-title">Check-ins by Day of Week</h3>
+                    <p style={{ color: 'var(--admin-text-muted)', fontSize: 12, marginBottom: 12 }}>Peak day: <strong>{t.peakDay}</strong></p>
+                    {(t.byDayOfWeek || []).map((d) => {
+                      const maxD = Math.max(...(t.byDayOfWeek || []).map(x => x.count), 1);
+                      return (
+                        <div key={d.day} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                          <div style={{ width: 70, fontSize: 12, flexShrink: 0 }}>{d.day.slice(0, 3)}</div>
+                          <div style={{ flex: 1, background: 'var(--admin-border)', borderRadius: 3, height: 18, overflow: 'hidden' }}>
+                            <div style={{ width: `${(d.count / maxD) * 100}%`, height: '100%', background: d.day === t.peakDay ? 'var(--admin-primary)' : 'var(--admin-border-hover, #555)', borderRadius: 3 }} />
+                          </div>
+                          <div style={{ width: 30, fontSize: 12, textAlign: 'right', color: 'var(--admin-text-muted)' }}>{d.count}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="admin-card">
+                    <h3 className="admin-card-title">Check-ins by Hour</h3>
+                    <p style={{ color: 'var(--admin-text-muted)', fontSize: 12, marginBottom: 12 }}>Peak hour: <strong>{t.peakHour}:00</strong></p>
+                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 120 }}>
+                      {(t.byHour || []).filter(h => h.hour >= 10 && h.hour <= 23).map(h => {
+                        const maxH = Math.max(...(t.byHour || []).map(x => x.count), 1);
+                        const pct = (h.count / maxH) * 100;
+                        return (
+                          <div key={h.hour} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div style={{ width: '100%', height: `${pct}%`, minHeight: h.count > 0 ? 2 : 0, background: h.hour === t.peakHour ? 'var(--admin-primary)' : 'var(--admin-border-hover, #555)', borderRadius: '2px 2px 0 0' }} />
+                            <div style={{ fontSize: 9, color: 'var(--admin-text-muted)', marginTop: 2 }}>{h.hour}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Brewery Comparison */}
+                {analytics.breweryComparison && (
+                  <div className="admin-card">
+                    <h3 className="admin-card-title">Brewery Comparison — Visitor Preferences</h3>
+                    <p style={{ color: 'var(--admin-text-muted)', fontSize: 12, marginBottom: 12 }}>What beer styles each brewery's visitors prefer (from onboarding data)</p>
+                    <table className="admin-table">
+                      <thead><tr><th>Brewery</th><th>Check-ins</th><th>Avg Rating</th><th>Top Preferred Style</th><th>Style Breakdown</th></tr></thead>
+                      <tbody>
+                        {analytics.breweryComparison.map(b => {
+                          const breakdown = Object.entries(b.visitorStyleBreakdown || {}).sort((a, b) => b[1] - a[1]);
+                          return (
+                            <tr key={b.id}>
+                              <td><strong>{b.name}</strong></td>
+                              <td>{b.checkins}</td>
+                              <td>{b.avgRating ? `${b.avgRating}★` : '—'}</td>
+                              <td style={{ textTransform: 'uppercase', fontSize: 12 }}>{styleLabels[b.topVisitorBeerPreference] || b.topVisitorBeerPreference || '—'}</td>
+                              <td style={{ fontSize: 11, color: 'var(--admin-text-muted)' }}>{breakdown.slice(0, 3).map(([s, c]) => `${styleLabels[s] || s}: ${c}`).join(', ')}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {/* Nudge Candidates */}
+                {(analytics.nudgeCandidates || []).length > 0 && (
+                  <div className="admin-card" style={{ borderLeft: '4px solid var(--admin-warning)' }}>
+                    <h3 className="admin-card-title">Nudge Candidates — Almost Done!</h3>
+                    <p style={{ color: 'var(--admin-text-muted)', fontSize: 12, marginBottom: 12 }}>These users are within 2 breweries of completing the trail. A reminder could push them across the finish line.</p>
+                    <table className="admin-table">
+                      <thead><tr><th>User</th><th>Check-ins</th><th>Remaining</th><th>Email</th></tr></thead>
+                      <tbody>
+                        {analytics.nudgeCandidates.map(n => (
+                          <tr key={n.participantId}>
+                            <td><strong>{n.displayName}</strong></td>
+                            <td>{n.checkins} / {analytics.totalBreweries}</td>
+                            <td><span className="admin-badge warning">{n.remaining} left</span></td>
+                            <td style={{ fontSize: 12, color: 'var(--admin-text-muted)' }}>{n.email}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                <div style={{ textAlign: 'center', padding: 16 }}>
+                  <button className="admin-btn admin-btn-small" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={loadAnalytics} disabled={analyticsLoading}>
+                    {analyticsLoading ? 'Refreshing...' : '↻ Refresh Analytics'}
+                  </button>
+                </div>
+              </>
+            );
+          })()}
         </>
       )}
 

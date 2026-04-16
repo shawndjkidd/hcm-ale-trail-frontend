@@ -26,6 +26,17 @@ export async function getAdminMe() {
 
 // ==================== HQ DASHBOARD ====================
 
+export async function getTrailAnalytics(trailId, scope = 'trail', breweryId = null) {
+  try {
+    let url = `${API_BASE}/api/admin/trails/${trailId}/analytics?scope=${scope}`;
+    if (breweryId) url += `&bid=${breweryId}`;
+    const res = await fetch(url, { headers: authHeaders() });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
 export async function getTrailOverview(trailId, from, to) {
   try {
     let url = `${API_BASE}/api/admin/trails/${trailId}/overview`;
