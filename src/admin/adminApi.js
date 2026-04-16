@@ -117,6 +117,19 @@ export async function createBreweryEvent(breweryId, eventData) {
   }
 }
 
+export async function updateEvent(eventId, patch) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/events/${eventId}`, {
+      method: 'PUT',
+      headers: authHeaders(),
+      body: JSON.stringify(patch)
+    });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
 export async function deleteEvent(eventId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/events/${eventId}`, {

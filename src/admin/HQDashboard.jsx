@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import QRCode from 'qrcode';
 import {
   getTrailOverview, getTrailEvents, getAdminLeaderboard, exportParticipants,
-  deleteEvent, createTrailEvent, getTrailBreweries, createBrewery, updateBrewery,
+  deleteEvent, updateEvent, createTrailEvent, getTrailBreweries, createBrewery, updateBrewery,
   deleteBrewery, getSideQuests, createSideQuest, updateSideQuest, deleteSideQuest,
   getTrailBeerRatings, getMergeSuggestions, mergeRatings, createBreweryStaff, getBreweryLogin,
   getTrailMerchandise, createMerchandiseItem, updateMerchandiseItem, restockMerchandise,
@@ -38,6 +38,7 @@ export default function HQDashboard() {
   const [exporting, setExporting] = useState(false);
 
   const [showEventForm, setShowEventForm] = useState(false);
+  const [editingEvent, setEditingEvent] = useState(null);
   const [eventForm, setEventForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '', category: 'event' });
   const [savingEvent, setSavingEvent] = useState(false);
 
@@ -205,6 +206,63 @@ export default function HQDashboard() {
       alert(result.error || 'Failed to create event');
     }
     setSavingEvent(false);
+  };
+
+  const openEditEvent = (event) => {
+    const title = event.title || {};
+    const desc = event.description || {};
+    const toLocal = (iso) => {
+      if (!iso) return '';
+      const d = new Date(iso);
+      return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    };
+    setEditingEvent(event);
+    setEventForm({
+      titleEn: title.en || (typeof event.title === 'string' ? event.title : ''),
+      titleVn: title.vn || '',
+      descriptionEn: desc.en || (typeof event.description === 'string' ? event.description : ''),
+      descriptionVn: desc.vn || '',
+      startsAt: toLocal(event.startsAt),
+      endsAt: toLocal(event.endsAt),
+      link: event.link || '',
+      linkedTo: 'none',
+      linkedId: '',
+      category: event.category || 'event',
+    });
+    setShowEventForm(true);
+  };
+
+  const handleUpdateEvent = async () => {
+    if (!editingEvent) return;
+    if (!eventForm.titleEn || !eventForm.startsAt) {
+      alert('Title (English) and Start Date/Time are required');
+      return;
+    }
+    setSavingEvent(true);
+    const patch = {
+      title: { en: eventForm.titleEn, vn: eventForm.titleVn || eventForm.titleEn },
+      description: eventForm.descriptionEn ? { en: eventForm.descriptionEn, vn: eventForm.descriptionVn || eventForm.descriptionEn } : null,
+      starts_at: new Date(eventForm.startsAt).toISOString(),
+      ends_at: eventForm.endsAt ? new Date(eventForm.endsAt).toISOString() : null,
+      link: eventForm.link || null,
+      category: eventForm.category || 'event',
+    };
+    const result = await updateEvent(editingEvent.id, patch);
+    if (result.ok) {
+      setEvents(events.map(e => e.id === editingEvent.id ? result.event : e));
+      setShowEventForm(false);
+      setEditingEvent(null);
+      setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '', category: 'event' });
+    } else {
+      alert(result.error || 'Failed to update event');
+    }
+    setSavingEvent(false);
+  };
+
+  const openCreateEvent = () => {
+    setEditingEvent(null);
+    setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '', category: 'event' });
+    setShowEventForm(true);
   };
 
   const openBreweryForm = async (brewery = null) => {
@@ -638,7 +696,7 @@ export default function HQDashboard() {
           {showEventForm && (
             <div className="admin-modal-overlay" onClick={() => setShowEventForm(false)}>
               <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
-                <h3 style={{ marginBottom: 20 }}>Create Trail Event</h3>
+                <h3 style={{ marginBottom: 20 }}>{editingEvent ? 'Edit Event' : 'Create Trail Event'}</h3>
                 <div className="admin-form-group"><label className="admin-form-label">Title (English) *</label><input type="text" className="admin-form-input" value={eventForm.titleEn} onChange={(e) => setEventForm({...eventForm, titleEn: e.target.value})} placeholder="Ale Trail Kickoff Party" /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Title (Vietnamese)</label><input type="text" className="admin-form-input" value={eventForm.titleVn} onChange={(e) => setEventForm({...eventForm, titleVn: e.target.value})} /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Description (English)</label><textarea className="admin-form-input" value={eventForm.descriptionEn} onChange={(e) => setEventForm({...eventForm, descriptionEn: e.target.value})} rows={2} /></div>
@@ -649,16 +707,16 @@ export default function HQDashboard() {
                 <div className="admin-form-group"><label className="admin-form-label">Link to venue</label><select className="admin-form-input" value={eventForm.linkedTo} onChange={(e) => setEventForm({...eventForm, linkedTo: e.target.value, linkedId: ''})}><option value="none">None (trail-wide)</option><option value="brewery">Brewery</option><option value="side_quest">Side Quest</option></select></div>
                 {eventForm.linkedTo === 'brewery' && (<div className="admin-form-group"><label className="admin-form-label">Select brewery</label><select className="admin-form-input" value={eventForm.linkedId} onChange={(e) => setEventForm({...eventForm, linkedId: e.target.value})}><option value="">— choose —</option>{breweries.map(b => (<option key={b.id} value={b.id}>{b.name}</option>))}</select></div>)}
                 {eventForm.linkedTo === 'side_quest' && (<div className="admin-form-group"><label className="admin-form-label">Select side quest</label><select className="admin-form-input" value={eventForm.linkedId} onChange={(e) => setEventForm({...eventForm, linkedId: e.target.value})}><option value="">— choose —</option>{sideQuests.map(q => (<option key={q.id} value={q.id}>{typeof q.title === 'string' ? q.title : (q.title?.en || 'Untitled')}</option>))}</select></div>)}
-                <div style={{ display: 'flex', gap: 12, marginTop: 20 }}><button className="admin-btn admin-btn-primary" onClick={handleCreateTrailEvent} disabled={savingEvent}>{savingEvent ? 'Creating...' : 'Create Event'}</button><button className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={() => setShowEventForm(false)}>Cancel</button></div>
+                <div style={{ display: 'flex', gap: 12, marginTop: 20 }}><button className="admin-btn admin-btn-primary" onClick={editingEvent ? handleUpdateEvent : handleCreateTrailEvent} disabled={savingEvent}>{savingEvent ? 'Saving...' : (editingEvent ? 'Update Event' : 'Create Event')}</button><button className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={() => { setShowEventForm(false); setEditingEvent(null); }}>Cancel</button></div>
               </div>
             </div>
           )}
           <div className="admin-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}><h3 className="admin-card-title" style={{ marginBottom: 0 }}>Trail-Wide Events ({trailEvents.length})</h3><button className="admin-btn admin-btn-primary admin-btn-small" onClick={() => setShowEventForm(true)}>+ Create Event</button></div>
-            {trailEvents.length === 0 ? (<div className="admin-empty">No trail-wide events yet</div>) : (<table className="admin-table"><thead><tr><th>Event</th><th>Category</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>{trailEvents.map((event) => (<tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td><span className={`admin-badge ${event.category === 'new_release' ? 'active' : ''}`}>{event.category === 'new_release' ? 'New Release' : 'Event'}</span></td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><span className={`admin-badge ${event.status === 'active' ? 'active' : 'inactive'}`}>{event.status}</span></td><td><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></td></tr>))}</tbody></table>)}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}><h3 className="admin-card-title" style={{ marginBottom: 0 }}>Trail-Wide Events ({trailEvents.length})</h3><button className="admin-btn admin-btn-primary admin-btn-small" onClick={openCreateEvent}>+ Create Event</button></div>
+            {trailEvents.length === 0 ? (<div className="admin-empty">No trail-wide events yet</div>) : (<table className="admin-table"><thead><tr><th>Event</th><th>Category</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>{trailEvents.map((event) => (<tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td><span className={`admin-badge ${event.category === 'new_release' ? 'active' : ''}`}>{event.category === 'new_release' ? 'New Release' : 'Event'}</span></td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><span className={`admin-badge ${event.status === 'active' ? 'active' : 'inactive'}`}>{event.status}</span></td><td><div style={{ display: 'flex', gap: 6 }}><button className="admin-btn-small" style={{ background: 'var(--admin-accent)', color: '#fff' }} onClick={() => openEditEvent(event)}>Edit</button><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></div></td></tr>))}</tbody></table>)}
           </div>
-          <div className="admin-card" style={{ marginTop: 20 }}><h3 className="admin-card-title">Brewery Events ({breweryEvents.length})</h3>{breweryEvents.length === 0 ? (<div className="admin-empty">No brewery events yet</div>) : (<table className="admin-table"><thead><tr><th>Event</th><th>Brewery</th><th>Date</th><th>Actions</th></tr></thead><tbody>{breweryEvents.map((event) => (<tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td>{event.breweryName}</td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></td></tr>))}</tbody></table>)}</div>
-          <div className="admin-card" style={{ marginTop: 20 }}><h3 className="admin-card-title">Side Quest Events ({sideQuestEvents.length})</h3>{sideQuestEvents.length === 0 ? (<div className="admin-empty">No side quest events yet</div>) : (<table className="admin-table"><thead><tr><th>Event</th><th>Side Quest</th><th>Date</th><th>Actions</th></tr></thead><tbody>{sideQuestEvents.map((event) => (<tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td>{event.sideQuestTitle || event.sideQuestId || '--'}</td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></td></tr>))}</tbody></table>)}</div>
+          <div className="admin-card" style={{ marginTop: 20 }}><h3 className="admin-card-title">Brewery Events ({breweryEvents.length})</h3>{breweryEvents.length === 0 ? (<div className="admin-empty">No brewery events yet</div>) : (<table className="admin-table"><thead><tr><th>Event</th><th>Brewery</th><th>Date</th><th>Actions</th></tr></thead><tbody>{breweryEvents.map((event) => (<tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td>{event.breweryName}</td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><div style={{ display: 'flex', gap: 6 }}><button className="admin-btn-small" style={{ background: 'var(--admin-accent)', color: '#fff' }} onClick={() => openEditEvent(event)}>Edit</button><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></div></td></tr>))}</tbody></table>)}</div>
+          <div className="admin-card" style={{ marginTop: 20 }}><h3 className="admin-card-title">Side Quest Events ({sideQuestEvents.length})</h3>{sideQuestEvents.length === 0 ? (<div className="admin-empty">No side quest events yet</div>) : (<table className="admin-table"><thead><tr><th>Event</th><th>Side Quest</th><th>Date</th><th>Actions</th></tr></thead><tbody>{sideQuestEvents.map((event) => (<tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td>{event.sideQuestTitle || event.sideQuestId || '--'}</td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><div style={{ display: 'flex', gap: 6 }}><button className="admin-btn-small" style={{ background: 'var(--admin-accent)', color: '#fff' }} onClick={() => openEditEvent(event)}>Edit</button><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></div></td></tr>))}</tbody></table>)}</div>
         </>
       )}
 

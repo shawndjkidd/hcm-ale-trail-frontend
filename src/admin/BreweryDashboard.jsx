@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import QRCode from 'qrcode';
-import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, mergeRatings, updateAdminAccount, getBreweryMerchandise, restockMerchandise, TRAIL_ID } from './adminApi';
+import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, mergeRatings, updateAdminAccount, getBreweryMerchandise, restockMerchandise, TRAIL_ID } from './adminApi';
 
 const DAY_NAMES = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 const DAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -61,6 +61,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   const [showEventForm, setShowEventForm] = useState(false);
   const [eventForm, setEventForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', category: 'event' });
   const [savingEvent, setSavingEvent] = useState(false);
+  const [editingEvent, setEditingEvent] = useState(null);
 
   const [mergeTargets, setMergeTargets] = useState({}); // key: ratingName -> targetName
   const [mergingKey, setMergingKey] = useState(null);
@@ -321,6 +322,63 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', category: 'event' });
     } else {
       alert(result.error || 'Failed to create event');
+    }
+    setSavingEvent(false);
+  };
+
+  const openCreateEvent = () => {
+    setEditingEvent(null);
+    setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', category: 'event' });
+    setShowEventForm(true);
+  };
+
+  const openEditEvent = (event) => {
+    setEditingEvent(event);
+    const titleObj = event.title || {};
+    const descObj = event.description || {};
+    // Convert ISO datetime to local datetime-local format
+    const toLocal = (iso) => {
+      if (!iso) return '';
+      const d = new Date(iso);
+      const offset = d.getTimezoneOffset();
+      const local = new Date(d.getTime() - offset * 60000);
+      return local.toISOString().slice(0, 16);
+    };
+    setEventForm({
+      titleEn: typeof titleObj === 'string' ? titleObj : (titleObj.en || ''),
+      titleVn: typeof titleObj === 'string' ? '' : (titleObj.vn || ''),
+      descriptionEn: typeof descObj === 'string' ? descObj : (descObj.en || ''),
+      descriptionVn: typeof descObj === 'string' ? '' : (descObj.vn || ''),
+      startsAt: toLocal(event.startsAt),
+      endsAt: toLocal(event.endsAt),
+      link: event.link || '',
+      category: event.category || 'event',
+    });
+    setShowEventForm(true);
+  };
+
+  const handleUpdateEvent = async () => {
+    if (!eventForm.titleEn || !eventForm.startsAt) {
+      alert('Title (English) and Start Date/Time are required');
+      return;
+    }
+    setSavingEvent(true);
+    const patch = {
+      title: { en: eventForm.titleEn, vn: eventForm.titleVn || eventForm.titleEn },
+      description: eventForm.descriptionEn ? { en: eventForm.descriptionEn, vn: eventForm.descriptionVn || eventForm.descriptionEn } : null,
+      starts_at: new Date(eventForm.startsAt).toISOString(),
+      ends_at: eventForm.endsAt ? new Date(eventForm.endsAt).toISOString() : null,
+      link: eventForm.link || null,
+      category: eventForm.category || 'event',
+    };
+    const result = await updateEvent(editingEvent.id, patch);
+    if (result.ok) {
+      setEvents(events.map(e => e.id === editingEvent.id ? result.event : e));
+      setShowEventForm(false);
+      setEditingEvent(null);
+      setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', category: 'event' });
+    } else {
+      alert(result.error || 'Failed to update event');
     }
     setSavingEvent(false);
   };
@@ -712,9 +770,9 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       {activeTab === 'events' && (
         <>
           {showEventForm && (
-            <div className="admin-modal-overlay" onClick={() => setShowEventForm(false)}>
+            <div className="admin-modal-overlay" onClick={() => { setShowEventForm(false); setEditingEvent(null); }}>
               <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
-                <h3 style={{ marginBottom: 20 }}>Create Event</h3>
+                <h3 style={{ marginBottom: 20 }}>{editingEvent ? 'Edit Event' : 'Create Event'}</h3>
                 <div className="admin-form-group"><label className="admin-form-label">Title (English) *</label><input type="text" className="admin-form-input" value={eventForm.titleEn} onChange={(e) => setEventForm({...eventForm, titleEn: e.target.value})} /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Title (Vietnamese)</label><input type="text" className="admin-form-input" value={eventForm.titleVn} onChange={(e) => setEventForm({...eventForm, titleVn: e.target.value})} /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Description</label><textarea className="admin-form-input" value={eventForm.descriptionEn} onChange={(e) => setEventForm({...eventForm, descriptionEn: e.target.value})} rows={2} /></div>
@@ -722,16 +780,16 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                 <div className="admin-form-group"><label className="admin-form-label">End Date/Time</label><input type="datetime-local" className="admin-form-input" value={eventForm.endsAt} onChange={(e) => setEventForm({...eventForm, endsAt: e.target.value})} /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Link</label><input type="url" className="admin-form-input" value={eventForm.link} onChange={(e) => setEventForm({...eventForm, link: e.target.value})} /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Category</label><select className="admin-form-input" value={eventForm.category} onChange={(e) => setEventForm({...eventForm, category: e.target.value})}><option value="event">Event</option><option value="new_release">New Release</option></select></div>
-                <div style={{ display: 'flex', gap: 12, marginTop: 20 }}><button className="admin-btn admin-btn-primary" onClick={handleCreateEvent} disabled={savingEvent}>{savingEvent ? 'Creating...' : 'Create Event'}</button><button className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={() => setShowEventForm(false)}>Cancel</button></div>
+                <div style={{ display: 'flex', gap: 12, marginTop: 20 }}><button className="admin-btn admin-btn-primary" onClick={editingEvent ? handleUpdateEvent : handleCreateEvent} disabled={savingEvent}>{savingEvent ? 'Saving...' : editingEvent ? 'Save Changes' : 'Create Event'}</button><button className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={() => { setShowEventForm(false); setEditingEvent(null); }}>Cancel</button></div>
               </div>
             </div>
           )}
           <div className="admin-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}><h3 className="admin-card-title" style={{ marginBottom: 0 }}>Events</h3><button className="admin-btn admin-btn-primary admin-btn-small" onClick={() => setShowEventForm(true)}>+ Create Event</button></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}><h3 className="admin-card-title" style={{ marginBottom: 0 }}>Events</h3><button className="admin-btn admin-btn-primary admin-btn-small" onClick={openCreateEvent}>+ Create Event</button></div>
             {events.length === 0 ? (<div className="admin-empty">No events yet</div>) : (
-              <table className="admin-table"><thead><tr><th>Event</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+              <table className="admin-table"><thead><tr><th>Event</th><th>Category</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>
                 {events.map((event) => (
-                  <tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><span className={`admin-badge ${event.status === 'active' ? 'active' : 'inactive'}`}>{event.status}</span></td><td><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></td></tr>
+                  <tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td><span className={`admin-badge ${event.category === 'new_release' ? 'success' : 'active'}`}>{event.category === 'new_release' ? '🍺 Release' : '🎉 Event'}</span></td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><span className={`admin-badge ${event.status === 'active' ? 'active' : 'inactive'}`}>{event.status}</span></td><td><div style={{ display: 'flex', gap: 6 }}><button className="admin-btn-small" style={{ background: 'var(--admin-primary)', color: '#fff' }} onClick={() => openEditEvent(event)}>Edit</button><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></div></td></tr>
                 ))}
               </tbody></table>
             )}
