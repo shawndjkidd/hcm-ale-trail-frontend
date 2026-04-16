@@ -211,6 +211,18 @@ export function changeEmail(newEmail) {
   });
 }
 
+// --- Nudge / Milestone APIs ---
+export function getUnseenNudges(trailId = TRAIL_ID) {
+  return request(`/trails/${trailId}/nudges`);
+}
+
+export function markNudgesSeen(nudgeIds, trailId = TRAIL_ID) {
+  return request(`/trails/${trailId}/nudges/seen`, {
+    method: "POST",
+    body: { nudgeIds },
+  });
+}
+
 export function saveOnboardingProfile(profileData) {
   return request(`/user/profile`, {
     method: "POST",

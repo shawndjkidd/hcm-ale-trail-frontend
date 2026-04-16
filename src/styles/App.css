@@ -9837,3 +9837,147 @@ body.night-mode .auth-bottom-link .auth-link-btn {
 body.night-mode .google-signin-btn {
   border-color: #555;
 }
+
+/* ============================================
+   MILESTONE NOTIFICATION MODAL
+   ============================================ */
+.milestone-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: milestoneOverlayIn 0.3s ease;
+  padding: 20px;
+}
+
+@keyframes milestoneOverlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.milestone-modal {
+  background: #fff;
+  border-radius: 20px;
+  padding: 40px 30px;
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+  animation: milestoneSlideUp 0.4s ease;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes milestoneSlideUp {
+  from { transform: translateY(40px) scale(0.95); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.milestone-emoji {
+  font-size: 64px;
+  line-height: 1;
+  margin-bottom: 12px;
+  animation: milestoneBounce 0.6s ease 0.3s both;
+}
+
+@keyframes milestoneBounce {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.3); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+.milestone-title {
+  font-family: 'Anton', sans-serif;
+  font-size: 1.8rem;
+  margin: 0 0 4px 0;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.milestone-subtitle {
+  font-size: 1rem;
+  color: #666;
+  margin: 0 0 20px 0;
+  font-weight: 600;
+}
+
+.milestone-progress {
+  margin: 0 auto 20px;
+  max-width: 280px;
+}
+
+.milestone-progress-bar {
+  height: 12px;
+  background: #e5e7eb;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.milestone-progress-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 1s ease 0.4s;
+}
+
+.milestone-progress-text {
+  font-size: 0.85rem;
+  color: #888;
+  font-weight: 600;
+}
+
+.milestone-message {
+  font-size: 0.95rem;
+  color: #444;
+  line-height: 1.5;
+  margin: 0 0 16px 0;
+}
+
+.milestone-remaining {
+  font-size: 0.85rem;
+  color: #999;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+}
+
+.milestone-close-btn {
+  border: none;
+  color: #fff;
+  font-family: 'Anton', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 12px 40px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.milestone-close-btn:active {
+  transform: scale(0.96);
+}
+
+/* Dark mode */
+body.night-mode .milestone-modal {
+  background: #1a1a1a;
+}
+body.night-mode .milestone-title {
+  color: inherit;
+}
+body.night-mode .milestone-subtitle {
+  color: #aaa;
+}
+body.night-mode .milestone-message {
+  color: #ccc;
+}
+body.night-mode .milestone-remaining {
+  color: #888;
+}
+body.night-mode .milestone-progress-bar {
+  background: #333;
+}

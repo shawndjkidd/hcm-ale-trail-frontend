@@ -9,11 +9,12 @@ import AuthModal from "./components/AuthModal";
 import AleTrailMap from "./components/AleTrailMap";
 import Settings from "./components/Settings";
 import OnboardingFlow from "./components/OnboardingFlow";
+import MilestoneModal from "./components/MilestoneModal";
 
 import translations from "./translations";
 import { recordCheckin, supabase } from "./lib/supabase";
 import { TRAIL_ID } from "./config";
-import { getBreweries, getMe, logout as apiLogout, startNewRun, postCheckin, getLeaderboard, claimHat, storeLoginTokens, getAccessToken, setTokens } from "./lib/api";
+import { getBreweries, getMe, logout as apiLogout, startNewRun, postCheckin, getLeaderboard, claimHat, storeLoginTokens, getAccessToken, setTokens, getUnseenNudges, markNudgesSeen } from "./lib/api";
 
 import "./styles/App.css";
 
@@ -106,6 +107,7 @@ export default function App() {
   const [autoOpenBeer, setAutoOpenBeer] = useState(false);
   const [hatClaimed, setHatClaimed] = useState(() => localStorage.getItem("hcm-hat-claimed") === "true");
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [milestoneData, setMilestoneData] = useState(null);
 
   const pendingQR = useRef(null);
   const pendingSideQuestQR = useRef(null);
@@ -482,6 +484,22 @@ export default function App() {
         setTimerStart(startTime);
         localStorage.setItem("hcm-timer-start", startTime.toString());
       }
+      // Milestone notification — check locally after stamp is recorded
+      const totalActive = breweries.filter(b => b.status !== 'temporarily_closed').length || 8;
+      const MILESTONE_THRESHOLDS = [5, 7];
+      for (const m of MILESTONE_THRESHOLDS) {
+        if (newStamps.length === m) {
+          const seenKey = `hcm-milestone-${m}-seen`;
+          if (!localStorage.getItem(seenKey)) {
+            localStorage.setItem(seenKey, 'true');
+            setTimeout(() => {
+              setMilestoneData({ milestone: m, stampCount: m, totalBreweries: totalActive });
+            }, 1500);
+          }
+          break;
+        }
+      }
+
       const requiredCount = breweries.filter(b => b.status !== 'temporarily_closed').length || 8;
       if (newStamps.length >= requiredCount && timerStart && !timerEnd) {
         const endTime = Date.now();
@@ -625,6 +643,23 @@ export default function App() {
     }
   }, [user?.id]);
 
+  // Fetch unseen nudges on app load (catches any missed real-time nudges)
+  useEffect(() => {
+    if (user?.id && initialized && !showOnboarding) {
+      getUnseenNudges().then(res => {
+        if (res?.ok && res.nudges?.length > 0) {
+          const nudge = res.nudges[0]; // Show the most recent unseen nudge
+          setMilestoneData({
+            milestone: nudge.milestone,
+            stampCount: nudge.stamp_count,
+            totalBreweries: nudge.total_breweries,
+            nudgeId: nudge.id,
+          });
+        }
+      }).catch(() => {});
+    }
+  }, [user?.id, initialized, showOnboarding]);
+
   if (!initialized) {
     return (
       <div className="loading">
@@ -643,6 +678,21 @@ export default function App() {
           language={language}
           onComplete={() => setShowOnboarding(false)}
           onClose={() => setShowOnboarding(false)}
+        />
+      )}
+      {milestoneData && (
+        <MilestoneModal
+          milestone={milestoneData.milestone}
+          stampCount={milestoneData.stampCount}
+          totalBreweries={milestoneData.totalBreweries}
+          language={language}
+          onClose={() => {
+            // Mark nudge as seen if it came from the unseen fetch
+            if (milestoneData.nudgeId) {
+              markNudgesSeen([milestoneData.nudgeId]).catch(() => {});
+            }
+            setMilestoneData(null);
+          }}
         />
       )}
       {view === "home" && (
