@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import QRCode from 'qrcode';
-import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, bulkUploadBeers, mergeRatings, updateAdminAccount, getBreweryMerchandise, restockMerchandise, TRAIL_ID } from './adminApi';
+import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, bulkUploadBeers, mergeRatings, updateAdminAccount, getBreweryMerchandise, restockMerchandise, getTrailAnalytics, TRAIL_ID } from './adminApi';
 
 const DAY_NAMES = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 const DAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -23,6 +23,10 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   const [error, setError] = useState('');
   const [dateRange, setDateRange] = useState('7d');
   const [activeTab, setActiveTab] = useState('overview');
+
+  // Audience analytics (free tier)
+  const [audience, setAudience] = useState(null);
+  const [audienceLoading, setAudienceLoading] = useState(false);
 
   const [pinCode, setPinCode] = useState('');
   const [savingPin, setSavingPin] = useState(false);
@@ -647,6 +651,16 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
         <button className={`admin-tab ${activeTab === 'events' ? 'active' : ''}`} onClick={() => setActiveTab('events')}>Events ({events.length})</button>
         <button className={`admin-tab ${activeTab === 'beers' ? 'active' : ''}`} onClick={() => setActiveTab('beers')}>Beer Menu</button>
         <button className={`admin-tab ${activeTab === 'stock' ? 'active' : ''}`} onClick={() => setActiveTab('stock')}>Stock{brewMerch.some(m => m.lowStock) ? ' ⚠️' : ''}</button>
+        <button className={`admin-tab ${activeTab === 'audience' ? 'active' : ''}`} onClick={() => {
+          setActiveTab('audience');
+          if (!audience && !audienceLoading) {
+            setAudienceLoading(true);
+            getTrailAnalytics(TRAIL_ID, 'brewery', brewery.id).then(res => {
+              if (res.ok) setAudience(res);
+              setAudienceLoading(false);
+            });
+          }
+        }}>Audience</button>
         <button className={`admin-tab ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>Settings</button>
       </div>
 
@@ -1272,6 +1286,175 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
           )}
         </>
       )}
+
+      {activeTab === 'audience' && (
+        <>
+          {audienceLoading && <p style={{ color: 'var(--admin-text-muted)', padding: 20 }}>Loading audience insights...</p>}
+          {audience && (
+            <>
+              {/* KPI Cards */}
+              <div className="admin-kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 24 }}>
+                <div className="admin-card" style={{ padding: 20 }}>
+                  <div style={{ color: 'var(--admin-text-muted)', fontSize: 13, marginBottom: 4 }}>Your Visitors</div>
+                  <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--admin-accent)' }}>{audience.demographics?.totalParticipants || 0}</div>
+                  <div style={{ color: 'var(--admin-text-muted)', fontSize: 12 }}>checked in here</div>
+                </div>
+                <div className="admin-card" style={{ padding: 20 }}>
+                  <div style={{ color: 'var(--admin-text-muted)', fontSize: 13, marginBottom: 4 }}>Completed Onboarding</div>
+                  <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--admin-accent)' }}>{audience.demographics?.onboardedCount || 0}</div>
+                  <div style={{ color: 'var(--admin-text-muted)', fontSize: 12 }}>{audience.demographics?.onboardingRate || 0}% of visitors</div>
+                </div>
+                <div className="admin-card" style={{ padding: 20 }}>
+                  <div style={{ color: 'var(--admin-text-muted)', fontSize: 13, marginBottom: 4 }}>Local vs Visitor</div>
+                  <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--admin-accent)' }}>{audience.demographics?.localVsVisitor?.localPercent || 0}%</div>
+                  <div style={{ color: 'var(--admin-text-muted)', fontSize: 12 }}>
+                    {audience.demographics?.localVsVisitor?.locals || 0} locals · {audience.demographics?.localVsVisitor?.visitors || 0} visitors
+                  </div>
+                </div>
+              </div>
+
+              {/* Top Vibes */}
+              {audience.demographics?.byVibe && Object.keys(audience.demographics.byVibe).length > 0 && (
+                <div className="admin-card" style={{ padding: 20, marginBottom: 16 }}>
+                  <h3 style={{ margin: '0 0 16px 0', fontSize: 16 }}>Your Crowd</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {Object.entries(audience.demographics.byVibe)
+                      .sort((a, b) => b[1] - a[1])
+                      .slice(0, 5)
+                      .map(([vibe, count]) => {
+                        const total = Object.values(audience.demographics.byVibe).reduce((a, b) => a + b, 0);
+                        const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                        const label = vibe.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                        return (
+                          <div key={vibe}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}>
+                              <span>{label}</span>
+                              <span style={{ color: 'var(--admin-text-muted)' }}>{count} ({pct}%)</span>
+                            </div>
+                            <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 4, height: 8 }}>
+                              <div style={{ background: 'var(--admin-accent)', borderRadius: 4, height: 8, width: `${pct}%`, transition: 'width 0.3s' }} />
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+              )}
+
+              {/* Beer Style Preferences */}
+              {audience.beerPreferences?.byBreweryVisitors && (() => {
+                const prefs = Object.values(audience.beerPreferences.byBreweryVisitors)[0] || {};
+                const entries = Object.entries(prefs).sort((a, b) => b[1] - a[1]).slice(0, 5);
+                if (entries.length === 0) return null;
+                const total = entries.reduce((sum, [, c]) => sum + c, 0);
+                return (
+                  <div className="admin-card" style={{ padding: 20, marginBottom: 16 }}>
+                    <h3 style={{ margin: '0 0 16px 0', fontSize: 16 }}>What Your Visitors Like to Drink</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {entries.map(([style, count]) => {
+                        const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                        const label = style.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                        return (
+                          <div key={style}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}>
+                              <span>{label}</span>
+                              <span style={{ color: 'var(--admin-text-muted)' }}>{count} ({pct}%)</span>
+                            </div>
+                            <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 4, height: 8 }}>
+                              <div style={{ background: '#66bb6a', borderRadius: 4, height: 8, width: `${pct}%`, transition: 'width 0.3s' }} />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Peak Days */}
+              {audience.timing?.byDayOfWeek && (
+                <div className="admin-card" style={{ padding: 20, marginBottom: 16 }}>
+                  <h3 style={{ margin: '0 0 16px 0', fontSize: 16 }}>Busiest Days</h3>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', height: 100 }}>
+                    {audience.timing.byDayOfWeek.map((d) => {
+                      const max = Math.max(...audience.timing.byDayOfWeek.map(x => x.count), 1);
+                      const h = Math.max(d.count / max * 80, 4);
+                      const isPeak = d.day === audience.timing.peakDay;
+                      return (
+                        <div key={d.day} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                          <span style={{ fontSize: 11, color: 'var(--admin-text-muted)' }}>{d.count}</span>
+                          <div style={{
+                            width: '100%', height: h, borderRadius: 4,
+                            background: isPeak ? 'var(--admin-accent)' : 'rgba(255,255,255,0.15)',
+                          }} />
+                          <span style={{ fontSize: 10, color: isPeak ? 'var(--admin-accent)' : 'var(--admin-text-muted)' }}>
+                            {d.day.slice(0, 3)}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Gender Split (if data) */}
+              {audience.demographics?.byGender && Object.keys(audience.demographics.byGender).length > 0 && (
+                <div className="admin-card" style={{ padding: 20, marginBottom: 16 }}>
+                  <h3 style={{ margin: '0 0 16px 0', fontSize: 16 }}>Gender Split</h3>
+                  <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                    {Object.entries(audience.demographics.byGender)
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([gender, count]) => {
+                        const total = Object.values(audience.demographics.byGender).reduce((a, b) => a + b, 0);
+                        const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                        const label = gender.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                        return (
+                          <div key={gender} style={{ textAlign: 'center', minWidth: 60 }}>
+                            <div style={{ fontSize: 24, fontWeight: 700 }}>{pct}%</div>
+                            <div style={{ fontSize: 12, color: 'var(--admin-text-muted)' }}>{label}</div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+              )}
+
+              {/* Upsell banner */}
+              <div style={{
+                border: '1px dashed rgba(255,255,255,0.2)', borderRadius: 12, padding: 24,
+                textAlign: 'center', color: 'var(--admin-text-muted)', marginTop: 8
+              }}>
+                <div style={{ fontSize: 18, marginBottom: 8 }}>Want deeper insights?</div>
+                <div style={{ fontSize: 13, maxWidth: 400, margin: '0 auto', lineHeight: 1.5 }}>
+                  Unlock full analytics: hourly heatmaps, engagement by segment, brewery comparisons, nudge candidates, and quarterly reports.
+                </div>
+                <div style={{ marginTop: 16, fontSize: 13, color: 'var(--admin-accent)' }}>Coming soon — contact trail admin for early access</div>
+              </div>
+
+              {/* Refresh button */}
+              <div style={{ marginTop: 16, textAlign: 'right' }}>
+                <button className="admin-btn admin-btn-secondary" style={{ width: 'auto', fontSize: 12 }}
+                  onClick={() => {
+                    setAudienceLoading(true);
+                    setAudience(null);
+                    getTrailAnalytics(TRAIL_ID, 'brewery', brewery.id).then(res => {
+                      if (res.ok) setAudience(res);
+                      setAudienceLoading(false);
+                    });
+                  }}>
+                  Refresh Data
+                </button>
+              </div>
+            </>
+          )}
+          {!audienceLoading && !audience && (
+            <div className="admin-card" style={{ padding: 40, textAlign: 'center' }}>
+              <p style={{ color: 'var(--admin-text-muted)' }}>No audience data available yet. Check-ins will populate this tab.</p>
+            </div>
+          )}
+        </>
+      )}
+
     </div>
   );
 }

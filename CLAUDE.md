@@ -95,9 +95,8 @@ We use **Brave** (not Chrome) as our primary browser. Claude always has access t
 - **Leaderboard rank styling** — gold/silver/bronze rows with colored left borders and backgrounds in both light and dark mode
 - **Translations** — all 4 languages (EN/VN/KR/JP) complete for: PIN verification, QR scanner, event categories, beer menu, settings, email change, operating hours, beer rating modal
 
-### Pending (backend work needed)
-- **Event `category` column** — add to `events` table in Supabase with default `'event'`, options: `'event'`, `'new_release'`. Also needs admin dashboard dropdown for creating/editing events.
-- **Admin dashboard event category** — dropdown to set `new_release` vs `event` when creating/editing events
+### Pending
+- None — all tracked features are complete
 
 ### Routing notes
 - `/reset-password` is handled in `main.jsx` (not `App.jsx`) to bypass the `showWelcome` guard that fires when no `hcm-user` is in localStorage
