@@ -206,6 +206,8 @@ export default function BreweriesAdmin({
       status: b?.status ?? "active",
       pinCode: b?.pinCode ?? "",
       operatingHoursText: prettyJson(b?.operatingHours ?? null),
+      latitude: b?.latitude ?? "",
+      longitude: b?.longitude ?? "",
     });
     setEditOpen(true);
   }
@@ -276,6 +278,9 @@ export default function BreweriesAdmin({
     } else {
       body.operating_hours = null;
     }
+
+    body.latitude = form.latitude != null && form.latitude !== "" ? Number(form.latitude) : null;
+    body.longitude = form.longitude != null && form.longitude !== "" ? Number(form.longitude) : null;
 
     setLoading((s) => ({ ...s, save: true }));
     try {
@@ -468,6 +473,8 @@ function BreweryForm({ mode, initial, busy, onCancel, onSave }) {
   const [status, setStatus] = useState(initial?.status ?? "active");
   const [pinCode, setPinCode] = useState(initial?.pinCode ?? "");
   const [operatingHoursText, setOperatingHoursText] = useState(initial?.operatingHoursText ?? "");
+  const [latitude, setLatitude] = useState(initial?.latitude ?? "");
+  const [longitude, setLongitude] = useState(initial?.longitude ?? "");
 
   useEffect(() => {
     setName(initial?.name ?? "");
@@ -477,6 +484,8 @@ function BreweryForm({ mode, initial, busy, onCancel, onSave }) {
     setStatus(initial?.status ?? "active");
     setPinCode(initial?.pinCode ?? "");
     setOperatingHoursText(initial?.operatingHoursText ?? "");
+    setLatitude(initial?.latitude ?? "");
+    setLongitude(initial?.longitude ?? "");
   }, [initial]);
 
   return (
@@ -516,6 +525,30 @@ function BreweryForm({ mode, initial, busy, onCancel, onSave }) {
           <div className="admin-subtle" style={{ marginTop: 4 }}>
             If you set this, it must be exactly 4 digits (DB constraint).
           </div>
+        </label>
+
+        <label className="admin-label">
+          Latitude
+          <input
+            className="admin-input"
+            type="number"
+            step="any"
+            value={latitude}
+            onChange={(e) => setLatitude(e.target.value)}
+            placeholder="10.7801"
+          />
+        </label>
+
+        <label className="admin-label">
+          Longitude
+          <input
+            className="admin-input"
+            type="number"
+            step="any"
+            value={longitude}
+            onChange={(e) => setLongitude(e.target.value)}
+            placeholder="106.6970"
+          />
         </label>
 
         <label className="admin-label" style={{ gridColumn: "1 / -1" }}>
@@ -558,6 +591,8 @@ function BreweryForm({ mode, initial, busy, onCancel, onSave }) {
               status,
               pinCode,
               operatingHoursText,
+              latitude: latitude !== "" ? parseFloat(latitude) : null,
+              longitude: longitude !== "" ? parseFloat(longitude) : null,
             });
           }}
           disabled={busy}

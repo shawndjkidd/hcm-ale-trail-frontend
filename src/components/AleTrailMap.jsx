@@ -162,8 +162,14 @@ export default function AleTrailMap({ breweries = [], stamps = [], onBack, onBre
   const t = translations[language] || translations.en
 
   const brewsWithCoords = breweries
-    .map(b => ({ ...b, coords: BREWERY_COORDS[b.name] }))
-    .filter(b => b.coords)
+    .map(b => {
+      const fallback = BREWERY_COORDS[b.name]
+      const lat = b.latitude ?? fallback?.lat
+      const lng = b.longitude ?? fallback?.lng
+      if (lat == null || lng == null) return null
+      return { ...b, coords: { lat, lng, address: b.address || fallback?.address || '', district: b.district || fallback?.district || '' } }
+    })
+    .filter(Boolean)
 
   const flyToBrewery = (coords) => {
     if (mapRef.current) {
