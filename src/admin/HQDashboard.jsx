@@ -88,6 +88,7 @@ export default function HQDashboard({ adminEmail = '' }) {
   const [saEmail, setSaEmail] = useState('');
   const [addingSA, setAddingSA] = useState(false);
   const [saError, setSaError] = useState('');
+  const [saResult, setSaResult] = useState(null); // { email, tempPassword, isNew }
 
   const loadSuperAdmins = async () => {
     setLoadingSA(true);
@@ -103,6 +104,7 @@ export default function HQDashboard({ adminEmail = '' }) {
     const result = await addSuperAdmin(saEmail.trim());
     if (result.ok) {
       setSuperAdmins(prev => [...prev, result.superAdmin]);
+      setSaResult({ email: saEmail.trim(), tempPassword: result.tempPassword || null, isNew: !!result.tempPassword });
       setSaEmail('');
       setShowAddSA(false);
     } else {
@@ -1304,6 +1306,52 @@ export default function HQDashboard({ adminEmail = '' }) {
               + Add Super Admin
             </button>
           </div>
+
+          {saResult && (
+            <div style={{
+              background: 'rgba(107, 142, 107, 0.15)',
+              border: '1px solid var(--admin-success)',
+              borderRadius: 8,
+              padding: '14px 16px',
+              marginBottom: 16,
+              position: 'relative',
+            }}>
+              <button
+                onClick={() => setSaResult(null)}
+                style={{ position: 'absolute', top: 10, right: 12, background: 'none', border: 'none', color: 'var(--admin-text-muted)', cursor: 'pointer', fontSize: 16, lineHeight: 1 }}
+              >✕</button>
+              <div style={{ fontWeight: 700, color: 'var(--admin-success-light)', marginBottom: 6 }}>
+                ✓ {saResult.isNew ? `Account created for ${saResult.email}` : `${saResult.email} added as Super Admin`}
+              </div>
+              {saResult.tempPassword ? (
+                <>
+                  <div style={{ fontSize: 13, color: 'var(--admin-text)', marginBottom: 4 }}>
+                    Temporary password:{' '}
+                    <code style={{
+                      background: 'var(--admin-bg)',
+                      border: '1px solid var(--admin-border)',
+                      borderRadius: 4,
+                      padding: '2px 8px',
+                      fontFamily: 'monospace',
+                      fontSize: 14,
+                      fontWeight: 700,
+                      letterSpacing: '0.05em',
+                      color: 'var(--admin-text)',
+                    }}>
+                      {saResult.tempPassword}
+                    </code>
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--admin-text-muted)' }}>
+                    Share this with them to log in. They should change their password after first login.
+                  </div>
+                </>
+              ) : (
+                <div style={{ fontSize: 13, color: 'var(--admin-text-muted)' }}>
+                  They already have an account and have been granted Super Admin access.
+                </div>
+              )}
+            </div>
+          )}
 
           {loadingSA ? (
             <div className="admin-loading"><div className="admin-spinner" /></div>
