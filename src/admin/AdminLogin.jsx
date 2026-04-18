@@ -4,6 +4,7 @@ import { adminLogin } from './adminApi';
 export default function AdminLogin({ onLoginSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -12,33 +13,32 @@ export default function AdminLogin({ onLoginSuccess }) {
     setError('');
     setLoading(true);
 
-    const result = await adminLogin(email.trim(), password);
-    
+    const result = await adminLogin(email.trim(), password, rememberMe);
+
     if (result.ok) {
       onLoginSuccess();
     } else {
       setError(result.error || 'Login failed');
     }
-    
+
     setLoading(false);
   };
 
   return (
     <div className="admin-login">
       <div className="admin-login-card">
-        {/* HCM Ale Trail Logo */}
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <img 
-            src="/logos/HCM Logo-Ale-Trail-2023-BK.png" 
-            alt="HCM Ale Trail" 
-            style={{ 
-              maxWidth: 200, 
+          <img
+            src="/logos/HCM Logo-Ale-Trail-2023-BK.png"
+            alt="HCM Ale Trail"
+            style={{
+              maxWidth: 200,
               height: 'auto',
               filter: 'var(--admin-logo-filter, none)'
             }}
           />
         </div>
-        
+
         <h1 className="admin-login-title">Admin Dashboard</h1>
         <p className="admin-login-subtitle">Sign in to manage the trail</p>
 
@@ -71,8 +71,19 @@ export default function AdminLogin({ onLoginSuccess }) {
             />
           </div>
 
-          <button 
-            type="submit" 
+          <label className="admin-remember-label">
+            <input
+              type="checkbox"
+              className="admin-remember-checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+            />
+            <span className="admin-remember-box" />
+            <span>Remember me for 30 days</span>
+          </label>
+
+          <button
+            type="submit"
             className="admin-btn admin-btn-primary"
             disabled={loading}
           >

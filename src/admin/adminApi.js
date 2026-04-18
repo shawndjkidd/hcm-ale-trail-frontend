@@ -2,7 +2,13 @@ export const API_BASE = '';
 export const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a921';
 
 function getToken() {
-  return localStorage.getItem('hcm-admin-token') || localStorage.getItem('admin_token') || localStorage.getItem('token') || localStorage.getItem('access_token');
+  return (
+    localStorage.getItem('hcm-admin-token') ||
+    sessionStorage.getItem('hcm-admin-token') ||
+    localStorage.getItem('admin_token') ||
+    localStorage.getItem('token') ||
+    localStorage.getItem('access_token')
+  );
 }
 
 function authHeaders() {
@@ -612,26 +618,74 @@ export async function changeAdminPassword(currentPassword, newPassword) {
   }
 }
 
-// ==================== LOGIN ====================
+// ==================== LOGIN / SESSION ====================
 
+const SESSION_KEYS = ['hcm-admin-token', 'hcm-admin-refresh', 'hcm-admin-expires', 'hcm-admin-remember'];
+const LEGACY_KEYS  = ['admin_token', 'token', 'access_token'];
 
-export function adminLogout() {
-  localStorage.removeItem('hcm-admin-token');
-  localStorage.removeItem('admin_token');
-  localStorage.removeItem('token');
-  localStorage.removeItem('access_token');
+function sessionStorage_() {
+  // Use localStorage for "remember me", sessionStorage otherwise
+  return localStorage.getItem('hcm-admin-remember') === '1' ? localStorage : sessionStorage;
 }
 
-export async function adminLogin(email, password) {
+export function adminLogout() {
+  [...SESSION_KEYS, ...LEGACY_KEYS].forEach(k => {
+    localStorage.removeItem(k);
+    sessionStorage.removeItem(k);
+  });
+}
+
+export async function adminLogin(email, password, rememberMe = true) {
   try {
     const res = await fetch(`${API_BASE}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password }),
     });
     const data = await res.json();
     if (data.ok && data.access_token) {
-      localStorage.setItem('hcm-admin-token', data.access_token);
+      // Clear both storages before writing to avoid stale cross-storage tokens
+      SESSION_KEYS.forEach(k => { localStorage.removeItem(k); sessionStorage.removeItem(k); });
+
+      const store = rememberMe ? localStorage : sessionStorage;
+      store.setItem('hcm-admin-token', data.access_token);
+      store.setItem('hcm-admin-refresh', data.refresh_token || '');
+      store.setItem('hcm-admin-expires', String(data.expires_at || ''));
+      if (rememberMe) store.setItem('hcm-admin-remember', '1');
+    }
+    return data;
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export function isAdminSessionExpired() {
+  const expiresAt =
+    localStorage.getItem('hcm-admin-expires') ||
+    sessionStorage.getItem('hcm-admin-expires');
+  if (!expiresAt) return !getToken(); // no expiry info — treat as expired only if no token
+  return Date.now() / 1000 >= Number(expiresAt) - 60; // 60s early buffer
+}
+
+export async function refreshAdminSession() {
+  try {
+    const refreshToken =
+      localStorage.getItem('hcm-admin-refresh') ||
+      sessionStorage.getItem('hcm-admin-refresh');
+    if (!refreshToken) return { ok: false, error: 'No refresh token' };
+
+    const res = await fetch(`${API_BASE}/api/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    });
+    const data = await res.json();
+
+    if (data.ok && data.access_token) {
+      const store = sessionStorage_();
+      store.setItem('hcm-admin-token', data.access_token);
+      store.setItem('hcm-admin-refresh', data.refresh_token || '');
+      store.setItem('hcm-admin-expires', String(data.expires_at || ''));
     }
     return data;
   } catch (err) {

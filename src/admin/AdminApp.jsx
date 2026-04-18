@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { getAdminMe, adminLogout, changeAdminPassword } from './adminApi';
+import { getAdminMe, adminLogout, changeAdminPassword, refreshAdminSession, isAdminSessionExpired } from './adminApi';
 import AdminLogin from './AdminLogin';
 import HQDashboard from './HQDashboard';
 import BreweryDashboard from './BreweryDashboard';
@@ -45,9 +45,32 @@ export default function AdminApp() {
 
   const checkAuth = async () => {
     setLoading(true);
+
+    // Refresh the access token if it's expired (or about to expire)
+    if (isAdminSessionExpired()) {
+      const refreshed = await refreshAdminSession();
+      if (!refreshed.ok) {
+        setAdminUser(null);
+        setLoading(false);
+        return;
+      }
+    }
+
     const result = await getAdminMe();
     if (result.ok && result.isAdmin) {
       setAdminUser(result);
+    } else if (result.status === 401 || !result.ok) {
+      // Token may have just expired between the expiry check and the request — try one refresh
+      const refreshed = await refreshAdminSession();
+      if (refreshed.ok) {
+        const retry = await getAdminMe();
+        if (retry.ok && retry.isAdmin) {
+          setAdminUser(retry);
+          setLoading(false);
+          return;
+        }
+      }
+      setAdminUser(null);
     } else {
       setAdminUser(null);
     }
@@ -57,6 +80,20 @@ export default function AdminApp() {
   useEffect(() => {
     checkAuth();
   }, []);
+
+  // Proactively refresh the token every 45 minutes while logged in
+  useEffect(() => {
+    if (!adminUser) return;
+    const interval = setInterval(async () => {
+      if (isAdminSessionExpired()) {
+        const refreshed = await refreshAdminSession();
+        if (!refreshed.ok) {
+          setAdminUser(null);
+        }
+      }
+    }, 45 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [adminUser]);
 
   const handleLogout = () => {
     adminLogout();
