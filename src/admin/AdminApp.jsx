@@ -98,6 +98,11 @@ export default function AdminApp() {
   const handleLogout = () => {
     adminLogout();
     setAdminUser(null);
+    // Ensure the user lands on the login view rather than whatever
+    // protected route they were last on.
+    if (typeof window !== 'undefined' && window.location.pathname !== '/admin') {
+      window.history.pushState({}, '', '/admin');
+    }
   };
 
   const toggleTheme = () => {

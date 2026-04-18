@@ -1,36 +1,39 @@
-/* Admin Dashboard Styles - Slate Gray + Orange/Green Accents */
+/* Admin Dashboard Styles - Warm Neutral Gray + Orange / Muted Olive Accents */
 /* Dark mode is DEFAULT */
+/* Palette direction (Apr 2026): replaced green-tinted surfaces with warm
+   neutral grays (Claude-inspired). Olive lives on only as --admin-success
+   (badges / active states). Orange primary and red danger unchanged. */
 
 :root {
   /* Light mode */
-  --admin-bg: #f8fafc;
+  --admin-bg: #f7f6f2;
   --admin-card-bg: #ffffff;
-  --admin-text: #334155;
-  --admin-text-muted: #64748b;
-  --admin-border: #e2e8f0;
+  --admin-text: #2d2c28;
+  --admin-text-muted: #6e6b66;
+  --admin-border: #e5e2dc;
   --admin-primary: #f97316;
   --admin-primary-hover: #ea580c;
-  --admin-success: #4d5a3c;
-  --admin-success-light: #6b8e6b;
+  --admin-success: #7a9e5c;
+  --admin-success-light: #94b374;
   --admin-warning: #f59e0b;
   --admin-danger: #ef4444;
-  --admin-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  --admin-shadow: 0 1px 3px rgba(0,0,0,0.08);
   --admin-shadow-lg: 0 4px 6px rgba(0,0,0,0.1);
   --admin-logo-filter: none;
 }
 
 [data-theme="dark"] {
-  --admin-bg: #1a1f1a;
-  --admin-card-bg: #2a302a;
-  --admin-text: #f1f5f9;
-  --admin-text-muted: #94a3b8;
-  --admin-border: #3f463f;
+  --admin-bg: #1c1b1a;
+  --admin-card-bg: #262523;
+  --admin-text: #ece9e3;
+  --admin-text-muted: #a9a6a0;
+  --admin-border: #3a3835;
   --admin-primary: #f97316;
   --admin-primary-hover: #fb923c;
-  --admin-success: #6b8e6b;
-  --admin-success-light: #84cc16;
-  --admin-shadow: 0 1px 3px rgba(0,0,0,0.3);
-  --admin-shadow-lg: 0 4px 6px rgba(0,0,0,0.3);
+  --admin-success: #7a9e5c;
+  --admin-success-light: #94b374;
+  --admin-shadow: 0 1px 3px rgba(0,0,0,0.35);
+  --admin-shadow-lg: 0 4px 6px rgba(0,0,0,0.4);
   --admin-logo-filter: brightness(0) invert(1);
 }
 
@@ -421,7 +424,7 @@ textarea.admin-form-input {
 }
 
 .admin-badge.active {
-  background: rgba(107, 142, 107, 0.2);
+  background: rgba(122, 158, 92, 0.2);
   color: var(--admin-success);
 }
 
@@ -658,7 +661,7 @@ textarea.admin-form-input {
   color: var(--admin-text-muted);
 }
 .admin-pill-success {
-  background: rgba(107, 142, 107, 0.25);
+  background: rgba(122, 158, 92, 0.25);
   color: var(--admin-success-light);
 }
 .admin-pill-warning {

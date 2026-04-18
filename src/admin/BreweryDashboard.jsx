@@ -1067,7 +1067,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
 
           {inviteResult && (
             <div style={{
-              background: 'rgba(107, 142, 107, 0.15)',
+              background: 'rgba(122, 158, 92, 0.15)',
               border: '1px solid var(--admin-success)',
               borderRadius: 8,
               padding: '14px 16px',
@@ -1467,7 +1467,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                     <div style={{ display: 'flex', gap: 24, marginTop: 12, flexWrap: 'wrap' }}>
                       <div>
                         <div style={{ fontSize: 12, color: 'var(--admin-text-muted)', textTransform: 'uppercase' }}>In Stock</div>
-                        <div style={{ fontSize: 28, fontWeight: 700, color: item.lowStock ? '#ef4444' : 'inherit' }}>{item.quantity}</div>
+                        <div style={{ fontSize: 28, fontWeight: 700, color: item.lowStock ? 'var(--admin-danger)' : 'inherit' }}>{item.quantity}</div>
                       </div>
                       <div>
                         <div style={{ fontSize: 12, color: 'var(--admin-text-muted)', textTransform: 'uppercase' }}>Picked Up</div>
@@ -1554,17 +1554,17 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
               <div className="admin-kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 24 }}>
                 <div className="admin-card" style={{ padding: 20 }}>
                   <div style={{ color: 'var(--admin-text-muted)', fontSize: 13, marginBottom: 4 }}>Your Visitors</div>
-                  <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--admin-accent)' }}>{audience.demographics?.totalParticipants || 0}</div>
+                  <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--admin-primary)' }}>{audience.demographics?.totalParticipants || 0}</div>
                   <div style={{ color: 'var(--admin-text-muted)', fontSize: 12 }}>checked in here</div>
                 </div>
                 <div className="admin-card" style={{ padding: 20 }}>
                   <div style={{ color: 'var(--admin-text-muted)', fontSize: 13, marginBottom: 4 }}>Completed Onboarding</div>
-                  <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--admin-accent)' }}>{audience.demographics?.onboardedCount || 0}</div>
+                  <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--admin-primary)' }}>{audience.demographics?.onboardedCount || 0}</div>
                   <div style={{ color: 'var(--admin-text-muted)', fontSize: 12 }}>{audience.demographics?.onboardingRate || 0}% of visitors</div>
                 </div>
                 <div className="admin-card" style={{ padding: 20 }}>
                   <div style={{ color: 'var(--admin-text-muted)', fontSize: 13, marginBottom: 4 }}>Local vs Visitor</div>
-                  <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--admin-accent)' }}>{audience.demographics?.localVsVisitor?.localPercent || 0}%</div>
+                  <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--admin-primary)' }}>{audience.demographics?.localVsVisitor?.localPercent || 0}%</div>
                   <div style={{ color: 'var(--admin-text-muted)', fontSize: 12 }}>
                     {audience.demographics?.localVsVisitor?.locals || 0} locals · {audience.demographics?.localVsVisitor?.visitors || 0} visitors
                   </div>
@@ -1590,7 +1590,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                               <span style={{ color: 'var(--admin-text-muted)' }}>{count} ({pct}%)</span>
                             </div>
                             <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 4, height: 8 }}>
-                              <div style={{ background: 'var(--admin-accent)', borderRadius: 4, height: 8, width: `${pct}%`, transition: 'width 0.3s' }} />
+                              <div style={{ background: 'var(--admin-primary)', borderRadius: 4, height: 8, width: `${pct}%`, transition: 'width 0.3s' }} />
                             </div>
                           </div>
                         );
@@ -1619,7 +1619,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                               <span style={{ color: 'var(--admin-text-muted)' }}>{count} ({pct}%)</span>
                             </div>
                             <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 4, height: 8 }}>
-                              <div style={{ background: '#66bb6a', borderRadius: 4, height: 8, width: `${pct}%`, transition: 'width 0.3s' }} />
+                              <div style={{ background: 'var(--admin-success)', borderRadius: 4, height: 8, width: `${pct}%`, transition: 'width 0.3s' }} />
                             </div>
                           </div>
                         );
@@ -1643,9 +1643,9 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                           <span style={{ fontSize: 11, color: 'var(--admin-text-muted)' }}>{d.count}</span>
                           <div style={{
                             width: '100%', height: h, borderRadius: 4,
-                            background: isPeak ? 'var(--admin-accent)' : 'rgba(255,255,255,0.15)',
+                            background: isPeak ? 'var(--admin-primary)' : 'rgba(255,255,255,0.15)',
                           }} />
-                          <span style={{ fontSize: 10, color: isPeak ? 'var(--admin-accent)' : 'var(--admin-text-muted)' }}>
+                          <span style={{ fontSize: 10, color: isPeak ? 'var(--admin-primary)' : 'var(--admin-text-muted)' }}>
                             {d.day.slice(0, 3)}
                           </span>
                         </div>
@@ -1686,7 +1686,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                 <div style={{ fontSize: 13, maxWidth: 400, margin: '0 auto', lineHeight: 1.5 }}>
                   Unlock full analytics: hourly heatmaps, engagement by segment, brewery comparisons, nudge candidates, and quarterly reports.
                 </div>
-                <div style={{ marginTop: 16, fontSize: 13, color: 'var(--admin-accent)' }}>Coming soon — contact trail admin for early access</div>
+                <div style={{ marginTop: 16, fontSize: 13, color: 'var(--admin-primary)' }}>Coming soon — contact trail admin for early access</div>
               </div>
 
               {/* Refresh button */}
