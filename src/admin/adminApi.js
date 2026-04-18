@@ -599,6 +599,19 @@ export async function removeBreweryStaff(breweryId, staffId) {
   }
 }
 
+export async function changeAdminPassword(currentPassword, newPassword) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/auth/change-password`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
 // ==================== LOGIN ====================
 
 
