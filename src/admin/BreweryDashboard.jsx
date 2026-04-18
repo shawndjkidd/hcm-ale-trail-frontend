@@ -84,6 +84,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   // Team / Staff
   const [staff, setStaff] = useState([]);
   const [staffLoading, setStaffLoading] = useState(false);
+  const [staffError, setStaffError] = useState('');
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState('staff');
@@ -431,11 +432,12 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   const loadStaff = async () => {
     if (!breweryId) return;
     setStaffLoading(true);
+    setStaffError('');
     const result = await getBreweryStaff(breweryId);
     if (result.ok) {
       setStaff(result.staff || []);
     } else {
-      console.error('loadStaff error:', result.error);
+      setStaffError(result.error || 'Failed to load team members');
     }
     setStaffLoading(false);
   };
@@ -1106,6 +1108,13 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                   They already have an account and have been added to the team.
                 </div>
               )}
+            </div>
+          )}
+
+          {staffError && (
+            <div className="admin-error" style={{ marginBottom: 12 }}>
+              Error loading team: {staffError}
+              <button className="admin-btn" style={{ marginLeft: 12, width: 'auto', padding: '4px 12px', fontSize: 13 }} onClick={loadStaff}>Retry</button>
             </div>
           )}
 
