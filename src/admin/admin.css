@@ -1237,3 +1237,45 @@ body:has(.admin-app) {
     min-width: 360px;
   }
 }
+
+/* Action cell polish — normalize button sizing across variants
+ * (previously .admin-btn-danger overrode .admin-btn-small padding/font,
+ * causing uneven pill sizes in the Breweries QR/Edit/Delete row). */
+.admin-btn-small,
+.admin-btn-small.admin-btn-danger,
+.admin-btn-small.admin-btn-secondary {
+  padding: 7px 14px;
+  font-size: 13px;
+  line-height: 1.2;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  min-height: 32px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.admin-btn-small.admin-btn-secondary {
+  background: transparent;
+  border-color: var(--admin-border);
+  color: var(--admin-text);
+}
+.admin-btn-small.admin-btn-secondary:hover {
+  background: var(--admin-hover, rgba(255, 255, 255, 0.04));
+}
+.admin-btn-small.admin-btn-danger {
+  background: transparent;
+  border-color: var(--admin-danger);
+  color: var(--admin-danger);
+}
+.admin-btn-small.admin-btn-danger:hover {
+  background: var(--admin-danger);
+  color: #fff;
+}
+/* Give table action cells a bit of breathing room so the row of
+ * buttons has a clear boundary instead of crowding the cell edge. */
+.admin-table td > div[style*="display: flex"] {
+  align-items: center;
+}
