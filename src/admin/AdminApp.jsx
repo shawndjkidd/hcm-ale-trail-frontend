@@ -9,7 +9,6 @@ export default function AdminApp() {
   const [loading, setLoading] = useState(true);
   const [adminUser, setAdminUser] = useState(null);
   const [theme, setTheme] = useState(() => {
-    // Default to dark mode
     return localStorage.getItem('admin-theme') || 'dark';
   });
   const [currentView, setCurrentView] = useState('dashboard');
@@ -22,13 +21,11 @@ export default function AdminApp() {
   const checkAuth = async () => {
     setLoading(true);
     const result = await getAdminMe();
-    
     if (result.ok && result.isAdmin) {
       setAdminUser(result);
     } else {
       setAdminUser(null);
     }
-    
     setLoading(false);
   };
 
@@ -64,14 +61,22 @@ export default function AdminApp() {
   }
 
   const isHQ = adminUser.primaryRole === 'super_admin' || adminUser.primaryRole === 'management';
-  const isBreweryAdmin = adminUser.primaryRole === 'brewery_admin';
+  const isBreweryUser = adminUser.primaryRole === 'brewery_admin';
+  const staffRole = adminUser.staffRole ?? null; // 'owner' | 'manager' | 'staff' | null
+
+  // Brewery staff users with no admin_access entry
+  const isStaffOnly = isBreweryUser && !adminUser.roles?.some(r => r.role === 'super_admin' || r.role === 'management');
+
+  const roleLabel = staffRole
+    ? staffRole.charAt(0).toUpperCase() + staffRole.slice(1)
+    : (adminUser.primaryRole || '').replace(/_/g, ' ');
 
   return (
     <div className="admin-app">
       <header className="admin-header">
         <div className="admin-header-left">
           <span className="admin-logo">Ho Chi Minh Ale Trail Admin</span>
-          
+
           {isHQ && (
             <div style={{ display: 'flex', gap: 8 }}>
               <button
@@ -89,10 +94,10 @@ export default function AdminApp() {
             </div>
           )}
         </div>
-        
+
         <div className="admin-header-right">
           <span className="admin-user-info">{adminUser.email}</span>
-          <span className="admin-user-role">{adminUser.primaryRole.replace('_', ' ')}</span>
+          <span className="admin-user-role">{roleLabel}</span>
           <button className="admin-theme-toggle" onClick={toggleTheme}>
             {theme === 'light' ? '🌙' : '☀️'}
           </button>
@@ -102,16 +107,20 @@ export default function AdminApp() {
         </div>
       </header>
 
-      {isBreweryAdmin && (
-        <BreweryDashboard breweryId={adminUser.breweryId} adminEmail={adminUser.email} />
+      {isBreweryUser && (
+        <BreweryDashboard
+          breweryId={adminUser.breweryId}
+          adminEmail={adminUser.email}
+          staffRole={staffRole}
+        />
       )}
-      
+
       {isHQ && currentView === 'dashboard' && (
         <HQDashboard />
       )}
-      
+
       {isHQ && currentView === 'brewery' && (
-        <BreweryDashboard isHQ={true} />
+        <BreweryDashboard isHQ={true} staffRole="owner" />
       )}
     </div>
   );

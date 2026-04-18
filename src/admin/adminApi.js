@@ -514,6 +514,55 @@ export async function recordMerchPickup(breweryId, merchId, participantId) {
   }
 }
 
+// ==================== BREWERY STAFF ====================
+
+export async function getBreweryStaff(breweryId) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/staff`, { headers: authHeaders() });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function inviteBreweryStaff(breweryId, email, role) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/staff`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ email, role }),
+    });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function updateBreweryStaffRole(breweryId, staffId, role) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/staff/${staffId}`, {
+      method: 'PATCH',
+      headers: authHeaders(),
+      body: JSON.stringify({ role }),
+    });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function removeBreweryStaff(breweryId, staffId) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/staff/${staffId}`, {
+      method: 'DELETE',
+      headers: authHeaders(),
+    });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
 // ==================== LOGIN ====================
 
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import QRCode from 'qrcode';
-import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, bulkUploadBeers, mergeRatings, updateAdminAccount, getBreweryMerchandise, restockMerchandise, getTrailAnalytics, TRAIL_ID } from './adminApi';
+import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, bulkUploadBeers, mergeRatings, updateAdminAccount, getBreweryMerchandise, restockMerchandise, getTrailAnalytics, getBreweryStaff, inviteBreweryStaff, updateBreweryStaffRole, removeBreweryStaff, TRAIL_ID } from './adminApi';
 
 const DAY_NAMES = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 const DAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -14,7 +14,7 @@ const DEFAULT_HOURS = {
   sunday: { open: '12:00', close: '22:00', closed: false }
 };
 
-export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = false, adminEmail = '' }) {
+export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = false, adminEmail = '', staffRole = null }) {
   const [selectedBreweryId, setSelectedBreweryId] = useState(propBreweryId || '');
   const [breweries, setBreweries] = useState([]);
   const [data, setData] = useState(null);
@@ -80,6 +80,15 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   const [bulkText, setBulkText] = useState('');
   const [bulkParsed, setBulkParsed] = useState([]);
   const [bulkUploading, setBulkUploading] = useState(false);
+
+  // Team / Staff
+  const [staff, setStaff] = useState([]);
+  const [staffLoading, setStaffLoading] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRole, setInviteRole] = useState('staff');
+  const [inviting, setInviting] = useState(false);
+  const [inviteError, setInviteError] = useState('');
 
   // Merchandise / Stock
   const [brewMerch, setBrewMerch] = useState([]);
@@ -418,6 +427,53 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
     if (activeTab === 'stock' && breweryId) loadMerch();
   }, [activeTab, breweryId]);
 
+  const loadStaff = async () => {
+    if (!breweryId) return;
+    setStaffLoading(true);
+    const result = await getBreweryStaff(breweryId);
+    if (result.ok) setStaff(result.staff || []);
+    setStaffLoading(false);
+  };
+
+  useEffect(() => {
+    if (activeTab === 'team' && breweryId) loadStaff();
+  }, [activeTab, breweryId]);
+
+  const handleInviteStaff = async () => {
+    setInviteError('');
+    if (!inviteEmail.trim()) { setInviteError('Email is required'); return; }
+    setInviting(true);
+    const result = await inviteBreweryStaff(breweryId, inviteEmail.trim(), inviteRole);
+    if (result.ok) {
+      setStaff(prev => [...prev, result.staff]);
+      setShowInviteModal(false);
+      setInviteEmail('');
+      setInviteRole('staff');
+    } else {
+      setInviteError(result.error || 'Invite failed');
+    }
+    setInviting(false);
+  };
+
+  const handleUpdateStaffRole = async (staffId, newRole) => {
+    const result = await updateBreweryStaffRole(breweryId, staffId, newRole);
+    if (result.ok) {
+      setStaff(prev => prev.map(s => s.id === staffId ? { ...s, role: newRole } : s));
+    } else {
+      alert(result.error || 'Failed to update role');
+    }
+  };
+
+  const handleRemoveStaff = async (staffId, email) => {
+    if (!confirm(`Remove ${email} from the team?`)) return;
+    const result = await removeBreweryStaff(breweryId, staffId);
+    if (result.ok) {
+      setStaff(prev => prev.filter(s => s.id !== staffId));
+    } else {
+      alert(result.error || 'Failed to remove');
+    }
+  };
+
   const handleBrewRestockSubmit = async () => {
     const qty = Number(brewRestockForm.quantity);
     if (!qty || qty <= 0) return;
@@ -661,6 +717,9 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
             });
           }
         }}>Audience</button>
+        {(staffRole === 'owner' || staffRole === 'manager') && (
+          <button className={`admin-tab ${activeTab === 'team' ? 'active' : ''}`} onClick={() => setActiveTab('team')}>Team</button>
+        )}
         <button className={`admin-tab ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>Settings</button>
       </div>
 
@@ -981,6 +1040,128 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
               </table>
             )}
           </div>
+        </>
+      )}
+
+      {activeTab === 'team' && (
+        <>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <h2 className="admin-card-title" style={{ margin: 0 }}>Team Members</h2>
+            {staffRole === 'owner' && (
+              <button className="admin-btn admin-btn-primary" onClick={() => { setShowInviteModal(true); setInviteError(''); }}>
+                + Invite Member
+              </button>
+            )}
+          </div>
+
+          {staffLoading ? (
+            <div className="admin-loading"><div className="admin-spinner" /></div>
+          ) : (
+            <div className="admin-card">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Since</th>
+                    {staffRole === 'owner' && <th>Actions</th>}
+                  </tr>
+                </thead>
+                <tbody>
+                  {staff.length === 0 && (
+                    <tr><td colSpan={5} className="admin-subtle">No team members yet.</td></tr>
+                  )}
+                  {staff.map(member => (
+                    <tr key={member.id}>
+                      <td style={{ fontWeight: 600 }}>{member.email}</td>
+                      <td>
+                        {staffRole === 'owner' && member.email !== adminEmail ? (
+                          <select
+                            className="admin-select"
+                            value={member.role}
+                            onChange={e => handleUpdateStaffRole(member.id, e.target.value)}
+                            style={{ minWidth: 100 }}
+                          >
+                            <option value="owner">Owner</option>
+                            <option value="manager">Manager</option>
+                            <option value="staff">Staff</option>
+                          </select>
+                        ) : (
+                          <span className={`admin-pill ${member.role === 'owner' ? 'admin-pill-success' : member.role === 'manager' ? 'admin-pill-warning' : 'admin-pill'}`}>
+                            {member.role}
+                          </span>
+                        )}
+                      </td>
+                      <td>
+                        <span className={`admin-pill ${member.status === 'active' ? 'admin-pill-success' : 'admin-pill-warning'}`}>
+                          {member.status}
+                        </span>
+                      </td>
+                      <td className="admin-subtle" style={{ fontSize: 13 }}>
+                        {member.invitedAt ? new Date(member.invitedAt).toLocaleDateString() : '—'}
+                      </td>
+                      {staffRole === 'owner' && (
+                        <td>
+                          {member.email !== adminEmail ? (
+                            <button
+                              className="admin-btn admin-btn-danger"
+                              onClick={() => handleRemoveStaff(member.id, member.email)}
+                            >
+                              Remove
+                            </button>
+                          ) : (
+                            <span className="admin-subtle" style={{ fontSize: 12 }}>You</span>
+                          )}
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {showInviteModal && (
+            <div className="admin-modal-backdrop" onMouseDown={() => setShowInviteModal(false)}>
+              <div className="admin-modal" onMouseDown={e => e.stopPropagation()}>
+                <div className="admin-modal-header">
+                  <div className="admin-modal-title">Invite Team Member</div>
+                  <button className="admin-btn admin-btn-ghost" onClick={() => setShowInviteModal(false)}>✕</button>
+                </div>
+                <div className="admin-modal-body">
+                  <div className="admin-form">
+                    <label className="admin-label">
+                      Email
+                      <input
+                        className="admin-input"
+                        type="email"
+                        value={inviteEmail}
+                        onChange={e => setInviteEmail(e.target.value)}
+                        placeholder="staff@example.com"
+                        autoFocus
+                      />
+                    </label>
+                    <label className="admin-label">
+                      Role
+                      <select className="admin-select" value={inviteRole} onChange={e => setInviteRole(e.target.value)}>
+                        <option value="staff">Staff — read-only access</option>
+                        <option value="manager">Manager — can edit settings, events, beer menu</option>
+                        <option value="owner">Owner — full access including team management</option>
+                      </select>
+                    </label>
+                    {inviteError && <div className="admin-error">{inviteError}</div>}
+                    <div className="admin-form-actions">
+                      <button className="admin-btn" onClick={() => setShowInviteModal(false)} disabled={inviting}>Cancel</button>
+                      <button className="admin-btn admin-btn-primary" onClick={handleInviteStaff} disabled={inviting}>
+                        {inviting ? 'Inviting…' : 'Send Invite'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )}
 
