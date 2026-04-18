@@ -1279,3 +1279,82 @@ body:has(.admin-app) {
 .admin-table td > div[style*="display: flex"] {
   align-items: center;
 }
+
+/* ──────────────────────────────────────────────────────────────────
+ * Phone overflow hardening (April 2026)
+ * User reports Events tab "goes off the page" at phone width — the
+ * admin-table-wrap scroll was working, but pages still felt cramped
+ * and the scrollability wasn't discoverable. This block:
+ *   (a) prevents *any* horizontal page scroll on phones (body lock),
+ *   (b) tightens table padding so more columns fit in view,
+ *   (c) adds a soft fade on the right edge as a "swipe for more" hint,
+ *   (d) stops table cells from forcing unreadable min-widths.
+ * ────────────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  html,
+  body:has(.admin-app) {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+  .admin-content {
+    padding: 10px;
+  }
+  .admin-card {
+    padding: 14px;
+  }
+  .admin-table th,
+  .admin-table td {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  .admin-table th {
+    font-size: 11px;
+  }
+  /* Allow long titles / addresses to wrap instead of exploding width */
+  .admin-table td strong,
+  .admin-table td {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+  /* Keep date cells single-line but smaller */
+  .admin-table td[style*="nowrap"] {
+    font-size: 12px;
+  }
+  /* Lower the table floor so 4-column tables actually fit on phones;
+   * wider tables (5+ cols) still scroll gracefully via the wrap. */
+  .admin-table {
+    min-width: 0;
+  }
+  /* Scroll affordance on the right edge of scrollable tables */
+  .admin-table-wrap {
+    position: relative;
+  }
+  .admin-table-wrap::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 18px;
+    background: linear-gradient(
+      to left,
+      var(--admin-card-bg, rgba(0, 0, 0, 0.4)) 30%,
+      transparent
+    );
+    pointer-events: none;
+    opacity: 0.75;
+  }
+  /* Action cell: let small-pill buttons wrap to a second row when the
+   * row actually won't fit, rather than forcing horizontal scroll. */
+  .admin-table td > div[style*="display: flex"][style*="gap"] {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .admin-btn-small,
+  .admin-btn-small.admin-btn-danger,
+  .admin-btn-small.admin-btn-secondary {
+    padding: 6px 10px;
+    font-size: 12px;
+    min-height: 28px;
+  }
+}
