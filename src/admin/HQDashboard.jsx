@@ -6,7 +6,7 @@ import {
   deleteBrewery, getSideQuests, createSideQuest, updateSideQuest, deleteSideQuest,
   getTrailBeerRatings, getMergeSuggestions, mergeRatings, createBreweryStaff, getBreweryLogin,
   getTrailMerchandise, createMerchandiseItem, updateMerchandiseItem, restockMerchandise,
-  getTrailAnalytics,
+  getTrailAnalytics, getSuperAdmins, addSuperAdmin, removeSuperAdmin,
   TRAIL_ID
 } from './adminApi';
 
@@ -23,7 +23,7 @@ import {
 const CHART_COLORS = ['#f97316', '#4d5a3c', '#64748b', '#84cc16', '#fb923c', '#94a3b8'];
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-export default function HQDashboard() {
+export default function HQDashboard({ adminEmail = '' }) {
   const [data, setData] = useState(null);
   const [events, setEvents] = useState([]);
   const [leaderboard, setLeaderboard] = useState([]);
@@ -80,6 +80,46 @@ export default function HQDashboard() {
   const [restockForm, setRestockForm] = useState({ merchId: null, breweryId: null, quantity: '', notes: '' });
   const [showRestockModal, setShowRestockModal] = useState(false);
   const [restocking, setRestocking] = useState(false);
+
+  // Super Admins
+  const [superAdmins, setSuperAdmins] = useState([]);
+  const [loadingSA, setLoadingSA] = useState(false);
+  const [showAddSA, setShowAddSA] = useState(false);
+  const [saEmail, setSaEmail] = useState('');
+  const [addingSA, setAddingSA] = useState(false);
+  const [saError, setSaError] = useState('');
+
+  const loadSuperAdmins = async () => {
+    setLoadingSA(true);
+    const result = await getSuperAdmins();
+    if (result.ok) setSuperAdmins(result.superAdmins || []);
+    setLoadingSA(false);
+  };
+
+  const handleAddSuperAdmin = async () => {
+    setSaError('');
+    if (!saEmail.trim()) { setSaError('Email is required'); return; }
+    setAddingSA(true);
+    const result = await addSuperAdmin(saEmail.trim());
+    if (result.ok) {
+      setSuperAdmins(prev => [...prev, result.superAdmin]);
+      setSaEmail('');
+      setShowAddSA(false);
+    } else {
+      setSaError(result.error || 'Failed to add');
+    }
+    setAddingSA(false);
+  };
+
+  const handleRemoveSuperAdmin = async (sa) => {
+    if (!confirm(`Remove ${sa.email} as super admin?`)) return;
+    const result = await removeSuperAdmin(sa.id);
+    if (result.ok) {
+      setSuperAdmins(prev => prev.filter(s => s.id !== sa.id));
+    } else {
+      alert(result.error || 'Failed to remove');
+    }
+  };
 
   const loadData = async (from, to) => {
     setLoading(true);
@@ -575,6 +615,7 @@ export default function HQDashboard() {
         <button className={`admin-tab ${activeTab === 'stock' ? 'active' : ''}`} onClick={() => setActiveTab('stock')}>Stock{merchandise.some(m => m.lowStockBreweries?.length > 0) ? ' ⚠️' : ''}</button>
         <button className={`admin-tab ${activeTab === 'analytics' ? 'active' : ''}`} onClick={() => { setActiveTab('analytics'); if (!analytics) loadAnalytics(); }}>Analytics</button>
         <button className={`admin-tab ${activeTab === 'export' ? 'active' : ''}`} onClick={() => setActiveTab('export')}>Export</button>
+        <button className={`admin-tab ${activeTab === 'superadmins' ? 'active' : ''}`} onClick={() => { setActiveTab('superadmins'); if (superAdmins.length === 0) loadSuperAdmins(); }}>Super Admins</button>
       </div>
 
       {activeTab === 'overview' && (
@@ -1253,6 +1294,97 @@ export default function HQDashboard() {
 
       {activeTab === 'export' && (
         <div className="admin-card"><h3 className="admin-card-title">Export Participants</h3><p style={{ color: 'var(--admin-text-muted)', marginBottom: 20 }}>Download participant data.</p><div style={{ display: 'flex', gap: 12 }}><button className="admin-btn admin-btn-primary" style={{ width: 'auto' }} onClick={() => handleExport('json')} disabled={exporting}>{exporting ? 'Exporting...' : 'Export JSON'}</button><button className="admin-btn admin-btn-secondary" style={{ width: 'auto' }} onClick={() => handleExport('csv')} disabled={exporting}>{exporting ? 'Exporting...' : 'Export CSV'}</button></div></div>
+      )}
+
+      {activeTab === 'superadmins' && (
+        <>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <h2 className="admin-card-title" style={{ margin: 0 }}>Super Admins</h2>
+            <button className="admin-btn admin-btn-primary" onClick={() => { setShowAddSA(true); setSaError(''); setSaEmail(''); }}>
+              + Add Super Admin
+            </button>
+          </div>
+
+          {loadingSA ? (
+            <div className="admin-loading"><div className="admin-spinner" /></div>
+          ) : (
+            <div className="admin-card">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Email</th>
+                    <th>Date Added</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {superAdmins.length === 0 && (
+                    <tr><td colSpan={3} className="admin-subtle">No super admins found.</td></tr>
+                  )}
+                  {superAdmins.map(sa => (
+                    <tr key={sa.id}>
+                      <td style={{ fontWeight: 600 }}>
+                        {sa.email}
+                        {sa.email === adminEmail && (
+                          <span className="admin-pill admin-pill-success" style={{ marginLeft: 8, fontSize: 11 }}>You</span>
+                        )}
+                      </td>
+                      <td className="admin-subtle">
+                        {sa.created_at ? new Date(sa.created_at).toLocaleDateString() : '—'}
+                      </td>
+                      <td>
+                        {sa.email !== adminEmail ? (
+                          <button
+                            className="admin-btn admin-btn-danger"
+                            onClick={() => handleRemoveSuperAdmin(sa)}
+                          >
+                            Remove
+                          </button>
+                        ) : (
+                          <span className="admin-subtle" style={{ fontSize: 12 }}>Cannot remove yourself</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {showAddSA && (
+            <div className="admin-modal-backdrop" onMouseDown={() => setShowAddSA(false)}>
+              <div className="admin-modal" onMouseDown={e => e.stopPropagation()}>
+                <div className="admin-modal-header">
+                  <div className="admin-modal-title">Add Super Admin</div>
+                  <button className="admin-btn admin-btn-ghost" onClick={() => setShowAddSA(false)}>✕</button>
+                </div>
+                <div className="admin-modal-body">
+                  <div className="admin-form">
+                    <label className="admin-label">
+                      Email address
+                      <input
+                        className="admin-input"
+                        type="email"
+                        value={saEmail}
+                        onChange={e => setSaEmail(e.target.value)}
+                        placeholder="admin@aletrail.com"
+                        autoFocus
+                        onKeyDown={e => e.key === 'Enter' && handleAddSuperAdmin()}
+                      />
+                    </label>
+                    {saError && <div className="admin-error">{saError}</div>}
+                    <div className="admin-form-actions">
+                      <button className="admin-btn" onClick={() => setShowAddSA(false)} disabled={addingSA}>Cancel</button>
+                      <button className="admin-btn admin-btn-primary" onClick={handleAddSuperAdmin} disabled={addingSA}>
+                        {addingSA ? 'Adding…' : 'Add Super Admin'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

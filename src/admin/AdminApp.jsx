@@ -116,7 +116,7 @@ export default function AdminApp() {
       )}
 
       {isHQ && currentView === 'dashboard' && (
-        <HQDashboard />
+        <HQDashboard adminEmail={adminUser.email} />
       )}
 
       {isHQ && currentView === 'brewery' && (

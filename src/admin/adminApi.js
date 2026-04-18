@@ -514,6 +514,42 @@ export async function recordMerchPickup(breweryId, merchId, participantId) {
   }
 }
 
+// ==================== SUPER ADMINS ====================
+
+export async function getSuperAdmins() {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/super-admins`, { headers: authHeaders() });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function addSuperAdmin(email) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/super-admins`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ email }),
+    });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function removeSuperAdmin(id) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/super-admins/${id}`, {
+      method: 'DELETE',
+      headers: authHeaders(),
+    });
+    return await res.json();
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
 // ==================== BREWERY STAFF ====================
 
 export async function getBreweryStaff(breweryId) {
