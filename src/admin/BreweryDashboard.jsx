@@ -432,7 +432,11 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
     if (!breweryId) return;
     setStaffLoading(true);
     const result = await getBreweryStaff(breweryId);
-    if (result.ok) setStaff(result.staff || []);
+    if (result.ok) {
+      setStaff(result.staff || []);
+    } else {
+      console.error('loadStaff error:', result.error);
+    }
     setStaffLoading(false);
   };
 
@@ -446,13 +450,13 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
     setInviting(true);
     const result = await inviteBreweryStaff(breweryId, inviteEmail.trim(), inviteRole);
     if (result.ok) {
-      setStaff(prev => [...prev, result.staff]);
       setShowInviteModal(false);
-      setInviteResult({ email: inviteEmail.trim(), tempPassword: result.tempPassword || null });
+      setInviteResult({ email: inviteEmail.trim(), tempPassword: result.tempPassword || null, isNew: !!result.tempPassword });
       setInviteEmail('');
       setInviteRole('staff');
+      await loadStaff();
     } else {
-      setInviteError(result.error || 'Invite failed');
+      setInviteError(result.error || 'Failed to add member');
     }
     setInviting(false);
   };
@@ -1073,7 +1077,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                 style={{ position: 'absolute', top: 10, right: 12, background: 'none', border: 'none', color: 'var(--admin-text-muted)', cursor: 'pointer', fontSize: 16, lineHeight: 1 }}
               >✕</button>
               <div style={{ fontWeight: 700, color: 'var(--admin-success-light)', marginBottom: 6 }}>
-                ✓ Account created for {inviteResult.email}
+                ✓ {inviteResult.isNew ? `Account created for ${inviteResult.email}` : `${inviteResult.email} added to team`}
               </div>
               {inviteResult.tempPassword ? (
                 <>
@@ -1183,7 +1187,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
             <div className="admin-modal-backdrop" onMouseDown={() => setShowInviteModal(false)}>
               <div className="admin-modal" onMouseDown={e => e.stopPropagation()}>
                 <div className="admin-modal-header">
-                  <div className="admin-modal-title">Invite Team Member</div>
+                  <div className="admin-modal-title">Add Team Member</div>
                   <button className="admin-btn-ghost" onClick={() => setShowInviteModal(false)}>✕</button>
                 </div>
 
@@ -1220,7 +1224,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                     Cancel
                   </button>
                   <button className="admin-btn admin-btn-primary settings-btn" onClick={handleInviteStaff} disabled={inviting}>
-                    {inviting ? 'Inviting…' : 'Send Invite'}
+                    {inviting ? 'Adding…' : 'Add Member'}
                   </button>
                 </div>
               </div>

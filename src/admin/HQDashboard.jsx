@@ -1300,7 +1300,7 @@ export default function HQDashboard({ adminEmail = '' }) {
         <>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
             <h2 className="admin-card-title" style={{ margin: 0 }}>Super Admins</h2>
-            <button className="admin-btn admin-btn-primary" onClick={() => { setShowAddSA(true); setSaError(''); setSaEmail(''); }}>
+            <button className="admin-btn admin-btn-primary settings-btn" onClick={() => { setShowAddSA(true); setSaError(''); setSaEmail(''); }}>
               + Add Super Admin
             </button>
           </div>
@@ -1360,10 +1360,10 @@ export default function HQDashboard({ adminEmail = '' }) {
                 </div>
                 <div className="admin-modal-body">
                   <div className="admin-form">
-                    <label className="admin-label">
-                      Email address
+                    <div className="admin-form-group">
+                      <label className="admin-form-label">Email address</label>
                       <input
-                        className="admin-input"
+                        className="admin-form-input"
                         type="email"
                         value={saEmail}
                         onChange={e => setSaEmail(e.target.value)}
@@ -1371,7 +1371,7 @@ export default function HQDashboard({ adminEmail = '' }) {
                         autoFocus
                         onKeyDown={e => e.key === 'Enter' && handleAddSuperAdmin()}
                       />
-                    </label>
+                    </div>
                     {saError && <div className="admin-error">{saError}</div>}
                     <div className="admin-form-actions">
                       <button className="admin-btn" onClick={() => setShowAddSA(false)} disabled={addingSA}>Cancel</button>
