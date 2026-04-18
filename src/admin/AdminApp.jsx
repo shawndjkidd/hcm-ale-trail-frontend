@@ -67,9 +67,11 @@ export default function AdminApp() {
   // Brewery staff users with no admin_access entry
   const isStaffOnly = isBreweryUser && !adminUser.roles?.some(r => r.role === 'super_admin' || r.role === 'management');
 
-  const roleLabel = staffRole
-    ? staffRole.charAt(0).toUpperCase() + staffRole.slice(1)
-    : (adminUser.primaryRole || '').replace(/_/g, ' ');
+  const roleLabel =
+    adminUser.primaryRole === 'super_admin' ? 'Super Admin' :
+    adminUser.primaryRole === 'management'  ? 'Management' :
+    staffRole ? staffRole.charAt(0).toUpperCase() + staffRole.slice(1) :
+    (adminUser.primaryRole || '').replace(/_/g, ' ');
 
   return (
     <div className="admin-app">

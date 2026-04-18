@@ -638,3 +638,102 @@ textarea.admin-form-input {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Utility: muted text ─────────────────────────────── */
+.admin-subtle {
+  color: var(--admin-text-muted);
+  font-size: 13px;
+}
+
+/* ── Pills / badges ──────────────────────────────────── */
+.admin-pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background: var(--admin-border);
+  color: var(--admin-text-muted);
+}
+.admin-pill-success {
+  background: rgba(107, 142, 107, 0.25);
+  color: var(--admin-success-light);
+}
+.admin-pill-warning {
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--admin-warning);
+}
+.admin-pill-danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--admin-danger);
+}
+
+/* ── Compact select (table cells, inline forms) ──────── */
+.admin-select {
+  background: var(--admin-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 13px;
+  color: var(--admin-text);
+  cursor: pointer;
+}
+.admin-select:focus {
+  outline: none;
+  border-color: var(--admin-primary);
+}
+
+/* ── Modal (backdrop + structure) ───────────────────── */
+.admin-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+.admin-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--admin-border);
+}
+.admin-modal-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--admin-text);
+}
+.admin-modal-body {
+  /* padding already comes from .admin-modal */
+}
+
+/* ── Ghost button (modal close ✕) ────────────────────── */
+.admin-btn-ghost {
+  width: auto;
+  padding: 4px 8px;
+  font-size: 16px;
+  background: transparent;
+  border: none;
+  color: var(--admin-text-muted);
+  cursor: pointer;
+  border-radius: 4px;
+  line-height: 1;
+}
+.admin-btn-ghost:hover {
+  background: var(--admin-border);
+  color: var(--admin-text);
+}
+
+/* ── Form action row (Cancel / Save buttons) ─────────── */
+.admin-form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}

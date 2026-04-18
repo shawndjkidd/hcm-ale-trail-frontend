@@ -1048,7 +1048,10 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
             <h2 className="admin-card-title" style={{ margin: 0 }}>Team Members</h2>
             {staffRole === 'owner' && (
-              <button className="admin-btn admin-btn-primary" onClick={() => { setShowInviteModal(true); setInviteError(''); }}>
+              <button
+                className="admin-btn admin-btn-primary settings-btn"
+                onClick={() => { setShowInviteModal(true); setInviteError(''); setInviteEmail(''); setInviteRole('staff'); }}
+              >
                 + Invite Member
               </button>
             )}
@@ -1065,30 +1068,38 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                     <th>Role</th>
                     <th>Status</th>
                     <th>Since</th>
-                    {staffRole === 'owner' && <th>Actions</th>}
+                    {staffRole === 'owner' && <th style={{ width: 90 }}>Actions</th>}
                   </tr>
                 </thead>
                 <tbody>
                   {staff.length === 0 && (
-                    <tr><td colSpan={5} className="admin-subtle">No team members yet.</td></tr>
+                    <tr>
+                      <td colSpan={staffRole === 'owner' ? 5 : 4} style={{ color: 'var(--admin-text-muted)', padding: '16px 12px', fontSize: 14 }}>
+                        No team members yet.
+                      </td>
+                    </tr>
                   )}
                   {staff.map(member => (
                     <tr key={member.id}>
-                      <td style={{ fontWeight: 600 }}>{member.email}</td>
+                      <td style={{ fontWeight: 600, fontSize: 14 }}>
+                        {member.email}
+                        {member.email === adminEmail && (
+                          <span className="admin-pill" style={{ marginLeft: 8, verticalAlign: 'middle' }}>you</span>
+                        )}
+                      </td>
                       <td>
                         {staffRole === 'owner' && member.email !== adminEmail ? (
                           <select
                             className="admin-select"
                             value={member.role}
                             onChange={e => handleUpdateStaffRole(member.id, e.target.value)}
-                            style={{ minWidth: 100 }}
                           >
                             <option value="owner">Owner</option>
                             <option value="manager">Manager</option>
                             <option value="staff">Staff</option>
                           </select>
                         ) : (
-                          <span className={`admin-pill ${member.role === 'owner' ? 'admin-pill-success' : member.role === 'manager' ? 'admin-pill-warning' : 'admin-pill'}`}>
+                          <span className={`admin-pill ${member.role === 'owner' ? 'admin-pill-success' : member.role === 'manager' ? 'admin-pill-warning' : ''}`}>
                             {member.role}
                           </span>
                         )}
@@ -1098,7 +1109,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                           {member.status}
                         </span>
                       </td>
-                      <td className="admin-subtle" style={{ fontSize: 13 }}>
+                      <td style={{ color: 'var(--admin-text-muted)', fontSize: 13 }}>
                         {member.invitedAt ? new Date(member.invitedAt).toLocaleDateString() : '—'}
                       </td>
                       {staffRole === 'owner' && (
@@ -1110,9 +1121,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                             >
                               Remove
                             </button>
-                          ) : (
-                            <span className="admin-subtle" style={{ fontSize: 12 }}>You</span>
-                          )}
+                          ) : null}
                         </td>
                       )}
                     </tr>
@@ -1127,37 +1136,44 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
               <div className="admin-modal" onMouseDown={e => e.stopPropagation()}>
                 <div className="admin-modal-header">
                   <div className="admin-modal-title">Invite Team Member</div>
-                  <button className="admin-btn admin-btn-ghost" onClick={() => setShowInviteModal(false)}>✕</button>
+                  <button className="admin-btn-ghost" onClick={() => setShowInviteModal(false)}>✕</button>
                 </div>
-                <div className="admin-modal-body">
-                  <div className="admin-form">
-                    <label className="admin-label">
-                      Email
-                      <input
-                        className="admin-input"
-                        type="email"
-                        value={inviteEmail}
-                        onChange={e => setInviteEmail(e.target.value)}
-                        placeholder="staff@example.com"
-                        autoFocus
-                      />
-                    </label>
-                    <label className="admin-label">
-                      Role
-                      <select className="admin-select" value={inviteRole} onChange={e => setInviteRole(e.target.value)}>
-                        <option value="staff">Staff — read-only access</option>
-                        <option value="manager">Manager — can edit settings, events, beer menu</option>
-                        <option value="owner">Owner — full access including team management</option>
-                      </select>
-                    </label>
-                    {inviteError && <div className="admin-error">{inviteError}</div>}
-                    <div className="admin-form-actions">
-                      <button className="admin-btn" onClick={() => setShowInviteModal(false)} disabled={inviting}>Cancel</button>
-                      <button className="admin-btn admin-btn-primary" onClick={handleInviteStaff} disabled={inviting}>
-                        {inviting ? 'Inviting…' : 'Send Invite'}
-                      </button>
-                    </div>
-                  </div>
+
+                <div className="admin-form-group">
+                  <label className="admin-form-label">Email address</label>
+                  <input
+                    className="admin-form-input"
+                    type="email"
+                    value={inviteEmail}
+                    onChange={e => setInviteEmail(e.target.value)}
+                    placeholder="staff@example.com"
+                    autoFocus
+                    onKeyDown={e => e.key === 'Enter' && handleInviteStaff()}
+                  />
+                </div>
+
+                <div className="admin-form-group">
+                  <label className="admin-form-label">Role</label>
+                  <select
+                    className="admin-form-input"
+                    value={inviteRole}
+                    onChange={e => setInviteRole(e.target.value)}
+                  >
+                    <option value="staff">Staff — view-only access</option>
+                    <option value="manager">Manager — edit settings, events, beer menu</option>
+                    <option value="owner">Owner — full access including team management</option>
+                  </select>
+                </div>
+
+                {inviteError && <div className="admin-error">{inviteError}</div>}
+
+                <div className="admin-form-actions">
+                  <button className="admin-btn settings-btn" onClick={() => setShowInviteModal(false)} disabled={inviting}>
+                    Cancel
+                  </button>
+                  <button className="admin-btn admin-btn-primary settings-btn" onClick={handleInviteStaff} disabled={inviting}>
+                    {inviting ? 'Inviting…' : 'Send Invite'}
+                  </button>
                 </div>
               </div>
             </div>
