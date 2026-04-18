@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import QRCode from 'qrcode';
 import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, bulkUploadBeers, mergeRatings, updateAdminAccount, getBreweryMerchandise, restockMerchandise, getTrailAnalytics, getBreweryStaff, inviteBreweryStaff, updateBreweryStaffRole, removeBreweryStaff, TRAIL_ID } from './adminApi';
+import { useToast, useConfirm } from './AdminFeedback';
 
 const DAY_NAMES = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 const DAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -15,6 +16,8 @@ const DEFAULT_HOURS = {
 };
 
 export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = false, adminEmail = '', staffRole = null }) {
+  const toast = useToast();
+  const confirm = useConfirm();
   const [selectedBreweryId, setSelectedBreweryId] = useState(propBreweryId || '');
   const [breweries, setBreweries] = useState([]);
   const [data, setData] = useState(null);
@@ -186,7 +189,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       const dataUrl = await QRCode.toDataURL(url, { width: 400, margin: 2 });
       setQrCodeUrl(dataUrl);
     } catch (err) {
-      alert('Failed to generate QR code');
+      toast.error('Failed to generate QR code');
     }
     setGeneratingQr(false);
   };
@@ -312,15 +315,25 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   };
 
   const handleDeleteEvent = async (eventId) => {
-    if (!confirm('Delete this event?')) return;
+    const ok = await confirm({
+      title: 'Delete event?',
+      message: 'This event will be permanently removed.',
+      confirmLabel: 'Delete',
+      danger: true,
+    });
+    if (!ok) return;
     const result = await deleteEvent(eventId);
-    if (result.ok) setEvents(events.filter(e => e.id !== eventId));
-    else alert(result.error || 'Failed to delete');
+    if (result.ok) {
+      setEvents(events.filter(e => e.id !== eventId));
+      toast.success('Event deleted');
+    } else {
+      toast.error(result.error || 'Failed to delete');
+    }
   };
 
   const handleCreateEvent = async () => {
     if (!eventForm.titleEn || !eventForm.startsAt) {
-      alert('Title (English) and Start Date/Time are required');
+      toast.error('Title (English) and Start Date/Time are required');
       return;
     }
     setSavingEvent(true);
@@ -339,8 +352,9 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       setEvents([...events, result.event]);
       setShowEventForm(false);
       setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', category: 'event' });
+      toast.success('Event created');
     } else {
-      alert(result.error || 'Failed to create event');
+      toast.error(result.error || 'Failed to create event');
     }
     setSavingEvent(false);
   };
@@ -378,7 +392,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
 
   const handleUpdateEvent = async () => {
     if (!eventForm.titleEn || !eventForm.startsAt) {
-      alert('Title (English) and Start Date/Time are required');
+      toast.error('Title (English) and Start Date/Time are required');
       return;
     }
     setSavingEvent(true);
@@ -396,8 +410,9 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       setShowEventForm(false);
       setEditingEvent(null);
       setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', category: 'event' });
+      toast.success('Event updated');
     } else {
-      alert(result.error || 'Failed to update event');
+      toast.error(result.error || 'Failed to update event');
     }
     setSavingEvent(false);
   };
@@ -467,18 +482,26 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
     const result = await updateBreweryStaffRole(breweryId, staffId, newRole);
     if (result.ok) {
       setStaff(prev => prev.map(s => s.id === staffId ? { ...s, role: newRole } : s));
+      toast.success('Role updated');
     } else {
-      alert(result.error || 'Failed to update role');
+      toast.error(result.error || 'Failed to update role');
     }
   };
 
   const handleRemoveStaff = async (staffId, email) => {
-    if (!confirm(`Remove ${email} from the team?`)) return;
+    const ok = await confirm({
+      title: 'Remove team member?',
+      message: `${email} will lose access to this brewery dashboard.`,
+      confirmLabel: 'Remove',
+      danger: true,
+    });
+    if (!ok) return;
     const result = await removeBreweryStaff(breweryId, staffId);
     if (result.ok) {
       setStaff(prev => prev.filter(s => s.id !== staffId));
+      toast.success('Team member removed');
     } else {
-      alert(result.error || 'Failed to remove');
+      toast.error(result.error || 'Failed to remove');
     }
   };
 
@@ -491,15 +514,16 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       await loadMerch();
       setShowBrewRestockModal(false);
       setBrewRestockForm({ merchId: null, quantity: '', notes: '' });
+      toast.success('Restock recorded');
     } else {
-      alert(result.error || 'Failed to restock');
+      toast.error(result.error || 'Failed to restock');
     }
     setBrewRestocking(false);
   };
 
   const handleCreateBeer = async () => {
     if (!beerForm.name.trim()) {
-      alert('Beer name is required');
+      toast.error('Beer name is required');
       return;
     }
     setSavingBeer(true);
@@ -512,15 +536,16 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       setBeers(prev => [...prev, result.beer].sort((a, b) => a.name.localeCompare(b.name)));
       setShowBeerForm(false);
       setBeerForm({ name: '', style: '', abv: '' });
+      toast.success('Beer added');
     } else {
-      alert(result.error || 'Failed to create beer');
+      toast.error(result.error || 'Failed to create beer');
     }
     setSavingBeer(false);
   };
 
   const handleUpdateBeer = async () => {
     if (!beerForm.name.trim()) {
-      alert('Beer name is required');
+      toast.error('Beer name is required');
       return;
     }
     setSavingBeer(true);
@@ -534,19 +559,27 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       setEditingBeer(null);
       setShowBeerForm(false);
       setBeerForm({ name: '', style: '', abv: '' });
+      toast.success('Beer updated');
     } else {
-      alert(result.error || 'Failed to update beer');
+      toast.error(result.error || 'Failed to update beer');
     }
     setSavingBeer(false);
   };
 
   const handleDeleteBeer = async (beer) => {
-    if (!confirm(`Remove "${beer.name}" from the menu?`)) return;
+    const ok = await confirm({
+      title: 'Remove beer?',
+      message: `"${beer.name}" will be removed from the menu.`,
+      confirmLabel: 'Remove',
+      danger: true,
+    });
+    if (!ok) return;
     const result = await deleteBreweryBeer(breweryId, beer.id);
     if (result.ok) {
       setBeers(prev => prev.filter(b => b.id !== beer.id));
+      toast.success('Beer removed');
     } else {
-      alert(result.error || 'Failed to remove beer');
+      toast.error(result.error || 'Failed to remove beer');
     }
   };
 
@@ -612,9 +645,9 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       setShowBulkUpload(false);
       setBulkText('');
       setBulkParsed([]);
-      alert(`Successfully added ${result.count} beer${result.count !== 1 ? 's' : ''}!`);
+      toast.success(`Successfully added ${result.count} beer${result.count !== 1 ? 's' : ''}`);
     } else {
-      alert(result.error || 'Bulk upload failed');
+      toast.error(result.error || 'Bulk upload failed');
     }
     setBulkUploading(false);
   };
@@ -634,8 +667,9 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       else if (dateRange === '30d') from = new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString();
       await loadData(from, to);
       setMergeTargets(prev => { const n = { ...prev }; delete n[oldName]; return n; });
+      toast.success('Ratings merged');
     } else {
-      alert(result.error || 'Merge failed');
+      toast.error(result.error || 'Merge failed');
     }
     setMergingKey(null);
   };

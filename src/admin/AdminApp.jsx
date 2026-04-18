@@ -3,9 +3,21 @@ import { getAdminMe, adminLogout, changeAdminPassword, refreshAdminSession, isAd
 import AdminLogin from './AdminLogin';
 import HQDashboard from './HQDashboard';
 import BreweryDashboard from './BreweryDashboard';
+import AdminFeedbackProvider from './AdminFeedback';
 import './admin.css';
 
+// Default export wraps the app in AdminFeedbackProvider so any descendant
+// component can call useToast() / useConfirm(). All real logic lives in
+// AdminAppInner below.
 export default function AdminApp() {
+  return (
+    <AdminFeedbackProvider>
+      <AdminAppInner />
+    </AdminFeedbackProvider>
+  );
+}
+
+function AdminAppInner() {
   const [loading, setLoading] = useState(true);
   const [adminUser, setAdminUser] = useState(null);
   const [theme, setTheme] = useState(() => {

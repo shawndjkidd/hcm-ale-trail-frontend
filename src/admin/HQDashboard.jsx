@@ -9,6 +9,7 @@ import {
   getTrailAnalytics, getSuperAdmins, addSuperAdmin, removeSuperAdmin,
   TRAIL_ID
 } from './adminApi';
+import { useToast, useConfirm } from './AdminFeedback';
 
 const generateStaffEmail = (name) => name.toLowerCase().replace(/[^a-z0-9]/g, '') + '@aletrail.com';
 const generatePassword = () => {
@@ -24,6 +25,8 @@ const CHART_COLORS = ['#f97316', '#7a9e5c', '#8a8680', '#94b374', '#fb923c', '#a
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export default function HQDashboard({ adminEmail = '' }) {
+  const toast = useToast();
+  const confirm = useConfirm();
   const [data, setData] = useState(null);
   const [events, setEvents] = useState([]);
   const [leaderboard, setLeaderboard] = useState([]);
@@ -114,12 +117,19 @@ export default function HQDashboard({ adminEmail = '' }) {
   };
 
   const handleRemoveSuperAdmin = async (sa) => {
-    if (!confirm(`Remove ${sa.email} as super admin?`)) return;
+    const ok = await confirm({
+      title: 'Remove super admin?',
+      message: `${sa.email} will lose super-admin access.`,
+      confirmLabel: 'Remove',
+      danger: true,
+    });
+    if (!ok) return;
     const result = await removeSuperAdmin(sa.id);
     if (result.ok) {
       setSuperAdmins(prev => prev.filter(s => s.id !== sa.id));
+      toast.success(`Removed ${sa.email}`);
     } else {
-      alert(result.error || 'Failed to remove');
+      toast.error(result.error || 'Failed to remove');
     }
   };
 
@@ -189,7 +199,7 @@ export default function HQDashboard({ adminEmail = '' }) {
       a.download = `participants-${new Date().toISOString().split('T')[0]}.json`;
       a.click();
     } else if (!result.ok) {
-      alert(result.error || 'Export failed');
+      toast.error(result.error || 'Export failed');
     }
     setExporting(false);
   };
@@ -203,8 +213,9 @@ export default function HQDashboard({ adminEmail = '' }) {
       setMerchandise(prev => [...prev, { ...result.item, totalStock: 0, totalPickups: 0, byBrewery: {}, lowStockBreweries: [] }]);
       setShowMerchForm(false);
       setMerchForm({ name: '', description: '', low_stock_threshold: 5 });
+      toast.success('Merchandise item created');
     } else {
-      alert(result.error || 'Failed to create');
+      toast.error(result.error || 'Failed to create');
     }
     setSavingMerch(false);
   };
@@ -220,22 +231,33 @@ export default function HQDashboard({ adminEmail = '' }) {
       if (merchResult.ok) setMerchandise(merchResult.merchandise || []);
       setShowRestockModal(false);
       setRestockForm({ merchId: null, breweryId: null, quantity: '', notes: '' });
+      toast.success('Stock updated');
     } else {
-      alert(result.error || 'Failed to restock');
+      toast.error(result.error || 'Failed to restock');
     }
     setRestocking(false);
   };
 
   const handleDeleteEvent = async (eventId) => {
-    if (!confirm('Delete this event?')) return;
+    const ok = await confirm({
+      title: 'Delete event?',
+      message: 'This event will be permanently removed.',
+      confirmLabel: 'Delete',
+      danger: true,
+    });
+    if (!ok) return;
     const result = await deleteEvent(eventId);
-    if (result.ok) setEvents(events.filter(e => e.id !== eventId));
-    else alert(result.error || 'Failed to delete');
+    if (result.ok) {
+      setEvents(events.filter(e => e.id !== eventId));
+      toast.success('Event deleted');
+    } else {
+      toast.error(result.error || 'Failed to delete');
+    }
   };
 
   const handleCreateTrailEvent = async () => {
     if (!eventForm.titleEn || !eventForm.startsAt) {
-      alert('Title (English) and Start Date/Time are required');
+      toast.error('Title (English) and Start Date/Time are required');
       return;
     }
     setSavingEvent(true);
@@ -255,8 +277,9 @@ export default function HQDashboard({ adminEmail = '' }) {
       setEvents([...events, result.event]);
       setShowEventForm(false);
       setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '', category: 'event' });
+      toast.success('Event created');
     } else {
-      alert(result.error || 'Failed to create event');
+      toast.error(result.error || 'Failed to create event');
     }
     setSavingEvent(false);
   };
@@ -288,7 +311,7 @@ export default function HQDashboard({ adminEmail = '' }) {
   const handleUpdateEvent = async () => {
     if (!editingEvent) return;
     if (!eventForm.titleEn || !eventForm.startsAt) {
-      alert('Title (English) and Start Date/Time are required');
+      toast.error('Title (English) and Start Date/Time are required');
       return;
     }
     setSavingEvent(true);
@@ -306,8 +329,9 @@ export default function HQDashboard({ adminEmail = '' }) {
       setShowEventForm(false);
       setEditingEvent(null);
       setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '', category: 'event' });
+      toast.success('Event updated');
     } else {
-      alert(result.error || 'Failed to update event');
+      toast.error(result.error || 'Failed to update event');
     }
     setSavingEvent(false);
   };
@@ -348,11 +372,11 @@ export default function HQDashboard({ adminEmail = '' }) {
 
   const handleSaveBrewery = async () => {
     if (!breweryForm.name) {
-      alert('Name is required');
+      toast.error('Name is required');
       return;
     }
     if (breweryForm.pinCode && breweryForm.pinCode.length !== 4) {
-      alert('PIN must be exactly 4 digits');
+      toast.error('PIN must be exactly 4 digits');
       return;
     }
     setSavingBrewery(true);
@@ -377,9 +401,14 @@ export default function HQDashboard({ adminEmail = '' }) {
         if (breweryForm.staffEmail && breweryForm.staffPassword) {
           const staffResult = await createBreweryStaff(editingBrewery.id, breweryForm.staffEmail, breweryForm.staffPassword);
           if (!staffResult.ok) {
-            alert(`Brewery saved, but staff credential reset failed: ${staffResult.error || 'Unknown error'}`);
+            toast.error(`Brewery saved, but staff credential reset failed: ${staffResult.error || 'Unknown error'}`);
           } else {
-            alert(`✓ Staff credentials updated!\nEmail: ${breweryForm.staffEmail}\nPassword: ${breweryForm.staffPassword}`);
+            // Persistent toast (duration: 0) so the credentials stay visible
+            // until the admin dismisses them — they need to copy & share.
+            toast.success(
+              `Staff credentials updated\nEmail: ${breweryForm.staffEmail}\nPassword: ${breweryForm.staffPassword}`,
+              { duration: 0 }
+            );
           }
         }
       }
@@ -393,9 +422,15 @@ export default function HQDashboard({ adminEmail = '' }) {
         if (staffEmail && staffPassword) {
           const staffResult = await createBreweryStaff(result.brewery.id, staffEmail, staffPassword);
           if (!staffResult.ok) {
-            alert(`Brewery saved, but staff account creation failed: ${staffResult.error || 'Unknown error'}\n\nYou can set up credentials manually later.`);
+            toast.error(
+              `Brewery saved, but staff account creation failed: ${staffResult.error || 'Unknown error'}. You can set up credentials manually later.`
+            );
           } else {
-            alert(`✓ Brewery created!\n\nStaff login credentials:\nEmail: ${staffEmail}\nPassword: ${staffPassword}\n\nPlease share these with the venue.`);
+            // Persistent toast so admin can copy the credentials before dismissing.
+            toast.success(
+              `Brewery created!\nStaff login:\nEmail: ${staffEmail}\nPassword: ${staffPassword}\n\nShare these with the venue.`,
+              { duration: 0 }
+            );
           }
         }
       }
@@ -404,16 +439,26 @@ export default function HQDashboard({ adminEmail = '' }) {
       setShowBreweryForm(false);
       setEditingBrewery(null);
     } else {
-      alert(result.error || 'Failed to save brewery');
+      toast.error(result.error || 'Failed to save brewery');
     }
     setSavingBrewery(false);
   };
 
   const handleDeleteBrewery = async (breweryId) => {
-    if (!confirm('Delete this brewery?')) return;
+    const ok = await confirm({
+      title: 'Delete brewery?',
+      message: 'This brewery will be marked inactive and hidden from the trail.',
+      confirmLabel: 'Delete',
+      danger: true,
+    });
+    if (!ok) return;
     const result = await deleteBrewery(breweryId, false);
-    if (result.ok) setBreweries(breweries.map(b => b.id === breweryId ? { ...b, status: 'inactive' } : b));
-    else alert(result.error || 'Failed to delete');
+    if (result.ok) {
+      setBreweries(breweries.map(b => b.id === breweryId ? { ...b, status: 'inactive' } : b));
+      toast.success('Brewery deleted');
+    } else {
+      toast.error(result.error || 'Failed to delete');
+    }
   };
 
   const handleToggleBreweryClosed = async (brewery) => {
@@ -421,8 +466,9 @@ export default function HQDashboard({ adminEmail = '' }) {
     const result = await updateBrewery(brewery.id, { status: newStatus });
     if (result.ok) {
       setBreweries(breweries.map(b => b.id === brewery.id ? { ...b, status: newStatus } : b));
+      toast.success(newStatus === 'temporarily_closed' ? 'Marked temporarily closed' : 'Marked active');
     } else {
-      alert(result.error || 'Failed to update status');
+      toast.error(result.error || 'Failed to update status');
     }
   };
 
@@ -456,11 +502,11 @@ export default function HQDashboard({ adminEmail = '' }) {
 
   const handleSaveQuest = async () => {
     if (!questForm.titleEn) {
-      alert('Title (English) is required');
+      toast.error('Title (English) is required');
       return;
     }
     if (questForm.pin && questForm.pin.length !== 4) {
-      alert('PIN must be exactly 4 digits');
+      toast.error('PIN must be exactly 4 digits');
       return;
     }
     setSavingQuest(true);
@@ -503,22 +549,33 @@ export default function HQDashboard({ adminEmail = '' }) {
         }
         setShowQuestForm(false);
         setEditingQuest(null);
+        toast.success(editingQuest ? 'Quest updated' : 'Quest created');
       } else {
-        alert(result.error || 'Failed to save quest');
+        toast.error(result.error || 'Failed to save quest');
       }
     } catch (err) {
       console.error('Save quest error:', err);
-      alert('Save failed: ' + (err.message || 'Unknown error'));
+      toast.error('Save failed: ' + (err.message || 'Unknown error'));
     } finally {
       setSavingQuest(false);
     }
   };
 
   const handleDeleteQuest = async (questId) => {
-    if (!confirm('Delete this side quest?')) return;
+    const ok = await confirm({
+      title: 'Delete side quest?',
+      message: 'This quest will be permanently removed.',
+      confirmLabel: 'Delete',
+      danger: true,
+    });
+    if (!ok) return;
     const result = await deleteSideQuest(questId);
-    if (result.ok) setSideQuests(sideQuests.filter(q => q.id !== questId));
-    else alert(result.error || 'Failed to delete');
+    if (result.ok) {
+      setSideQuests(sideQuests.filter(q => q.id !== questId));
+      toast.success('Quest deleted');
+    } else {
+      toast.error(result.error || 'Failed to delete');
+    }
   };
 
   const handleGenerateQR = async (quest) => {
@@ -531,7 +588,7 @@ export default function HQDashboard({ adminEmail = '' }) {
       const dataUrl = await QRCode.toDataURL(url, { width: 400, margin: 2 });
       setQrUrl(dataUrl);
     } catch (err) {
-      alert('Failed to generate QR code');
+      toast.error('Failed to generate QR code');
     }
     setLoadingQr(false);
   };
@@ -546,7 +603,7 @@ export default function HQDashboard({ adminEmail = '' }) {
       const dataUrl = await QRCode.toDataURL(url, { width: 400, margin: 2 });
       setQrBreweryUrl(dataUrl);
     } catch (err) {
-      alert('Failed to generate QR code');
+      toast.error('Failed to generate QR code');
     }
     setLoadingBreweryQr(false);
   };
@@ -555,7 +612,7 @@ export default function HQDashboard({ adminEmail = '' }) {
     setLoadingMerge(true);
     const result = await getMergeSuggestions(TRAIL_ID);
     if (result.ok) setMergeSuggestions(result.breweries || []);
-    else alert(result.error || 'Failed to load merge suggestions');
+    else toast.error(result.error || 'Failed to load merge suggestions');
     setLoadingMerge(false);
   };
 
@@ -574,8 +631,9 @@ export default function HQDashboard({ adminEmail = '' }) {
         ).filter(b => b.unmatched.length > 0)
       );
       setHqMergeTargets(prev => { const n = { ...prev }; delete n[key]; return n; });
+      toast.success('Ratings merged');
     } else {
-      alert(result.error || 'Merge failed');
+      toast.error(result.error || 'Merge failed');
     }
     setHqMergingKey(null);
   };

@@ -862,3 +862,204 @@ textarea.admin-form-input {
 .admin-remember-label:hover .admin-remember-box {
   border-color: var(--admin-primary);
 }
+
+/* ─────────────────────────────────────────────────────────────────
+   Toast notifications (AdminFeedback.jsx)
+   ───────────────────────────────────────────────────────────────── */
+
+.admin-toast-viewport {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+  max-width: calc(100vw - 32px);
+}
+
+.admin-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 260px;
+  max-width: 380px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--admin-card-bg);
+  border: 1px solid var(--admin-border);
+  box-shadow: var(--admin-shadow-lg);
+  color: var(--admin-text);
+  font-size: 14px;
+  line-height: 1.4;
+  animation: admin-toast-in 0.18s ease-out;
+}
+
+@keyframes admin-toast-in {
+  from { opacity: 0; transform: translateX(12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.admin-toast-icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  background: var(--admin-text-muted);
+}
+
+.admin-toast-message {
+  flex: 1;
+  word-break: break-word;
+}
+
+.admin-toast-close {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  background: transparent;
+  border: none;
+  color: var(--admin-text-muted);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 0;
+  transition: background 0.12s, color 0.12s;
+}
+.admin-toast-close:hover {
+  background: var(--admin-border);
+  color: var(--admin-text);
+}
+
+.admin-toast-success {
+  border-left: 3px solid var(--admin-success);
+}
+.admin-toast-success .admin-toast-icon {
+  background: var(--admin-success);
+}
+
+.admin-toast-error {
+  border-left: 3px solid var(--admin-danger);
+}
+.admin-toast-error .admin-toast-icon {
+  background: var(--admin-danger);
+}
+
+.admin-toast-info {
+  border-left: 3px solid var(--admin-primary);
+}
+.admin-toast-info .admin-toast-icon {
+  background: var(--admin-primary);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   Confirm dialog (AdminFeedback.jsx)
+   ───────────────────────────────────────────────────────────────── */
+
+.admin-confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1500;
+  padding: 20px;
+  animation: admin-confirm-fade 0.12s ease-out;
+}
+
+@keyframes admin-confirm-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.admin-confirm {
+  background: var(--admin-card-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  padding: 22px 22px 18px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: var(--admin-shadow-lg);
+  animation: admin-confirm-pop 0.14s ease-out;
+}
+
+@keyframes admin-confirm-pop {
+  from { opacity: 0; transform: translateY(6px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.admin-confirm-title {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--admin-text);
+}
+
+.admin-confirm-message {
+  margin: 0 0 18px 0;
+  color: var(--admin-text-muted);
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+.admin-confirm-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.admin-confirm-cancel {
+  width: auto;
+  background: transparent;
+  color: var(--admin-text);
+  border: 1px solid var(--admin-border);
+}
+.admin-confirm-cancel:hover {
+  background: var(--admin-border);
+}
+
+.admin-confirm-primary {
+  width: auto;
+  background: var(--admin-primary);
+  color: #fff;
+  border: none;
+}
+.admin-confirm-primary:hover {
+  background: var(--admin-primary-hover);
+}
+
+.admin-confirm-danger {
+  width: auto;
+  background: var(--admin-danger);
+  color: #fff;
+  border: none;
+}
+.admin-confirm-danger:hover {
+  opacity: 0.92;
+}
+
+@media (max-width: 768px) {
+  .admin-toast-viewport {
+    top: auto;
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
+    max-width: none;
+  }
+  .admin-toast {
+    min-width: 0;
+    max-width: none;
+  }
+}
