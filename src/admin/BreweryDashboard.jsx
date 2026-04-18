@@ -89,6 +89,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   const [inviteRole, setInviteRole] = useState('staff');
   const [inviting, setInviting] = useState(false);
   const [inviteError, setInviteError] = useState('');
+  const [inviteResult, setInviteResult] = useState(null); // { email, tempPassword } | null
 
   // Merchandise / Stock
   const [brewMerch, setBrewMerch] = useState([]);
@@ -447,6 +448,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
     if (result.ok) {
       setStaff(prev => [...prev, result.staff]);
       setShowInviteModal(false);
+      setInviteResult({ email: inviteEmail.trim(), tempPassword: result.tempPassword || null });
       setInviteEmail('');
       setInviteRole('staff');
     } else {
@@ -1050,12 +1052,58 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
             {staffRole === 'owner' && (
               <button
                 className="admin-btn admin-btn-primary settings-btn"
-                onClick={() => { setShowInviteModal(true); setInviteError(''); setInviteEmail(''); setInviteRole('staff'); }}
+                onClick={() => { setShowInviteModal(true); setInviteError(''); setInviteEmail(''); setInviteRole('staff'); setInviteResult(null); }}
               >
-                + Invite Member
+                + Add Member
               </button>
             )}
           </div>
+
+          {inviteResult && (
+            <div style={{
+              background: 'rgba(107, 142, 107, 0.15)',
+              border: '1px solid var(--admin-success)',
+              borderRadius: 8,
+              padding: '14px 16px',
+              marginBottom: 16,
+              position: 'relative',
+            }}>
+              <button
+                onClick={() => setInviteResult(null)}
+                style={{ position: 'absolute', top: 10, right: 12, background: 'none', border: 'none', color: 'var(--admin-text-muted)', cursor: 'pointer', fontSize: 16, lineHeight: 1 }}
+              >✕</button>
+              <div style={{ fontWeight: 700, color: 'var(--admin-success-light)', marginBottom: 6 }}>
+                ✓ Account created for {inviteResult.email}
+              </div>
+              {inviteResult.tempPassword ? (
+                <>
+                  <div style={{ fontSize: 13, color: 'var(--admin-text)', marginBottom: 4 }}>
+                    Temporary password:{' '}
+                    <code style={{
+                      background: 'var(--admin-bg)',
+                      border: '1px solid var(--admin-border)',
+                      borderRadius: 4,
+                      padding: '2px 8px',
+                      fontFamily: 'monospace',
+                      fontSize: 14,
+                      fontWeight: 700,
+                      letterSpacing: '0.05em',
+                      color: 'var(--admin-text)',
+                    }}>
+                      {inviteResult.tempPassword}
+                    </code>
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--admin-text-muted)' }}>
+                    Share this with them to log in. They should change their password after first login.
+                  </div>
+                </>
+              ) : (
+                <div style={{ fontSize: 13, color: 'var(--admin-text-muted)' }}>
+                  They already have an account and have been added to the team.
+                </div>
+              )}
+            </div>
+          )}
 
           {staffLoading ? (
             <div className="admin-loading"><div className="admin-spinner" /></div>
