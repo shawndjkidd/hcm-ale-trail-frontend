@@ -1063,3 +1063,177 @@ textarea.admin-form-input {
     max-width: none;
   }
 }
+
+/* ──────────────────────────────────────────────────────────────────
+ * Responsive polish (April 2026)
+ * Fills in gaps the original 768px-only media queries missed:
+ * tables overflow, tabs scroll-on-all-sizes, tablet column handling,
+ * modal padding at very small widths, KPI sizing.
+ * ────────────────────────────────────────────────────────────────── */
+
+/* Tabs should always horizontally scroll when they exceed the row.
+ * The BreweryDashboard has 9 tabs; even on desktop laptops ≤1200px
+ * narrower than the dashboard they can wrap awkwardly. */
+.admin-tabs {
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+.admin-tab {
+  flex-shrink: 0;
+}
+
+/* Tables: any admin-table wrapped in .admin-table-wrap gets horizontal
+ * scroll on narrow screens. Also make every direct parent of
+ * .admin-table scrollable as a safety net for places that don't wrap. */
+.admin-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.admin-table {
+  min-width: 520px; /* ensure columns don't collapse to unreadable widths */
+}
+
+/* Tablet breakpoint (481–900): 2/3-column grids drop to 2, KPIs stay
+ * roomy but don't force 4-up when labels are long. */
+@media (max-width: 900px) {
+  .admin-grid-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .admin-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .admin-header {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .admin-filters {
+    flex-wrap: wrap;
+  }
+}
+
+/* Small-phone breakpoint (≤480): collapse to single column,
+ * tighten paddings, shrink big display numbers. */
+@media (max-width: 480px) {
+  .admin-content {
+    padding: 12px;
+  }
+  .admin-header {
+    padding: 12px;
+  }
+  .admin-logo {
+    font-size: 14px;
+  }
+  .admin-grid-2,
+  .admin-grid-3,
+  .admin-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+  .admin-kpi-value {
+    font-size: 24px;
+  }
+  .admin-page-title {
+    font-size: 20px;
+  }
+  .admin-card {
+    padding: 16px;
+  }
+  .admin-modal {
+    max-width: calc(100vw - 24px);
+    margin: 12px;
+  }
+  .admin-modal-body {
+    padding: 16px;
+  }
+  .admin-form-actions {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+  .admin-form-actions .admin-btn {
+    width: 100%;
+  }
+  .admin-confirm {
+    max-width: calc(100vw - 32px);
+  }
+  .admin-confirm-actions {
+    flex-direction: column-reverse;
+  }
+  .admin-confirm-actions .admin-btn {
+    width: 100%;
+  }
+  /* Charts: shorter on phones so the scroll pile doesn't wall up */
+  .admin-chart-container,
+  .recharts-responsive-container {
+    height: 240px !important;
+  }
+  /* Profile dropdown button: let email truncate instead of pushing
+   * the caret off-screen on narrow widths */
+  .admin-user-info {
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  /* Header right section wraps beneath on very small screens */
+  .admin-header-right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * Mobile overflow fix (April 2026)
+ * The user-facing App.css sets body { background: var(--red-primary) }
+ * which bleeds through at the edges when admin content overflows
+ * horizontally on phones. Also, when .admin-table-wrap is nested in
+ * grid/flex cells, the default `min-width: auto` lets children push the
+ * cell wider than the viewport — the wrap never actually scrolls.
+ * Fix:  (a) cover the body background when admin-app is mounted,
+ *       (b) make admin-app + admin-content width-clamp to 100vw,
+ *       (c) force `min-width: 0` on grid/flex children so the wrap
+ *           contains the overflow instead of expanding its parent.
+ * ────────────────────────────────────────────────────────────────── */
+.admin-app {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  background: var(--admin-bg);
+}
+body:has(.admin-app) {
+  background: var(--admin-bg) !important;
+}
+.admin-content {
+  max-width: min(1400px, 100%);
+  width: 100%;
+  box-sizing: border-box;
+}
+/* Containers that hold tables: allow their flex/grid parents to
+ * honor the wrap's `overflow-x: auto` by preventing auto-min-width
+ * expansion. Safe on desktop (no visual change). */
+.admin-card,
+.admin-table-wrap,
+.admin-grid-2 > *,
+.admin-grid-3 > *,
+.admin-kpi-grid > * {
+  min-width: 0;
+}
+.admin-table-wrap {
+  max-width: 100%;
+}
+/* Drop the aggressive 520px min on the table itself — the wrap already
+ * handles horizontal scroll, and forcing 520px made narrow tables
+ * (3-column leaderboard, beer ratings) scroll unnecessarily. Let the
+ * content set its own natural width. */
+.admin-table {
+  min-width: 0;
+}
+/* On phones, let tables with many columns still trigger horizontal
+ * scroll via the wrap; keep a modest floor so cells don't collapse
+ * to unreadable widths. */
+@media (max-width: 480px) {
+  .admin-table {
+    min-width: 360px;
+  }
+}

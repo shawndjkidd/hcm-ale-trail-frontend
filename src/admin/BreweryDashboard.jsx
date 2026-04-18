@@ -789,11 +789,11 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
           {beerRatings.length > 0 && (
             <div className="admin-card">
               <h3 className="admin-card-title">Top Rated Beers</h3>
-              <table className="admin-table"><thead><tr><th>Beer</th><th>Avg Rating</th><th># Ratings</th></tr></thead><tbody>
+              <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Beer</th><th>Avg Rating</th><th># Ratings</th></tr></thead><tbody>
                 {beerRatings.slice(0, 5).map((beer, i) => (
                   <tr key={i}><td><strong>{beer.beerName}</strong></td><td>{beer.avgRating.toFixed(2)}★</td><td>{beer.count}</td></tr>
                 ))}
-              </tbody></table>
+              </tbody></table></div>
             </div>
           )}
         </>
@@ -835,7 +835,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
           <div className="admin-card">
             <h3 className="admin-card-title">All Beer Ratings</h3>
             {beerRatings.length === 0 ? (<div className="admin-empty">No beer ratings yet</div>) : (
-              <table className="admin-table"><thead><tr><th>Beer</th><th>Avg Rating</th><th># Ratings</th></tr></thead><tbody>
+              <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Beer</th><th>Avg Rating</th><th># Ratings</th></tr></thead><tbody>
                 {beerRatings.map((beer, i) => (
                   <tr key={i}>
                     <td><strong>{beer.beerName}</strong></td>
@@ -843,7 +843,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                     <td>{beer.count}</td>
                   </tr>
                 ))}
-              </tbody></table>
+              </tbody></table></div>
             )}
           </div>
 
@@ -876,7 +876,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                 <p style={{ color: 'var(--admin-text-muted)', fontSize: 13, marginBottom: 16 }}>
                   These submitted beer names don't match your menu. Reassign them to the correct menu entry to keep ratings clean.
                 </p>
-                <table className="admin-table">
+                <div className="admin-table-wrap"><table className="admin-table">
                   <thead><tr><th>Submitted Name</th><th># Ratings</th><th>Reassign to</th><th></th></tr></thead>
                   <tbody>
                     {unmatched.map((r) => (
@@ -908,7 +908,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                       </tr>
                     ))}
                   </tbody>
-                </table>
+                </table></div>
               </div>
             );
           })()}
@@ -920,7 +920,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
           <h3 className="admin-card-title">Trail Competition</h3>
           <p style={{ color: 'var(--admin-text-muted)', marginBottom: 16 }}>See how you rank against other breweries on the trail.</p>
           {checkinsByBrewery.length === 0 ? (<div className="admin-empty">No data yet</div>) : (
-            <table className="admin-table"><thead><tr><th>Rank</th><th>Brewery</th><th>Check-ins</th></tr></thead><tbody>
+            <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Rank</th><th>Brewery</th><th>Check-ins</th></tr></thead><tbody>
               {checkinsByBrewery.sort((a, b) => b.count - a.count).map((b, index) => {
                 const isYou = b.breweryId === breweryId;
                 return (
@@ -935,7 +935,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                   </tr>
                 );
               })}
-            </tbody></table>
+            </tbody></table></div>
           )}
           <p style={{ color: 'var(--admin-text-muted)', fontSize: 12, marginTop: 16 }}>
             💡 More stats coming soon: Hat Claims, Avg Rating, Top Beer per brewery
@@ -963,11 +963,11 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
           <div className="admin-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}><h3 className="admin-card-title" style={{ marginBottom: 0 }}>Events</h3><button className="admin-btn admin-btn-primary admin-btn-small" onClick={openCreateEvent}>+ Create Event</button></div>
             {events.length === 0 ? (<div className="admin-empty">No events yet</div>) : (
-              <table className="admin-table"><thead><tr><th>Event</th><th>Category</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+              <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Event</th><th>Category</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>
                 {events.map((event) => (
                   <tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td><span className={`admin-badge ${event.category === 'new_release' ? 'success' : 'active'}`}>{event.category === 'new_release' ? '🍺 Release' : '🎉 Event'}</span></td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><span className={`admin-badge ${event.status === 'active' ? 'active' : 'inactive'}`}>{event.status}</span></td><td><div style={{ display: 'flex', gap: 6 }}><button className="admin-btn-small" style={{ background: 'var(--admin-primary)', color: '#fff' }} onClick={() => openEditEvent(event)}>Edit</button><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></div></td></tr>
                 ))}
-              </tbody></table>
+              </tbody></table></div>
             )}
           </div>
         </>
@@ -1026,14 +1026,14 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                   <div style={{ marginTop: 12 }}>
                     <p style={{ fontWeight: 600, fontSize: 13, marginBottom: 8 }}>Preview ({bulkParsed.length} beer{bulkParsed.length !== 1 ? 's' : ''} found):</p>
                     <div style={{ maxHeight: 200, overflow: 'auto', border: '1px solid var(--admin-border)', borderRadius: 4 }}>
-                      <table className="admin-table" style={{ margin: 0 }}>
+                      <div className="admin-table-wrap"><table className="admin-table" style={{ margin: 0 }}>
                         <thead><tr><th>Name</th><th>Style</th><th>ABV</th></tr></thead>
                         <tbody>
                           {bulkParsed.map((b, i) => (
                             <tr key={i}><td>{b.name}</td><td style={{ color: 'var(--admin-text-muted)' }}>{b.style || '—'}</td><td style={{ color: 'var(--admin-text-muted)' }}>{b.abv || '—'}</td></tr>
                           ))}
                         </tbody>
-                      </table>
+                      </table></div>
                     </div>
                   </div>
                 )}
@@ -1062,7 +1062,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
             ) : beers.filter(b => b.active !== false).length === 0 ? (
               <div className="admin-empty">No beers on the menu yet. Add your first beer!</div>
             ) : (
-              <table className="admin-table">
+              <div className="admin-table-wrap"><table className="admin-table">
                 <thead><tr><th>Beer</th><th>Style</th><th>ABV</th><th>Actions</th></tr></thead>
                 <tbody>
                   {beers.filter(b => b.active !== false).map((beer) => (
@@ -1079,7 +1079,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             )}
           </div>
         </>
@@ -1156,7 +1156,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
             <div className="admin-loading"><div className="admin-spinner" /></div>
           ) : (
             <div className="admin-card">
-              <table className="admin-table">
+              <div className="admin-table-wrap"><table className="admin-table">
                 <thead>
                   <tr>
                     <th>Email</th>
@@ -1222,7 +1222,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             </div>
           )}
 
@@ -1530,7 +1530,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
           {brewRestocks.length > 0 && (
             <div className="admin-card">
               <h3 className="admin-card-title">Recent Restocks</h3>
-              <table className="admin-table">
+              <div className="admin-table-wrap"><table className="admin-table">
                 <thead>
                   <tr><th>Item</th><th>Qty Added</th><th>Notes</th><th>Date</th></tr>
                 </thead>
@@ -1544,7 +1544,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             </div>
           )}
 

@@ -700,25 +700,25 @@ export default function HQDashboard({ adminEmail = '' }) {
           </div>
 
           <div className="admin-grid-3">
-            <div className="admin-card"><h3 className="admin-card-title">Top Starting Breweries</h3>{(journeyStats.topStartingBreweries || []).length === 0 ? (<div className="admin-empty">No data yet</div>) : (<table className="admin-table"><thead><tr><th>Rank</th><th>Brewery</th><th>Count</th></tr></thead><tbody>{(journeyStats.topStartingBreweries || []).map((b, i) => (<tr key={b.breweryId}><td><span className={`admin-rank ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'default'}`}>{b.rank}</span></td><td>{b.breweryName}</td><td><strong>{b.count}</strong></td></tr>))}</tbody></table>)}</div>
-            <div className="admin-card"><h3 className="admin-card-title">Top Ending Breweries</h3>{(journeyStats.topEndingBreweries || []).length === 0 ? (<div className="admin-empty">No data yet</div>) : (<table className="admin-table"><thead><tr><th>Rank</th><th>Brewery</th><th>Count</th></tr></thead><tbody>{(journeyStats.topEndingBreweries || []).map((b, i) => (<tr key={b.breweryId}><td><span className={`admin-rank ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'default'}`}>{b.rank}</span></td><td>{b.breweryName}</td><td><strong>{b.count}</strong></td></tr>))}</tbody></table>)}</div>
-            <div className="admin-card"><h3 className="admin-card-title">Top Hat Claim Locations</h3>{(journeyStats.topHatClaimLocations || []).length === 0 ? (<div className="admin-empty">No data yet</div>) : (<table className="admin-table"><thead><tr><th>Rank</th><th>Brewery</th><th>Count</th></tr></thead><tbody>{(journeyStats.topHatClaimLocations || []).map((b, i) => (<tr key={b.breweryId}><td><span className={`admin-rank ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'default'}`}>{b.rank}</span></td><td>{b.breweryName}</td><td><strong>{b.count}</strong></td></tr>))}</tbody></table>)}</div>
+            <div className="admin-card"><h3 className="admin-card-title">Top Starting Breweries</h3>{(journeyStats.topStartingBreweries || []).length === 0 ? (<div className="admin-empty">No data yet</div>) : (<div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Rank</th><th>Brewery</th><th>Count</th></tr></thead><tbody>{(journeyStats.topStartingBreweries || []).map((b, i) => (<tr key={b.breweryId}><td><span className={`admin-rank ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'default'}`}>{b.rank}</span></td><td>{b.breweryName}</td><td><strong>{b.count}</strong></td></tr>))}</tbody></table></div>)}</div>
+            <div className="admin-card"><h3 className="admin-card-title">Top Ending Breweries</h3>{(journeyStats.topEndingBreweries || []).length === 0 ? (<div className="admin-empty">No data yet</div>) : (<div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Rank</th><th>Brewery</th><th>Count</th></tr></thead><tbody>{(journeyStats.topEndingBreweries || []).map((b, i) => (<tr key={b.breweryId}><td><span className={`admin-rank ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'default'}`}>{b.rank}</span></td><td>{b.breweryName}</td><td><strong>{b.count}</strong></td></tr>))}</tbody></table></div>)}</div>
+            <div className="admin-card"><h3 className="admin-card-title">Top Hat Claim Locations</h3>{(journeyStats.topHatClaimLocations || []).length === 0 ? (<div className="admin-empty">No data yet</div>) : (<div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Rank</th><th>Brewery</th><th>Count</th></tr></thead><tbody>{(journeyStats.topHatClaimLocations || []).map((b, i) => (<tr key={b.breweryId}><td><span className={`admin-rank ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'default'}`}>{b.rank}</span></td><td>{b.breweryName}</td><td><strong>{b.count}</strong></td></tr>))}</tbody></table></div>)}</div>
           </div>
 
           <div className="admin-grid-2">
-            <div className="admin-card"><h3 className="admin-card-title">Check-ins by Brewery</h3><table className="admin-table"><thead><tr><th>Rank</th><th>Brewery</th><th>Check-ins</th></tr></thead><tbody>{checkinsByBrewery.sort((a, b) => b.count - a.count).map((brewery, index) => (<tr key={brewery.breweryId}><td><span className={`admin-rank ${index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : 'default'}`}>{index + 1}</span></td><td>{brewery.breweryName}</td><td><strong>{brewery.count}</strong></td></tr>))}</tbody></table></div>
+            <div className="admin-card"><h3 className="admin-card-title">Check-ins by Brewery</h3><div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Rank</th><th>Brewery</th><th>Check-ins</th></tr></thead><tbody>{checkinsByBrewery.sort((a, b) => b.count - a.count).map((brewery, index) => (<tr key={brewery.breweryId}><td><span className={`admin-rank ${index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : 'default'}`}>{index + 1}</span></td><td>{brewery.breweryName}</td><td><strong>{brewery.count}</strong></td></tr>))}</tbody></table></div></div>
             <div className="admin-card"><h3 className="admin-card-title">Daily Check-ins</h3><div className="admin-chart-container"><ResponsiveContainer width="100%" height="100%"><LineChart data={checkinsTrend}><CartesianGrid strokeDasharray="3 3" stroke="var(--admin-border)" /><XAxis dataKey="date" tick={{ fill: 'var(--admin-text-muted)', fontSize: 12 }} tickFormatter={(d) => new Date(d).toLocaleDateString('en', { month: 'short', day: 'numeric' })} /><YAxis tick={{ fill: 'var(--admin-text-muted)', fontSize: 12 }} /><Tooltip contentStyle={{ background: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)', borderRadius: 8 }} /><Line type="monotone" dataKey="count" stroke="#f97316" strokeWidth={2} dot={{ fill: '#f97316' }} /></LineChart></ResponsiveContainer></div></div>
           </div>
 
           <div className="admin-grid-2">
             <div className="admin-card"><h3 className="admin-card-title">Drop-off Funnel</h3><div className="admin-chart-container"><ResponsiveContainer width="100%" height="100%"><BarChart data={funnelData} layout="vertical"><CartesianGrid strokeDasharray="3 3" stroke="var(--admin-border)" /><XAxis type="number" tick={{ fill: 'var(--admin-text-muted)', fontSize: 12 }} /><YAxis type="category" dataKey="name" tick={{ fill: 'var(--admin-text-muted)', fontSize: 12 }} width={80} /><Tooltip contentStyle={{ background: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)', borderRadius: 8 }} /><Bar dataKey="value" fill="#7a9e5c" radius={[0, 4, 4, 0]} /></BarChart></ResponsiveContainer></div></div>
-            <div className="admin-card"><h3 className="admin-card-title">Ratings by Brewery</h3>{avgRatingByBrewery.length === 0 ? (<div className="admin-empty">No ratings yet</div>) : (<table className="admin-table"><thead><tr><th>Brewery</th><th>Avg Rating</th><th>Count</th></tr></thead><tbody>{avgRatingByBrewery.sort((a, b) => b.avgRating - a.avgRating).map((brewery) => (<tr key={brewery.breweryId}><td>{brewery.breweryName}</td><td>{brewery.avgRating?.toFixed(1)} stars</td><td>{brewery.ratingsCount}</td></tr>))}</tbody></table>)}</div>
+            <div className="admin-card"><h3 className="admin-card-title">Ratings by Brewery</h3>{avgRatingByBrewery.length === 0 ? (<div className="admin-empty">No ratings yet</div>) : (<div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Brewery</th><th>Avg Rating</th><th>Count</th></tr></thead><tbody>{avgRatingByBrewery.sort((a, b) => b.avgRating - a.avgRating).map((brewery) => (<tr key={brewery.breweryId}><td>{brewery.breweryName}</td><td>{brewery.avgRating?.toFixed(1)} stars</td><td>{brewery.ratingsCount}</td></tr>))}</tbody></table></div>)}</div>
           </div>
 
           <div className="admin-grid-3">
             <div className="admin-card"><h3 className="admin-card-title">By Country</h3>{participantsByCountry.length === 0 ? (<div className="admin-empty">No data</div>) : (<div className="admin-chart-container"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={participantsByCountry} cx="50%" cy="50%" labelLine={false} label={({ country, count }) => `${country}: ${count}`} outerRadius={80} dataKey="count" nameKey="country">{participantsByCountry.map((entry, index) => (<Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />))}</Pie><Tooltip /></PieChart></ResponsiveContainer></div>)}</div>
             <div className="admin-card"><h3 className="admin-card-title">Busiest Times</h3><div style={{ padding: '20px 0' }}><div style={{ marginBottom: 16 }}><div className="admin-kpi-label">Busiest Day</div><div style={{ fontSize: 24, fontWeight: 600 }}>{DAY_NAMES[busiest.busiestDayOfWeek] || '--'}</div></div><div><div className="admin-kpi-label">Peak Hour</div><div style={{ fontSize: 24, fontWeight: 600 }}>{busiest.busiestHourOfDay !== undefined ? `${busiest.busiestHourOfDay}:00 - ${busiest.busiestHourOfDay + 1}:00` : '--'}</div></div></div></div>
-            <div className="admin-card"><h3 className="admin-card-title">Top Rated Beers</h3>{!data?.topRatedBeers?.length ? (<div className="admin-empty"><p>Not enough ratings yet</p><p style={{ fontSize: 12, marginTop: 8 }}>Needs 3+ ratings per beer</p></div>) : (<table className="admin-table"><thead><tr><th>Beer</th><th>Brewery</th><th>Rating</th></tr></thead><tbody>{(data?.topRatedBeers || []).slice(0, 5).map((beer, i) => (<tr key={i}><td>{beer.beerName}</td><td style={{ color: 'var(--admin-text-muted)' }}>{beer.breweryName}</td><td>{beer.avgRating?.toFixed(1)} stars</td></tr>))}</tbody></table>)}</div>
+            <div className="admin-card"><h3 className="admin-card-title">Top Rated Beers</h3>{!data?.topRatedBeers?.length ? (<div className="admin-empty"><p>Not enough ratings yet</p><p style={{ fontSize: 12, marginTop: 8 }}>Needs 3+ ratings per beer</p></div>) : (<div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Beer</th><th>Brewery</th><th>Rating</th></tr></thead><tbody>{(data?.topRatedBeers || []).slice(0, 5).map((beer, i) => (<tr key={i}><td>{beer.beerName}</td><td style={{ color: 'var(--admin-text-muted)' }}>{beer.breweryName}</td><td>{beer.avgRating?.toFixed(1)} stars</td></tr>))}</tbody></table></div>)}</div>
           </div>
         </>
       )}
@@ -795,12 +795,12 @@ export default function HQDashboard({ adminEmail = '' }) {
           <div className="admin-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}><h3 className="admin-card-title" style={{ marginBottom: 0 }}>Active Breweries ({activeBreweries.length})</h3><button className="admin-btn admin-btn-primary admin-btn-small" onClick={() => openBreweryForm()}>+ Add Brewery</button></div>
             {activeBreweries.length === 0 ? (<div className="admin-empty">No active breweries</div>) : (
-              <table className="admin-table"><thead><tr><th>Name</th><th>District</th><th>PIN</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+              <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Name</th><th>District</th><th>PIN</th><th>Status</th><th>Actions</th></tr></thead><tbody>
                 {activeBreweries.map((brewery) => (<tr key={brewery.id}><td><strong>{brewery.name}</strong><div style={{ fontSize: 12, color: 'var(--admin-text-muted)' }}>{brewery.address}</div></td><td>{brewery.district || '--'}</td><td><code>{brewery.pinCode || '--'}</code></td><td><span className={`admin-badge ${brewery.status === 'temporarily_closed' ? 'inactive' : 'active'}`} style={{ cursor: 'pointer' }} onClick={() => handleToggleBreweryClosed(brewery)} title="Click to toggle">{brewery.status === 'temporarily_closed' ? '🔴 Temp Closed' : '🟢 Active'}</span></td><td><button className="admin-btn-small admin-btn-secondary" style={{ marginRight: 6 }} onClick={() => handleGenerateBreweryQR(brewery)}>QR</button><button className="admin-btn-small" style={{ marginRight: 6 }} onClick={() => openBreweryForm(brewery)}>Edit</button><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteBrewery(brewery.id)}>Delete</button></td></tr>))}
-              </tbody></table>
+              </tbody></table></div>
             )}
           </div>
-          {inactiveBreweries.length > 0 && (<div className="admin-card" style={{ marginTop: 20 }}><h3 className="admin-card-title">Inactive Breweries ({inactiveBreweries.length})</h3><table className="admin-table"><thead><tr><th>Name</th><th>District</th><th>Actions</th></tr></thead><tbody>{inactiveBreweries.map((brewery) => (<tr key={brewery.id} style={{ opacity: 0.6 }}><td>{brewery.name}</td><td>{brewery.district || '--'}</td><td><button className="admin-btn-small" onClick={() => openBreweryForm(brewery)}>Reactivate</button></td></tr>))}</tbody></table></div>)}
+          {inactiveBreweries.length > 0 && (<div className="admin-card" style={{ marginTop: 20 }}><h3 className="admin-card-title">Inactive Breweries ({inactiveBreweries.length})</h3><div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Name</th><th>District</th><th>Actions</th></tr></thead><tbody>{inactiveBreweries.map((brewery) => (<tr key={brewery.id} style={{ opacity: 0.6 }}><td>{brewery.name}</td><td>{brewery.district || '--'}</td><td><button className="admin-btn-small" onClick={() => openBreweryForm(brewery)}>Reactivate</button></td></tr>))}</tbody></table></div></div>)}
         </>
       )}
 
@@ -826,10 +826,10 @@ export default function HQDashboard({ adminEmail = '' }) {
           )}
           <div className="admin-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}><h3 className="admin-card-title" style={{ marginBottom: 0 }}>Trail-Wide Events ({trailEvents.length})</h3><button className="admin-btn admin-btn-primary admin-btn-small" onClick={openCreateEvent}>+ Create Event</button></div>
-            {trailEvents.length === 0 ? (<div className="admin-empty">No trail-wide events yet</div>) : (<table className="admin-table"><thead><tr><th>Event</th><th>Category</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>{trailEvents.map((event) => (<tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td><span className={`admin-badge ${event.category === 'new_release' ? 'active' : ''}`}>{event.category === 'new_release' ? 'New Release' : 'Event'}</span></td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><span className={`admin-badge ${event.status === 'active' ? 'active' : 'inactive'}`}>{event.status}</span></td><td><div style={{ display: 'flex', gap: 6 }}><button className="admin-btn-small" style={{ background: 'var(--admin-primary)', color: '#fff' }} onClick={() => openEditEvent(event)}>Edit</button><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></div></td></tr>))}</tbody></table>)}
+            {trailEvents.length === 0 ? (<div className="admin-empty">No trail-wide events yet</div>) : (<div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Event</th><th>Category</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>{trailEvents.map((event) => (<tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td><span className={`admin-badge ${event.category === 'new_release' ? 'active' : ''}`}>{event.category === 'new_release' ? 'New Release' : 'Event'}</span></td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><span className={`admin-badge ${event.status === 'active' ? 'active' : 'inactive'}`}>{event.status}</span></td><td><div style={{ display: 'flex', gap: 6 }}><button className="admin-btn-small" style={{ background: 'var(--admin-primary)', color: '#fff' }} onClick={() => openEditEvent(event)}>Edit</button><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></div></td></tr>))}</tbody></table></div>)}
           </div>
-          <div className="admin-card" style={{ marginTop: 20 }}><h3 className="admin-card-title">Brewery Events ({breweryEvents.length})</h3>{breweryEvents.length === 0 ? (<div className="admin-empty">No brewery events yet</div>) : (<table className="admin-table"><thead><tr><th>Event</th><th>Brewery</th><th>Date</th><th>Actions</th></tr></thead><tbody>{breweryEvents.map((event) => (<tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td>{event.breweryName}</td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><div style={{ display: 'flex', gap: 6 }}><button className="admin-btn-small" style={{ background: 'var(--admin-primary)', color: '#fff' }} onClick={() => openEditEvent(event)}>Edit</button><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></div></td></tr>))}</tbody></table>)}</div>
-          <div className="admin-card" style={{ marginTop: 20 }}><h3 className="admin-card-title">Side Quest Events ({sideQuestEvents.length})</h3>{sideQuestEvents.length === 0 ? (<div className="admin-empty">No side quest events yet</div>) : (<table className="admin-table"><thead><tr><th>Event</th><th>Side Quest</th><th>Date</th><th>Actions</th></tr></thead><tbody>{sideQuestEvents.map((event) => (<tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td>{event.sideQuestTitle || event.sideQuestId || '--'}</td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><div style={{ display: 'flex', gap: 6 }}><button className="admin-btn-small" style={{ background: 'var(--admin-primary)', color: '#fff' }} onClick={() => openEditEvent(event)}>Edit</button><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></div></td></tr>))}</tbody></table>)}</div>
+          <div className="admin-card" style={{ marginTop: 20 }}><h3 className="admin-card-title">Brewery Events ({breweryEvents.length})</h3>{breweryEvents.length === 0 ? (<div className="admin-empty">No brewery events yet</div>) : (<div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Event</th><th>Brewery</th><th>Date</th><th>Actions</th></tr></thead><tbody>{breweryEvents.map((event) => (<tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td>{event.breweryName}</td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><div style={{ display: 'flex', gap: 6 }}><button className="admin-btn-small" style={{ background: 'var(--admin-primary)', color: '#fff' }} onClick={() => openEditEvent(event)}>Edit</button><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></div></td></tr>))}</tbody></table></div>)}</div>
+          <div className="admin-card" style={{ marginTop: 20 }}><h3 className="admin-card-title">Side Quest Events ({sideQuestEvents.length})</h3>{sideQuestEvents.length === 0 ? (<div className="admin-empty">No side quest events yet</div>) : (<div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Event</th><th>Side Quest</th><th>Date</th><th>Actions</th></tr></thead><tbody>{sideQuestEvents.map((event) => (<tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td>{event.sideQuestTitle || event.sideQuestId || '--'}</td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><div style={{ display: 'flex', gap: 6 }}><button className="admin-btn-small" style={{ background: 'var(--admin-primary)', color: '#fff' }} onClick={() => openEditEvent(event)}>Edit</button><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></div></td></tr>))}</tbody></table></div>)}</div>
         </>
       )}
 
@@ -880,20 +880,20 @@ export default function HQDashboard({ adminEmail = '' }) {
           )}
           <div className="admin-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}><h3 className="admin-card-title" style={{ marginBottom: 0 }}>Side Quests ({sideQuests.length})</h3><button className="admin-btn admin-btn-primary admin-btn-small" onClick={() => openQuestForm()}>+ Create Quest</button></div>
-            {sideQuests.length === 0 ? (<div className="admin-empty">No side quests yet</div>) : (<table className="admin-table"><thead><tr><th>Title</th><th>Reward</th><th>PIN</th><th>District</th><th>Status</th><th>Actions</th></tr></thead><tbody>{sideQuests.map((quest) => { const title = typeof quest.title === 'string' ? quest.title : (quest.title?.en || 'Untitled'); return (<tr key={quest.id}><td><strong>{title}</strong>{quest.address && <div style={{ fontSize: 12, color: 'var(--admin-text-muted)' }}>{quest.address}</div>}</td><td>{quest.reward || '--'}</td><td><code>{quest.pin || '--'}</code></td><td>{quest.district || '--'}</td><td><span className={`admin-badge ${quest.status === 'active' ? 'active' : 'inactive'}`}>{quest.status}</span></td><td style={{ whiteSpace: 'nowrap' }}><button className="admin-btn-small admin-btn-secondary" style={{ marginRight: 6 }} onClick={() => handleGenerateQR(quest)}>QR</button><button className="admin-btn-small" style={{ marginRight: 6 }} onClick={() => openQuestForm(quest)}>Edit</button><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteQuest(quest.id)}>Delete</button></td></tr>); })}</tbody></table>)}
+            {sideQuests.length === 0 ? (<div className="admin-empty">No side quests yet</div>) : (<div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Title</th><th>Reward</th><th>PIN</th><th>District</th><th>Status</th><th>Actions</th></tr></thead><tbody>{sideQuests.map((quest) => { const title = typeof quest.title === 'string' ? quest.title : (quest.title?.en || 'Untitled'); return (<tr key={quest.id}><td><strong>{title}</strong>{quest.address && <div style={{ fontSize: 12, color: 'var(--admin-text-muted)' }}>{quest.address}</div>}</td><td>{quest.reward || '--'}</td><td><code>{quest.pin || '--'}</code></td><td>{quest.district || '--'}</td><td><span className={`admin-badge ${quest.status === 'active' ? 'active' : 'inactive'}`}>{quest.status}</span></td><td style={{ whiteSpace: 'nowrap' }}><button className="admin-btn-small admin-btn-secondary" style={{ marginRight: 6 }} onClick={() => handleGenerateQR(quest)}>QR</button><button className="admin-btn-small" style={{ marginRight: 6 }} onClick={() => openQuestForm(quest)}>Edit</button><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteQuest(quest.id)}>Delete</button></td></tr>); })}</tbody></table></div>)}
           </div>
         </>
       )}
 
       {activeTab === 'leaderboard' && (
         <>
-          <div className="admin-card"><h3 className="admin-card-title">Leaderboard (with Contact Info)</h3>{leaderboard.length === 0 ? (<div className="admin-empty">No completions yet</div>) : (<table className="admin-table"><thead><tr><th>Rank</th><th>Name</th><th>Email</th><th>Time</th><th>Completed</th></tr></thead><tbody>{leaderboard.map((entry) => (<tr key={entry.participantId}><td><span className={`admin-rank ${entry.rank === 1 ? 'gold' : entry.rank === 2 ? 'silver' : entry.rank === 3 ? 'bronze' : 'default'}`}>{entry.rank}</span></td><td><strong>{entry.displayName || entry.name || '--'}</strong></td><td><a href={`mailto:${entry.email}`} style={{ color: 'var(--admin-primary)' }}>{entry.email}</a></td><td>{formatTime(entry.completionTimeMs)}</td><td style={{ color: 'var(--admin-text-muted)' }}>{new Date(entry.completedAt).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })}</td></tr>))}</tbody></table>)}</div>
+          <div className="admin-card"><h3 className="admin-card-title">Leaderboard (with Contact Info)</h3>{leaderboard.length === 0 ? (<div className="admin-empty">No completions yet</div>) : (<div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Rank</th><th>Name</th><th>Email</th><th>Time</th><th>Completed</th></tr></thead><tbody>{leaderboard.map((entry) => (<tr key={entry.participantId}><td><span className={`admin-rank ${entry.rank === 1 ? 'gold' : entry.rank === 2 ? 'silver' : entry.rank === 3 ? 'bronze' : 'default'}`}>{entry.rank}</span></td><td><strong>{entry.displayName || entry.name || '--'}</strong></td><td><a href={`mailto:${entry.email}`} style={{ color: 'var(--admin-primary)' }}>{entry.email}</a></td><td>{formatTime(entry.completionTimeMs)}</td><td style={{ color: 'var(--admin-text-muted)' }}>{new Date(entry.completedAt).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })}</td></tr>))}</tbody></table></div>)}</div>
           <div className="admin-card" style={{ marginTop: 24 }}>
             <h3 className="admin-card-title">Beer Ratings</h3>
             {beerRatings.length === 0 ? (
               <div className="admin-empty">No ratings yet</div>
             ) : (
-              <table className="admin-table">
+              <div className="admin-table-wrap"><table className="admin-table">
                 <thead>
                   <tr>
                     <th>#</th>
@@ -914,7 +914,7 @@ export default function HQDashboard({ adminEmail = '' }) {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             )}
           </div>
 
@@ -937,7 +937,7 @@ export default function HQDashboard({ adminEmail = '' }) {
             {mergeSuggestions !== null && mergeSuggestions.length > 0 && mergeSuggestions.map((b) => (
               <div key={b.id} style={{ marginBottom: 24 }}>
                 <div style={{ fontWeight: 600, marginBottom: 8, color: 'var(--admin-text)' }}>{b.name}</div>
-                <table className="admin-table">
+                <div className="admin-table-wrap"><table className="admin-table">
                   <thead><tr><th>Submitted Name</th><th># Ratings</th><th>Reassign to</th><th></th></tr></thead>
                   <tbody>
                     {b.unmatched.map((u) => {
@@ -976,7 +976,7 @@ export default function HQDashboard({ adminEmail = '' }) {
                       );
                     })}
                   </tbody>
-                </table>
+                </table></div>
               </div>
             ))}
           </div>
@@ -1047,7 +1047,7 @@ export default function HQDashboard({ adminEmail = '' }) {
                     {Object.keys(item.byBrewery || {}).length > 0 && (
                       <div style={{ marginTop: 12 }}>
                         <div style={{ fontSize: 12, color: 'var(--admin-text-muted)', textTransform: 'uppercase', marginBottom: 6 }}>By Location</div>
-                        <table className="admin-table">
+                        <div className="admin-table-wrap"><table className="admin-table">
                           <thead>
                             <tr><th>Brewery</th><th>Stock</th><th>Pickups</th><th>Actions</th></tr>
                           </thead>
@@ -1072,7 +1072,7 @@ export default function HQDashboard({ adminEmail = '' }) {
                               );
                             })}
                           </tbody>
-                        </table>
+                        </table></div>
                       </div>
                     )}
 
@@ -1241,19 +1241,19 @@ export default function HQDashboard({ adminEmail = '' }) {
                   <div className="admin-grid-2" style={{ gap: 24 }}>
                     <div>
                       <p style={{ fontWeight: 600, fontSize: 13, marginBottom: 8 }}>By Lifestyle</p>
-                      <table className="admin-table"><thead><tr><th>Vibe</th><th>Avg Check-ins</th><th>Users</th></tr></thead><tbody>
+                      <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Vibe</th><th>Avg Check-ins</th><th>Users</th></tr></thead><tbody>
                         {Object.entries(analytics.engagement.avgCheckinsByVibe || {}).sort((a, b) => b[1].avg - a[1].avg).map(([k, v]) => (
                           <tr key={k}><td>{vibeLabels[k] || k}</td><td><strong>{v.avg}</strong></td><td style={{ color: 'var(--admin-text-muted)' }}>{v.count}</td></tr>
                         ))}
-                      </tbody></table>
+                      </tbody></table></div>
                     </div>
                     <div>
                       <p style={{ fontWeight: 600, fontSize: 13, marginBottom: 8 }}>By Experience</p>
-                      <table className="admin-table"><thead><tr><th>Era</th><th>Avg Check-ins</th><th>Users</th></tr></thead><tbody>
+                      <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Era</th><th>Avg Check-ins</th><th>Users</th></tr></thead><tbody>
                         {Object.entries(analytics.engagement.avgCheckinsByEra || {}).sort((a, b) => b[1].avg - a[1].avg).map(([k, v]) => (
                           <tr key={k}><td>{eraLabels[k] || k}</td><td><strong>{v.avg}</strong></td><td style={{ color: 'var(--admin-text-muted)' }}>{v.count}</td></tr>
                         ))}
-                      </tbody></table>
+                      </tbody></table></div>
                     </div>
                   </div>
                 </div>
@@ -1300,7 +1300,7 @@ export default function HQDashboard({ adminEmail = '' }) {
                   <div className="admin-card">
                     <h3 className="admin-card-title">Brewery Comparison — Visitor Preferences</h3>
                     <p style={{ color: 'var(--admin-text-muted)', fontSize: 12, marginBottom: 12 }}>What beer styles each brewery's visitors prefer (from onboarding data)</p>
-                    <table className="admin-table">
+                    <div className="admin-table-wrap"><table className="admin-table">
                       <thead><tr><th>Brewery</th><th>Check-ins</th><th>Avg Rating</th><th>Top Preferred Style</th><th>Style Breakdown</th></tr></thead>
                       <tbody>
                         {analytics.breweryComparison.map(b => {
@@ -1316,7 +1316,7 @@ export default function HQDashboard({ adminEmail = '' }) {
                           );
                         })}
                       </tbody>
-                    </table>
+                    </table></div>
                   </div>
                 )}
 
@@ -1325,7 +1325,7 @@ export default function HQDashboard({ adminEmail = '' }) {
                   <div className="admin-card" style={{ borderLeft: '4px solid var(--admin-warning)' }}>
                     <h3 className="admin-card-title">Nudge Candidates — Almost Done!</h3>
                     <p style={{ color: 'var(--admin-text-muted)', fontSize: 12, marginBottom: 12 }}>These users are within 2 breweries of completing the trail. A reminder could push them across the finish line.</p>
-                    <table className="admin-table">
+                    <div className="admin-table-wrap"><table className="admin-table">
                       <thead><tr><th>User</th><th>Check-ins</th><th>Remaining</th><th>Email</th></tr></thead>
                       <tbody>
                         {analytics.nudgeCandidates.map(n => (
@@ -1337,7 +1337,7 @@ export default function HQDashboard({ adminEmail = '' }) {
                           </tr>
                         ))}
                       </tbody>
-                    </table>
+                    </table></div>
                   </div>
                 )}
 
@@ -1415,7 +1415,7 @@ export default function HQDashboard({ adminEmail = '' }) {
             <div className="admin-loading"><div className="admin-spinner" /></div>
           ) : (
             <div className="admin-card">
-              <table className="admin-table">
+              <div className="admin-table-wrap"><table className="admin-table">
                 <thead>
                   <tr>
                     <th>Email</th>
@@ -1453,7 +1453,7 @@ export default function HQDashboard({ adminEmail = '' }) {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             </div>
           )}
 
