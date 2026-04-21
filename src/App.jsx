@@ -115,9 +115,27 @@ export default function App() {
 
   const handleLogout = () => {
     apiLogout();
-    setUser(null);
+    // Sign out of Supabase session too
+    supabase.auth.signOut().catch(() => {});
+    // Clear ALL user-specific localStorage keys
     localStorage.removeItem("hcm-user");
+    localStorage.removeItem("hcm-stamps");
+    localStorage.removeItem("hcm-beers");
+    localStorage.removeItem("hcm-onboarding-complete");
+    localStorage.removeItem("hcm-onboarding-profile");
+    localStorage.removeItem("hcm-timer-start");
+    localStorage.removeItem("hcm-timer-end");
+    localStorage.removeItem("hcm-leaderboard");
+    localStorage.removeItem("hcm-sidequest-checkins");
+    localStorage.removeItem("hcm-completion-modal-shown");
+    // Reset React state
+    setUser(null);
     setStamps([]);
+    setBeers([]);
+    setLeaderboardData([]);
+    setSideQuestCheckins([]);
+    setTimerStart(null);
+    setTimerEnd(null);
     setShowAuth(true);
     goHome();
   };
