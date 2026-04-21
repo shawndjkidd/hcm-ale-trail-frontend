@@ -195,12 +195,15 @@ export default function App() {
       // Sync profile/onboarding data from server
       if (r.profile) {
         localStorage.setItem("hcm-onboarding-profile", JSON.stringify(r.profile));
+        console.log("[Onboarding] loadMe profile:", r.profile.onboarding_completed_at);
         if (r.profile.onboarding_completed_at) {
+          console.log("[Onboarding] Setting hcm-onboarding-complete from loadMe");
           localStorage.setItem("hcm-onboarding-complete", "true");
         }
       }
       return r;
     }
+    console.log("[Onboarding] loadMe failed or not ok:", r);
     return null;
   };
 
@@ -283,13 +286,16 @@ export default function App() {
               localStorage.setItem("hcm-user", JSON.stringify(u));
               try { window.history.replaceState({}, "", window.location.pathname); } catch {}
               setShowAuth(false);
-              loadBreweries().then(() => setInitialized(true));
+              loadBreweries().then(() => { console.log("[Onboarding] initialized=true"); setInitialized(true); });
               // loadMe syncs onboarding flag from server — check AFTER it completes
               loadMe().then(() => {
-                if (!localStorage.getItem("hcm-onboarding-complete")) {
+                const flag = localStorage.getItem("hcm-onboarding-complete");
+                console.log("[Onboarding] OAuth post-loadMe check, flag=", flag);
+                if (!flag) {
+                  console.log("[Onboarding] >>> Setting showOnboarding=true from OAuth");
                   setShowOnboarding(true);
                 }
-              }).catch(() => {});
+              }).catch((e) => { console.log("[Onboarding] OAuth loadMe failed:", e); });
               return;
             }
           }
@@ -652,12 +658,15 @@ export default function App() {
 
   useEffect(() => {
     if (user?.id) {
+      console.log("[Onboarding] useEffect[user.id] firing, calling loadMe");
       loadMe().then(() => {
-        // After server sync, check if onboarding is needed
-        if (!localStorage.getItem("hcm-onboarding-complete")) {
+        const flag = localStorage.getItem("hcm-onboarding-complete");
+        console.log("[Onboarding] useEffect post-loadMe check, flag=", flag);
+        if (!flag) {
+          console.log("[Onboarding] >>> Setting showOnboarding=true from useEffect");
           setShowOnboarding(true);
         }
-      }).catch(() => {});
+      }).catch((e) => { console.log("[Onboarding] useEffect loadMe failed:", e); });
     }
   }, [user?.id]);
 
