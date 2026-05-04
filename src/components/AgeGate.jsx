@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import translations from '../translations'
 import { patchUserMe } from '../lib/api'
-import TrailIcon from './TrailIcons'
 
 export default function AgeGate({ language, onConfirm }) {
   const [busy, setBusy] = useState(false)
@@ -24,9 +23,6 @@ export default function AgeGate({ language, onConfirm }) {
   return (
     <div className="age-gate-overlay">
       <div className="age-gate-card">
-        <div className="age-gate-icon">
-          <TrailIcon type="beer-stamp" size={60} color="#FFD100" />
-        </div>
         <h2 className="age-gate-title">{t.ageGateTitle || 'Confirm Your Age'}</h2>
         <p className="age-gate-body">{t.ageGateBody || 'AleTrail includes craft beer and beverage experiences.'}</p>
         <div className="age-gate-checkbox-row">
