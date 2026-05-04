@@ -10005,3 +10005,234 @@ body.night-mode .milestone-close-btn {
   border-color: #444;
   box-shadow: 4px 4px 0 #444;
 }
+
+/* ─── Age Gate ─────────────────────────────────────────────────────────────── */
+.age-gate-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9200;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.age-gate-card {
+  background: #E31E24;
+  border-radius: 16px;
+  padding: 36px 28px;
+  max-width: 360px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.age-gate-icon {
+  font-size: 56px;
+  line-height: 1;
+}
+
+.age-gate-title {
+  color: #FFD100;
+  font-family: 'Anton', 'Impact', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  text-transform: uppercase;
+  text-align: center;
+  margin: 0;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.age-gate-body {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  margin: 0;
+  opacity: 0.95;
+}
+
+.age-gate-btn {
+  background: #FFD100;
+  border: 3px solid #000;
+  border-radius: 10px;
+  padding: 14px 32px;
+  color: #000;
+  font-family: 'Anton', 'Impact', sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 #000;
+  width: 100%;
+  letter-spacing: 1px;
+}
+
+.age-gate-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.age-gate-note {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 12px;
+  text-align: center;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ─── Untappd Onboarding ────────────────────────────────────────────────────── */
+.untappd-onboarding-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9150;
+  background: #1a1a2e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.untappd-onboarding-card {
+  background: #16213e;
+  border: 2px solid #FFC222;
+  border-radius: 16px;
+  padding: 36px 28px;
+  max-width: 380px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+.untappd-onboarding-logo {
+  font-size: 56px;
+  line-height: 1;
+}
+
+.untappd-onboarding-title {
+  color: #FFC222;
+  font-family: 'Anton', 'Impact', sans-serif;
+  font-size: 26px;
+  font-weight: 900;
+  text-transform: uppercase;
+  text-align: center;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.untappd-onboarding-body {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.untappd-connect-btn {
+  background: #FFC222;
+  border: 3px solid #000;
+  border-radius: 10px;
+  padding: 14px 28px;
+  color: #000;
+  font-family: 'Anton', 'Impact', sans-serif;
+  font-size: 17px;
+  font-weight: 900;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 #000;
+  width: 100%;
+  letter-spacing: 1px;
+}
+
+.untappd-later-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 4px 0;
+}
+
+.untappd-connect-error {
+  background: rgba(227, 30, 36, 0.2);
+  border: 1px solid #E31E24;
+  border-radius: 8px;
+  color: #ff6b6b;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 10px 14px;
+  text-align: center;
+  width: 100%;
+}
+
+/* ─── Untappd Settings Tile ─────────────────────────────────────────────────── */
+.untappd-tile {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.untappd-tile-status {
+  font-size: 14px;
+  font-weight: 700;
+  color: #555;
+}
+
+.untappd-tile-connected {
+  color: #2e7d32;
+}
+
+body.night-mode .untappd-tile-status {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+body.night-mode .untappd-tile-connected {
+  color: #81c784;
+}
+
+.untappd-username {
+  font-weight: 800;
+  color: inherit;
+}
+
+/* ─── AddBeerModal Untappd Toggle ───────────────────────────────────────────── */
+.untappd-toggle-row {
+  background: rgba(255, 194, 34, 0.08);
+  border: 1px solid rgba(255, 194, 34, 0.3);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-top: 4px;
+}
+
+.untappd-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+}
+
+body.night-mode .untappd-toggle-label {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.untappd-toggle-checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #FFC222;
+  flex-shrink: 0;
+}

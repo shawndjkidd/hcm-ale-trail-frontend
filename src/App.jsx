@@ -10,11 +10,13 @@ import AleTrailMap from "./components/AleTrailMap";
 import Settings from "./components/Settings";
 import OnboardingFlow from "./components/OnboardingFlow";
 import MilestoneModal from "./components/MilestoneModal";
+import AgeGate from "./components/AgeGate";
+import UntappdOnboarding from "./components/UntappdOnboarding";
 
 import translations from "./translations";
 import { recordCheckin, supabase } from "./lib/supabase";
 import { TRAIL_ID } from "./config";
-import { getBreweries, getMe, logout as apiLogout, startNewRun, postCheckin, getLeaderboard, claimHat, storeLoginTokens, getAccessToken, setTokens, getUnseenNudges, markNudgesSeen } from "./lib/api";
+import { getBreweries, getMe, logout as apiLogout, startNewRun, postCheckin, getLeaderboard, claimHat, storeLoginTokens, getAccessToken, setTokens, getUnseenNudges, markNudgesSeen, getUserMe, patchUserMe } from "./lib/api";
 
 import "./styles/App.css";
 
@@ -108,10 +110,35 @@ export default function App() {
   const [hatClaimed, setHatClaimed] = useState(() => localStorage.getItem("hcm-hat-claimed") === "true");
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [milestoneData, setMilestoneData] = useState(null);
+  const [userMe, setUserMe] = useState(null);
+  const [untappdOnboardingDismissed, setUntappdOnboardingDismissed] = useState(
+    () => localStorage.getItem("hcm-untappd-onboarding-dismissed") === "true"
+  );
+  const [untappdConnectStatus, setUntappdConnectStatus] = useState(null);
 
   const pendingQR = useRef(null);
   const pendingSideQuestQR = useRef(null);
   const t = translations[language];
+
+  const loadUserMe = async () => {
+    const res = await getUserMe();
+    if (res?.ok && res.user) {
+      setUserMe(res.user);
+      return res.user;
+    }
+    return null;
+  };
+
+  const handleAgeConfirm = () => {
+    // Optimistically update userMe so the gate closes immediately;
+    // the server has already persisted legal_age_confirmed_at
+    setUserMe((prev) => prev ? { ...prev, legal_age_confirmed_at: new Date().toISOString() } : prev);
+  };
+
+  const handleUntappdOnboardingDismiss = () => {
+    localStorage.setItem("hcm-untappd-onboarding-dismissed", "true");
+    setUntappdOnboardingDismissed(true);
+  };
 
   const handleLogout = () => {
     apiLogout();
@@ -128,8 +155,12 @@ export default function App() {
     localStorage.removeItem("hcm-leaderboard");
     localStorage.removeItem("hcm-sidequest-checkins");
     localStorage.removeItem("hcm-completion-modal-shown");
+    localStorage.removeItem("hcm-untappd-onboarding-dismissed");
     // Reset React state
     setUser(null);
+    setUserMe(null);
+    setUntappdOnboardingDismissed(false);
+    setUntappdConnectStatus(null);
     setStamps([]);
     setBeers([]);
     setLeaderboardData([]);
@@ -304,6 +335,13 @@ export default function App() {
         }
         // OAuth hash present but failed — clean URL and fall through to normal auth
         try { window.history.replaceState({}, "", window.location.pathname); } catch {}
+      }
+
+      // ── Untappd OAuth callback ────────────────────────────────────────────
+      if (window.location.pathname === "/onboarding/untappd") {
+        const utStatus = urlParams.get("status");
+        if (utStatus === "error") setUntappdConnectStatus("error");
+        try { window.history.replaceState({}, "", "/"); } catch {}
       }
 
       // ── Sync tokens from Supabase session if missing ─────────────────────
@@ -659,6 +697,7 @@ export default function App() {
   useEffect(() => {
     if (user?.id) {
       console.log("[Onboarding] useEffect[user.id] firing, calling loadMe");
+      loadUserMe(); // parallel — updates userMe for age gate + untappd gate
       loadMe().then(() => {
         const flag = localStorage.getItem("hcm-onboarding-complete");
         console.log("[Onboarding] useEffect post-loadMe check, flag=", flag);
@@ -696,6 +735,12 @@ export default function App() {
     );
   }
 
+  const showAgeGate = !showAuth && !!user && !!userMe && !userMe.legal_age_confirmed_at;
+  const showUntappdOnboarding =
+    !showAuth && !!user && !!userMe?.legal_age_confirmed_at &&
+    userMe.is_untappd_tester && !userMe.untappd?.connected &&
+    !showOnboarding && !untappdOnboardingDismissed;
+
   return (
     <div className="app" data-lang={language}>
       {showAuth && <AuthModal onSuccess={onAuthSuccess} language={language} setLanguage={setLanguage} />}
@@ -706,6 +751,16 @@ export default function App() {
           onComplete={() => setShowOnboarding(false)}
           onClose={() => setShowOnboarding(false)}
         />
+      )}
+      {showUntappdOnboarding && (
+        <UntappdOnboarding
+          language={language}
+          onDismiss={handleUntappdOnboardingDismiss}
+          connectStatus={untappdConnectStatus}
+        />
+      )}
+      {showAgeGate && (
+        <AgeGate language={language} onConfirm={handleAgeConfirm} />
       )}
       {milestoneData && (
         <MilestoneModal
@@ -758,6 +813,7 @@ export default function App() {
           onBack={goHome}
           language={language}
           user={user}
+          userMe={userMe}
           autoOpenBeer={autoOpenBeer}
           onAutoOpenComplete={() => setAutoOpenBeer(false)}
         />
@@ -784,7 +840,7 @@ export default function App() {
         />
       )}
       {view === "settings" && (
-        <Settings user={user} language={language} onBack={() => handleNavigate("home")} />
+        <Settings user={user} userMe={userMe} language={language} onBack={() => handleNavigate("home")} onUserMeRefresh={loadUserMe} />
       )}
       {view === "faq" && <FAQ onBack={() => handleNavigate("home")} language={language} user={user} />}
       {view === "mybeers" && <MyBeers beers={beers} breweries={breweries} onBack={() => handleNavigate("home")} language={language} />}

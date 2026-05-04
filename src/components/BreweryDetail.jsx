@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import translations from '../translations'
 import AddBeerModal from './AddBeerModal'
+import { postRating } from '../lib/api'
 
 const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a921'
 
@@ -71,7 +72,7 @@ const DAY_LABELS = {
   jp: ['日', '月', '火', '水', '木', '金', '土']
 }
 
-function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, onBack, qrValidated, timerStart, user, autoOpenBeer = false, onAutoOpenComplete }) {
+function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, onBack, qrValidated, timerStart, user, userMe, autoOpenBeer = false, onAutoOpenComplete }) {
   const [showAddBeer, setShowAddBeer] = useState(false)
   const [message, setMessage] = useState(null)
   const [breweryEvents, setBreweryEvents] = useState([])
@@ -253,6 +254,15 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
   }, [autoOpenBeer]);
 
   const handleBeerAdded = async (beer) => {
+    // Best-effort rating submission; stamp + local save proceed regardless
+    postRating(TRAIL_ID, beer.breweryId, {
+      beer_name: beer.name,
+      rating: beer.rating,
+      notes: beer.notes || null,
+      brewery_beer_id: beer.brewery_beer_id || null,
+      post_to_untappd: beer.post_to_untappd || false,
+    }).catch(() => {});
+
     addBeer(beer)
 
     if (!isStamped) {
@@ -500,6 +510,7 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
           mandatory={autoOpenBeer && !isStamped}
           breweryCode={breweryInfo.code}
           isAlreadyStamped={isStamped}
+          userMe={userMe}
         />
       )}
     </div>

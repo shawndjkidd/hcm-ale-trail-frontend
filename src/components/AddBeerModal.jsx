@@ -115,12 +115,13 @@ function extractBreweryIdFromQR(scannedText) {
   }
 }
 
-function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, breweryCode, isAlreadyStamped = false }) {
+function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, breweryCode, isAlreadyStamped = false, userMe }) {
   const [step, setStep] = useState(1) // 1 = beer entry, 2 = PIN verification
   const [selectedBeerId, setSelectedBeerId] = useState('')
   const [customName, setCustomName] = useState('')
   const [rating, setRating] = useState(0)
   const [notes, setNotes] = useState('')
+  const [postToUntappd, setPostToUntappd] = useState(false)
   const [menuBeers, setMenuBeers] = useState([])
   const [ratedNames, setRatedNames] = useState([])
   const [loadingBeers, setLoadingBeers] = useState(true)
@@ -181,6 +182,12 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, b
     const found = menuBeers.find(b => b.id === selectedBeerId)
     return found ? found.name : customName.trim()
   }
+
+  const selectedMenuBeer = menuBeers.find(b => b.id === selectedBeerId)
+  const canPostUntappd =
+    userMe?.is_untappd_tester === true &&
+    userMe?.untappd?.connected === true &&
+    selectedMenuBeer?.untappd_beer_id != null
 
   // Step 1: validate beer entry, then decide next step
   const handleBeerSubmit = () => {
@@ -257,7 +264,9 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, b
       breweryName: brewery.name,
       name: beerName,
       rating,
-      notes: notes.trim()
+      notes: notes.trim(),
+      brewery_beer_id: selectedMenuBeer?.id || null,
+      post_to_untappd: canPostUntappd && postToUntappd,
     }
     // Stop scanner if running
     if (scannerRef.current) {
@@ -413,6 +422,20 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, b
                 rows="3"
               />
             </div>
+
+            {canPostUntappd && (
+              <div className="form-group untappd-toggle-row">
+                <label className="untappd-toggle-label">
+                  <input
+                    type="checkbox"
+                    className="untappd-toggle-checkbox"
+                    checked={postToUntappd}
+                    onChange={(e) => setPostToUntappd(e.target.checked)}
+                  />
+                  <span>{t.untappdCrossPost || 'Post to Untappd'}</span>
+                </label>
+              </div>
+            )}
 
             <div className="modal-actions">
               {!mandatory && (

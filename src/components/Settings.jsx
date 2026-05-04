@@ -3,6 +3,7 @@ import { changePassword, changeEmail } from '../lib/api'
 import translations from '../translations'
 import OnboardingFlow from './OnboardingFlow'
 import TrailIcon from './TrailIcons'
+import UntappdSettingsTile from './UntappdSettingsTile'
 
 // Map values → translation keys for display
 const LABEL_KEYS = {
@@ -18,7 +19,7 @@ const LABEL_KEYS = {
 
 const locationIconType = (val) => val === 'visitor' ? 'visitor' : 'district'
 
-export default function Settings({ user, language, onBack }) {
+export default function Settings({ user, userMe, language, onBack, onUserMeRefresh }) {
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [editField, setEditField] = useState(null)
   const [newPassword, setNewPassword] = useState('')
@@ -190,6 +191,15 @@ export default function Settings({ user, language, onBack }) {
             )}
           </div>
         </div>
+
+        {/* ─── Untappd (testers only) ─── */}
+        {userMe?.is_untappd_tester && (
+          <UntappdSettingsTile
+            language={language}
+            userMe={userMe}
+            onRefresh={onUserMeRefresh || (() => {})}
+          />
+        )}
 
         {/* ─── Change Password ─── */}
         <div className="settings-section">

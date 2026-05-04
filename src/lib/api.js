@@ -240,3 +240,15 @@ export function storeLoginTokens(data) {
     });
   } catch {}
 }
+
+export function getUserMe() {
+  return request('/users/me')
+}
+
+export function patchUserMe(body) {
+  return request('/users/me', { method: 'PATCH', body })
+}
+
+export function disconnectUntappd() {
+  return request('/untappd/disconnect', { method: 'POST' })
+}
