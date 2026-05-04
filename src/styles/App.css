@@ -10032,8 +10032,9 @@ body.night-mode .milestone-close-btn {
 }
 
 .age-gate-icon {
-  font-size: 56px;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .age-gate-title {
@@ -10235,4 +10236,39 @@ body.night-mode .untappd-toggle-label {
   cursor: pointer;
   accent-color: #FFC222;
   flex-shrink: 0;
+}
+
+/* ─── Age Gate — checkbox UX ────────────────────────────────────────────────── */
+.age-gate-checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  cursor: pointer;
+}
+
+.age-gate-checkbox {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  accent-color: #FFD100;
+  cursor: pointer;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.age-gate-checkbox-label {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.age-gate-helper {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 12px;
+  text-align: center;
+  margin: 0;
+  line-height: 1.4;
 }

@@ -350,6 +350,17 @@ export default function TrailIcon({ type, size = 32, color = 'currentColor' }) {
     </svg>
   )
 
+  if (type === 'beer-stamp') return (
+    <svg viewBox="0 0 60 60" style={s} fill={color}>
+      <circle cx="14" cy="18" r="7"/>
+      <circle cx="26" cy="13" r="8"/>
+      <circle cx="38" cy="18" r="7"/>
+      <rect x="7" y="18" width="36" height="5"/>
+      <rect x="7" y="22" width="36" height="30" rx="4"/>
+      <path d="M43 28 Q55 28 55 35 Q55 44 43 44 L43 39 Q49 39 49 35 Q49 31 43 31 Z"/>
+    </svg>
+  )
+
   // fallback
   return (
     <svg viewBox="0 0 32 32" style={s} fill={color}>

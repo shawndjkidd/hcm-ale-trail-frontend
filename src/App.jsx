@@ -96,7 +96,15 @@ export default function App() {
   const [selectedSideQuest, setSelectedSideQuest] = useState(null);
   const [sideQuestCheckins, setSideQuestCheckins] = useState([]);
   const [view, setView] = useState("home");
-  const [language, setLanguage] = useState("en");
+  const [language, setLanguage] = useState(() => {
+    const saved = localStorage.getItem('hcm-language')
+    if (saved) return saved
+    const nav = navigator.language || ''
+    if (nav.startsWith('vi')) return 'vn'
+    if (nav.startsWith('ko')) return 'kr'
+    if (nav.startsWith('ja')) return 'jp'
+    return 'en'
+  });
   const [qrValidated, setQrValidated] = useState(false);
   const [sideQuestQrValidated, setSideQuestQrValidated] = useState(false);
   const [user, setUser] = useState(null);
@@ -257,7 +265,6 @@ export default function App() {
 
       if (savedStamps) setStamps(JSON.parse(savedStamps));
       if (savedBeers) setBeers(JSON.parse(savedBeers));
-      if (savedLang) setLanguage(savedLang);
       if (savedTimerStart) setTimerStart(parseInt(savedTimerStart, 10));
       if (savedTimerEnd) setTimerEnd(parseInt(savedTimerEnd, 10));
       if (savedLeaderboard) setLeaderboardData(JSON.parse(savedLeaderboard));
