@@ -4,11 +4,9 @@ import { patchUserMe } from '../lib/api'
 
 export default function AgeGate({ language, onConfirm }) {
   const [busy, setBusy] = useState(false)
-  const [checked, setChecked] = useState(false)
   const t = translations[language] || translations.en
 
-  const handleContinue = async () => {
-    if (!checked) return
+  const handleConfirm = async () => {
     setBusy(true)
     try {
       const res = await patchUserMe({ legal_age_confirmed: true })
@@ -24,26 +22,10 @@ export default function AgeGate({ language, onConfirm }) {
     <div className="age-gate-overlay">
       <div className="age-gate-card">
         <h2 className="age-gate-title">{t.ageGateTitle || 'Confirm Your Age'}</h2>
-        <p className="age-gate-body">{t.ageGateBody || 'AleTrail includes craft beer and beverage experiences.'}</p>
-        <div className="age-gate-checkbox-row">
-          <input
-            type="checkbox"
-            id="age-gate-checkbox"
-            className="age-gate-checkbox"
-            checked={checked}
-            onChange={e => setChecked(e.target.checked)}
-          />
-          <label htmlFor="age-gate-checkbox" className="age-gate-checkbox-label">
-            {t.ageGateCheckbox || 'I confirm I am of legal drinking age in my location.'}
-          </label>
-        </div>
-        <p className="age-gate-helper">{t.ageGateHelper || 'For Vietnam and Taiwan trails, this means 18 years or older.'}</p>
-        <button
-          className="age-gate-btn"
-          onClick={handleContinue}
-          disabled={!checked || busy}
-        >
-          {busy ? '...' : (t.ageGateContinue || 'Continue')}
+        <p className="age-gate-body">{t.ageGateBody || 'You must be 18 or older to use the Ho Chi Minh Ale Trail.'}</p>
+        <p className="age-gate-subtext">{t.ageGateSubtext || 'By tapping below, you confirm that you are at least 18 years old and understand this app includes alcohol-related content.'}</p>
+        <button className="age-gate-btn" onClick={handleConfirm} disabled={busy}>
+          {busy ? '...' : (t.ageGateButton || "I Confirm I'm 18+")}
         </button>
       </div>
     </div>
