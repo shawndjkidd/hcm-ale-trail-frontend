@@ -1,10 +1,18 @@
 import translations from '../translations'
 
+function getUntappdStartUrl() {
+  try {
+    const u = JSON.parse(localStorage.getItem('hcm-user') || 'null')
+    if (u?.id) return `/api/untappd/oauth/start?user_id=${encodeURIComponent(u.id)}`
+  } catch {}
+  return '/api/untappd/oauth/start'
+}
+
 export default function UntappdOnboarding({ language, onDismiss, connectStatus }) {
   const t = translations[language] || translations.en
 
   const handleConnect = () => {
-    window.location.href = '/api/untappd/oauth/start'
+    window.location.href = getUntappdStartUrl()
   }
 
   return (

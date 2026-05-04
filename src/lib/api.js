@@ -77,10 +77,18 @@ async function refreshAccessToken() {
   return { ok: true, access_token: data.access_token };
 }
 
-// Adds Authorization header if you stored a Supabase access token in localStorage.
+// Adds Authorization: Bearer if a token is stored; otherwise falls back to
+// X-User-Id so the backend can identify the caller from the client-stored user.
 function authHeaders(extra = {}) {
   const token = getAccessToken();
-  return token ? { ...extra, Authorization: `Bearer ${token}` } : { ...extra };
+  if (token) return { ...extra, Authorization: `Bearer ${token}` };
+
+  try {
+    const u = JSON.parse(localStorage.getItem("hcm-user") || "null");
+    if (u?.id) return { ...extra, "X-User-Id": u.id };
+  } catch {}
+
+  return { ...extra };
 }
 
 async function request(path, { method = "GET", body, headers } = {}, _retry = false) {
