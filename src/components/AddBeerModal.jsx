@@ -344,8 +344,8 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, b
   }
 
   return (
-    <div className="modal-overlay" onClick={(mandatory && step === 2) ? undefined : (step === 2 ? undefined : (mandatory ? undefined : onClose))}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+    <div className="fullscreen-takeover-white">
+      <div className="modal-content">
         {!mandatory && step === 1 && <button className="back-btn" style={{marginBottom: '0.5rem'}} onClick={onClose}>← {t.back || 'BACK'}</button>}
 
         {step === 1 && (

@@ -186,7 +186,7 @@ export default function AuthModal({ onSuccess, language = "en", setLanguage }) {
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="modal-overlay">
+    <div className="fullscreen-takeover-white">
       <div className="welcome-modal">
         {setLanguage && (
           <div className="language-toggle">

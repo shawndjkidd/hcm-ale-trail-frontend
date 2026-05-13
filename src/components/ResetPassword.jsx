@@ -58,7 +58,7 @@ export default function ResetPassword() {
   const invalidLink = !accessToken || !refreshToken;
 
   return (
-    <div className="modal-overlay">
+    <div className="fullscreen-takeover-white">
       <div className="welcome-modal">
         <h2 className="welcome-title">RESET PASSWORD</h2>
 

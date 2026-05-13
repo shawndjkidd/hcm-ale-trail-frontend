@@ -10469,3 +10469,124 @@ body.night-mode .completion-fullscreen .completion-modal {
 body.night-mode .step-badge {
   color: var(--white, #fff);
 }
+
+/* ─── Full-screen takeover utilities (non-dismissable) ─── */
+.fullscreen-takeover {
+  position: fixed;
+  inset: 0;
+  z-index: 9100;
+  background: #E31E24;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.fullscreen-takeover-white {
+  position: fixed;
+  inset: 0;
+  z-index: 9100;
+  background: #fff;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Strip card aesthetics when inner containers live inside a fullscreen takeover */
+.fullscreen-takeover-white .modal-content {
+  max-width: 480px;
+  width: 100%;
+  max-height: none;
+  box-shadow: none;
+  border: none;
+  border-radius: 0;
+  background: #fff;
+  margin: 0 auto;
+}
+
+.fullscreen-takeover-white .welcome-modal {
+  max-width: 480px;
+  width: 100%;
+  max-height: none;
+  background: transparent;
+  box-shadow: none;
+  border: none;
+  border-radius: 0;
+  margin: 0 auto;
+}
+
+body.night-mode .fullscreen-takeover-white {
+  background: #1a1a1a;
+}
+body.night-mode .fullscreen-takeover-white .modal-content {
+  background: #1a1a1a;
+}
+
+/* ─── Confirmation overlay: dark bg, centered card, no backdrop dismiss ─── */
+.fullscreen-confirm {
+  position: fixed;
+  inset: 0;
+  z-index: 9180;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.fullscreen-confirm-card {
+  background: #fff;
+  border: 3px solid #000;
+  border-radius: 12px;
+  padding: 28px 24px;
+  max-width: 360px;
+  width: 100%;
+  box-shadow: 4px 4px 0 #000;
+  text-align: center;
+}
+
+.fullscreen-confirm-title {
+  font-family: 'Anton', sans-serif;
+  font-size: 1.4rem;
+  color: #000;
+  margin: 0 0 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.fullscreen-confirm-body {
+  color: #333;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+
+.fullscreen-confirm-btns {
+  display: flex;
+  gap: 12px;
+}
+
+.fullscreen-confirm-cancel {
+  flex: 1;
+  padding: 12px;
+  background: #fff;
+  border: 3px solid #000;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+  color: #000;
+}
+
+.fullscreen-confirm-ok {
+  flex: 1;
+  padding: 12px;
+  background: #E31E24;
+  border: 3px solid #000;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+}

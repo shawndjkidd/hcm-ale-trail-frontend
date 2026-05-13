@@ -337,8 +337,8 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
 
       {/* Two-step check-in modal: Rate → PIN */}
       {showCheckinModal && (
-        <div className="modal-overlay" onClick={step === 2 ? undefined : () => setShowCheckinModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="fullscreen-takeover-white">
+          <div className="modal-content">
             <button className="modal-back-nav" onClick={() => { if (step === 2) { handleBackToStep1() } else { setShowCheckinModal(false) } }}>← {t.back || 'BACK'}</button>
 
             {step === 1 && (

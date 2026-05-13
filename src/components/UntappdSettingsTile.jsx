@@ -12,6 +12,7 @@ function getUntappdStartUrl() {
 
 export default function UntappdSettingsTile({ language, userMe, onRefresh }) {
   const [busy, setBusy] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
   const t = translations[language] || translations.en
 
   const connected = userMe?.untappd?.connected
@@ -22,10 +23,10 @@ export default function UntappdSettingsTile({ language, userMe, onRefresh }) {
   }
 
   const handleDisconnect = async () => {
-    if (!window.confirm(t.untappdDisconnectConfirm || 'Disconnect your Untappd account?')) return
     setBusy(true)
     try {
       await disconnectUntappd()
+      setShowConfirm(false)
       await onRefresh()
     } finally {
       setBusy(false)
@@ -44,7 +45,7 @@ export default function UntappdSettingsTile({ language, userMe, onRefresh }) {
             </div>
             <button
               className="settings-cancel-btn"
-              onClick={handleDisconnect}
+              onClick={() => setShowConfirm(true)}
               disabled={busy}
               style={{ marginTop: 8 }}
             >
@@ -66,6 +67,22 @@ export default function UntappdSettingsTile({ language, userMe, onRefresh }) {
           </>
         )}
       </div>
+      {showConfirm && (
+        <div className="fullscreen-confirm">
+          <div className="fullscreen-confirm-card">
+            <p className="fullscreen-confirm-title">{t.untappdDisconnectConfirm || 'Disconnect Untappd?'}</p>
+            <p className="fullscreen-confirm-body">{t.untappdDisconnectBody || 'Your check-ins will no longer be posted to Untappd.'}</p>
+            <div className="fullscreen-confirm-btns">
+              <button className="fullscreen-confirm-cancel" onClick={() => setShowConfirm(false)} disabled={busy}>
+                {t.cancel || 'Cancel'}
+              </button>
+              <button className="fullscreen-confirm-ok" onClick={handleDisconnect} disabled={busy}>
+                {busy ? '...' : (t.untappdDisconnect || 'DISCONNECT')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

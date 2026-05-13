@@ -132,7 +132,7 @@ function WelcomeModal({ language, setLanguage, onComplete, onSignIn }) {
   }
 
   return (
-    <div className="modal-overlay">
+    <div className="fullscreen-takeover-white">
       <div className="welcome-modal">
         {/* Language Toggle - Flat rectangular flags */}
         <div className="language-toggle">

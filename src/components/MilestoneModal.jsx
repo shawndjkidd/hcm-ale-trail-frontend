@@ -34,8 +34,8 @@ export default function MilestoneModal({ milestone, stampCount, totalBreweries, 
   const remaining = totalBreweries - stampCount;
 
   return (
-    <div className="milestone-overlay" onClick={onClose}>
-      <div className="milestone-modal" onClick={e => e.stopPropagation()}>
+    <div className="milestone-overlay">
+      <div className="milestone-modal">
         <div className="milestone-emoji">{config.emoji}</div>
         <h2 className="milestone-title">{t[config.titleKey]}</h2>
         <p className="milestone-subtitle">{t[config.subtitleKey]}</p>
