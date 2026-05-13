@@ -10622,7 +10622,7 @@ body.night-mode .fullscreen-takeover-white .modal-content {
   stroke-linejoin: round;
 }
 .star.active svg polygon {
-  fill: #000;
+  fill: #E31E24;
   stroke: #000;
 }
 .star:hover svg polygon {
