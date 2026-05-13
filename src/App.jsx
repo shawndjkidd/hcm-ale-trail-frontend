@@ -12,11 +12,12 @@ import OnboardingFlow from "./components/OnboardingFlow";
 import MilestoneModal from "./components/MilestoneModal";
 import AgeGate from "./components/AgeGate";
 import UntappdOnboarding from "./components/UntappdOnboarding";
+import CardResetPrompt from "./components/CardResetPrompt";
 
 import translations from "./translations";
 import { recordCheckin, supabase } from "./lib/supabase";
 import { TRAIL_ID, SHOW_UNTAPPD_INTEGRATION } from "./config";
-import { getBreweries, getMe, logout as apiLogout, startNewRun, postCheckin, getLeaderboard, claimHat, storeLoginTokens, getAccessToken, setTokens, getUnseenNudges, markNudgesSeen, getUserMe, patchUserMe } from "./lib/api";
+import { getBreweries, getMe, logout as apiLogout, startNewRun, postResetCard, postCheckin, getLeaderboard, claimHat, storeLoginTokens, getAccessToken, setTokens, getUnseenNudges, markNudgesSeen, getUserMe, patchUserMe } from "./lib/api";
 
 import "./styles/App.css";
 
@@ -124,6 +125,13 @@ export default function App() {
   );
   const [untappdConnectStatus, setUntappdConnectStatus] = useState(null);
   const [ageConfirmed, setAgeConfirmed] = useState(() => !!localStorage.getItem('hcm-age-confirmed-at'));
+  const [cardRound, setCardRound] = useState(() => parseInt(localStorage.getItem('hcm-card-round') || '1', 10));
+  const [showCardResetPrompt, setShowCardResetPrompt] = useState(() => {
+    const claimed = localStorage.getItem('hcm-hat-claimed') === 'true';
+    if (!claimed) return false;
+    const round = parseInt(localStorage.getItem('hcm-card-round') || '1', 10);
+    return !localStorage.getItem(`hcm-reset-prompt-dismissed-${TRAIL_ID}-${round}`);
+  });
 
   const pendingQR = useRef(null);
   const pendingSideQuestQR = useRef(null);
@@ -157,6 +165,30 @@ export default function App() {
     }
   };
 
+  const handleCardReset = async () => {
+    const res = await postResetCard();
+    if (!res?.ok) throw new Error(res?.error || 'Reset failed');
+    const newRound = res.newCardRound || cardRound + 1;
+    setCardRound(newRound);
+    localStorage.setItem('hcm-card-round', String(newRound));
+    setStamps([]);
+    localStorage.removeItem('hcm-stamps');
+    setHatClaimed(false);
+    localStorage.removeItem('hcm-hat-claimed');
+    localStorage.removeItem('hcm-completion-modal-shown');
+    setTimerStart(null);
+    setTimerEnd(null);
+    localStorage.removeItem('hcm-timer-start');
+    localStorage.removeItem('hcm-timer-end');
+    setShowCardResetPrompt(false);
+    goHome();
+  };
+
+  const handleCardResetDismiss = () => {
+    localStorage.setItem(`hcm-reset-prompt-dismissed-${TRAIL_ID}-${cardRound}`, 'true');
+    setShowCardResetPrompt(false);
+  };
+
   const handleUntappdOnboardingDismiss = () => {
     localStorage.setItem("hcm-untappd-onboarding-dismissed", "true");
     setUntappdOnboardingDismissed(true);
@@ -178,11 +210,14 @@ export default function App() {
     localStorage.removeItem("hcm-sidequest-checkins");
     localStorage.removeItem("hcm-completion-modal-shown");
     localStorage.removeItem("hcm-untappd-onboarding-dismissed");
+    localStorage.removeItem("hcm-card-round");
     // Reset React state
     setUser(null);
     setUserMe(null);
     setUntappdOnboardingDismissed(false);
     setUntappdConnectStatus(null);
+    setCardRound(1);
+    setShowCardResetPrompt(false);
     setStamps([]);
     setBeers([]);
     setLeaderboardData([]);
@@ -254,6 +289,11 @@ export default function App() {
           localStorage.setItem("hcm-onboarding-complete", "true");
         }
       }
+      // Sync card round from server
+      if (typeof r.cardRound === 'number' && r.cardRound !== cardRound) {
+        setCardRound(r.cardRound);
+        localStorage.setItem('hcm-card-round', String(r.cardRound));
+      }
       return r;
     }
     console.log("[Onboarding] loadMe failed or not ok:", r);
@@ -263,6 +303,7 @@ export default function App() {
   const handleHatClaimed = () => {
     setHatClaimed(true);
     localStorage.setItem("hcm-hat-claimed", "true");
+    setShowCardResetPrompt(true);
   };
 
   useEffect(() => {
@@ -809,6 +850,15 @@ export default function App() {
           connectStatus={untappdConnectStatus}
         />
       )}
+      {showCardResetPrompt && (
+        <CardResetPrompt
+          language={language}
+          setLanguage={setLanguage}
+          cardRound={cardRound}
+          onReset={handleCardReset}
+          onDismiss={handleCardResetDismiss}
+        />
+      )}
       {milestoneData && (
         <MilestoneModal
           milestone={milestoneData.milestone}
@@ -845,6 +895,7 @@ export default function App() {
           onSettings={() => handleNavigate("settings")}
           hatClaimed={hatClaimed}
           onHatClaimed={handleHatClaimed}
+          cardRound={cardRound}
         />
       )}
       {view === "brewery" && selectedBrewery && (

@@ -300,6 +300,13 @@ const translations = {
     // AddBeerModal cross-post toggle
     untappdCrossPost: "Post to Untappd",
     untappdCrossPostHint: "Cross-post this check-in to your Untappd profile",
+    // Card reset prompt (after hat claim)
+    cardResetTitle: "HAT CLAIMED!",
+    cardResetSubtext: "You're an official Ale Trail Champion.",
+    cardResetPromptHeader: "WANT TO DO IT AGAIN?",
+    cardResetPromptCta: "RESET CARD & START OVER",
+    cardResetPromptDismiss: "No thanks, I'm done",
+    roundLabel: "ROUND",
   },
 
   vn: {
@@ -600,6 +607,12 @@ const translations = {
     untappdConnect: "KẾT NỐI",
     untappdCrossPost: "Đăng lên Untappd",
     untappdCrossPostHint: "Chia sẻ check-in này lên Untappd của bạn",
+    cardResetTitle: "ĐÃ NHẬN MŨ!",
+    cardResetSubtext: "Bạn là nhà vô địch chính thức của Ale Trail.",
+    cardResetPromptHeader: "MUỐN THỬ LẠI KHÔNG?",
+    cardResetPromptCta: "ĐẶT LẠI THẺ & BẮT ĐẦU LẠI",
+    cardResetPromptDismiss: "Không, tôi xong rồi",
+    roundLabel: "VÒNG",
   },
   
   kr: {
@@ -895,6 +908,12 @@ const translations = {
     untappdConnect: "연결",
     untappdCrossPost: "Untappd에 게시",
     untappdCrossPostHint: "이 체크인을 Untappd 프로필에 공유하기",
+    cardResetTitle: "모자 수령 완료!",
+    cardResetSubtext: "당신은 공식 에일 트레일 챔피언입니다.",
+    cardResetPromptHeader: "다시 해볼까요?",
+    cardResetPromptCta: "카드 리셋 & 다시 시작",
+    cardResetPromptDismiss: "아니요, 저는 끝났어요",
+    roundLabel: "라운드",
   },
 
   jp: {
@@ -1190,6 +1209,12 @@ const translations = {
     untappdConnect: "連携する",
     untappdCrossPost: "Untappdに投稿",
     untappdCrossPostHint: "このチェックインをUntappdプロフィールに共有",
+    cardResetTitle: "帽子をゲット！",
+    cardResetSubtext: "あなたは公式Ale Trailチャンピオンです。",
+    cardResetPromptHeader: "もう一度やってみますか？",
+    cardResetPromptCta: "カードリセット＆スタートオーバー",
+    cardResetPromptDismiss: "いいえ、もう終わりです",
+    roundLabel: "ラウンド",
   }
 }
 

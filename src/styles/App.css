@@ -10282,3 +10282,153 @@ body.night-mode .untappd-toggle-label {
   margin: 0;
   line-height: 1.5;
 }
+
+/* ── CardResetPrompt ──────────────────────────────────────────────────────── */
+.card-reset-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9300;
+  background: #E31E24;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 24px 48px;
+  overflow-y: auto;
+}
+
+.card-reset-flags {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.card-reset-title {
+  color: #FFD100;
+  font-family: 'Anton', 'Impact', sans-serif;
+  font-size: clamp(42px, 12vw, 72px);
+  font-weight: 900;
+  text-transform: uppercase;
+  text-align: center;
+  margin: 0 0 16px;
+  text-shadow: 4px 4px 0 #000;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+
+.card-reset-subtext {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  margin: 0 0 32px;
+  opacity: 0.95;
+  max-width: 320px;
+}
+
+.card-reset-divider {
+  width: 80%;
+  max-width: 320px;
+  border: none;
+  border-top: 2px dashed rgba(255, 255, 255, 0.5);
+  margin: 0 0 28px;
+}
+
+.card-reset-prompt-header {
+  color: #FFD100;
+  font-family: 'Anton', 'Impact', sans-serif;
+  font-size: clamp(22px, 6vw, 32px);
+  font-weight: 900;
+  text-transform: uppercase;
+  text-align: center;
+  margin: 0 0 24px;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.card-reset-error {
+  color: #FFD100;
+  background: rgba(0,0,0,0.3);
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  margin: 0 0 16px;
+  max-width: 320px;
+}
+
+.card-reset-btn {
+  background: #FFD100;
+  border: 3px solid #000;
+  border-radius: 10px;
+  padding: 16px 32px;
+  color: #000;
+  font-family: 'Anton', 'Impact', sans-serif;
+  font-size: 20px;
+  font-weight: 900;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 #000;
+  width: 100%;
+  max-width: 360px;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.card-reset-btn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #000;
+}
+
+.card-reset-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.card-reset-dismiss {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 8px;
+  transition: opacity 0.15s;
+}
+
+.card-reset-dismiss:hover {
+  opacity: 0.7;
+}
+
+.card-reset-dismiss:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── ROUND N badge on HomePage ───────────────────────────────────────────── */
+.round-badge {
+  display: inline-block;
+  background: #FFD100;
+  color: #000;
+  font-family: 'Anton', 'Impact', sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 8px 28px;
+  border: 3px solid #000;
+  box-shadow: 4px 4px 0 #000;
+  border-radius: 6px;
+  margin: 0 auto 20px;
+  text-align: center;
+}
+
+body.night-mode .round-badge {
+  background: #FFD100;
+  color: #000;
+  border-color: #FFD100;
+  box-shadow: 4px 4px 0 #FFD100;
+}

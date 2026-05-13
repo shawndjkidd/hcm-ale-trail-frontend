@@ -260,3 +260,7 @@ export function patchUserMe(body) {
 export function disconnectUntappd() {
   return request('/untappd/disconnect', { method: 'POST' })
 }
+
+export function postResetCard(trailId = TRAIL_ID) {
+  return request(`/trails/${trailId}/me/reset-card`, { method: 'POST' })
+}

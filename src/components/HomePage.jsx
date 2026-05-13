@@ -68,7 +68,7 @@ const getBreweryLogo = (brewery) => {
   return BREWERY_LOGOS[brewery?.name] || null
 }
 
-function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onSideQuestClick, sideQuestCheckins = [], onNavigate, resetCard, activeEvents = [], nightMode, toggleNightMode, user, onLogout, onSettings, hatClaimed, onHatClaimed }) {
+function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onSideQuestClick, sideQuestCheckins = [], onNavigate, resetCard, activeEvents = [], nightMode, toggleNightMode, user, onLogout, onSettings, hatClaimed, onHatClaimed, cardRound = 1 }) {
   const [showCompletionModal, setShowCompletionModal] = useState(false)
   const [showEventsPage, setShowEventsPage] = useState(false)
   const [sideQuests, setSideQuests] = useState([])
@@ -369,6 +369,12 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
           {t.messenger}
         </a>
       </div>
+
+      {cardRound > 1 && (
+        <div className="round-badge">
+          {t.roundLabel || 'ROUND'} {cardRound}
+        </div>
+      )}
 
       <div className="progress-section">
         <div className="progress-header">
