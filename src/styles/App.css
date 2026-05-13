@@ -10664,6 +10664,9 @@ body.night-mode .fullscreen-takeover-white .modal-content {
   height: 77px;
   margin-bottom: 1.5rem;
 }
+.claim-hat-inner > svg[aria-label="Free Ale Trail baseball cap"] {
+  margin-bottom: 1.5rem;
+}
 .claim-hat-title {
   font-family: 'Anton', 'Impact', sans-serif;
   font-size: 2.5rem;

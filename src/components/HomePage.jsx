@@ -557,29 +557,31 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
             ))}
           </div>
           <div className="claim-hat-inner">
-            <svg className="claim-hat-svg" viewBox="0 0 160 110" fill="none" xmlns="http://www.w3.org/2000/svg">
-              {/* Brim — dark, behind crown */}
-              <path d="M 68 72 C 56 70, 36 72, 18 82 C 8 87, 4 92, 7 97 C 12 104, 48 106, 70 100 C 80 96, 85 89, 82 81 C 80 76, 76 73, 68 72 Z" fill="#1C0C0C" stroke="#000" strokeWidth="2" strokeLinejoin="round"/>
-              {/* Brim underside accent */}
-              <path d="M 9 96 C 16 103, 48 105, 68 99 C 78 96, 83 89, 80 83" stroke="#2A1414" strokeWidth="3.5" strokeLinecap="round" fill="none"/>
-              {/* Crown front panel — brand red */}
-              <path d="M 46 70 C 28 50, 43 12, 82 10 C 122 12, 138 48, 128 66 L 46 70 Z" fill="#E31E24" stroke="#000" strokeWidth="2" strokeLinejoin="round"/>
-              {/* Side panel — darker red for 3-D depth */}
-              <path d="M 106 67 C 108 42, 98 15, 82 10 C 122 12, 138 48, 128 66 L 106 67 Z" fill="#B5181C"/>
-              {/* Crown outlines over panels */}
-              <path d="M 82 10 C 122 12, 138 48, 128 66" stroke="#000" strokeWidth="2" strokeLinecap="round" fill="none"/>
-              <path d="M 46 70 C 28 50, 43 12, 82 10" stroke="#000" strokeWidth="2" strokeLinecap="round" fill="none"/>
-              {/* Sweatband */}
-              <path d="M 46 70 C 88 66, 128 63, 128 66 C 128 74, 88 73, 46 75 Z" fill="#1C0C0C"/>
-              <line x1="46" y1="70" x2="128" y2="66" stroke="#000" strokeWidth="1.5"/>
-              {/* Brim-crown front junction */}
-              <path d="M 46 73 C 54 73, 62 74, 68 74" stroke="#000" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
-              {/* Panel seam — subtle light stitch line */}
-              <path d="M 82 10 C 94 27, 107 47, 106 67" stroke="rgba(255,210,200,0.4)" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
-              {/* Crown front seam — very subtle */}
-              <path d="M 82 10 C 68 28, 56 52, 54 68" stroke="rgba(255,210,200,0.22)" strokeWidth="0.8" strokeLinecap="round" fill="none"/>
-              {/* Button */}
-              <circle cx="82" cy="10" r="5.5" fill="#1C0C0C" stroke="#000" strokeWidth="1.5"/>
+            {/* Baseball cap SVG from svgrepo.com, colorized for AleTrail brand */}
+            <svg
+              width="120"
+              height="120"
+              viewBox="0 0 38.678 38.677"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-label="Free Ale Trail baseball cap"
+            >
+              <g>
+                <g>
+                  <path
+                    d="M25.397,28.345c-7.439,0-13.89-1.248-17.932-3.541c-1.391,0.675-5.772,2.859-6.931,4.242
+                    C0.296,29.33,0.018,30.061,0,30.429c-0.013,0.287,0.314,1.101,0.314,1.101c9.837,4.158,15.337,2.574,20.836,1.49
+                    c5.85-1.149,11.155-4.894,11.155-4.894c0.044-0.049,0.097-0.098,0.144-0.145C30.036,28.22,27.669,28.345,25.397,28.345z"
+                    fill="#000000"
+                  />
+                  <path
+                    d="M25.554,6.096l-0.083,0.002c-0.069-0.925-1.188-1.661-2.569-1.661c-1.426,0-2.582,0.783-2.582,1.75
+                    c0,0.016,0.006,0.03,0.006,0.046C7.254,7.591,7.789,16.74,8.055,21.679c0.047,0.865-0.015,1.716-0.073,2.272
+                    c5.331,3.036,15.178,4.151,25.915,2.866c1.989-1.371,4.705-2.686,4.705-2.686s0.168-5.074,0-6.754
+                    C37.717,8.554,30.172,6.521,25.554,6.096z"
+                    fill="#E31E24"
+                  />
+                </g>
+              </g>
             </svg>
             <h1 className="claim-hat-title">{t.youEarnedFreeHat || 'YOU EARNED A FREE HAT!'}</h1>
             <p className="claim-hat-subtext">{t.claimHatSubtext || 'Show your completed card to staff at any participating brewery.'}</p>
