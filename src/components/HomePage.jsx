@@ -557,14 +557,29 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
             ))}
           </div>
           <div className="claim-hat-inner">
-            <svg className="claim-hat-svg" viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M14 54 Q14 10 50 8 Q86 10 86 54" stroke="#000" strokeWidth="4" strokeLinecap="round"/>
-              <line x1="14" y1="54" x2="14" y2="62" stroke="#000" strokeWidth="4" strokeLinecap="round"/>
-              <line x1="86" y1="54" x2="86" y2="62" stroke="#000" strokeWidth="4" strokeLinecap="round"/>
-              <line x1="14" y1="62" x2="86" y2="62" stroke="#000" strokeWidth="4" strokeLinecap="round"/>
-              <path d="M6 62 Q50 76 94 62" stroke="#000" strokeWidth="4" strokeLinecap="round"/>
-              <path d="M10 66 Q50 78 90 66" stroke="#000" strokeWidth="2" strokeLinecap="round" opacity="0.4"/>
-              <circle cx="50" cy="8" r="4" fill="#000"/>
+            <svg className="claim-hat-svg" viewBox="0 0 160 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {/* Brim — dark, behind crown */}
+              <path d="M 68 72 C 56 70, 36 72, 18 82 C 8 87, 4 92, 7 97 C 12 104, 48 106, 70 100 C 80 96, 85 89, 82 81 C 80 76, 76 73, 68 72 Z" fill="#1C0C0C" stroke="#000" strokeWidth="2" strokeLinejoin="round"/>
+              {/* Brim underside accent */}
+              <path d="M 9 96 C 16 103, 48 105, 68 99 C 78 96, 83 89, 80 83" stroke="#2A1414" strokeWidth="3.5" strokeLinecap="round" fill="none"/>
+              {/* Crown front panel — brand red */}
+              <path d="M 46 70 C 28 50, 43 12, 82 10 C 122 12, 138 48, 128 66 L 46 70 Z" fill="#E31E24" stroke="#000" strokeWidth="2" strokeLinejoin="round"/>
+              {/* Side panel — darker red for 3-D depth */}
+              <path d="M 106 67 C 108 42, 98 15, 82 10 C 122 12, 138 48, 128 66 L 106 67 Z" fill="#B5181C"/>
+              {/* Crown outlines over panels */}
+              <path d="M 82 10 C 122 12, 138 48, 128 66" stroke="#000" strokeWidth="2" strokeLinecap="round" fill="none"/>
+              <path d="M 46 70 C 28 50, 43 12, 82 10" stroke="#000" strokeWidth="2" strokeLinecap="round" fill="none"/>
+              {/* Sweatband */}
+              <path d="M 46 70 C 88 66, 128 63, 128 66 C 128 74, 88 73, 46 75 Z" fill="#1C0C0C"/>
+              <line x1="46" y1="70" x2="128" y2="66" stroke="#000" strokeWidth="1.5"/>
+              {/* Brim-crown front junction */}
+              <path d="M 46 73 C 54 73, 62 74, 68 74" stroke="#000" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
+              {/* Panel seam — subtle light stitch line */}
+              <path d="M 82 10 C 94 27, 107 47, 106 67" stroke="rgba(255,210,200,0.4)" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
+              {/* Crown front seam — very subtle */}
+              <path d="M 82 10 C 68 28, 56 52, 54 68" stroke="rgba(255,210,200,0.22)" strokeWidth="0.8" strokeLinecap="round" fill="none"/>
+              {/* Button */}
+              <circle cx="82" cy="10" r="5.5" fill="#1C0C0C" stroke="#000" strokeWidth="1.5"/>
             </svg>
             <h1 className="claim-hat-title">{t.youEarnedFreeHat || 'YOU EARNED A FREE HAT!'}</h1>
             <p className="claim-hat-subtext">{t.claimHatSubtext || 'Show your completed card to staff at any participating brewery.'}</p>
