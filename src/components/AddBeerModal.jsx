@@ -344,7 +344,7 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, b
   }
 
   return (
-    <div className="fullscreen-takeover-white">
+    <div className="fullscreen-takeover-yellow">
       <div className="modal-content">
         {!mandatory && step === 1 && <button className="back-btn" style={{marginBottom: '0.5rem'}} onClick={onClose}>← {t.back || 'BACK'}</button>}
 
@@ -406,7 +406,9 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, b
                     className={`star ${rating >= star ? 'active' : ''}`}
                     onClick={() => setRating(star)}
                   >
-                    ⭐
+                    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                      <polygon points="16,2 19.2,11.6 29.3,11.7 21.2,17.7 24.2,27.3 16,21.5 7.8,27.3 10.8,17.7 2.7,11.7 12.8,11.6" />
+                    </svg>
                   </button>
                 ))}
               </div>

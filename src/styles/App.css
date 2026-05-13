@@ -10590,3 +10590,42 @@ body.night-mode .fullscreen-takeover-white .modal-content {
   font-size: 0.95rem;
   cursor: pointer;
 }
+
+/* Yellow checkin modal background */
+.fullscreen-takeover-yellow {
+  position: fixed;
+  inset: 0;
+  z-index: 9100;
+  background: #FFD100;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.fullscreen-takeover-yellow .modal-content {
+  max-width: 480px;
+  box-shadow: none;
+  border: none;
+  border-radius: 0;
+  background: #FFD100;
+}
+
+/* SVG star styles for yellow-background checkin modals */
+.fullscreen-takeover-yellow .star {
+  opacity: 1;
+  font-size: 0;
+}
+.star svg polygon {
+  fill: none;
+  stroke: #000;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.star.active svg polygon {
+  fill: #000;
+  stroke: #000;
+}
+.star:hover svg polygon {
+  fill: rgba(0, 0, 0, 0.15);
+  stroke: #000;
+}
