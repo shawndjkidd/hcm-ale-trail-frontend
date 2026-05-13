@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import translations from '../translations'
-import { TRAIL_ID } from '../config'
+import { TRAIL_ID, SHOW_UNTAPPD_INTEGRATION } from '../config'
 
 // Simple fuzzy match: returns a score > 0 if `query` matches `name`, else 0.
 function fuzzyScore(name, query) {
@@ -423,7 +423,8 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, b
               />
             </div>
 
-            {canPostUntappd && (
+            {/* Untappd cross-post checkbox — hidden behind SHOW_UNTAPPD_INTEGRATION flag */}
+            {SHOW_UNTAPPD_INTEGRATION && canPostUntappd && (
               <div className="form-group untappd-toggle-row">
                 <label className="untappd-toggle-label">
                   <input

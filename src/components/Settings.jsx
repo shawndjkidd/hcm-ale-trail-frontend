@@ -4,6 +4,7 @@ import translations from '../translations'
 import OnboardingFlow from './OnboardingFlow'
 import TrailIcon from './TrailIcons'
 import UntappdSettingsTile from './UntappdSettingsTile'
+import { SHOW_UNTAPPD_INTEGRATION } from '../config'
 
 // Map values → translation keys for display
 const LABEL_KEYS = {
@@ -192,8 +193,8 @@ export default function Settings({ user, userMe, language, onBack, onUserMeRefre
           </div>
         </div>
 
-        {/* ─── Untappd (testers only) ─── */}
-        {userMe?.is_untappd_tester && (
+        {/* ─── Untappd (testers only) — hidden behind SHOW_UNTAPPD_INTEGRATION flag ─── */}
+        {SHOW_UNTAPPD_INTEGRATION && userMe?.is_untappd_tester && (
           <UntappdSettingsTile
             language={language}
             userMe={userMe}

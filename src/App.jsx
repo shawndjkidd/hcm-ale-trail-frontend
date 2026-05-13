@@ -15,7 +15,7 @@ import UntappdOnboarding from "./components/UntappdOnboarding";
 
 import translations from "./translations";
 import { recordCheckin, supabase } from "./lib/supabase";
-import { TRAIL_ID } from "./config";
+import { TRAIL_ID, SHOW_UNTAPPD_INTEGRATION } from "./config";
 import { getBreweries, getMe, logout as apiLogout, startNewRun, postCheckin, getLeaderboard, claimHat, storeLoginTokens, getAccessToken, setTokens, getUnseenNudges, markNudgesSeen, getUserMe, patchUserMe } from "./lib/api";
 
 import "./styles/App.css";
@@ -123,6 +123,7 @@ export default function App() {
     () => localStorage.getItem("hcm-untappd-onboarding-dismissed") === "true"
   );
   const [untappdConnectStatus, setUntappdConnectStatus] = useState(null);
+  const [ageConfirmed, setAgeConfirmed] = useState(() => !!localStorage.getItem('hcm-age-confirmed-at'));
 
   const pendingQR = useRef(null);
   const pendingSideQuestQR = useRef(null);
@@ -131,16 +132,29 @@ export default function App() {
   const loadUserMe = async () => {
     const res = await getUserMe();
     if (res?.ok && res.user) {
-      setUserMe(res.user);
-      return res.user;
+      const u = res.user;
+      setUserMe(u);
+      // Sync server → localStorage: user confirmed on another device
+      if (u.legal_age_confirmed_at && !localStorage.getItem('hcm-age-confirmed-at')) {
+        localStorage.setItem('hcm-age-confirmed-at', u.legal_age_confirmed_at);
+        setAgeConfirmed(true);
+      }
+      // Sync localStorage → server: user confirmed pre-auth, now logged in
+      if (localStorage.getItem('hcm-age-confirmed-at') && !u.legal_age_confirmed_at) {
+        patchUserMe({ legal_age_confirmed: true }).catch(() => {});
+      }
+      return u;
     }
     return null;
   };
 
   const handleAgeConfirm = () => {
-    // Optimistically update userMe so the gate closes immediately;
-    // the server has already persisted legal_age_confirmed_at
-    setUserMe((prev) => prev ? { ...prev, legal_age_confirmed_at: new Date().toISOString() } : prev);
+    localStorage.setItem('hcm-age-confirmed-at', new Date().toISOString());
+    setAgeConfirmed(true);
+    // Best-effort DB sync if authenticated — don't block UI on response
+    if (userMe) {
+      patchUserMe({ legal_age_confirmed: true }).catch(() => {});
+    }
   };
 
   const handleUntappdOnboardingDismiss = () => {
@@ -508,6 +522,15 @@ export default function App() {
     document.body.classList.toggle("lang-kr", language === "kr");
   }, [language]);
 
+  // Cross-tab sync: if another tab confirms the age gate, close it here too
+  useEffect(() => {
+    const onStorage = (e) => {
+      if (e.key === 'hcm-age-confirmed-at' && e.newValue) setAgeConfirmed(true);
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
   const handleUserRegistration = (userData) => {
     setUser(userData);
     localStorage.setItem("hcm-user", JSON.stringify(userData));
@@ -733,6 +756,25 @@ export default function App() {
     }
   }, [user?.id, initialized, showOnboarding]);
 
+  if (!ageConfirmed) {
+    // For a logged-in user, wait for loadUserMe to sync from DB before showing the gate
+    // (avoids a flash of the gate for users who confirmed on another device)
+    const potentiallyLoggedIn = !!localStorage.getItem('hcm-user');
+    if (potentiallyLoggedIn && !userMe) {
+      return (
+        <div className="loading">
+          <div className="loading-spinner"></div>
+          <p>{t.loading}</p>
+        </div>
+      );
+    }
+    return (
+      <div className="app" data-lang={language}>
+        <AgeGate language={language} onConfirm={handleAgeConfirm} />
+      </div>
+    );
+  }
+
   if (!initialized) {
     return (
       <div className="loading">
@@ -742,9 +784,10 @@ export default function App() {
     );
   }
 
-  const showAgeGate = !showAuth && !!user && !!userMe && !userMe.legal_age_confirmed_at;
   const showUntappdOnboarding =
-    !showAuth && !!user && !!userMe?.legal_age_confirmed_at &&
+    SHOW_UNTAPPD_INTEGRATION &&
+    ageConfirmed &&
+    !showAuth && !!user && !!userMe &&
     userMe.is_untappd_tester && !userMe.untappd?.connected &&
     !showOnboarding && !untappdOnboardingDismissed;
 
@@ -765,9 +808,6 @@ export default function App() {
           onDismiss={handleUntappdOnboardingDismiss}
           connectStatus={untappdConnectStatus}
         />
-      )}
-      {showAgeGate && (
-        <AgeGate language={language} onConfirm={handleAgeConfirm} />
       )}
       {milestoneData && (
         <MilestoneModal
