@@ -540,8 +540,32 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
 
       {showClaimHatTakeover && (
         <div className="claim-hat-takeover">
+          <div className="claim-hat-flags">
+            {[
+              { code: 'en', flag: 'us', label: 'English' },
+              { code: 'vn', flag: 'vn', label: 'Tiếng Việt' },
+              { code: 'kr', flag: 'kr', label: '한국어' },
+              { code: 'jp', flag: 'jp', label: '日本語' },
+            ].map(({ code, flag, label }) => (
+              <button
+                key={code}
+                className={`flag-btn-large ${language === code ? 'active' : ''}`}
+                onClick={() => setLanguage(code)}
+              >
+                <img src={`https://flagcdn.com/w160/${flag}.png`} alt={label} className="flag-img" />
+              </button>
+            ))}
+          </div>
           <div className="claim-hat-inner">
-            <div className="claim-hat-icon">🧢</div>
+            <svg className="claim-hat-svg" viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 54 Q14 10 50 8 Q86 10 86 54" stroke="#000" strokeWidth="4" strokeLinecap="round"/>
+              <line x1="14" y1="54" x2="14" y2="62" stroke="#000" strokeWidth="4" strokeLinecap="round"/>
+              <line x1="86" y1="54" x2="86" y2="62" stroke="#000" strokeWidth="4" strokeLinecap="round"/>
+              <line x1="14" y1="62" x2="86" y2="62" stroke="#000" strokeWidth="4" strokeLinecap="round"/>
+              <path d="M6 62 Q50 76 94 62" stroke="#000" strokeWidth="4" strokeLinecap="round"/>
+              <path d="M10 66 Q50 78 90 66" stroke="#000" strokeWidth="2" strokeLinecap="round" opacity="0.4"/>
+              <circle cx="50" cy="8" r="4" fill="#000"/>
+            </svg>
             <h1 className="claim-hat-title">{t.youEarnedFreeHat || 'YOU EARNED A FREE HAT!'}</h1>
             <p className="claim-hat-subtext">{t.claimHatSubtext || 'Show your completed card to staff at any participating brewery.'}</p>
             <button className="claim-hat-cta-btn" onClick={handleClaimHatCTA}>
