@@ -10460,3 +10460,12 @@ body.night-mode .completion-fullscreen {
 body.night-mode .completion-fullscreen .completion-modal {
   background: #1a1a1a;
 }
+
+/* ─── Step badges: explicit color so numbers don't inherit body's white text ─── */
+/* body { color: var(--white) } makes bare text invisible on the white step-badge bg */
+.step-badge {
+  color: var(--black, #000);
+}
+body.night-mode .step-badge {
+  color: var(--white, #fff);
+}

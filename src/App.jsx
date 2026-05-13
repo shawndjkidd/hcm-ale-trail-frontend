@@ -126,6 +126,7 @@ export default function App() {
   const [untappdConnectStatus, setUntappdConnectStatus] = useState(null);
   const [ageConfirmed, setAgeConfirmed] = useState(() => !!localStorage.getItem('hcm-age-confirmed-at'));
   const [cardRound, setCardRound] = useState(() => parseInt(localStorage.getItem('hcm-card-round') || '1', 10));
+  const [meLoaded, setMeLoaded] = useState(false);
   const [showCardResetPrompt, setShowCardResetPrompt] = useState(() => {
     const claimed = localStorage.getItem('hcm-hat-claimed') === 'true';
     if (!claimed) return false;
@@ -299,9 +300,11 @@ export default function App() {
         setCardRound(r.cardRound);
         localStorage.setItem('hcm-card-round', String(r.cardRound));
       }
+      setMeLoaded(true);
       return r;
     }
     console.log("[Onboarding] loadMe failed or not ok:", r);
+    setMeLoaded(true);
     return null;
   };
 
@@ -901,6 +904,7 @@ export default function App() {
           hatClaimed={hatClaimed}
           onHatClaimed={handleHatClaimed}
           cardRound={cardRound}
+          meLoaded={meLoaded}
           onCardResetPrompt={() => setShowCardResetPrompt(true)}
         />
       )}

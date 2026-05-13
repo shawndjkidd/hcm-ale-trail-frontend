@@ -68,7 +68,7 @@ const getBreweryLogo = (brewery) => {
   return BREWERY_LOGOS[brewery?.name] || null
 }
 
-function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onSideQuestClick, sideQuestCheckins = [], onNavigate, resetCard, activeEvents = [], nightMode, toggleNightMode, user, onLogout, onSettings, hatClaimed, onHatClaimed, cardRound = 1, onCardResetPrompt }) {
+function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onSideQuestClick, sideQuestCheckins = [], onNavigate, resetCard, activeEvents = [], nightMode, toggleNightMode, user, onLogout, onSettings, hatClaimed, onHatClaimed, cardRound = 1, meLoaded = false, onCardResetPrompt }) {
   const [showCompletionModal, setShowCompletionModal] = useState(false)
   const [showEventsPage, setShowEventsPage] = useState(false)
   const [sideQuests, setSideQuests] = useState([])
@@ -124,12 +124,14 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
     }
   }, [isComplete, fetchMerchItems])
 
-  // Show completion modal on first completion — only when hat not yet claimed
+  // Show completion modal on first completion — gate on meLoaded to avoid racing localStorage stamps
+  // vs server-confirmed hatClaimed state (body has color:white so we must not flash the modal)
   useEffect(() => {
-    if (isComplete && !hatClaimed && !localStorage.getItem('hcm-completion-modal-shown')) {
+    console.log('completion modal gate', { meLoaded, hatClaimed, isComplete, stampsCount: stamps.length, stampTarget: requiredCount })
+    if (meLoaded && isComplete && !hatClaimed && !localStorage.getItem('hcm-completion-modal-shown')) {
       setShowCompletionModal(true)
     }
-  }, [isComplete, hatClaimed])
+  }, [meLoaded, isComplete, hatClaimed])
 
   const handleCloseCompletionModal = () => {
     setShowCompletionModal(false)
