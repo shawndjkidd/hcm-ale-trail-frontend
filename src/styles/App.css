@@ -10432,3 +10432,31 @@ body.night-mode .round-badge {
   border-color: #FFD100;
   box-shadow: 4px 4px 0 #FFD100;
 }
+
+/* ─── Completion modal: full-screen non-dismissable takeover ─── */
+/* Replaces the old modal-overlay + card pattern — no backdrop tap-to-close */
+.completion-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 9200;
+  background: #fff;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+.completion-fullscreen .completion-modal {
+  box-shadow: none;
+  border-radius: 0;
+  max-width: 520px;
+  width: 100%;
+  min-height: 100dvh;
+  margin: 0 auto;
+}
+body.night-mode .completion-fullscreen {
+  background: #1a1a1a;
+}
+body.night-mode .completion-fullscreen .completion-modal {
+  background: #1a1a1a;
+}

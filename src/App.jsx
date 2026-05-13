@@ -279,6 +279,11 @@ export default function App() {
       if (r.hatClaimed) {
         setHatClaimed(true);
         localStorage.setItem("hcm-hat-claimed", "true");
+        // Show CardResetPrompt on reload when server confirms hat was claimed and prompt not yet dismissed
+        const serverRound = typeof r.cardRound === 'number' ? r.cardRound : cardRound;
+        if (!localStorage.getItem(`hcm-reset-prompt-dismissed-${TRAIL_ID}-${serverRound}`)) {
+          setShowCardResetPrompt(true);
+        }
       }
       // Sync profile/onboarding data from server
       if (r.profile) {
@@ -896,6 +901,7 @@ export default function App() {
           hatClaimed={hatClaimed}
           onHatClaimed={handleHatClaimed}
           cardRound={cardRound}
+          onCardResetPrompt={() => setShowCardResetPrompt(true)}
         />
       )}
       {view === "brewery" && selectedBrewery && (

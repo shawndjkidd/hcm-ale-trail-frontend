@@ -68,7 +68,7 @@ const getBreweryLogo = (brewery) => {
   return BREWERY_LOGOS[brewery?.name] || null
 }
 
-function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onSideQuestClick, sideQuestCheckins = [], onNavigate, resetCard, activeEvents = [], nightMode, toggleNightMode, user, onLogout, onSettings, hatClaimed, onHatClaimed, cardRound = 1 }) {
+function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onSideQuestClick, sideQuestCheckins = [], onNavigate, resetCard, activeEvents = [], nightMode, toggleNightMode, user, onLogout, onSettings, hatClaimed, onHatClaimed, cardRound = 1, onCardResetPrompt }) {
   const [showCompletionModal, setShowCompletionModal] = useState(false)
   const [showEventsPage, setShowEventsPage] = useState(false)
   const [sideQuests, setSideQuests] = useState([])
@@ -124,12 +124,12 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
     }
   }, [isComplete, fetchMerchItems])
 
-  // Show completion modal on first completion
+  // Show completion modal on first completion — only when hat not yet claimed
   useEffect(() => {
-    if (isComplete && !localStorage.getItem('hcm-completion-modal-shown')) {
+    if (isComplete && !hatClaimed && !localStorage.getItem('hcm-completion-modal-shown')) {
       setShowCompletionModal(true)
     }
-  }, [isComplete])
+  }, [isComplete, hatClaimed])
 
   const handleCloseCompletionModal = () => {
     setShowCompletionModal(false)
@@ -504,7 +504,7 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
       </div>
 
       {showCompletionModal && (
-        <div className="modal-overlay">
+        <div className="completion-fullscreen">
           <div className="completion-modal">
 
             {/* ─── STEP: rewards (default view) ─── */}
@@ -541,22 +541,28 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
 
                 <div className="completion-steps">
                   <div className="completion-step">
-                    <div className="step-badge">👋</div>
+                    <div className="step-badge">1</div>
                     <div className="step-text">{t.completionStep1Merch || 'Show a staff member your completed card'}</div>
                   </div>
                   <div className="completion-step">
-                    <div className="step-badge">📱</div>
+                    <div className="step-badge">2</div>
                     <div className="step-text">{t.completionStep2Merch || 'Tap CLAIM and the staff will enter their code'}</div>
                   </div>
                   <div className="completion-step">
-                    <div className="step-badge">🧢</div>
+                    <div className="step-badge">3</div>
                     <div className="step-text">{t.completionStep3}</div>
                   </div>
                 </div>
 
-                <button className="completion-ok-btn" onClick={handleCloseCompletionModal}>
-                  {t.close}
-                </button>
+                {hatClaimed ? (
+                  <button className="completion-ok-btn" onClick={() => { handleCloseCompletionModal(); onCardResetPrompt?.(); }}>
+                    {t.whatsNext || "WHAT'S NEXT?"}
+                  </button>
+                ) : (
+                  <button className="completion-ok-btn" onClick={handleCloseCompletionModal}>
+                    {t.close}
+                  </button>
+                )}
               </>
             )}
 
