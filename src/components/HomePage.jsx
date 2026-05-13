@@ -70,6 +70,7 @@ const getBreweryLogo = (brewery) => {
 
 function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryClick, onSideQuestClick, sideQuestCheckins = [], onNavigate, resetCard, activeEvents = [], nightMode, toggleNightMode, user, onLogout, onSettings, hatClaimed, onHatClaimed, cardRound = 1, meLoaded = false, onCardResetPrompt }) {
   const [showCompletionModal, setShowCompletionModal] = useState(false)
+  const [showClaimHatTakeover, setShowClaimHatTakeover] = useState(false)
   const [showEventsPage, setShowEventsPage] = useState(false)
   const [sideQuests, setSideQuests] = useState([])
   const [merchItems, setMerchItems] = useState(null) // null = not loaded, [] = loaded but empty
@@ -124,14 +125,21 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
     }
   }, [isComplete, fetchMerchItems])
 
-  // Show completion modal on first completion — gate on meLoaded to avoid racing localStorage stamps
-  // vs server-confirmed hatClaimed state (body has color:white so we must not flash the modal)
+  // Show claim-hat takeover on first completion (before completion modal)
   useEffect(() => {
-    console.log('completion modal gate', { meLoaded, hatClaimed, isComplete, stampsCount: stamps.length, stampTarget: requiredCount })
-    if (meLoaded && isComplete && !hatClaimed && !localStorage.getItem('hcm-completion-modal-shown')) {
+    const deferredKey = `hcm-claim-hat-deferred-${TRAIL_ID}-${cardRound}`
+    if (meLoaded && isComplete && !hatClaimed && !localStorage.getItem(deferredKey)) {
+      setShowClaimHatTakeover(true)
+    }
+  }, [meLoaded, isComplete, hatClaimed, cardRound])
+
+  // Show completion modal only after user has deferred the claim-hat takeover
+  useEffect(() => {
+    const deferredKey = `hcm-claim-hat-deferred-${TRAIL_ID}-${cardRound}`
+    if (meLoaded && isComplete && !hatClaimed && localStorage.getItem(deferredKey) && !localStorage.getItem('hcm-completion-modal-shown')) {
       setShowCompletionModal(true)
     }
-  }, [meLoaded, isComplete, hatClaimed])
+  }, [meLoaded, isComplete, hatClaimed, cardRound])
 
   const handleCloseCompletionModal = () => {
     setShowCompletionModal(false)
@@ -153,6 +161,31 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
     setClaimError(null)
     setClaimSuccess(null)
     setShowCompletionModal(true)
+  }
+
+  const handleClaimHatCTA = () => {
+    setShowClaimHatTakeover(false)
+    if (merchItems && merchItems.length > 0) {
+      const item = merchItems.find(i => !i.pickedUp) || merchItems[0]
+      setClaimingItem(item)
+      setClaimStep('brewery')
+      setClaimError(null)
+      setSelectedBrewery(null)
+      setPinDigits(['', '', '', ''])
+      setPinError(false)
+      setClaimSuccess(null)
+      setShowCompletionModal(true)
+    } else {
+      openClaimModal()
+    }
+  }
+
+  const handleDeferClaimHat = () => {
+    localStorage.setItem(`hcm-claim-hat-deferred-${TRAIL_ID}-${cardRound}`, '1')
+    setShowClaimHatTakeover(false)
+    if (!localStorage.getItem('hcm-completion-modal-shown')) {
+      setShowCompletionModal(true)
+    }
   }
 
   const handleStartClaim = (item) => {
@@ -505,6 +538,22 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         )}
       </div>
 
+      {showClaimHatTakeover && (
+        <div className="claim-hat-takeover">
+          <div className="claim-hat-inner">
+            <div className="claim-hat-icon">🧢</div>
+            <h1 className="claim-hat-title">{t.youEarnedFreeHat || 'YOU EARNED A FREE HAT!'}</h1>
+            <p className="claim-hat-subtext">{t.claimHatSubtext || 'Show your completed card to staff at any participating brewery.'}</p>
+            <button className="claim-hat-cta-btn" onClick={handleClaimHatCTA}>
+              {t.claimAtBrewery || 'CLAIM AT A BREWERY'}
+            </button>
+            <button className="claim-hat-defer-btn" onClick={handleDeferClaimHat}>
+              {t.claimLater || "I'll claim later"}
+            </button>
+          </div>
+        </div>
+      )}
+
       {showCompletionModal && (
         <div className="completion-fullscreen">
           <div className="completion-modal">
@@ -578,10 +627,10 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
                 {claimError && <div className="hat-claim-error">{claimError}</div>}
 
                 <div className="brewery-picker">
-                  {breweries.filter(b => b.status !== 'temporarily_closed').map(brewery => (
+                  {breweries.filter(b => b.status === 'active' || b.status === 'temporarily_closed').map(brewery => (
                     <button
                       key={brewery.id}
-                      className="brewery-picker-item"
+                      className={`brewery-picker-item${brewery.status === 'temporarily_closed' ? ' picker-temp-closed' : ''}`}
                       onClick={() => handleSelectBrewery(brewery)}
                     >
                       <div className="brewery-picker-logo">
@@ -591,7 +640,12 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
                           <span>🍺</span>
                         )}
                       </div>
-                      <div className="brewery-picker-name">{brewery.name}</div>
+                      <div className="brewery-picker-name">
+                        {brewery.name}
+                        {brewery.status === 'temporarily_closed' && (
+                          <span className="picker-closed-label">{t.temporarilyClosed || 'Temporarily closed'}</span>
+                        )}
+                      </div>
                     </button>
                   ))}
                 </div>
