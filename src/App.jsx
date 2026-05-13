@@ -819,7 +819,7 @@ export default function App() {
     }
     return (
       <div className="app" data-lang={language}>
-        <AgeGate language={language} onConfirm={handleAgeConfirm} />
+        <AgeGate language={language} setLanguage={setLanguage} onConfirm={handleAgeConfirm} />
       </div>
     );
   }
