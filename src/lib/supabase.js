@@ -80,18 +80,44 @@ export async function recordCheckin(participantId, frontendBreweryId, method = '
     return { data: null, error: { message: 'Invalid brewery ID' }, isExisting: false };
   }
 
-  // Check if already checked in
+  // Ensure the Supabase client has an active session so RLS auth.uid() resolves.
+  // Google OAuth users already have one; email/password users stored their JWT
+  // under a custom localStorage key and need it hydrated into the client.
+  let authedUid = null;
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user?.id) {
+      authedUid = session.user.id;
+    } else {
+      const accessToken = localStorage.getItem('hcm-access-token');
+      const refreshToken = localStorage.getItem('hcm-refresh-token');
+      if (accessToken && refreshToken) {
+        const { data: { session: s } } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+        authedUid = s?.user?.id ?? null;
+      }
+    }
+  } catch {}
+
+  if (!authedUid) {
+    console.log('Check-in fallback skipped: no auth session');
+    return { data: null, error: { message: 'No auth session for direct check-in' }, isExisting: false };
+  }
+
+  // Check if already checked in — filter by user_id (what the RLS USING policy sees)
   const { data: existingCheckins } = await supabase
     .from('checkins')
     .select('*')
-    .eq('participant_id', participantId)
+    .eq('user_id', authedUid)
     .eq('brewery_id', breweryUUID);
 
   if (existingCheckins && existingCheckins.length > 0) {
     return { data: existingCheckins[0], error: null, isExisting: true };
   }
 
-  // Create new check-in
+  // Create new check-in; user_id must be set to satisfy RLS WITH CHECK
   const { data, error } = await supabase
     .from('checkins')
     .insert({
@@ -100,6 +126,7 @@ export async function recordCheckin(participantId, frontendBreweryId, method = '
       trail_id: TRAIL_ID,
       method: method,
       checked_in_at: new Date().toISOString(),
+      user_id: authedUid,
     })
     .select()
     .single();
