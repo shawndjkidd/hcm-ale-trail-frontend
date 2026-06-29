@@ -441,6 +441,14 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
           {t.leaderboard}
         </button>
       </div>
+      <div className="nav-row-full">
+        <button className="nav-btn-half yellow nav-btn-chat" onClick={() => onNavigate('chat')}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '6px', flexShrink: 0 }}>
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          {t.chatNav || 'CHAT'}
+        </button>
+      </div>
 
       <div className="brewery-list">
         {breweries.map((brewery, index) => {

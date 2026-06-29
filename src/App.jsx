@@ -7,6 +7,7 @@ import MyBeers from "./components/MyBeers";
 import Leaderboard from "./components/Leaderboard";
 import AuthModal from "./components/AuthModal";
 import AleTrailMap from "./components/AleTrailMap";
+import AiChat from "./components/AiChat";
 import Settings from "./components/Settings";
 import OnboardingFlow from "./components/OnboardingFlow";
 import MilestoneModal from "./components/MilestoneModal";
@@ -960,6 +961,9 @@ export default function App() {
           onBack={() => handleNavigate("home")}
           language={language}
         />
+      )}
+      {view === "chat" && (
+        <AiChat language={language} onBack={() => handleNavigate("home")} />
       )}
     </div>
   );
