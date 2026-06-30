@@ -1,58 +1,25 @@
 import { useEffect, useRef, useState } from 'react';
-import { supabase } from '../lib/supabase';
-import { getAccessToken, getRefreshToken } from '../lib/api';
+import { getAccessToken } from '../lib/api';
 import translations from '../translations';
 
 const EDGE_FN_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
 const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const LANG_MAP = { en: 'en', vn: 'vi', kr: 'ko', jp: 'ja' };
-const SCROLL_KEY = 'hcm-chat-scroll';
 
-const ChatBubbleIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '4px', flexShrink: 0 }}>
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-  </svg>
-);
-
-export default function AiChat({ language, onBack }) {
+export default function AiChat({ language, onBack, stamps = [], hatClaimed = false }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
-  const [historyLoading, setHistoryLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [chatError, setChatError] = useState(null);
 
-  const containerRef = useRef(null);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
-  const hasInitScrolled = useRef(false);
 
   const t = translations[language];
   const edgeLang = LANG_MAP[language] || 'en';
 
+  // Auto-scroll to bottom on new messages / typing indicator
   useEffect(() => {
-    loadHistory();
-    return () => {
-      if (containerRef.current) {
-        sessionStorage.setItem(SCROLL_KEY, String(containerRef.current.scrollTop));
-      }
-    };
-  }, []);
-
-  // After history loads: restore saved scroll or go to bottom
-  useEffect(() => {
-    if (historyLoading || hasInitScrolled.current) return;
-    hasInitScrolled.current = true;
-    const saved = sessionStorage.getItem(SCROLL_KEY);
-    if (saved && containerRef.current) {
-      containerRef.current.scrollTop = parseInt(saved, 10);
-    } else {
-      messagesEndRef.current?.scrollIntoView();
-    }
-  }, [historyLoading]);
-
-  // Auto-scroll to bottom on new messages / typing indicator changes
-  useEffect(() => {
-    if (!hasInitScrolled.current) return;
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages.length, sending]);
 
@@ -65,28 +32,17 @@ export default function AiChat({ language, onBack }) {
     ta.style.height = Math.min(ta.scrollHeight, lh * 4) + 'px';
   }, [input]);
 
-  const loadHistory = async () => {
-    setHistoryLoading(true);
-    try {
-      const accessToken = getAccessToken();
-      const refreshToken = getRefreshToken();
-      if (accessToken && refreshToken) {
-        await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
-      }
-      const { data } = await supabase
-        .from('chat_messages')
-        .select('id, role, content, created_at')
-        .in('role', ['user', 'assistant'])
-        .order('created_at', { ascending: true })
-        .limit(30);
-      if (data) {
-        setMessages(data.map(m => ({ id: m.id, role: m.role, content: m.content })));
-      }
-    } catch {}
-    finally {
-      setHistoryLoading(false);
-    }
-  };
+  const stampCount = stamps.length;
+  let contextualChip;
+  if (stampCount === 0) {
+    contextualChip = t.chatSuggestionNew;
+  } else if (stampCount >= 8 && hatClaimed) {
+    contextualChip = t.chatSuggestionStartOver;
+  } else if (stampCount >= 7) {
+    contextualChip = t.chatSuggestionClaimHat;
+  } else {
+    contextualChip = t.chatSuggestionPickBeer;
+  }
 
   const sendMessage = async (text) => {
     const trimmed = text.trim();
@@ -96,7 +52,6 @@ export default function AiChat({ language, onBack }) {
     setChatError(null);
     setSending(true);
 
-    // Optimistic render
     setMessages(prev => [...prev, { id: `u-${Date.now()}`, role: 'user', content: trimmed }]);
 
     try {
@@ -126,7 +81,7 @@ export default function AiChat({ language, onBack }) {
     }
   };
 
-  const isEmpty = !historyLoading && messages.length === 0 && !chatError;
+  const isEmpty = messages.length === 0 && !chatError;
 
   return (
     <div className="ai-chat">
@@ -142,39 +97,30 @@ export default function AiChat({ language, onBack }) {
       </div>
 
       {/* ── Message list ── */}
-      <div className="ai-chat-messages" ref={containerRef}>
-        {historyLoading && (
-          <div className="ai-chat-spinner">
-            <div className="loading-spinner" />
-          </div>
-        )}
-
+      <div className="ai-chat-messages">
         {isEmpty && (
           <div className="ai-chat-empty">
             <div className="ai-chat-empty-heading">{t.chatEmptyHeading}</div>
             <div className="ai-chat-suggestions">
-              {[t.chatSuggestion1, t.chatSuggestion2, t.chatSuggestion3, t.chatSuggestion4].map(
-                (s, i) => (
-                  <button
-                    key={i}
-                    className="ai-chat-suggestion"
-                    onClick={() => sendMessage(s)}
-                    disabled={sending}
-                  >
-                    {s}
-                  </button>
-                )
-              )}
+              {[t.chatSuggestionTonight, contextualChip].map((s, i) => (
+                <button
+                  key={i}
+                  className="ai-chat-suggestion"
+                  onClick={() => sendMessage(s)}
+                  disabled={sending}
+                >
+                  {s}
+                </button>
+              ))}
             </div>
           </div>
         )}
 
-        {!historyLoading &&
-          messages.map(msg => (
-            <div key={msg.id} className={`ai-chat-row ai-chat-row--${msg.role}`}>
-              <div className={`ai-chat-bubble ai-chat-bubble--${msg.role}`}>{msg.content}</div>
-            </div>
-          ))}
+        {messages.map(msg => (
+          <div key={msg.id} className={`ai-chat-row ai-chat-row--${msg.role}`}>
+            <div className={`ai-chat-bubble ai-chat-bubble--${msg.role}`}>{msg.content}</div>
+          </div>
+        ))}
 
         {/* Typing indicator */}
         {sending && (

@@ -963,7 +963,7 @@ export default function App() {
         />
       )}
       {view === "chat" && (
-        <AiChat language={language} onBack={() => handleNavigate("home")} />
+        <AiChat language={language} onBack={() => handleNavigate("home")} stamps={stamps} hatClaimed={hatClaimed} />
       )}
     </div>
   );
