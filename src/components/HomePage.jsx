@@ -395,14 +395,15 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
         >
           {t.facebook}
         </a>
-        <a
-          href="https://www.messenger.com/t/115480196509607/?messaging_source=source%3Apages%3Amessage_shortlink&source_id=1441792&recurring_notification=0"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="nav-btn-third messenger"
+        <button
+          className="nav-btn-third yellow"
+          onClick={() => onNavigate('chat')}
         >
-          {t.messenger}
-        </a>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '5px', flexShrink: 0 }}>
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          {t.navChat || 'CHAT'}
+        </button>
       </div>
 
       {cardRound > 1 && (
