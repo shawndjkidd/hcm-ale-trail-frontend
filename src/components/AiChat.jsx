@@ -1,10 +1,53 @@
 import { useEffect, useRef, useState } from 'react';
-import { getAccessToken } from '../lib/api';
+import { supabase } from '../lib/supabase';
 import translations from '../translations';
 
 const EDGE_FN_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
 const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const LANG_MAP = { en: 'en', vn: 'vi', kr: 'ko', jp: 'ja' };
+
+// Calls the ai-chat Edge Function with a guaranteed-fresh access token.
+// Auto-retries once on 401 by forcing a session refresh, in case the token
+// expired between getSession() and the fetch landing.
+async function callAiChat({ question, language }) {
+  const getFreshToken = async () => {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error || !session?.access_token) {
+      throw new Error('Not signed in. Please sign in again.');
+    }
+    return session.access_token;
+  };
+
+  const doFetch = async (token) =>
+    fetch(EDGE_FN_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        apikey: ANON_KEY,
+      },
+      body: JSON.stringify({ question, language }),
+    });
+
+  let token = await getFreshToken();
+  let response = await doFetch(token);
+
+  if (response.status === 401) {
+    const { data, error } = await supabase.auth.refreshSession();
+    if (error || !data?.session?.access_token) {
+      throw new Error('Session expired. Please sign in again.');
+    }
+    token = data.session.access_token;
+    response = await doFetch(token);
+  }
+
+  if (!response.ok) {
+    const errBody = await response.text();
+    throw new Error(`Chat failed (${response.status}): ${errBody.slice(0, 200)}`);
+  }
+
+  return response.json();
+}
 
 export default function AiChat({ language, onBack, stamps = [], hatClaimed = false }) {
   const [messages, setMessages] = useState([]);
@@ -55,20 +98,13 @@ export default function AiChat({ language, onBack, stamps = [], hatClaimed = fal
     setMessages(prev => [...prev, { id: `u-${Date.now()}`, role: 'user', content: trimmed }]);
 
     try {
-      const res = await fetch(EDGE_FN_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${getAccessToken()}`,
-          apikey: ANON_KEY,
-        },
-        body: JSON.stringify({ question: trimmed, language: edgeLang }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+      const data = await callAiChat({ question: trimmed, language: edgeLang });
       setMessages(prev => [...prev, { id: `a-${Date.now()}`, role: 'assistant', content: data.reply }]);
-    } catch {
-      setChatError(t.chatErrorNetwork);
+    } catch (err) {
+      const isAuthError =
+        err.message.startsWith('Session expired') ||
+        err.message.startsWith('Not signed in');
+      setChatError(isAuthError ? err.message : t.chatErrorNetwork);
     } finally {
       setSending(false);
     }
