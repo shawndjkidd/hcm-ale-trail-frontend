@@ -3,8 +3,6 @@ import { supabase } from '../lib/supabase';
 import { getAccessToken, getRefreshToken } from '../lib/api';
 import translations from '../translations';
 
-const MESSENGER_URL =
-  'https://www.messenger.com/t/115480196509607/?messaging_source=source%3Apages%3Amessage_shortlink&source_id=1441792&recurring_notification=0';
 const EDGE_FN_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
 const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const LANG_MAP = { en: 'en', vn: 'vi', kr: 'ko', jp: 'ja' };
@@ -174,9 +172,6 @@ export default function AiChat({ language, onBack }) {
         {!historyLoading &&
           messages.map(msg => (
             <div key={msg.id} className={`ai-chat-row ai-chat-row--${msg.role}`}>
-              {msg.role === 'assistant' && (
-                <div className="ai-chat-sender-label">{t.chatAiLabel}</div>
-              )}
               <div className={`ai-chat-bubble ai-chat-bubble--${msg.role}`}>{msg.content}</div>
             </div>
           ))}
@@ -184,7 +179,6 @@ export default function AiChat({ language, onBack }) {
         {/* Typing indicator */}
         {sending && (
           <div className="ai-chat-row ai-chat-row--assistant">
-            <div className="ai-chat-sender-label">{t.chatAiLabel}</div>
             <div className="ai-chat-bubble ai-chat-bubble--assistant ai-chat-bubble--typing">
               <span className="ai-typing-dot" />
               <span className="ai-typing-dot" />
@@ -205,14 +199,6 @@ export default function AiChat({ language, onBack }) {
 
       {/* ── Footer ── */}
       <div className="ai-chat-footer">
-        <a
-          href={MESSENGER_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="ai-chat-human-btn"
-        >
-          {t.chatTalkToHuman}
-        </a>
         <div className="ai-chat-input-row">
           <textarea
             ref={textareaRef}
