@@ -37,6 +37,38 @@ async function getFreshToken() {
   return session.access_token;
 }
 
+// Parses a brewery QR code (full URL, bare path, or raw UUID).
+// New format: /checkin/{breweryId}?s={qr_secret}
+// Returns { breweryId, qrSecret } — qrSecret is null if the ?s= param is absent.
+function parseQRCode(scannedText) {
+  try {
+    const raw = scannedText.trim();
+
+    // Raw UUID — old format with no secret
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(raw)) {
+      return { breweryId: raw, qrSecret: null };
+    }
+
+    // Normalise to a parseable URL so URL/URLSearchParams works
+    let urlStr = raw;
+    if (urlStr.startsWith('/')) urlStr = `https://x${urlStr}`;
+    else if (!urlStr.startsWith('http')) urlStr = `https://${urlStr}`;
+
+    const url = new URL(urlStr);
+    const parts = url.pathname.split('/').filter(Boolean);
+    const checkinIdx = parts.indexOf('checkin');
+    if (checkinIdx >= 0 && parts[checkinIdx + 1]?.length >= 10) {
+      const breweryId = parts[checkinIdx + 1];
+      const qrSecret = url.searchParams.get('s') || null;
+      return { breweryId, qrSecret };
+    }
+
+    return { breweryId: null, qrSecret: null };
+  } catch {
+    return { breweryId: null, qrSecret: null };
+  }
+}
+
 function BeerAutocomplete({ value, onChange, allNames, placeholder }) {
   const [suggestions, setSuggestions] = useState([]);
   const [open, setOpen] = useState(false);
@@ -107,30 +139,6 @@ function BeerAutocomplete({ value, onChange, allNames, placeholder }) {
       )}
     </div>
   );
-}
-
-// Extract brewery ID from a QR code URL like https://hcm.thealetrail.app/checkin/[uuid]
-function extractBreweryIdFromQR(scannedText) {
-  try {
-    // Handle full URLs
-    if (scannedText.includes('/checkin/')) {
-      const parts = scannedText.split('/checkin/')
-      const id = parts[1]?.split(/[?#]/)[0]?.trim()
-      if (id && id.length >= 10) return id
-    }
-    // Handle bare paths like /checkin/[uuid]
-    if (scannedText.startsWith('/checkin/')) {
-      const id = scannedText.replace('/checkin/', '').split(/[?#]/)[0]?.trim()
-      if (id && id.length >= 10) return id
-    }
-    // Handle if someone just scanned a raw UUID
-    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(scannedText.trim())) {
-      return scannedText.trim()
-    }
-    return null
-  } catch {
-    return null
-  }
 }
 
 function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, isAlreadyStamped = false, userMe }) {
@@ -259,9 +267,31 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, i
     }
   }
 
-  // Validate PIN against server — token sourced from supabase.auth (auto-refreshing),
-  // with hydration from custom hcm-* localStorage keys for email/password users,
-  // and a one-shot refreshSession() retry on 401.
+  // Shared fetch helper: POST to /api/checkin with a fresh Supabase token,
+  // retrying once after refreshSession() on 401.
+  const postCheckinRequest = async (payload) => {
+    const body = JSON.stringify(payload)
+    const doFetch = (token) => fetch('/api/checkin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body,
+    })
+
+    let token = await getFreshToken()
+    let res = await doFetch(token)
+
+    if (res.status === 401) {
+      const { data: refreshed } = await supabase.auth.refreshSession()
+      if (refreshed?.session?.access_token) {
+        token = refreshed.session.access_token
+        res = await doFetch(token)
+      }
+    }
+
+    return res
+  }
+
+  // Validate PIN against server — never exposes codes client-side.
   const validatePin = async (pin) => {
     if (isSubmitting) return
     setIsSubmitting(true)
@@ -280,31 +310,13 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, i
 
     try {
       const beerName = getBeerName()
-      const body = JSON.stringify({
+      const res = await postCheckinRequest({
         breweryId: brewery.id,
         pin,
         beerName,
         rating,
         notes: notes.trim() || null,
       })
-
-      const postCheckin = (token) => fetch('/api/checkin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body,
-      })
-
-      let token = await getFreshToken()
-      let res = await postCheckin(token)
-
-      // One refresh-retry on 401 — token may have expired between getSession() and the request
-      if (res.status === 401) {
-        const { data: refreshed } = await supabase.auth.refreshSession()
-        if (refreshed?.session?.access_token) {
-          token = refreshed.session.access_token
-          res = await postCheckin(token)
-        }
-      }
 
       const data = await res.json().catch(() => ({}))
 
@@ -326,6 +338,46 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, i
       } else {
         showPinError(t.invalidCode || 'Invalid code. Try again!')
       }
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  // QR scan path: validate breweryId + qrSecret server-side.
+  // The server is the source of truth — no client-side UUID comparison.
+  const handleQrCheckin = async (scannedBreweryId, qrSecret) => {
+    setIsSubmitting(true)
+    setScanError(null)
+    try {
+      const beerName = getBeerName()
+      const res = await postCheckinRequest({
+        breweryId: scannedBreweryId,
+        qrSecret,
+        beerName,
+        rating,
+        notes: notes.trim() || null,
+      })
+
+      const data = await res.json().catch(() => ({}))
+
+      if (data.ok) {
+        confirmAndSave(true)
+        return
+      }
+
+      setScanError(
+        res.status === 429
+          ? (t.tooManyAttempts || 'Too many attempts. Try again later.')
+          : res.status === 401
+            ? (t.sessionExpired || 'Session expired — please refresh the page and try again.')
+            : (t.invalidCode || 'Invalid code. Try again!')
+      )
+    } catch (err) {
+      setScanError(
+        err?.message === 'NOT_SIGNED_IN'
+          ? (t.pleaseSignIn || 'Please sign in again to continue.')
+          : (t.invalidCode || 'Invalid code. Try again!')
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -380,17 +432,15 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, i
             aspectRatio: 1.0,
           },
           (decodedText) => {
-            // QR scanned successfully
-            const scannedBreweryId = extractBreweryIdFromQR(decodedText)
-            if (scannedBreweryId && scannedBreweryId === brewery.id) {
-              // Correct brewery QR — auto-confirm (QR path does not go through /api/checkin)
+            const { breweryId: scannedId, qrSecret } = parseQRCode(decodedText)
+            if (scannedId) {
+              // Stop scanner immediately so it doesn't fire again while we await the server
               scanner.stop().catch(() => {})
               scannerRef.current = null
               setShowScanner(false)
-              confirmAndSave(false)
+              handleQrCheckin(scannedId, qrSecret)
             } else {
-              // Wrong brewery or invalid QR
-              setScanError(t.wrongBreweryQR || 'Wrong QR code — scan the QR at this brewery')
+              setScanError(t.wrongBreweryQR || 'Could not read QR code — try again')
             }
           },
           () => {} // Ignore scan failures (no QR in frame)
@@ -576,7 +626,7 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, i
                   <span className="pin-divider-line"></span>
                 </div>
 
-                <button className="btn-scan-qr" onClick={startScanner}>
+                <button className="btn-scan-qr" onClick={startScanner} disabled={isSubmitting}>
                   📷 {t.scanBreweryQR || 'SCAN BREWERY QR CODE'}
                 </button>
               </>

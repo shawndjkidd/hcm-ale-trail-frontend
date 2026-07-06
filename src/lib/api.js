@@ -1,4 +1,5 @@
 import { API_BASE, TRAIL_ID } from "../config";
+import { supabase } from "./supabase";
 
 const ACCESS_KEY = "hcm-access-token";
 const REFRESH_KEY = "hcm-refresh-token";
@@ -137,6 +138,15 @@ export async function login(email, password) {
       refresh_token: res.refresh_token,
       expires_at: res.expires_at,
     });
+    // Seed the Supabase client so it owns a real, auto-refreshing session.
+    // Without this, supabase.auth.getSession() returns null for email/password
+    // users and token-dependent flows (e.g. check-in PIN) 401 after ~1 hour.
+    try {
+      await supabase.auth.setSession({
+        access_token: res.access_token,
+        refresh_token: res.refresh_token,
+      });
+    } catch {}
   }
 
   return res;

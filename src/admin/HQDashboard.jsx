@@ -599,7 +599,10 @@ export default function HQDashboard({ adminEmail = '' }) {
     setLoadingBreweryQr(true);
     setShowBreweryQrModal(true);
     try {
-      const url = `${window.location.origin}/checkin/${brewery.id}`;
+      const secret = brewery.qrSecret;
+      const url = secret
+        ? `${window.location.origin}/checkin/${brewery.id}?s=${encodeURIComponent(secret)}`
+        : `${window.location.origin}/checkin/${brewery.id}`;
       const dataUrl = await QRCode.toDataURL(url, { width: 400, margin: 2 });
       setQrBreweryUrl(dataUrl);
     } catch (err) {
@@ -780,7 +783,7 @@ export default function HQDashboard({ adminEmail = '' }) {
                 ) : qrBreweryUrl ? (
                   <>
                     <img src={qrBreweryUrl} alt="QR Code" style={{ width: 200, height: 200, imageRendering: 'pixelated', display: 'block', margin: '0 auto' }} />
-                    <p style={{ fontSize: 12, color: 'var(--admin-text-muted)', marginTop: 8 }}>{window.location.origin}/checkin/{qrBrewery.id}</p>
+                    <p style={{ fontSize: 12, color: 'var(--admin-text-muted)', marginTop: 8 }}>{window.location.origin}/checkin/{qrBrewery.id}{qrBrewery.qrSecret ? `?s=${encodeURIComponent(qrBrewery.qrSecret)}` : ''}</p>
                     <div style={{ marginTop: 16 }}>
                       <a href={qrBreweryUrl} download={`brewery-qr-${qrBrewery.name.replace(/\s+/g, '-').toLowerCase()}.png`} className="admin-btn admin-btn-secondary" style={{ width: 'auto', display: 'inline-block', textDecoration: 'none' }}>Download PNG</a>
                     </div>

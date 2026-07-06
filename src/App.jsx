@@ -423,6 +423,27 @@ export default function App() {
         }
       }
 
+      // ── Reverse: seed Supabase client from custom keys ───────────────────
+      // Email/password users: hcm-* tokens exist but the Supabase JS client
+      // has no in-memory session (it was never seeded at login time for
+      // pre-fix logins). Seed it now so auto-refresh works going forward.
+      if (getAccessToken() && savedUser) {
+        try {
+          const { data: { session: existingSession } } = await supabase.auth.getSession();
+          if (!existingSession?.access_token) {
+            const rt = localStorage.getItem('hcm-refresh-token');
+            if (rt) {
+              await supabase.auth.setSession({
+                access_token: getAccessToken(),
+                refresh_token: rt,
+              });
+            }
+          }
+        } catch {
+          // silently ignore — getFreshToken() in AddBeerModal handles the fallback
+        }
+      }
+
       // ── Normal auth state ─────────────────────────────────────────────────
       if (savedUser) {
         setUser(JSON.parse(savedUser));
