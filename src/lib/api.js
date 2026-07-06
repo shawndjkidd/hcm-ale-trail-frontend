@@ -254,6 +254,10 @@ export function postResetCard(trailId = TRAIL_ID) {
   return request(`/trails/${trailId}/me/reset-card`, { method: "POST" });
 }
 
+export function disconnectUntappd() {
+  return request(`/user/untappd/disconnect`, { method: "POST" });
+}
+
 export function storeLoginTokens(data) {
   if (data?.access_token) {
     setTokens({
