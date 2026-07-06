@@ -185,7 +185,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   const handleGenerateQrCode = async () => {
     setGeneratingQr(true);
     try {
-      const secret = brewery.qr_secret;
+      const secret = brewery.qrSecret;
       const url = secret
         ? `${window.location.origin}/checkin/${breweryId}?s=${encodeURIComponent(secret)}`
         : `${window.location.origin}/checkin/${breweryId}`;
@@ -1404,7 +1404,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
             {qrCodeUrl ? (
               <>
                 <img src={qrCodeUrl} alt="Check-in QR Code" style={{ width: 180, height: 180, imageRendering: 'pixelated', display: 'block', marginBottom: 12 }} />
-                <p style={{ fontSize: 12, color: 'var(--admin-text-muted)', marginBottom: 12, wordBreak: 'break-all' }}>{window.location.origin}/checkin/{breweryId}{brewery.qr_secret ? `?s=${encodeURIComponent(brewery.qr_secret)}` : ''}</p>
+                <p style={{ fontSize: 12, color: 'var(--admin-text-muted)', marginBottom: 12, wordBreak: 'break-all' }}>{window.location.origin}/checkin/{breweryId}{brewery.qrSecret ? `?s=${encodeURIComponent(brewery.qrSecret)}` : ''}</p>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   <a href={qrCodeUrl} download={`checkin-qr-${breweryId}.png`} className="admin-btn admin-btn-secondary" style={{ width: 'auto', display: 'inline-block', textDecoration: 'none' }}>Download QR</a>
                   <button className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)', width: 'auto' }} onClick={handleGenerateQrCode} disabled={generatingQr}>Regenerate</button>
