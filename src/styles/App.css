@@ -11169,3 +11169,12 @@ body.night-mode .ai-chat-suggestion {
   height: 44px;
   touch-action: manipulation;
 }
+
+/* Selected stars stay red even when hovered (beats equal-specificity :hover rule) */
+.star.active svg polygon { fill: #E31E24; stroke: #000; }
+
+/* Kill sticky-hover preview on touch devices */
+@media (hover: none) {
+  .star:hover svg polygon { fill: none; stroke: #000; }
+  .star.active:hover svg polygon { fill: #E31E24; stroke: #000; }
+}
