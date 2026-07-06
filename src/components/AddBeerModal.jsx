@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import translations from '../translations'
 import { TRAIL_ID, SHOW_UNTAPPD_INTEGRATION } from '../config'
-import { serverCheckin } from '../lib/api'
+import { supabase } from '../lib/supabase'
 
 // Simple fuzzy match: returns a score > 0 if `query` matches `name`, else 0.
 function fuzzyScore(name, query) {
@@ -18,6 +18,23 @@ function fuzzyScore(name, query) {
   }
   if (qi === q.length) return Math.max(1, 40 - gaps);
   return 0;
+}
+
+// Returns a guaranteed-fresh Supabase access token.
+// For email/password users the Supabase JS client may have no in-memory session
+// (it was never set from the custom hcm-* keys), so we hydrate it first.
+async function getFreshToken() {
+  let { data: { session } } = await supabase.auth.getSession();
+  if (!session?.access_token) {
+    const at = localStorage.getItem('hcm-access-token');
+    const rt = localStorage.getItem('hcm-refresh-token');
+    if (at && rt) {
+      const { data } = await supabase.auth.setSession({ access_token: at, refresh_token: rt });
+      session = data?.session ?? null;
+    }
+  }
+  if (!session?.access_token) throw new Error('NOT_SIGNED_IN');
+  return session.access_token;
 }
 
 function BeerAutocomplete({ value, onChange, allNames, placeholder }) {
@@ -242,43 +259,16 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, i
     }
   }
 
-  // Validate PIN against server — never exposes codes client-side.
-  // Uses request() helper which auto-refreshes the access token on 401 before giving up.
+  // Validate PIN against server — token sourced from supabase.auth (auto-refreshing),
+  // with hydration from custom hcm-* localStorage keys for email/password users,
+  // and a one-shot refreshSession() retry on 401.
   const validatePin = async (pin) => {
     if (isSubmitting) return
     setIsSubmitting(true)
     setPinErrorMsg('')
-    try {
-      const beerName = getBeerName()
-      const data = await serverCheckin({
-        breweryId: brewery.id,
-        pin,
-        beerName,
-        rating,
-        notes: notes.trim() || null,
-      })
-      if (data.ok) {
-        confirmAndSave(true)
-      } else {
-        let msg
-        if (data.status === 429) {
-          msg = t.tooManyAttempts || 'Too many attempts. Try again later.'
-        } else if (data.status === 401 || data.error === 'Unauthorized') {
-          msg = t.sessionExpired || 'Session expired — please refresh the page and try again.'
-        } else {
-          msg = t.invalidCode || 'Invalid code. Try again!'
-        }
-        setPinErrorMsg(msg)
-        setPinError(true)
-        setPinShake(true)
-        setPinDigits(['', '', '', ''])
-        setTimeout(() => {
-          setPinShake(false)
-          pinRefs[0]?.current?.focus()
-        }, 500)
-      }
-    } catch {
-      setPinErrorMsg(t.invalidCode || 'Invalid code. Try again!')
+
+    const showPinError = (msg) => {
+      setPinErrorMsg(msg)
       setPinError(true)
       setPinShake(true)
       setPinDigits(['', '', '', ''])
@@ -286,6 +276,56 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, i
         setPinShake(false)
         pinRefs[0]?.current?.focus()
       }, 500)
+    }
+
+    try {
+      const beerName = getBeerName()
+      const body = JSON.stringify({
+        breweryId: brewery.id,
+        pin,
+        beerName,
+        rating,
+        notes: notes.trim() || null,
+      })
+
+      const postCheckin = (token) => fetch('/api/checkin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body,
+      })
+
+      let token = await getFreshToken()
+      let res = await postCheckin(token)
+
+      // One refresh-retry on 401 — token may have expired between getSession() and the request
+      if (res.status === 401) {
+        const { data: refreshed } = await supabase.auth.refreshSession()
+        if (refreshed?.session?.access_token) {
+          token = refreshed.session.access_token
+          res = await postCheckin(token)
+        }
+      }
+
+      const data = await res.json().catch(() => ({}))
+
+      if (data.ok) {
+        confirmAndSave(true)
+        return
+      }
+
+      if (res.status === 429) {
+        showPinError(t.tooManyAttempts || 'Too many attempts. Try again later.')
+      } else if (res.status === 401) {
+        showPinError(t.sessionExpired || 'Session expired — please refresh the page and try again.')
+      } else {
+        showPinError(t.invalidCode || 'Invalid code. Try again!')
+      }
+    } catch (err) {
+      if (err?.message === 'NOT_SIGNED_IN') {
+        showPinError(t.pleaseSignIn || 'Please sign in again to continue.')
+      } else {
+        showPinError(t.invalidCode || 'Invalid code. Try again!')
+      }
     } finally {
       setIsSubmitting(false)
     }
