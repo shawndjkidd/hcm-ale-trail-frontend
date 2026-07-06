@@ -16,9 +16,9 @@ import UntappdOnboarding from "./components/UntappdOnboarding";
 import CardResetPrompt from "./components/CardResetPrompt";
 
 import translations from "./translations";
-import { recordCheckin, supabase } from "./lib/supabase";
+import { supabase } from "./lib/supabase";
 import { TRAIL_ID, SHOW_UNTAPPD_INTEGRATION } from "./config";
-import { getBreweries, getMe, logout as apiLogout, startNewRun, postResetCard, postCheckin, getLeaderboard, claimHat, storeLoginTokens, getAccessToken, setTokens, getUnseenNudges, markNudgesSeen, getUserMe, patchUserMe } from "./lib/api";
+import { getBreweries, getMe, logout as apiLogout, startNewRun, postResetCard, getLeaderboard, claimHat, storeLoginTokens, getAccessToken, setTokens, getUnseenNudges, markNudgesSeen, getUserMe, patchUserMe } from "./lib/api";
 
 import "./styles/App.css";
 
@@ -613,18 +613,6 @@ export default function App() {
     if (!stamps.includes(breweryId)) {
       const newStamps = [...stamps, breweryId];
       setStamps(newStamps);
-      try {
-        // Primary: call backend API (uses JWT, correct participant lookup)
-        const result = await postCheckin(TRAIL_ID, breweryId, {});
-        if (!result?.ok) {
-          // Fallback: direct Supabase insert
-          if (user?.id) {
-            await recordCheckin(user.id, breweryId, "qr_scan");
-          }
-        }
-      } catch (err) {
-        console.error("Check-in error:", err);
-      }
       if (newStamps.length === 1 && !timerStart) {
         const startTime = Date.now();
         setTimerStart(startTime);
