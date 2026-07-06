@@ -11117,3 +11117,35 @@ body.night-mode .ai-chat-suggestion {
   background: #FFD100;
   color: #1A1A1A;
 }
+
+/* ============================================
+   Star rating hit-box fix (check-in modal)
+   Default <button> padding makes each star button wider than its SVG,
+   accumulating rightward so star 5's click area is clipped or shifted.
+   Fix: zero padding, fixed flex dimensions, block SVG with no pointer events.
+   transform: scale() on hover is also removed because it shifts the visual
+   star outside its own click area without moving the hit target.
+   ============================================ */
+.fullscreen-takeover-yellow .star-rating {
+  align-items: center;
+}
+
+.fullscreen-takeover-yellow .star {
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.fullscreen-takeover-yellow .star:hover {
+  transform: none;
+}
+
+.fullscreen-takeover-yellow .star svg {
+  display: block;
+  pointer-events: none;
+  flex-shrink: 0;
+}

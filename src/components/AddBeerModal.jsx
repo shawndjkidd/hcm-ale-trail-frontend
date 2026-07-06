@@ -69,6 +69,28 @@ function parseQRCode(scannedText) {
   }
 }
 
+// Fully releases the camera after an html5-qrcode session.
+// scanner.stop() halts the scan loop but leaves the MediaStream running;
+// this function additionally stops every video track so the camera LED turns off.
+// Safe to call with a null scanner.
+async function releaseCamera(scanner, containerId) {
+  if (!scanner) return;
+  try { await scanner.stop(); } catch {}
+  // Stop all MediaStream tracks attached to any <video> in the scanner container
+  try {
+    const container = document.getElementById(containerId);
+    if (container) {
+      container.querySelectorAll('video').forEach(video => {
+        const stream = video.srcObject;
+        if (stream) stream.getTracks().forEach(t => t.stop());
+        video.srcObject = null;
+      });
+    }
+  } catch {}
+  // html5-qrcode >= 2.3 exposes clear() to destroy the DOM it injected
+  try { if (typeof scanner.clear === 'function') scanner.clear(); } catch {}
+}
+
 function BeerAutocomplete({ value, onChange, allNames, placeholder }) {
   const [suggestions, setSuggestions] = useState([]);
   const [open, setOpen] = useState(false);
@@ -141,6 +163,8 @@ function BeerAutocomplete({ value, onChange, allNames, placeholder }) {
   );
 }
 
+const SCANNER_CONTAINER_ID = 'pin-qr-scanner';
+
 function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, isAlreadyStamped = false, userMe }) {
   const [step, setStep] = useState(1) // 1 = beer entry, 2 = PIN verification
   const [selectedBeerId, setSelectedBeerId] = useState('')
@@ -164,7 +188,6 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, i
   const [showScanner, setShowScanner] = useState(false)
   const [scanError, setScanError] = useState(null)
   const scannerRef = useRef(null)
-  const scannerContainerId = 'pin-qr-scanner'
 
   const t = translations[language]
 
@@ -185,15 +208,12 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, i
     fetchBeers()
   }, [brewery.id])
 
-  // Cleanup scanner on unmount
+  // Release camera on unmount (user navigated away while scanner was open)
   useEffect(() => {
     return () => {
-      if (scannerRef.current) {
-        try {
-          scannerRef.current.stop().catch(() => {})
-        } catch {}
-        scannerRef.current = null
-      }
+      const scanner = scannerRef.current;
+      scannerRef.current = null;
+      releaseCamera(scanner, SCANNER_CONTAINER_ID); // fire-and-forget
     }
   }, [])
 
@@ -383,8 +403,7 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, i
     }
   }
 
-  // Shared save function for both PIN and QR confirmation
-  // ratingSent=true when /api/checkin already recorded the rating server-side
+  // Shared save — releases camera as a side-effect on all confirmation paths.
   const confirmAndSave = (ratingSent = false) => {
     const beerName = getBeerName()
     const beer = {
@@ -397,11 +416,9 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, i
       post_to_untappd: canPostUntappd && postToUntappd,
       ratingSent,
     }
-    // Stop scanner if running
-    if (scannerRef.current) {
-      try { scannerRef.current.stop().catch(() => {}) } catch {}
-      scannerRef.current = null
-    }
+    const scanner = scannerRef.current;
+    scannerRef.current = null;
+    releaseCamera(scanner, SCANNER_CONTAINER_ID); // fire-and-forget
     onSave(beer)
   }
 
@@ -412,52 +429,11 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, i
     }
   }
 
-  // QR Scanner logic
-  const startScanner = async () => {
-    setScanError(null)
-    setShowScanner(true)
-
-    // Wait for the container to render
-    setTimeout(async () => {
-      try {
-        const { Html5Qrcode } = await import('html5-qrcode')
-        const scanner = new Html5Qrcode(scannerContainerId)
-        scannerRef.current = scanner
-
-        await scanner.start(
-          { facingMode: 'environment' },
-          {
-            fps: 10,
-            qrbox: { width: 200, height: 200 },
-            aspectRatio: 1.0,
-          },
-          (decodedText) => {
-            const { breweryId: scannedId, qrSecret } = parseQRCode(decodedText)
-            if (scannedId) {
-              // Stop scanner immediately so it doesn't fire again while we await the server
-              scanner.stop().catch(() => {})
-              scannerRef.current = null
-              setShowScanner(false)
-              handleQrCheckin(scannedId, qrSecret)
-            } else {
-              setScanError(t.wrongBreweryQR || 'Could not read QR code — try again')
-            }
-          },
-          () => {} // Ignore scan failures (no QR in frame)
-        )
-      } catch (err) {
-        console.error('QR scanner error:', err)
-        setScanError(t.cameraError || 'Could not access camera. Please use the PIN instead.')
-        setShowScanner(false)
-      }
-    }, 300)
-  }
-
+  // Stop the scanner and fully release the camera on all manual-close paths.
   const stopScanner = () => {
-    if (scannerRef.current) {
-      try { scannerRef.current.stop().catch(() => {}) } catch {}
-      scannerRef.current = null
-    }
+    const scanner = scannerRef.current;
+    scannerRef.current = null;
+    releaseCamera(scanner, SCANNER_CONTAINER_ID); // fire-and-forget
     setShowScanner(false)
     setScanError(null)
   }
@@ -469,6 +445,58 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, i
     setPinError(false)
     setPinErrorMsg('')
     setScanError(null)
+  }
+
+  // QR Scanner — starts the camera and begins scanning.
+  // On success: releases camera, then validates against the server.
+  // On error: releases camera, shows retryable error message.
+  const startScanner = async () => {
+    setScanError(null)
+    setShowScanner(true)
+
+    // Wait for the container div to appear in the DOM before initialising
+    setTimeout(async () => {
+      let scanner = null;
+      try {
+        const { Html5Qrcode } = await import('html5-qrcode')
+        scanner = new Html5Qrcode(SCANNER_CONTAINER_ID)
+        scannerRef.current = scanner
+
+        await scanner.start(
+          { facingMode: 'environment' },
+          {
+            fps: 10,
+            qrbox: { width: 200, height: 200 },
+            aspectRatio: 1.0,
+          },
+          (decodedText) => {
+            // Grab and clear the ref immediately so stop paths don't double-release
+            const s = scannerRef.current;
+            scannerRef.current = null;
+            setShowScanner(false);
+            // Release camera before awaiting the server — camera LED turns off promptly
+            releaseCamera(s, SCANNER_CONTAINER_ID);
+            const { breweryId: scannedId, qrSecret } = parseQRCode(decodedText);
+            if (scannedId) {
+              handleQrCheckin(scannedId, qrSecret);
+            } else {
+              setScanError(t.wrongBreweryQR || 'Could not read QR code — try again');
+            }
+          },
+          () => {} // Ignore per-frame decode failures (no QR in frame yet)
+        )
+      } catch (err) {
+        // Camera access denied or unavailable — release anything that partially started
+        const s = scannerRef.current;
+        scannerRef.current = null;
+        await releaseCamera(s, SCANNER_CONTAINER_ID);
+        setShowScanner(false)
+        setScanError(
+          t.cameraErrorRetry ||
+          'Could not access camera — tap "Scan QR" to try again, or enter the PIN.'
+        )
+      }
+    }, 300)
   }
 
   return (
@@ -531,10 +559,17 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, i
                 {[1, 2, 3, 4, 5].map(star => (
                   <button
                     key={star}
+                    type="button"
                     className={`star ${rating >= star ? 'active' : ''}`}
                     onClick={() => setRating(star)}
                   >
-                    <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                    <svg
+                      width="36"
+                      height="36"
+                      viewBox="0 0 32 32"
+                      xmlns="http://www.w3.org/2000/svg"
+                      style={{ display: 'block', pointerEvents: 'none' }}
+                    >
                       <polygon points="16,2 19.2,11.6 29.3,11.7 21.2,17.7 24.2,27.3 16,21.5 7.8,27.3 10.8,17.7 2.7,11.7 12.8,11.6" />
                     </svg>
                   </button>
@@ -634,7 +669,7 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, i
 
             {showScanner && (
               <div className="qr-scanner-section">
-                <div id={scannerContainerId} className="qr-scanner-container"></div>
+                <div id={SCANNER_CONTAINER_ID} className="qr-scanner-container"></div>
                 <p className="qr-scanner-hint">
                   {t.pointAtQR || 'Point your camera at the brewery\'s QR code'}
                 </p>
