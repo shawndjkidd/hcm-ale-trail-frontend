@@ -11149,3 +11149,23 @@ body.night-mode .ai-chat-suggestion {
   pointer-events: none;
   flex-shrink: 0;
 }
+
+/* ============================================
+   Star rating mobile touch target fix
+   44px is the minimum recommended tap target (Apple HIG / Material).
+   The button grows to 44×44px; the visible 36px SVG stays centered.
+   gap drops to 4px so the row (5×44 + 4×4 = 236px) fits on 375px screens
+   with room to spare. justify-content: center keeps star 5 away from
+   the right edge. touch-action: manipulation kills the 300ms tap delay
+   and double-tap zoom without disabling scrolling.
+   ============================================ */
+.fullscreen-takeover-yellow .star-rating {
+  justify-content: center;
+  gap: 4px;
+}
+
+.fullscreen-takeover-yellow .star {
+  width: 44px;
+  height: 44px;
+  touch-action: manipulation;
+}
