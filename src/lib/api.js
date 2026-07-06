@@ -258,6 +258,10 @@ export function disconnectUntappd() {
   return request(`/user/untappd/disconnect`, { method: "POST" });
 }
 
+export function serverCheckin(payload) {
+  return request(`/checkin`, { method: "POST", body: payload });
+}
+
 export function storeLoginTokens(data) {
   if (data?.access_token) {
     setTokens({

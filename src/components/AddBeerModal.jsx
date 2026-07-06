@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import translations from '../translations'
 import { TRAIL_ID, SHOW_UNTAPPD_INTEGRATION } from '../config'
-import { getAccessToken } from '../lib/api'
+import { serverCheckin } from '../lib/api'
 
 // Simple fuzzy match: returns a score > 0 if `query` matches `name`, else 0.
 function fuzzyScore(name, query) {
@@ -242,35 +242,32 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, i
     }
   }
 
-  // Validate PIN against server — never exposes codes client-side
+  // Validate PIN against server — never exposes codes client-side.
+  // Uses request() helper which auto-refreshes the access token on 401 before giving up.
   const validatePin = async (pin) => {
     if (isSubmitting) return
     setIsSubmitting(true)
     setPinErrorMsg('')
     try {
       const beerName = getBeerName()
-      const token = getAccessToken()
-      const res = await fetch('/api/checkin', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({
-          breweryId: brewery.id,
-          pin,
-          beerName,
-          rating,
-          notes: notes.trim() || null,
-        }),
+      const data = await serverCheckin({
+        breweryId: brewery.id,
+        pin,
+        beerName,
+        rating,
+        notes: notes.trim() || null,
       })
-      const data = await res.json()
       if (data.ok) {
         confirmAndSave(true)
       } else {
-        const msg = res.status === 429
-          ? (t.tooManyAttempts || 'Too many attempts. Try again later.')
-          : (t.invalidCode || 'Invalid code. Try again!')
+        let msg
+        if (data.status === 429) {
+          msg = t.tooManyAttempts || 'Too many attempts. Try again later.'
+        } else if (data.status === 401 || data.error === 'Unauthorized') {
+          msg = t.sessionExpired || 'Session expired — please refresh the page and try again.'
+        } else {
+          msg = t.invalidCode || 'Invalid code. Try again!'
+        }
         setPinErrorMsg(msg)
         setPinError(true)
         setPinShake(true)
