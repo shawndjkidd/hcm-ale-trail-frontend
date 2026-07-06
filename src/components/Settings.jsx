@@ -23,6 +23,7 @@ const locationIconType = (val) => val === 'visitor' ? 'visitor' : 'district'
 export default function Settings({ user, userMe, language, onBack, onUserMeRefresh }) {
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [editField, setEditField] = useState(null)
+  const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [busy, setBusy] = useState(false)
@@ -44,31 +45,47 @@ export default function Settings({ user, userMe, language, onBack, onUserMeRefre
     e.preventDefault()
     setError('')
     setSuccess(false)
+    if (!currentPassword) { setError(t.currentPasswordRequired || 'Current password is required'); return }
+    if (newPassword.length < 8) { setError(t.passwordTooShort || 'New password must be at least 8 characters'); return }
     if (newPassword !== confirmPassword) { setError(t.passwordMismatch || 'Passwords do not match'); return }
-    if (newPassword.length < 6) { setError(t.passwordTooShort || 'Password must be at least 6 characters'); return }
     setBusy(true)
     try {
-      const res = await changePassword(newPassword)
-      if (res?.ok) { setSuccess(true); setNewPassword(''); setConfirmPassword('') }
-      else setError(res?.error || 'Failed to change password')
+      const res = await changePassword(currentPassword, newPassword)
+      if (res?.ok) {
+        setSuccess(true)
+        setCurrentPassword('')
+        setNewPassword('')
+        setConfirmPassword('')
+      } else {
+        setError(res?.error || 'Failed to change password')
+      }
     } finally { setBusy(false) }
   }
 
   const handleEmailSave = async () => {
-    setEmailError(''); setEmailSuccess(false)
+    setEmailError('')
+    setEmailSuccess(false)
     if (!newEmail.trim()) return
     setEmailBusy(true)
     try {
       const res = await changeEmail(newEmail.trim())
-      if (res?.ok) { setEmailSuccess(true); setEditingEmail(false); setNewEmail('') }
-      else setEmailError(res?.error || t.emailChangeError || 'Failed to change email.')
-    } catch { setEmailError(t.emailChangeError || 'Failed to change email.') }
-    finally { setEmailBusy(false) }
+      if (res?.ok) {
+        setEmailSuccess(true)
+        setEditingEmail(false)
+        setNewEmail('')
+      } else {
+        setEmailError(res?.error || t.emailChangeError || 'Failed to change email.')
+      }
+    } catch {
+      setEmailError(t.emailChangeError || 'Failed to change email.')
+    } finally { setEmailBusy(false) }
   }
 
   const handleEmailCancel = () => { setEditingEmail(false); setNewEmail(''); setEmailError(''); setEmailSuccess(false) }
 
   const handleEditComplete = () => { setEditField(null); setRefresh(n => n + 1) }
+
+  const canSubmitPassword = currentPassword.length > 0 && newPassword.length >= 8 && confirmPassword.length >= 8
 
   const ProfileRow = ({ rowLabel, field, value, iconType, iconSize = 24, accent }) => (
     <button onClick={() => setEditField(field)} className="profile-row-card" data-accent={accent || 'red'}>
@@ -162,7 +179,7 @@ export default function Settings({ user, userMe, language, onBack, onUserMeRefre
             {!editingEmail ? (
               <div className="settings-email-row">
                 <div className="settings-email-display">{user?.email || '—'}</div>
-                <button className="settings-edit-btn" onClick={() => setEditingEmail(true)}>
+                <button className="settings-edit-btn" onClick={() => { setEmailSuccess(false); setEditingEmail(true); }}>
                   {t.editEmail || 'Edit'}
                 </button>
               </div>
@@ -187,7 +204,7 @@ export default function Settings({ user, userMe, language, onBack, onUserMeRefre
             )}
             {emailSuccess && (
               <div className="settings-success">
-                {t.emailConfirmationSent || 'Confirmation email sent. Check your new inbox to verify.'}
+                {t.emailConfirmationSent || 'Check your new inbox — click the link to confirm the change.'}
               </div>
             )}
           </div>
@@ -207,6 +224,11 @@ export default function Settings({ user, userMe, language, onBack, onUserMeRefre
           <h2 className="settings-section-title">{t.changePasswordTitle || 'CHANGE PASSWORD'}</h2>
           <form onSubmit={handleSubmit} className="settings-form">
             <div className="settings-field">
+              <label className="settings-label">{t.currentPassword || 'Current Password'}</label>
+              <input type="password" className="settings-input" value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)} placeholder="••••••••" autoComplete="current-password" />
+            </div>
+            <div className="settings-field">
               <label className="settings-label">{t.newPassword || 'New Password'}</label>
               <input type="password" className="settings-input" value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••••" autoComplete="new-password" />
@@ -218,7 +240,7 @@ export default function Settings({ user, userMe, language, onBack, onUserMeRefre
             </div>
             {error && <div className="settings-error">{error}</div>}
             {success && <div className="settings-success">{t.passwordChanged || 'Password updated!'}</div>}
-            <button type="submit" className="settings-submit-btn" disabled={busy || !newPassword || !confirmPassword}>
+            <button type="submit" className="settings-submit-btn" disabled={busy || !canSubmitPassword}>
               {busy ? '...' : (t.updatePassword || 'UPDATE PASSWORD')}
             </button>
           </form>

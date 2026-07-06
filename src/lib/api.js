@@ -205,10 +205,10 @@ export function startNewRun(trailId = TRAIL_ID) {
  * Back-compat helper (older AuthModal expects this).
  * Stores tokens returned by /api/auth/login.
  */
-export function changePassword(newPassword) {
+export function changePassword(currentPassword, newPassword) {
   return request(`/auth/change-password`, {
     method: "POST",
-    body: { newPassword },
+    body: { currentPassword, newPassword },
   });
 }
 
@@ -238,29 +238,28 @@ export function saveOnboardingProfile(profileData) {
   });
 }
 
+// --- User Me ---
+export function getUserMe() {
+  return request(`/user/me`);
+}
+
+export function patchUserMe(payload) {
+  return request(`/user/me`, {
+    method: "PATCH",
+    body: payload,
+  });
+}
+
+export function postResetCard(trailId = TRAIL_ID) {
+  return request(`/trails/${trailId}/me/reset-card`, { method: "POST" });
+}
+
 export function storeLoginTokens(data) {
-  try {
-    if (!data) return;
+  if (data?.access_token) {
     setTokens({
       access_token: data.access_token,
       refresh_token: data.refresh_token,
       expires_at: data.expires_at,
     });
-  } catch {}
-}
-
-export function getUserMe() {
-  return request('/users/me')
-}
-
-export function patchUserMe(body) {
-  return request('/users/me', { method: 'PATCH', body })
-}
-
-export function disconnectUntappd() {
-  return request('/untappd/disconnect', { method: 'POST' })
-}
-
-export function postResetCard(trailId = TRAIL_ID) {
-  return request(`/trails/${trailId}/me/reset-card`, { method: 'POST' })
+  }
 }

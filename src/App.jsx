@@ -290,9 +290,7 @@ export default function App() {
       // Sync profile/onboarding data from server
       if (r.profile) {
         localStorage.setItem("hcm-onboarding-profile", JSON.stringify(r.profile));
-        console.log("[Onboarding] loadMe profile:", r.profile.onboarding_completed_at);
         if (r.profile.onboarding_completed_at) {
-          console.log("[Onboarding] Setting hcm-onboarding-complete from loadMe");
           localStorage.setItem("hcm-onboarding-complete", "true");
         }
       }
@@ -304,7 +302,6 @@ export default function App() {
       setMeLoaded(true);
       return r;
     }
-    console.log("[Onboarding] loadMe failed or not ok:", r);
     setMeLoaded(true);
     return null;
   };
@@ -341,7 +338,6 @@ export default function App() {
       const oauthErrorDesc = urlParams.get("error_description");
 
       if (oauthError) {
-        console.log("OAuth error:", oauthError, oauthErrorDesc);
         try { window.history.replaceState({}, "", window.location.pathname); } catch {}
         setShowAuth(true);
         loadBreweries().then(() => setInitialized(true));
@@ -361,13 +357,10 @@ export default function App() {
           // Fallback: try getSession if hash parsing didn't work
           if (!accessToken) {
             const { data: { session } } = await supabase.auth.getSession();
-            console.log("OAuth fallback getSession:", session);
             accessToken = session?.access_token;
             refreshToken = session?.refresh_token;
             expiresAt = session?.expires_at;
           }
-
-          console.log("OAuth tokens found:", !!accessToken);
 
           if (accessToken) {
             const res = await fetch("/api/auth/google", {
@@ -380,7 +373,6 @@ export default function App() {
               }),
             });
             const data = await res.json().catch(() => null);
-            console.log("Google auth response:", data);
             if (res.ok && data?.ok) {
               storeLoginTokens(data);
               const u = data.user ? { id: data.user.id, email: data.user.email } : { id: null };
@@ -388,21 +380,19 @@ export default function App() {
               localStorage.setItem("hcm-user", JSON.stringify(u));
               try { window.history.replaceState({}, "", window.location.pathname); } catch {}
               setShowAuth(false);
-              loadBreweries().then(() => { console.log("[Onboarding] initialized=true"); setInitialized(true); });
+              loadBreweries().then(() => setInitialized(true));
               // loadMe syncs onboarding flag from server — check AFTER it completes
               loadMe().then(() => {
                 const flag = localStorage.getItem("hcm-onboarding-complete");
-                console.log("[Onboarding] OAuth post-loadMe check, flag=", flag);
                 if (!flag) {
-                  console.log("[Onboarding] >>> Setting showOnboarding=true from OAuth");
                   setShowOnboarding(true);
                 }
-              }).catch((e) => { console.log("[Onboarding] OAuth loadMe failed:", e); });
+              }).catch(() => {});
               return;
             }
           }
         } catch (e) {
-          console.log("OAuth callback error:", e);
+          console.error("OAuth callback error:", e);
         }
         // OAuth hash present but failed — clean URL and fall through to normal auth
         try { window.history.replaceState({}, "", window.location.pathname); } catch {}
@@ -427,10 +417,9 @@ export default function App() {
               refresh_token: session.refresh_token,
               expires_at: session.expires_at,
             });
-            console.log("[Auth] Synced tokens from Supabase session");
           }
-        } catch (e) {
-          console.log("[Auth] Failed to sync Supabase session:", e);
+        } catch {
+          // silently ignore — user will re-authenticate if token is missing
         }
       }
 
@@ -441,7 +430,6 @@ export default function App() {
         // Don't check onboarding here — let loadMe sync the flag from server first
         // The onboarding check happens after loadMe completes (see useEffect below)
       } else {
-        console.log("[Onboarding] No saved user, showing auth");
         setShowAuth(true);
       }
 
@@ -607,19 +595,14 @@ export default function App() {
       try {
         // Primary: call backend API (uses JWT, correct participant lookup)
         const result = await postCheckin(TRAIL_ID, breweryId, {});
-        if (result?.ok) {
-          console.log("Check-in saved via backend API:", breweryId);
-        } else {
-          console.log("Backend check-in failed:", result?.error, "— trying Supabase direct");
+        if (!result?.ok) {
           // Fallback: direct Supabase insert
           if (user?.id) {
-            const { error } = await recordCheckin(user.id, breweryId, "qr_scan");
-            if (error) console.log("Supabase check-in error:", error);
-            else console.log("Check-in saved via Supabase direct:", breweryId);
+            await recordCheckin(user.id, breweryId, "qr_scan");
           }
         }
       } catch (err) {
-        console.log("Check-in error:", err);
+        console.error("Check-in error:", err);
       }
       if (newStamps.length === 1 && !timerStart) {
         const startTime = Date.now();
@@ -776,16 +759,13 @@ export default function App() {
 
   useEffect(() => {
     if (user?.id) {
-      console.log("[Onboarding] useEffect[user.id] firing, calling loadMe");
       loadUserMe(); // parallel — updates userMe for age gate + untappd gate
       loadMe().then(() => {
         const flag = localStorage.getItem("hcm-onboarding-complete");
-        console.log("[Onboarding] useEffect post-loadMe check, flag=", flag);
         if (!flag) {
-          console.log("[Onboarding] >>> Setting showOnboarding=true from useEffect");
           setShowOnboarding(true);
         }
-      }).catch((e) => { console.log("[Onboarding] useEffect loadMe failed:", e); });
+      }).catch(() => {});
     }
   }, [user?.id]);
 

@@ -11,56 +11,48 @@ const BREWERY_DATA = {
     facebook: 'https://facebook.com/biacraft',
     maps: 'https://www.google.com/maps/search/?api=1&query=1+Le+Ngo+Cat+Phuong+Vo+Thi+Sau+Quan+3+Ho+Chi+Minh+City',
     instagramHandle: '@biacraftartisanales',
-    code: '1234'
   },
   'Heart of Darkness': {
     instagram: 'https://www.instagram.com/heartofdarknessbrewery/',
     facebook: 'https://facebook.com/HeartOfDarknessBrewery',
     maps: 'https://maps.app.goo.gl/ah6bzRWZhM6gz3C78',
     instagramHandle: '@heartofdarknessbrewery',
-    code: '5678'
   },
   'Deme': {
     instagram: 'https://www.instagram.com/deme.brewing/',
     facebook: 'https://facebook.com/demebrewing',
     maps: 'https://maps.app.goo.gl/NMMSRCjDehDUvtD5A',
     instagramHandle: '@deme.brewing',
-    code: '9012'
   },
   'Steersman': {
     instagram: 'https://www.instagram.com/steersmanbrewery/',
     facebook: 'https://facebook.com/steersmanbrewery',
     maps: 'https://maps.app.goo.gl/ZtHzaoCea36zqUdWA',
     instagramHandle: '@steersmanbrewery',
-    code: '3456'
   },
   'East West Brewing': {
     instagram: 'https://www.instagram.com/eastwestbrewery/',
     facebook: 'https://facebook.com/eastwestbrewery',
     maps: 'https://maps.app.goo.gl/2CjzhfFS6h2qmNeq8',
     instagramHandle: '@eastwestbrewery',
-    code: '7890'
   },
   'Rooster Beers': {
     instagram: 'https://www.instagram.com/rooster.beers/',
     facebook: 'https://www.facebook.com/theroosterbeers',
     maps: 'https://www.google.com/maps/search/?api=1&query=40+Bui+Vien+Phuong+Pham+Ngu+Lao+Quan+1+Ho+Chi+Minh+City',
     instagramHandle: '@rooster.beers',
-    code: '2468'
   },
   '7 Bridges Brewing Co.': {
     instagram: 'https://www.instagram.com/7bridgesbrewingco/',
     facebook: 'https://facebook.com/7BridgesBrewingCo',
     maps: 'https://www.google.com/maps/search/?api=1&query=38+Dong+Du+Ben+Nghe+Quan+1+Ho+Chi+Minh+City',
     instagramHandle: '@7bridgesbrewingco',
-    code: '1357'
   },
   'Belgo Saigon': {
     instagram: 'https://www.instagram.com/belgo_belgianbrewery/',
     facebook: 'https://www.facebook.com/belgobelgiancraftbeerbrewery',
     maps: 'https://www.google.com/maps/search/?api=1&query=29-31+Ton+That+Thiep+Ben+Nghe+Quan+1+Ho+Chi+Minh+City',
     instagramHandle: '@belgo_belgianbrewery',
-    code: '9753'
   }
 }
 
@@ -97,7 +89,6 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     facebook: brewery?.facebook_url || brewery?.facebookUrl || hardcodedInfo.facebook || null,
     maps: brewery?.maps_url || brewery?.mapsUrl || hardcodedInfo.maps || null,
     instagramHandle: brewery?.instagram_handle || brewery?.instagramHandle || hardcodedInfo.instagramHandle,
-    code: brewery?.manual_code || brewery?.manualCode || hardcodedInfo.code,
   }
 
   const isFirstStamp = stamps.length === 0
@@ -254,14 +245,16 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
   }, [autoOpenBeer]);
 
   const handleBeerAdded = async (beer) => {
-    // Best-effort rating submission; stamp + local save proceed regardless
-    postRating(TRAIL_ID, beer.breweryId, {
-      beer_name: beer.name,
-      rating: beer.rating,
-      notes: beer.notes || null,
-      brewery_beer_id: beer.brewery_beer_id || null,
-      post_to_untappd: beer.post_to_untappd || false,
-    }).catch(() => {});
+    // Only submit rating if the checkin endpoint didn't already record it
+    if (!beer.ratingSent) {
+      postRating(TRAIL_ID, beer.breweryId, {
+        beer_name: beer.name,
+        rating: beer.rating,
+        notes: beer.notes || null,
+        brewery_beer_id: beer.brewery_beer_id || null,
+        post_to_untappd: beer.post_to_untappd || false,
+      }).catch(() => {});
+    }
 
     addBeer(beer)
 
@@ -508,7 +501,6 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
           language={language}
           onClose={() => setShowAddBeer(false)}
           mandatory={autoOpenBeer && !isStamped}
-          breweryCode={breweryInfo.code}
           isAlreadyStamped={isStamped}
           userMe={userMe}
         />

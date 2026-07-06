@@ -40,18 +40,6 @@ import { claimHat, getMyMerchandise, claimMerchandise } from '../lib/api'
 
 const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a921'
 
-// Same PIN codes used for stamp check-in (from BreweryDetail BREWERY_DATA)
-const BREWERY_CODES = {
-  'BiaCraft': '1234',
-  'Heart of Darkness': '5678',
-  'Deme': '9012',
-  'Steersman': '3456',
-  'East West Brewing': '7890',
-  'Rooster Beers': '2468',
-  '7 Bridges Brewing Co.': '1357',
-  'Belgo Saigon': '9753',
-}
-
 const BREWERY_LOGOS = {
   'BiaCraft': '/logos/biacraft.png',
   'Heart of Darkness': '/logos/hod.png',
@@ -229,24 +217,10 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
   const handlePinSubmit = async (pin) => {
     if (!claimingItem || !selectedBrewery || pin.length !== 4) return
 
-    // Validate client-side: accept hardcoded code OR database code (whichever matches)
-    const hardcoded = BREWERY_CODES[selectedBrewery.name] || ''
-    const dbCode = selectedBrewery?.manual_code || selectedBrewery?.manualCode || ''
-    const pinValid = (hardcoded && pin === hardcoded) || (dbCode && pin === dbCode)
-    if (!pinValid) {
-      setPinError(true)
-      setPinShake(true)
-      setPinDigits(['', '', '', ''])
-      setTimeout(() => { setPinShake(false); pinRefs[0]?.current?.focus() }, 500)
-      return
-    }
-
     setClaimBusy(true)
     setClaimError(null)
     try {
-      // Send the hardcoded code to backend if that's what matched, so backend accepts it too
-      const codeToSend = (hardcoded && pin === hardcoded) ? hardcoded : pin
-      const res = await claimMerchandise(claimingItem.id, selectedBrewery.id, codeToSend)
+      const res = await claimMerchandise(claimingItem.id, selectedBrewery.id, pin)
       if (res?.ok) {
         setClaimSuccess({ breweryName: res.breweryName || selectedBrewery.name, itemName: res.itemName || claimingItem.name })
         setClaimStep('success')

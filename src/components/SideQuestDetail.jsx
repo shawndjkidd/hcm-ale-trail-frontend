@@ -24,6 +24,7 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
   const [pinDigits, setPinDigits] = useState(['', '', '', ''])
   const [pinError, setPinError] = useState(false)
   const [pinShake, setPinShake] = useState(false)
+  const [pinErrorMsg, setPinErrorMsg] = useState('')
   const pinRefs = [useRef(null), useRef(null), useRef(null), useRef(null)]
 
   const t = translations[language]
@@ -122,6 +123,7 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
     setStep(2)
     setPinDigits(['', '', '', ''])
     setPinError(false)
+    setPinErrorMsg('')
     setTimeout(() => pinRefs[0]?.current?.focus(), 100)
   }
 
@@ -132,6 +134,7 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
     newDigits[index] = digit
     setPinDigits(newDigits)
     setPinError(false)
+    setPinErrorMsg('')
 
     if (digit && index < 3) {
       pinRefs[index + 1]?.current?.focus()
@@ -153,54 +156,43 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
 
   const handlePinSubmit = () => {
     const fullPin = pinDigits.join('')
-    if (fullPin.length === 4) {
+    if (fullPin.length === 4 && !isChecking) {
       validateAndSubmit(fullPin)
     }
   }
 
-  // Validate PIN via backend and submit rating
+  // Validate PIN via backend — sends rating in same request, never compares PIN client-side
   const validateAndSubmit = async (pin) => {
     setIsChecking(true)
     try {
-      // Step 1: Check in with PIN
-      const res = await fetch(`/api/side-quests/${quest.id}/checkin`, {
+      const token = getAccessToken()
+      const res = await fetch('/api/side-quests/checkin', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({
-          participant_id: user?.id,
-          method: 'pin',
-          pin: pin
-        })
+          questId: quest.id,
+          pin,
+          beerName: itemName.trim(),
+          rating,
+          notes: notes.trim() || null,
+        }),
       })
       const data = await res.json()
 
-      if (data.ok || (data.error && data.error.includes('Already checked in'))) {
-        // Step 2: Submit rating
-        try {
-          const token = getAccessToken()
-          const headers = { 'Content-Type': 'application/json' }
-          if (token) headers['Authorization'] = `Bearer ${token}`
-
-          await fetch(`/api/side-quests/${quest.id}/ratings`, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify({
-              rating,
-              item_name: itemName.trim(),
-              notes: notes.trim() || null,
-            }),
-          })
-        } catch (err) {
-          console.error('Rating error:', err)
-        }
-
+      if (data.ok) {
         setHasCheckedIn(true)
         onComplete(quest.id)
         setShowCheckinModal(false)
         setMessage({ type: 'success', text: `🎉 ${t.questCompleted || 'Side Quest Completed!'}` })
         setTimeout(() => setMessage(null), 5000)
       } else {
-        // Wrong PIN
+        const msg = res.status === 429
+          ? (t.tooManyAttempts || 'Too many attempts. Try again later.')
+          : (t.invalidCode || 'Invalid code. Try again!')
+        setPinErrorMsg(msg)
         setPinError(true)
         setPinShake(true)
         setPinDigits(['', '', '', ''])
@@ -221,6 +213,7 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
     setStep(1)
     setPinDigits(['', '', '', ''])
     setPinError(false)
+    setPinErrorMsg('')
   }
 
   const copyInstagramHandle = () => {
@@ -419,13 +412,14 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
                       onChange={(e) => handlePinChange(i, e.target.value)}
                       onKeyDown={(e) => handlePinKeyDown(i, e)}
                       autoComplete="off"
+                      disabled={isChecking}
                     />
                   ))}
                 </div>
 
                 {pinError && (
                   <p className="pin-error-text">
-                    {t.invalidCode || 'Invalid code. Try again!'}
+                    {pinErrorMsg || t.invalidCode || 'Invalid code. Try again!'}
                   </p>
                 )}
 

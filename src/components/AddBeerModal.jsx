@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import translations from '../translations'
 import { TRAIL_ID, SHOW_UNTAPPD_INTEGRATION } from '../config'
+import { getAccessToken } from '../lib/api'
 
 // Simple fuzzy match: returns a score > 0 if `query` matches `name`, else 0.
 function fuzzyScore(name, query) {
@@ -115,7 +116,7 @@ function extractBreweryIdFromQR(scannedText) {
   }
 }
 
-function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, breweryCode, isAlreadyStamped = false, userMe }) {
+function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, isAlreadyStamped = false, userMe }) {
   const [step, setStep] = useState(1) // 1 = beer entry, 2 = PIN verification
   const [selectedBeerId, setSelectedBeerId] = useState('')
   const [customName, setCustomName] = useState('')
@@ -130,6 +131,8 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, b
   const [pinDigits, setPinDigits] = useState(['', '', '', ''])
   const [pinError, setPinError] = useState(false)
   const [pinShake, setPinShake] = useState(false)
+  const [pinErrorMsg, setPinErrorMsg] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const pinRefs = [useRef(null), useRef(null), useRef(null), useRef(null)]
 
   // QR scanner state
@@ -192,10 +195,7 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, b
   // Step 1: validate beer entry, then decide next step
   const handleBeerSubmit = () => {
     const beerName = getBeerName()
-    if (!beerName || rating === 0) {
-      alert(t.pleaseComplete || 'Please enter a beer name and rating!')
-      return
-    }
+    if (!beerName || rating === 0) return
     if (isAlreadyStamped) {
       const beer = {
         breweryId: brewery.id,
@@ -210,6 +210,7 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, b
     setStep(2)
     setPinDigits(['', '', '', ''])
     setPinError(false)
+    setPinErrorMsg('')
     setScanError(null)
     setShowScanner(false)
     setTimeout(() => pinRefs[0]?.current?.focus(), 100)
@@ -222,11 +223,12 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, b
     newDigits[index] = digit
     setPinDigits(newDigits)
     setPinError(false)
+    setPinErrorMsg('')
     setScanError(null)
     if (digit && index < 3) {
       pinRefs[index + 1]?.current?.focus()
     }
-    if (digit && index === 3) {
+    if (digit && index === 3 && !isSubmitting) {
       const fullPin = [...newDigits.slice(0, 3), digit].join('')
       if (fullPin.length === 4) {
         setTimeout(() => validatePin(fullPin), 150)
@@ -240,12 +242,46 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, b
     }
   }
 
-  // Validate PIN and submit
-  const validatePin = (pin) => {
-    const correctCode = breweryCode || ''
-    if (pin === correctCode) {
-      confirmAndSave()
-    } else {
+  // Validate PIN against server — never exposes codes client-side
+  const validatePin = async (pin) => {
+    if (isSubmitting) return
+    setIsSubmitting(true)
+    setPinErrorMsg('')
+    try {
+      const beerName = getBeerName()
+      const token = getAccessToken()
+      const res = await fetch('/api/checkin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          breweryId: brewery.id,
+          pin,
+          beerName,
+          rating,
+          notes: notes.trim() || null,
+        }),
+      })
+      const data = await res.json()
+      if (data.ok) {
+        confirmAndSave(true)
+      } else {
+        const msg = res.status === 429
+          ? (t.tooManyAttempts || 'Too many attempts. Try again later.')
+          : (t.invalidCode || 'Invalid code. Try again!')
+        setPinErrorMsg(msg)
+        setPinError(true)
+        setPinShake(true)
+        setPinDigits(['', '', '', ''])
+        setTimeout(() => {
+          setPinShake(false)
+          pinRefs[0]?.current?.focus()
+        }, 500)
+      }
+    } catch {
+      setPinErrorMsg(t.invalidCode || 'Invalid code. Try again!')
       setPinError(true)
       setPinShake(true)
       setPinDigits(['', '', '', ''])
@@ -253,11 +289,14 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, b
         setPinShake(false)
         pinRefs[0]?.current?.focus()
       }, 500)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
   // Shared save function for both PIN and QR confirmation
-  const confirmAndSave = () => {
+  // ratingSent=true when /api/checkin already recorded the rating server-side
+  const confirmAndSave = (ratingSent = false) => {
     const beerName = getBeerName()
     const beer = {
       breweryId: brewery.id,
@@ -267,6 +306,7 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, b
       notes: notes.trim(),
       brewery_beer_id: selectedMenuBeer?.id || null,
       post_to_untappd: canPostUntappd && postToUntappd,
+      ratingSent,
     }
     // Stop scanner if running
     if (scannerRef.current) {
@@ -278,7 +318,7 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, b
 
   const handlePinSubmit = () => {
     const fullPin = pinDigits.join('')
-    if (fullPin.length === 4) {
+    if (fullPin.length === 4 && !isSubmitting) {
       validatePin(fullPin)
     }
   }
@@ -306,11 +346,11 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, b
             // QR scanned successfully
             const scannedBreweryId = extractBreweryIdFromQR(decodedText)
             if (scannedBreweryId && scannedBreweryId === brewery.id) {
-              // Correct brewery QR — auto-confirm!
+              // Correct brewery QR — auto-confirm (QR path does not go through /api/checkin)
               scanner.stop().catch(() => {})
               scannerRef.current = null
               setShowScanner(false)
-              confirmAndSave()
+              confirmAndSave(false)
             } else {
               // Wrong brewery or invalid QR
               setScanError(t.wrongBreweryQR || 'Wrong QR code — scan the QR at this brewery')
@@ -340,6 +380,7 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, b
     setStep(1)
     setPinDigits(['', '', '', ''])
     setPinError(false)
+    setPinErrorMsg('')
     setScanError(null)
   }
 
@@ -446,7 +487,7 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, b
                   {t.cancel}
                 </button>
               )}
-              <button className="btn-save" onClick={handleBeerSubmit}>
+              <button className="btn-save" onClick={handleBeerSubmit} disabled={!getBeerName() || rating === 0}>
                 {isAlreadyStamped ? (t.save) : (t.next || 'NEXT →')}
               </button>
             </div>
@@ -477,18 +518,19 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, b
                       onChange={(e) => handlePinChange(i, e.target.value)}
                       onKeyDown={(e) => handlePinKeyDown(i, e)}
                       autoComplete="off"
+                      disabled={isSubmitting}
                     />
                   ))}
                 </div>
 
                 {pinError && (
                   <p className="pin-error-text">
-                    {t.invalidCode || 'Invalid code. Try again!'}
+                    {pinErrorMsg || t.invalidCode || 'Invalid code. Try again!'}
                   </p>
                 )}
 
-                <button className="btn-confirm-stamp" onClick={handlePinSubmit}>
-                  {t.confirmStamp || 'CONFIRM STAMP ✓'}
+                <button className="btn-confirm-stamp" onClick={handlePinSubmit} disabled={isSubmitting}>
+                  {isSubmitting ? '...' : (t.confirmStamp || 'CONFIRM STAMP ✓')}
                 </button>
 
                 <div className="pin-divider">
