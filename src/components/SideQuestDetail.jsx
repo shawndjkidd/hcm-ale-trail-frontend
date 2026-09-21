@@ -4,7 +4,7 @@ import translations from '../translations'
 
 const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a921'
 
-function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, user, qrValidated }) {
+function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, user }) {
   const [message, setMessage] = useState(null)
   const [isChecking, setIsChecking] = useState(false)
   const [wasAlreadyCompleted] = useState(isCompleted)
@@ -80,13 +80,6 @@ function SideQuestDetail({ quest, isCompleted, onComplete, onBack, language, use
     fetchDetail()
     fetchEvents()
   }, [quest?.id])
-
-  // Auto-open check-in modal when QR scanned
-  useEffect(() => {
-    if (qrValidated && !isCompleted && !hasCheckedIn) {
-      setShowCheckinModal(true)
-    }
-  }, [qrValidated])
 
   const getEventTitle = (event) => {
     if (!event.title) return 'Event'

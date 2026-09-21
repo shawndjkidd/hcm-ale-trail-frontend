@@ -64,7 +64,7 @@ const DAY_LABELS = {
   jp: ['日', '月', '火', '水', '木', '金', '土']
 }
 
-function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, onBack, qrValidated, timerStart, user, userMe, autoOpenBeer = false, onAutoOpenComplete }) {
+function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, onBack, timerStart, user, userMe }) {
   const [showAddBeer, setShowAddBeer] = useState(false)
   const [message, setMessage] = useState(null)
   const [breweryEvents, setBreweryEvents] = useState([])
@@ -237,13 +237,6 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     return date.toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' })
   }
 
-  // Auto-open modal for QR check-in flow
-  useEffect(() => {
-    if (autoOpenBeer && !isStamped) {
-      setShowAddBeer(true);
-    }
-  }, [autoOpenBeer]);
-
   const handleBeerAdded = async (beer) => {
     // Only submit rating if the checkin endpoint didn't already record it
     if (!beer.ratingSent) {
@@ -283,9 +276,6 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
     }
 
     setShowAddBeer(false)
-    if (autoOpenBeer && typeof onAutoOpenComplete === 'function') {
-      onAutoOpenComplete();
-    }
   }
 
   const copyInstagramHandle = () => {
@@ -500,7 +490,6 @@ function BreweryDetail({ brewery, stamps, beers, addStamp, addBeer, language, on
           onSave={handleBeerAdded}
           language={language}
           onClose={() => setShowAddBeer(false)}
-          mandatory={autoOpenBeer && !isStamped}
           isAlreadyStamped={isStamped}
           userMe={userMe}
         />

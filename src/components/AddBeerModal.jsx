@@ -37,60 +37,6 @@ async function getFreshToken() {
   return session.access_token;
 }
 
-// Parses a brewery QR code (full URL, bare path, or raw UUID).
-// New format: /checkin/{breweryId}?s={qr_secret}
-// Returns { breweryId, qrSecret } — qrSecret is null if the ?s= param is absent.
-function parseQRCode(scannedText) {
-  try {
-    const raw = scannedText.trim();
-
-    // Raw UUID — old format with no secret
-    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(raw)) {
-      return { breweryId: raw, qrSecret: null };
-    }
-
-    // Normalise to a parseable URL so URL/URLSearchParams works
-    let urlStr = raw;
-    if (urlStr.startsWith('/')) urlStr = `https://x${urlStr}`;
-    else if (!urlStr.startsWith('http')) urlStr = `https://${urlStr}`;
-
-    const url = new URL(urlStr);
-    const parts = url.pathname.split('/').filter(Boolean);
-    const checkinIdx = parts.indexOf('checkin');
-    if (checkinIdx >= 0 && parts[checkinIdx + 1]?.length >= 10) {
-      const breweryId = parts[checkinIdx + 1];
-      const qrSecret = url.searchParams.get('s') || null;
-      return { breweryId, qrSecret };
-    }
-
-    return { breweryId: null, qrSecret: null };
-  } catch {
-    return { breweryId: null, qrSecret: null };
-  }
-}
-
-// Fully releases the camera after an html5-qrcode session.
-// scanner.stop() halts the scan loop but leaves the MediaStream running;
-// this function additionally stops every video track so the camera LED turns off.
-// Safe to call with a null scanner.
-async function releaseCamera(scanner, containerId) {
-  if (!scanner) return;
-  try { await scanner.stop(); } catch {}
-  // Stop all MediaStream tracks attached to any <video> in the scanner container
-  try {
-    const container = document.getElementById(containerId);
-    if (container) {
-      container.querySelectorAll('video').forEach(video => {
-        const stream = video.srcObject;
-        if (stream) stream.getTracks().forEach(t => t.stop());
-        video.srcObject = null;
-      });
-    }
-  } catch {}
-  // html5-qrcode >= 2.3 exposes clear() to destroy the DOM it injected
-  try { if (typeof scanner.clear === 'function') scanner.clear(); } catch {}
-}
-
 function BeerAutocomplete({ value, onChange, allNames, placeholder }) {
   const [suggestions, setSuggestions] = useState([]);
   const [open, setOpen] = useState(false);
@@ -163,8 +109,6 @@ function BeerAutocomplete({ value, onChange, allNames, placeholder }) {
   );
 }
 
-const SCANNER_CONTAINER_ID = 'pin-qr-scanner';
-
 function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, isAlreadyStamped = false, userMe }) {
   const [step, setStep] = useState(1) // 1 = beer entry, 2 = PIN verification
   const [selectedBeerId, setSelectedBeerId] = useState('')
@@ -184,11 +128,6 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, i
   const [isSubmitting, setIsSubmitting] = useState(false)
   const pinRefs = [useRef(null), useRef(null), useRef(null), useRef(null)]
 
-  // QR scanner state
-  const [showScanner, setShowScanner] = useState(false)
-  const [scanError, setScanError] = useState(null)
-  const scannerRef = useRef(null)
-
   const t = translations[language]
 
   useEffect(() => {
@@ -207,15 +146,6 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, i
     }
     fetchBeers()
   }, [brewery.id])
-
-  // Release camera on unmount (user navigated away while scanner was open)
-  useEffect(() => {
-    return () => {
-      const scanner = scannerRef.current;
-      scannerRef.current = null;
-      releaseCamera(scanner, SCANNER_CONTAINER_ID); // fire-and-forget
-    }
-  }, [])
 
   const isOther = selectedBeerId === 'other'
   const hasMenu = menuBeers.length > 0
@@ -256,8 +186,6 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, i
     setPinDigits(['', '', '', ''])
     setPinError(false)
     setPinErrorMsg('')
-    setScanError(null)
-    setShowScanner(false)
     setTimeout(() => pinRefs[0]?.current?.focus(), 100)
   }
 
@@ -269,7 +197,6 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, i
     setPinDigits(newDigits)
     setPinError(false)
     setPinErrorMsg('')
-    setScanError(null)
     if (digit && index < 3) {
       pinRefs[index + 1]?.current?.focus()
     }
@@ -363,47 +290,7 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, i
     }
   }
 
-  // QR scan path: validate breweryId + qrSecret server-side.
-  // The server is the source of truth — no client-side UUID comparison.
-  const handleQrCheckin = async (scannedBreweryId, qrSecret) => {
-    setIsSubmitting(true)
-    setScanError(null)
-    try {
-      const beerName = getBeerName()
-      const res = await postCheckinRequest({
-        breweryId: scannedBreweryId,
-        qrSecret,
-        beerName,
-        rating,
-        notes: notes.trim() || null,
-      })
-
-      const data = await res.json().catch(() => ({}))
-
-      if (data.ok) {
-        confirmAndSave(true)
-        return
-      }
-
-      setScanError(
-        res.status === 429
-          ? (t.tooManyAttempts || 'Too many attempts. Try again later.')
-          : res.status === 401
-            ? (t.sessionExpired || 'Session expired — please refresh the page and try again.')
-            : (t.invalidCode || 'Invalid code. Try again!')
-      )
-    } catch (err) {
-      setScanError(
-        err?.message === 'NOT_SIGNED_IN'
-          ? (t.pleaseSignIn || 'Please sign in again to continue.')
-          : (t.invalidCode || 'Invalid code. Try again!')
-      )
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  // Shared save — releases camera as a side-effect on all confirmation paths.
+  // Shared save on confirmation.
   const confirmAndSave = (ratingSent = false) => {
     const beerName = getBeerName()
     const beer = {
@@ -416,9 +303,6 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, i
       post_to_untappd: canPostUntappd && postToUntappd,
       ratingSent,
     }
-    const scanner = scannerRef.current;
-    scannerRef.current = null;
-    releaseCamera(scanner, SCANNER_CONTAINER_ID); // fire-and-forget
     onSave(beer)
   }
 
@@ -429,74 +313,11 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, i
     }
   }
 
-  // Stop the scanner and fully release the camera on all manual-close paths.
-  const stopScanner = () => {
-    const scanner = scannerRef.current;
-    scannerRef.current = null;
-    releaseCamera(scanner, SCANNER_CONTAINER_ID); // fire-and-forget
-    setShowScanner(false)
-    setScanError(null)
-  }
-
   const handleBackToStep1 = () => {
-    stopScanner()
     setStep(1)
     setPinDigits(['', '', '', ''])
     setPinError(false)
     setPinErrorMsg('')
-    setScanError(null)
-  }
-
-  // QR Scanner — starts the camera and begins scanning.
-  // On success: releases camera, then validates against the server.
-  // On error: releases camera, shows retryable error message.
-  const startScanner = async () => {
-    setScanError(null)
-    setShowScanner(true)
-
-    // Wait for the container div to appear in the DOM before initialising
-    setTimeout(async () => {
-      let scanner = null;
-      try {
-        const { Html5Qrcode } = await import('html5-qrcode')
-        scanner = new Html5Qrcode(SCANNER_CONTAINER_ID)
-        scannerRef.current = scanner
-
-        await scanner.start(
-          { facingMode: 'environment' },
-          {
-            fps: 10,
-            qrbox: { width: 200, height: 200 },
-            aspectRatio: 1.0,
-          },
-          (decodedText) => {
-            // Grab and clear the ref immediately so stop paths don't double-release
-            const s = scannerRef.current;
-            scannerRef.current = null;
-            setShowScanner(false);
-            // Release camera before awaiting the server — camera LED turns off promptly
-            releaseCamera(s, SCANNER_CONTAINER_ID);
-            const { breweryId: scannedId, qrSecret } = parseQRCode(decodedText);
-            if (scannedId) {
-              handleQrCheckin(scannedId, qrSecret);
-            } else {
-              setScanError(t.wrongBreweryQR || 'Could not read QR code — try again');
-            }
-          },
-          () => {} // Ignore per-frame decode failures (no QR in frame yet)
-        )
-      } catch (err) {
-        // Camera access denied or unavailable — release anything that partially started
-        const s = scannerRef.current;
-        scannerRef.current = null;
-        await releaseCamera(s, SCANNER_CONTAINER_ID);
-        setShowScanner(false)
-        setScanError(
-          t.cameraErrorRetry ||
-          'Could not access camera — tap "Scan QR" to try again, or enter the PIN.'
-        )
-      }
-    }, 300)
   }
 
   return (
@@ -624,64 +445,34 @@ function AddBeerModal({ brewery, onSave, language, onClose, mandatory = false, i
               {t.askServerPin || 'Show this to your server — they\'ll enter the PIN'}
             </p>
 
-            {!showScanner && (
-              <>
-                <div className={`pin-input-row ${pinShake ? 'pin-shake' : ''}`}>
-                  {[0, 1, 2, 3].map(i => (
-                    <input
-                      key={i}
-                      ref={pinRefs[i]}
-                      type="tel"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      maxLength="1"
-                      className={`pin-digit-input ${pinError ? 'pin-error' : ''}`}
-                      value={pinDigits[i]}
-                      onChange={(e) => handlePinChange(i, e.target.value)}
-                      onKeyDown={(e) => handlePinKeyDown(i, e)}
-                      autoComplete="off"
-                      disabled={isSubmitting}
-                    />
-                  ))}
-                </div>
+            <div className={`pin-input-row ${pinShake ? 'pin-shake' : ''}`}>
+              {[0, 1, 2, 3].map(i => (
+                <input
+                  key={i}
+                  ref={pinRefs[i]}
+                  type="tel"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength="1"
+                  className={`pin-digit-input ${pinError ? 'pin-error' : ''}`}
+                  value={pinDigits[i]}
+                  onChange={(e) => handlePinChange(i, e.target.value)}
+                  onKeyDown={(e) => handlePinKeyDown(i, e)}
+                  autoComplete="off"
+                  disabled={isSubmitting}
+                />
+              ))}
+            </div>
 
-                {pinError && (
-                  <p className="pin-error-text">
-                    {pinErrorMsg || t.invalidCode || 'Invalid code. Try again!'}
-                  </p>
-                )}
-
-                <button className="btn-confirm-stamp" onClick={handlePinSubmit} disabled={isSubmitting}>
-                  {isSubmitting ? '...' : (t.confirmStamp || 'CONFIRM STAMP ✓')}
-                </button>
-
-                <div className="pin-divider">
-                  <span className="pin-divider-line"></span>
-                  <span className="pin-divider-text">{t.or || 'OR'}</span>
-                  <span className="pin-divider-line"></span>
-                </div>
-
-                <button className="btn-scan-qr" onClick={startScanner} disabled={isSubmitting}>
-                  📷 {t.scanBreweryQR || 'SCAN BREWERY QR CODE'}
-                </button>
-              </>
+            {pinError && (
+              <p className="pin-error-text">
+                {pinErrorMsg || t.invalidCode || 'Invalid code. Try again!'}
+              </p>
             )}
 
-            {showScanner && (
-              <div className="qr-scanner-section">
-                <div id={SCANNER_CONTAINER_ID} className="qr-scanner-container"></div>
-                <p className="qr-scanner-hint">
-                  {t.pointAtQR || 'Point your camera at the brewery\'s QR code'}
-                </p>
-                <button className="btn-close-scanner" onClick={stopScanner}>
-                  ✕ {t.cancelScan || 'Cancel scan'}
-                </button>
-              </div>
-            )}
-
-            {scanError && (
-              <p className="pin-error-text">{scanError}</p>
-            )}
+            <button className="btn-confirm-stamp" onClick={handlePinSubmit} disabled={isSubmitting}>
+              {isSubmitting ? '...' : (t.confirmStamp || 'CONFIRM STAMP ✓')}
+            </button>
 
             <button className="btn-back-to-beer" onClick={handleBackToStep1}>
               ← {t.editBeer || 'Edit beer details'}

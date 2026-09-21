@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import HomePage from "./components/HomePage";
 import BreweryDetail from "./components/BreweryDetail";
 import SideQuestDetail from "./components/SideQuestDetail";
@@ -107,8 +107,6 @@ export default function App() {
     if (nav.startsWith('ja')) return 'jp'
     return 'en'
   });
-  const [qrValidated, setQrValidated] = useState(false);
-  const [sideQuestQrValidated, setSideQuestQrValidated] = useState(false);
   const [user, setUser] = useState(null);
   const [showAuth, setShowAuth] = useState(false);
   const [timerStart, setTimerStart] = useState(null);
@@ -116,7 +114,6 @@ export default function App() {
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [activeEvents, setActiveEvents] = useState([]);
   const [initialized, setInitialized] = useState(false);
-  const [autoOpenBeer, setAutoOpenBeer] = useState(false);
   const [hatClaimed, setHatClaimed] = useState(() => localStorage.getItem("hcm-hat-claimed") === "true");
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [milestoneData, setMilestoneData] = useState(null);
@@ -135,8 +132,6 @@ export default function App() {
     return !localStorage.getItem(`hcm-reset-prompt-dismissed-${TRAIL_ID}-${round}`);
   });
 
-  const pendingQR = useRef(null);
-  const pendingSideQuestQR = useRef(null);
   const t = translations[language];
 
   const loadUserMe = async () => {
@@ -233,9 +228,6 @@ export default function App() {
   const goHome = () => {
     setSelectedBrewery(null);
     setSelectedSideQuest(null);
-    setQrValidated(false);
-    setSideQuestQrValidated(false);
-    setAutoOpenBeer(false);
     setView("home");
     try {
       window.history.pushState({}, "", "/");
@@ -254,10 +246,11 @@ export default function App() {
 
   const loadSideQuest = async (questId) => {
     try {
-      const res = await fetch(`/api/trails/${TRAIL_ID}/side-quests/${questId}/qr`);
+      const res = await fetch(`/api/trails/${TRAIL_ID}/side-quests/${questId}`);
       const data = await res.json();
-      if (data.ok && data.sideQuest) {
-        return data.sideQuest;
+      const quest = data.sideQuest || data.quest;
+      if (data.ok && quest) {
+        return quest;
       }
     } catch (err) {
       console.error("Failed to load side quest:", err);
@@ -471,17 +464,8 @@ export default function App() {
       if (sideQuestId) {
         loadSideQuest(sideQuestId).then((quest) => {
           if (quest) {
-            pendingSideQuestQR.current = { quest, questId: sideQuestId };
-            const u = savedUser ? JSON.parse(savedUser) : null;
-            if (u) {
-              setSelectedSideQuest(quest);
-              setSideQuestQrValidated(true);
-              setView("sidequest");
-              setUser(u);
-              setShowAuth(false);
-            } else {
-              setShowAuth(true);
-            }
+            setSelectedSideQuest(quest);
+            setView("sidequest");
           }
           setInitialized(true);
         });
@@ -490,27 +474,14 @@ export default function App() {
       }
 
       loadBreweries().then((list) => {
+        // Old /checkin/{breweryId} links (printed QR codes) just open the brewery page.
         const checkinId = parseCheckinFromUrl();
-        const directBreweryId = parseBreweryFromUrl();
-
         if (checkinId) {
-          const brewery = list.find((b) => b.id === checkinId);
-          if (brewery) {
-            try { window.history.replaceState({}, "", `/brewery/${checkinId}`); } catch {}
-            pendingQR.current = { brewery, breweryId: checkinId, autoOpenBeer: true };
-            const u = savedUser ? JSON.parse(savedUser) : null;
-            if (u) {
-              setSelectedBrewery(brewery);
-              setQrValidated(true);
-              setAutoOpenBeer(true);
-              setView("brewery");
-              setUser(u);
-              setShowAuth(false);
-            } else {
-              setShowAuth(true);
-            }
-          }
-        } else if (directBreweryId) {
+          try { window.history.replaceState({}, "", `/brewery/${checkinId}`); } catch {}
+        }
+        const directBreweryId = checkinId || parseBreweryFromUrl();
+
+        if (directBreweryId) {
           const brewery = list.find((b) => b.id === directBreweryId);
           if (brewery) {
             setSelectedBrewery(brewery);
@@ -594,19 +565,6 @@ export default function App() {
     setUser(userData);
     localStorage.setItem("hcm-user", JSON.stringify(userData));
     setShowAuth(false);
-    if (pendingQR.current) {
-      setSelectedBrewery(pendingQR.current.brewery);
-      setQrValidated(true);
-      if (pendingQR.current.autoOpenBeer) setAutoOpenBeer(true);
-      setView("brewery");
-      pendingQR.current = null;
-    }
-    if (pendingSideQuestQR.current) {
-      setSelectedSideQuest(pendingSideQuestQR.current.quest);
-      setSideQuestQrValidated(true);
-      setView("sidequest");
-      pendingSideQuestQR.current = null;
-    }
   };
 
   const addStamp = async (breweryId) => {
@@ -661,8 +619,6 @@ export default function App() {
 
   const handleBreweryClick = (brewery) => {
     setSelectedBrewery(brewery);
-    setQrValidated(false);
-    setAutoOpenBeer(false);
     setView("brewery");
     try {
       window.history.pushState({}, "", `/brewery/${brewery.id}`);
@@ -671,7 +627,6 @@ export default function App() {
 
   const handleSideQuestClick = (quest) => {
     setSelectedSideQuest(quest);
-    setSideQuestQrValidated(false);
     setView("sidequest");
   };
 
@@ -695,9 +650,6 @@ export default function App() {
     if (newView !== "brewery" && newView !== "sidequest") {
       setSelectedBrewery(null);
       setSelectedSideQuest(null);
-      setQrValidated(false);
-      setSideQuestQrValidated(false);
-      setAutoOpenBeer(false);
       try {
         if (newView === "home") window.history.pushState({}, "", "/");
         else if (newView === "map") window.history.pushState({}, "", "/map");
@@ -750,19 +702,6 @@ export default function App() {
     await loadMe();
     if (!localStorage.getItem("hcm-onboarding-complete")) {
       setShowOnboarding(true);
-    }
-    if (pendingQR.current) {
-      setSelectedBrewery(pendingQR.current.brewery);
-      setQrValidated(true);
-      if (pendingQR.current.autoOpenBeer) setAutoOpenBeer(true);
-      setView("brewery");
-      pendingQR.current = null;
-    }
-    if (pendingSideQuestQR.current) {
-      setSelectedSideQuest(pendingSideQuestQR.current.quest);
-      setSideQuestQrValidated(true);
-      setView("sidequest");
-      pendingSideQuestQR.current = null;
     }
   };
 
@@ -906,14 +845,10 @@ export default function App() {
           beers={beers}
           addStamp={addStamp}
           addBeer={addBeer}
-          qrValidated={qrValidated}
-          setQrValidated={setQrValidated}
           onBack={goHome}
           language={language}
           user={user}
           userMe={userMe}
-          autoOpenBeer={autoOpenBeer}
-          onAutoOpenComplete={() => setAutoOpenBeer(false)}
         />
       )}
       {view === "sidequest" && selectedSideQuest && (
@@ -924,7 +859,6 @@ export default function App() {
           onBack={goHome}
           language={language}
           user={user}
-          qrValidated={sideQuestQrValidated}
         />
       )}
       {view === "map" && (
