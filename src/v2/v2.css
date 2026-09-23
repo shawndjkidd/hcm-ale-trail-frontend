@@ -622,3 +622,17 @@ body.night-mode .v2 .v2-bcard.is-stamped, body.night-mode .v2 .v2-bcard.is-close
 .v2-night .ghost.sun { left: 10px; }
 .v2-night .ghost.moon { right: 10px; }
 @media (max-width: 360px) { .v2-top2 .row .v2-flags button img { width: 34px; height: 23px; } }
+
+/* ── Event rows: one style for all, date block carries "tonight" ───────── */
+.v2 .v2-evrow, .v2 .v2-evrow.is-tonight { background: var(--ink); color: #fff; border: 3px solid var(--ink); box-shadow: 4px 4px 0 rgba(0,0,0,.35); padding: 0; align-items: stretch; gap: 0; }
+.v2 .v2-evrow .when { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; min-width: 84px; padding: 10px 6px; background: #fff; color: var(--ink); font-size: .8rem; font-weight: 800; letter-spacing: .03em; line-height: 1.15; }
+.v2 .v2-evrow .when b { display: block; font-size: .66rem; letter-spacing: .1em; opacity: .75; }
+.v2 .v2-evrow.is-tonight .when { background: var(--yellow); }
+.v2 .v2-evrow.is-tonight .when b { opacity: 1; color: var(--red); }
+.v2 .v2-evrow .what { padding: 10px 12px; font-size: .9rem; color: rgba(255,255,255,.85); }
+.v2 .v2-evrow .what b { color: #fff; font-size: 1rem; }
+body.night-mode .v2 .v2-evrow:not(.is-tonight) { background: var(--ink); color: #fff; border-color: var(--ink); }
+/* Events page rows (column layout) */
+.v2 .v2-evrow[style*="column"] { padding: 10px 12px; }
+.v2 .v2-evrow[style*="column"].is-tonight { border-left: 8px solid var(--yellow); }
+.v2 .v2-evrow[style*="column"] a { color: var(--yellow); }

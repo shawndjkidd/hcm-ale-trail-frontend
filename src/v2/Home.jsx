@@ -86,7 +86,9 @@ export function SideQuestCard({ quest, language, onOpen }) {
 function eventWhen(ev, language, v) {
   const d = new Date(ev.startsAt);
   const time = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' });
-  return isTonight(ev) ? `${v.today.toUpperCase()} ${time}` : shortDate(ev.startsAt, language).toUpperCase();
+  if (isTonight(ev)) return { top: v.tonight, bottom: time, tonight: true };
+  const dow = d.toLocaleDateString(language === 'vn' ? 'vi-VN' : language === 'kr' ? 'ko-KR' : language === 'jp' ? 'ja-JP' : 'en-GB', { weekday: 'short', timeZone: 'Asia/Ho_Chi_Minh' });
+  return { top: dow.toUpperCase(), bottom: shortDate(ev.startsAt, language).toUpperCase(), tonight: false };
 }
 
 export function isTonight(ev) {
@@ -177,7 +179,7 @@ export default function Home({
 
       {tonight.length > 0 && (
         <button type="button" className="v2-tonight" onClick={() => onOpenEvents(tonight[0])}>
-          <span className="when">{v.tonight}<br />{eventWhen(tonight[0], language, v).split(' ').pop()}</span>
+          <span className="when">{v.tonight}<br />{eventWhen(tonight[0], language, v).bottom}</span>
           <span className="what">
             <b>{localized(tonight[0].title, language)}</b>
             {tonight[0].breweryName}
@@ -224,7 +226,7 @@ export default function Home({
           <div style={{ display: 'grid', gap: 8 }}>
             {upcoming.slice(0, 4).map((ev) => (
               <button key={ev.id} type="button" className={`v2-evrow${isTonight(ev) ? ' is-tonight' : ''}`} onClick={() => onOpenEvents(ev)}>
-                <span className="when">{eventWhen(ev, language, v)}</span>
+                {(() => { const w = eventWhen(ev, language, v); return <span className="when"><b>{w.top}</b>{w.bottom}</span>; })()}
                 <span className="what"><b>{localized(ev.title, language)}</b>{ev.breweryName || ''}</span>
               </button>
             ))}
@@ -238,7 +240,6 @@ export default function Home({
         <a href="https://www.facebook.com/hcmaletrail" target="_blank" rel="noreferrer">Facebook</a>
         <a href="https://www.hochiminhaletrail.com/" target="_blank" rel="noreferrer">{v.website}</a>
       </div>
-      {!user && <p style={{ textAlign: 'center', fontSize: '.85rem', opacity: .9 }}><Icon.cap style={{ verticalAlign: '-3px', marginRight: 6 }} />{v.w3}</p>}
     </div>
   );
 }
