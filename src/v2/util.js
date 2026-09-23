@@ -152,6 +152,12 @@ const LOCAL_LOGOS = {
 const PREVIEW_PHOTOS = {
   'Heart of Darkness': '/photos/heart-of-darkness.jpg',
   'East West Brewing': '/photos/east-west.jpg',
+  'BiaCraft': '/photos/biacraft.jpg',
+  'Deme': '/photos/deme.jpg',
+  'Steersman': '/photos/steersman.jpg',
+  'Rooster Beers': '/photos/rooster.jpg',
+  '7 Bridges Brewing Co.': '/photos/7bridges.jpg',
+  'Belgo Saigon': '/photos/belgo.jpg',
 };
 export const photoFor = (b) => b?.photo_url || PREVIEW_PHOTOS[b?.name] || null;
 
