@@ -31,7 +31,6 @@ export function BreweryCard({ brewery, index, stampedAt, language, onOpen, here 
   const state = isStamped ? 'stamped' : st.open ? 'open' : 'closed';
   const km = here && brewery.latitude != null ? distanceKm(here, { lat: brewery.latitude, lng: brewery.longitude }) : null;
   const photo = photoFor(brewery) ? `url("${photoFor(brewery)}") center/cover` : placeGradient(brewery.id);
-  const date = isStamped ? shortDate(stampedAt, language) : '';
   return (
     <button type="button" data-id={brewery.id} className={`v2-bcard is-${state}`} onClick={() => onOpen(brewery)}>
       <span className="photo" style={{ background: photo }}>
@@ -43,7 +42,6 @@ export function BreweryCard({ brewery, index, stampedAt, language, onOpen, here 
         <span className="sub">
           {districtLabel(brewery.district, language)}
           {km != null ? ` · ${formatKm(km)}` : ''}
-          {isStamped && date ? ` · ${date}` : ''}
         </span>
         <span className="status">
           {isStamped ? (
