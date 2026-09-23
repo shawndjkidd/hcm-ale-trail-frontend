@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import AuthModal from "./components/AuthModal";
+import SignIn from "./v2/SignIn";
 import UntappdOnboarding from "./components/UntappdOnboarding";
 import CardResetPrompt from "./components/CardResetPrompt";
 
@@ -299,7 +299,7 @@ export default function App() {
     if (userMe) patchUserMe({ legal_age_confirmed: true }).catch(() => {});
   };
 
-  const requireSignIn = (then) => { setAfterAuth(() => then || null); setShowAuth(true); };
+  const requireSignIn = (then, reason) => { setAfterAuth(() => then || null); setShowAuth({ mode: "signup", reason: reason || null }); };
 
   const onAuthSuccess = async (authRes) => {
     const u = authRes?.user ? { id: authRes.user.id, email: authRes.user.email } : { id: null };
@@ -323,7 +323,7 @@ export default function App() {
   };
 
   const startCheckIn = (brewery) => {
-    if (!user) return requireSignIn(() => setCheckIn(brewery));
+    if (!user) return requireSignIn(() => setCheckIn(brewery), v.signInToCheckIn);
     setCheckIn(brewery);
   };
 
@@ -461,7 +461,7 @@ export default function App() {
           onClose={() => setMenuOpen(false)}
           onProfile={() => { setMenuOpen(false); setScreen({ type: "profile" }); push("/profile"); }}
           onGuide={() => { setMenuOpen(false); setShowGuide(true); }}
-          onSignIn={() => { setMenuOpen(false); requireSignIn(); }}
+          onSignIn={() => { setMenuOpen(false); setShowAuth({ mode: "login" }); }}
           onLogout={handleLogout} />
       )}
 
@@ -502,15 +502,12 @@ export default function App() {
             confirmAge(); localStorage.setItem("hcm-welcome-done", "true"); setWelcomeDone(true);
             if (!localStorage.getItem("hcm-guide-seen")) setShowGuide(true);
           }}
-          onSignIn={() => { confirmAge(); localStorage.setItem("hcm-welcome-done", "true"); setWelcomeDone(true); setShowAuth(true); }} />
+          onSignIn={() => { confirmAge(); localStorage.setItem("hcm-welcome-done", "true"); setWelcomeDone(true); setShowAuth({ mode: "login" }); }} />
       )}
 
       {showAuth && (
-        <div className="v2-auth-host">
-          <AuthModal onSuccess={onAuthSuccess} language={language} setLanguage={setLanguage} />
-          <button type="button" className="round-btn" onClick={() => { setShowAuth(false); setAfterAuth(null); }} aria-label={v.close}
-            style={{ position: "fixed", top: "calc(12px + env(safe-area-inset-top, 0px))", right: 12, zIndex: 1001 }}>✕</button>
-        </div>
+        <SignIn language={language} initialMode={showAuth.mode || "signup"} reason={showAuth.reason} onSuccess={onAuthSuccess}
+          onClose={() => { setShowAuth(false); setAfterAuth(null); }} />
       )}
 
       {showUntappd && (

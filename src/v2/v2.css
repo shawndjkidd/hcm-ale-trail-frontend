@@ -45,7 +45,7 @@ body.night-mode .v2 {
   --jade-ink: #9BE3B7;
 }
 .v2 *, .v2 *::before, .v2 *::after { box-sizing: border-box; }
-.v2 button { font: inherit; color: inherit; cursor: pointer; }
+.v2 :where(button) { font: inherit; color: inherit; cursor: pointer; }
 .v2 a { color: inherit; }
 .v2 :focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
 .v2 h1, .v2 h2, .v2 h3 { margin: 0; font-weight: 400; }

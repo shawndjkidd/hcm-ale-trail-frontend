@@ -2,6 +2,7 @@
 // Placeholders use {name}; fill them with fmt().
 
 const en = {
+  siUp: 'Join the trail', siIn: 'Welcome back', siForgot: 'Reset your password', google: 'Continue with Google', orEmail: 'or with email', nameLabel: 'Your name', emailLabel: 'Email', passwordLabel: 'Password', confirmLabel: 'Confirm password', createAccount: 'Create account', signInBtn: 'Sign in', toSignIn: 'Already have an account? Sign in', toSignUp: 'New here? Create an account', forgotLink: 'Forgot password?', sendReset: 'Send reset link', resetSent: 'Check your email for a reset link.', backToSignIn: 'Back to sign in', errFill: 'Please fill in every field.', errPwShort: 'Password needs at least 8 characters.', errMismatch: 'Passwords do not match.', errExists: 'An account with that email already exists. Sign in instead.', errLogin: 'Email or password is incorrect.', accountCreated: 'Account created. Please sign in.',
   addCalendar: '+ Calendar', editTaste: 'Edit', changeEmail: 'Change email', changePassword: 'Change password', newEmail: 'New email', emailChangeSent: 'Check both inboxes to confirm the change.',
   back: 'Back', close: 'Close', skip: 'Skip', next: 'Next', loading: 'Loading…', copy: 'Copy', copied: 'Copied',
   cancel: 'Cancel', save: 'Save', signIn: 'Sign in', midnight: 'midnight',
@@ -105,6 +106,7 @@ const en = {
 };
 
 const vn = {
+  siUp: 'Tham gia hành trình', siIn: 'Chào mừng trở lại', siForgot: 'Đặt lại mật khẩu', google: 'Tiếp tục với Google', orEmail: 'hoặc dùng email', nameLabel: 'Tên của bạn', emailLabel: 'Email', passwordLabel: 'Mật khẩu', confirmLabel: 'Xác nhận mật khẩu', createAccount: 'Tạo tài khoản', signInBtn: 'Đăng nhập', toSignIn: 'Đã có tài khoản? Đăng nhập', toSignUp: 'Lần đầu? Tạo tài khoản', forgotLink: 'Quên mật khẩu?', sendReset: 'Gửi liên kết đặt lại', resetSent: 'Kiểm tra email để lấy liên kết đặt lại.', backToSignIn: 'Quay lại đăng nhập', errFill: 'Vui lòng điền đủ thông tin.', errPwShort: 'Mật khẩu cần ít nhất 8 ký tự.', errMismatch: 'Mật khẩu không khớp.', errExists: 'Email này đã có tài khoản. Hãy đăng nhập.', errLogin: 'Email hoặc mật khẩu không đúng.', accountCreated: 'Đã tạo tài khoản. Vui lòng đăng nhập.',
   addCalendar: '+ Lịch', editTaste: 'Sửa', changeEmail: 'Đổi email', changePassword: 'Đổi mật khẩu', newEmail: 'Email mới', emailChangeSent: 'Kiểm tra cả hai hộp thư để xác nhận.',
   back: 'Quay lại', close: 'Đóng', skip: 'Bỏ qua', next: 'Tiếp', loading: 'Đang tải…', copy: 'Sao chép', copied: 'Đã chép',
   cancel: 'Huỷ', save: 'Lưu', signIn: 'Đăng nhập', midnight: 'nửa đêm',
@@ -194,6 +196,7 @@ const vn = {
 };
 
 const kr = {
+  siUp: '트레일 참여하기', siIn: '다시 오신 걸 환영해요', siForgot: '비밀번호 재설정', google: 'Google로 계속하기', orEmail: '또는 이메일로', nameLabel: '이름', emailLabel: '이메일', passwordLabel: '비밀번호', confirmLabel: '비밀번호 확인', createAccount: '계정 만들기', signInBtn: '로그인', toSignIn: '이미 계정이 있나요? 로그인', toSignUp: '처음인가요? 계정 만들기', forgotLink: '비밀번호를 잊으셨나요?', sendReset: '재설정 링크 보내기', resetSent: '이메일에서 재설정 링크를 확인하세요.', backToSignIn: '로그인으로 돌아가기', errFill: '모든 항목을 입력하세요.', errPwShort: '비밀번호는 8자 이상이어야 해요.', errMismatch: '비밀번호가 일치하지 않아요.', errExists: '이미 가입된 이메일이에요. 로그인해 주세요.', errLogin: '이메일 또는 비밀번호가 올바르지 않아요.', accountCreated: '계정이 만들어졌어요. 로그인해 주세요.',
   addCalendar: '+ 캘린더', editTaste: '수정', changeEmail: '이메일 변경', changePassword: '비밀번호 변경', newEmail: '새 이메일', emailChangeSent: '두 메일함을 모두 확인해 변경을 완료하세요.',
   back: '뒤로', close: '닫기', skip: '건너뛰기', next: '다음', loading: '불러오는 중…', copy: '복사', copied: '복사됨',
   cancel: '취소', save: '저장', signIn: '로그인', midnight: '자정',
@@ -283,6 +286,7 @@ const kr = {
 };
 
 const jp = {
+  siUp: 'トレイルに参加', siIn: 'おかえりなさい', siForgot: 'パスワードの再設定', google: 'Googleで続ける', orEmail: 'またはメールで', nameLabel: 'お名前', emailLabel: 'メール', passwordLabel: 'パスワード', confirmLabel: 'パスワード（確認）', createAccount: 'アカウント作成', signInBtn: 'ログイン', toSignIn: 'アカウントをお持ちの方はログイン', toSignUp: '初めての方はアカウント作成', forgotLink: 'パスワードをお忘れですか？', sendReset: '再設定リンクを送る', resetSent: 'メールで再設定リンクをご確認ください。', backToSignIn: 'ログインに戻る', errFill: 'すべての項目を入力してください。', errPwShort: 'パスワードは8文字以上にしてください。', errMismatch: 'パスワードが一致しません。', errExists: 'このメールは登録済みです。ログインしてください。', errLogin: 'メールまたはパスワードが正しくありません。', accountCreated: 'アカウントを作成しました。ログインしてください。',
   addCalendar: '+ カレンダー', editTaste: '編集', changeEmail: 'メールを変更', changePassword: 'パスワードを変更', newEmail: '新しいメール', emailChangeSent: '両方の受信箱を確認して変更を完了してください。',
   back: '戻る', close: '閉じる', skip: 'スキップ', next: '次へ', loading: '読み込み中…', copy: 'コピー', copied: 'コピーしました',
   cancel: 'キャンセル', save: '保存', signIn: 'ログイン', midnight: '深夜0時',
