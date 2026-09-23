@@ -704,3 +704,6 @@ body.night-mode .v2 .v2-bcard .stencil { filter: invert(1); opacity: .12; }
 .v2-install-steps .g { flex: none; width: 40px; height: 40px; display: grid; place-items: center; background: #F2F2F7; border: 2px solid var(--ink); color: #0A84FF; }
 .v2-install-steps .g svg { width: 24px; height: 24px; }
 .v2-install-steps .g b { color: #0A84FF; font-size: .85rem; }
+
+/* Completed cards: small check badge, photo left clear */
+.v2 .v2-bcard.is-stamped .badge { font-size: 1.05rem; padding: 3px 8px; line-height: 1.1; border-right-width: 2px; border-bottom-width: 2px; }

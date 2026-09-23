@@ -36,7 +36,6 @@ export function BreweryCard({ brewery, index, stampedAt, language, onOpen, here 
     <button type="button" data-id={brewery.id} className={`v2-bcard is-${state}`} onClick={() => onOpen(brewery)}>
       <span className="photo" style={{ background: photo }}>
         <span className="badge">{isStamped ? '✓' : index + 1}</span>
-        {isStamped && <span className="stampmark">{date}</span>}
       </span>
       <span className="body">
         {stencilFor(brewery) && <img className="stencil" src={stencilFor(brewery)} alt="" />}
