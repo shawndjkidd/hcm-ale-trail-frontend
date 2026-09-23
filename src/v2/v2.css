@@ -217,8 +217,10 @@ body.night-mode .v2 .v2-bcard.is-closed .name { color: var(--muted); }
 .v2-evrow .logo { width: 38px; height: 38px; border-radius: 50%; background: var(--ink); color: var(--yellow); display: grid; place-items: center; font-weight: 800; flex: none; overflow: hidden; }
 .v2-evrow .logo img { width: 100%; height: 100%; object-fit: contain; background: #fff; }
 
-.v2-follow { display: flex; justify-content: center; flex-wrap: wrap; gap: 14px; font-size: .85rem; padding: 8px 0 4px; }
-.v2-follow a { font-weight: 700; }
+.v2-follow { background: var(--ink); color: #fff; border: 3px solid var(--ink); box-shadow: 5px 5px 0 rgba(0,0,0,.35); padding: 14px 14px 18px; margin-top: 8px; }
+.v2-follow h3 { font-family: Anton, Impact, sans-serif; font-weight: 400; text-transform: uppercase; color: var(--yellow); font-size: 1.5rem; letter-spacing: .02em; margin: 0 0 12px; line-height: 1; }
+.v2-follow .v2-links a { border-color: #fff; box-shadow: 4px 4px 0 #fff; }
+.v2-follow .v2-links a:active { box-shadow: 1px 1px 0 #fff; }
 
 /* Menu drawer + sheets */
 .v2-scrim { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 60; }

@@ -235,10 +235,12 @@ export default function Home({
       )}
 
       <div className="v2-follow">
-        <span>{v.followTrail}</span>
-        <a href="https://www.instagram.com/hcm.aletrail/" target="_blank" rel="noreferrer">Instagram</a>
-        <a href="https://www.facebook.com/hcmaletrail" target="_blank" rel="noreferrer">Facebook</a>
-        <a href="https://www.hochiminhaletrail.com/" target="_blank" rel="noreferrer">{v.website}</a>
+        <h3>{v.followTrail.replace(/:$/, '')}</h3>
+        <div className="v2-links" style={{ gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }}>
+          <a href="https://www.instagram.com/hcm.aletrail/" target="_blank" rel="noreferrer" style={{ background: '#E1306C', color: '#fff' }}><Icon.instagram /><span>Instagram</span></a>
+          <a href="https://www.facebook.com/hcmaletrail" target="_blank" rel="noreferrer" style={{ background: '#1877F2', color: '#fff' }}><Icon.facebook /><span>Facebook</span></a>
+          <a href="https://www.hochiminhaletrail.com/" target="_blank" rel="noreferrer" style={{ background: 'var(--yellow)', color: 'var(--ink)' }}><Icon.globe /><span>{v.website}</span></a>
+        </div>
       </div>
     </div>
   );
