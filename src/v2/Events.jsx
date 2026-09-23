@@ -3,17 +3,12 @@ import { useV, shortDate } from './i18n';
 import { Seg } from './ui';
 import { isTonight } from './Home';
 import { localized, logoFor } from './util';
-
-function calendarLink(ev, title) {
-  const f = (d) => new Date(d).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
-  const end = ev.endsAt || new Date(new Date(ev.startsAt).getTime() + 2 * 3600 * 1000).toISOString();
-  const p = new URLSearchParams({ action: 'TEMPLATE', text: title, dates: `${f(ev.startsAt)}/${f(end)}`, details: ev.breweryName || 'HCM Ale Trail' });
-  return `https://calendar.google.com/calendar/render?${p.toString()}`;
-}
+import EventSheet, { calendarLink } from './EventSheet';
 
 export default function Events({ events, breweries, language, onBack, onOpenBrewery }) {
   const v = useV(language);
   const [filter, setFilter] = useState('all');
+  const [openEvent, setOpenEvent] = useState(null);
   const now = Date.now();
   const weekEnd = now + 7 * 24 * 3600 * 1000;
 
@@ -56,7 +51,7 @@ export default function Events({ events, breweries, language, onBack, onOpenBrew
             const logo = b ? logoFor(b) : null;
             return (
               <div key={e.id} className={`v2-evrow${g.key === 'tonight' ? ' is-tonight' : ''}`} style={{ flexDirection: 'column', alignItems: 'stretch' }}>
-                <button type="button" onClick={() => b && onOpenBrewery(b)} style={{ display: 'flex', gap: 10, alignItems: 'center', background: 'none', border: 0, padding: 0, textAlign: 'left', color: 'inherit' }}>
+                <button type="button" onClick={() => setOpenEvent(e)} style={{ display: 'flex', gap: 10, alignItems: 'center', background: 'none', border: 0, padding: 0, textAlign: 'left', color: 'inherit' }}>
                   <span className="logo">{logo ? <img src={logo} alt="" /> : (e.breweryName || 'A')[0]}</span>
                   <span className="what">
                     <span style={{ fontSize: '.7rem', fontWeight: 800, letterSpacing: '.04em' }}>
@@ -76,6 +71,7 @@ export default function Events({ events, breweries, language, onBack, onOpenBrew
           })}
         </section>
       ))}
+      {openEvent && <EventSheet event={openEvent} brewery={breweryOf(openEvent)} language={language} onClose={() => setOpenEvent(null)} onOpenBrewery={onOpenBrewery} />}
     </div>
   );
 }

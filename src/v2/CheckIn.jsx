@@ -45,7 +45,7 @@ function TapWall({ brewery, language, picked, onPick, onNext, onClose }) {
     return (
       <button key={b.id} type="button" className="tap" aria-pressed={on}
         style={{ background: look.color, color: look.ink }}
-        onClick={() => { onPick({ name: b.name, style: b.style, abv: b.abv, brewery_beer_id: String(b.id).startsWith('recent') ? null : b.id }); setTyping(false); }}>
+        onClick={() => { onPick({ name: b.name, style: b.style, abv: b.abv, brewery_beer_id: /^(recent|demo)/.test(String(b.id)) ? null : b.id }); setTyping(false); }}>
         <span className="n">{b.name}</span>
         <span className="s">{[b.style, b.abv ? `${b.abv}%` : null].filter(Boolean).join(' · ')}</span>
       </button>

@@ -2,6 +2,7 @@
 // Placeholders use {name}; fill them with fmt().
 
 const en = {
+  evWhen: 'When', evWhere: 'Where', evEntry: 'Entry', evGood: 'Good to know', addToCalendar: 'Add to calendar', viewBrewery: 'View brewery',
   updateTitle: 'New version ready', updateBody: "We've just added new things to the Ale Trail. Tap to update, it takes a second.", updateBtn: 'Update now',
   completedTag: 'COMPLETED!',
   hatNoStock: 'Show this screen to staff at any brewery to collect your hat.',
@@ -110,6 +111,7 @@ const en = {
 };
 
 const vn = {
+  evWhen: 'Khi nào', evWhere: 'Ở đâu', evEntry: 'Vào cửa', evGood: 'Cần biết', addToCalendar: 'Thêm vào lịch', viewBrewery: 'Xem quán',
   updateTitle: 'Đã có phiên bản mới', updateBody: 'Ale Trail vừa có thêm tính năng mới. Nhấn để cập nhật, chỉ mất một giây.', updateBtn: 'Cập nhật ngay',
   completedTag: 'HOÀN THÀNH!',
   hatNoStock: 'Đưa màn hình này cho nhân viên ở bất kỳ nhà máy bia nào để nhận mũ.',
@@ -204,6 +206,7 @@ const vn = {
 };
 
 const kr = {
+  evWhen: '언제', evWhere: '어디서', evEntry: '입장', evGood: '알아두세요', addToCalendar: '캘린더에 추가', viewBrewery: '양조장 보기',
   updateTitle: '새 버전이 준비됐어요', updateBody: '에일 트레일에 새로운 기능이 추가됐어요. 눌러서 업데이트하세요. 금방 끝나요.', updateBtn: '지금 업데이트',
   completedTag: '완료!',
   hatNoStock: '아무 브루어리에서나 직원에게 이 화면을 보여주고 모자를 받으세요.',
@@ -298,6 +301,7 @@ const kr = {
 };
 
 const jp = {
+  evWhen: '日時', evWhere: '場所', evEntry: '入場', evGood: 'ポイント', addToCalendar: 'カレンダーに追加', viewBrewery: 'ブルワリーを見る',
   updateTitle: '新しいバージョンがあります', updateBody: 'エールトレイルに新機能が追加されました。タップして更新してください。すぐに終わります。', updateBtn: '今すぐ更新',
   completedTag: '達成！',
   hatNoStock: 'どのブルワリーでもスタッフにこの画面を見せてキャップを受け取ってください。',

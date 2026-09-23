@@ -3,6 +3,8 @@ import { TRAIL_ID } from '../config';
 import { useV, fmt, shortDate, weekdayName } from './i18n';
 import { Icon, Seg, Sheet, Glass } from './ui';
 import { statusText } from './Home';
+import EventSheet from './EventSheet';
+import { DEMO_MODE, demoBeers } from './demo';
 import { openStatus, localized, districtLabel, beerLook, placeGradient, logoFor, photoFor, STYLE_GROUPS } from './util';
 
 const DAY_KEYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -14,8 +16,8 @@ export function useBreweryBeers(breweryId) {
     setData({ beers: [], recent: [], loaded: false });
     fetch(`/api/trails/${TRAIL_ID}/breweries/${breweryId}/beers`)
       .then((r) => r.json())
-      .then((d) => { if (alive) setData({ beers: d?.beers || [], recent: d?.recent || [], ratedNames: d?.ratedNames || [], loaded: true }); })
-      .catch(() => { if (alive) setData({ beers: [], recent: [], loaded: true }); });
+      .then((d) => { if (alive) setData({ beers: d?.beers?.length ? d.beers : (DEMO_MODE ? demoBeers(breweryId) : []), recent: d?.recent || [], ratedNames: d?.ratedNames || [], loaded: true }); })
+      .catch(() => { if (alive) setData({ beers: DEMO_MODE ? demoBeers(breweryId) : [], recent: [], loaded: true }); });
     return () => { alive = false; };
   }, [breweryId]);
   return data;
@@ -48,6 +50,7 @@ export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events 
   const [showHours, setShowHours] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [openEvent, setOpenEvent] = useState(null);
   const isStamped = !!stampedAt;
   const handle = handleFrom(brewery.instagram_url);
   const logo = logoFor(brewery);
@@ -194,11 +197,11 @@ export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events 
           <section style={{ display: 'grid', gap: 8 }}>
             <h2>{v.comingUp}</h2>
             {myEvents.slice(0, 3).map((e) => (
-              <div key={e.id} className="event">
-                <b>{shortDate(e.startsAt, language)}, {new Date(e.startsAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' })}</b>
-                <div>{localized(e.title, language)}</div>
-                {e.link && <a href={e.link} target="_blank" rel="noreferrer" style={{ fontWeight: 700 }}>{v.moreInfo} ↗</a>}
-              </div>
+              <button key={e.id} type="button" className="event" onClick={() => setOpenEvent(e)}>
+                <span className="when">{shortDate(e.startsAt, language)}, {new Date(e.startsAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' })}</span>
+                <span className="t">{localized(e.title, language)}</span>
+                <span className="more">{v.moreInfo} →</span>
+              </button>
             ))}
           </section>
         )}
@@ -213,6 +216,8 @@ export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events 
           </div>
         </div>
       )}
+
+      {openEvent && <EventSheet event={openEvent} brewery={brewery} language={language} onClose={() => setOpenEvent(null)} />}
 
       {showMenu && (
         <Sheet onClose={() => setShowMenu(false)} label={v.fullMenu}>

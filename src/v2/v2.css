@@ -654,3 +654,38 @@ body.night-mode .v2 .v2-evrow:not(.is-tonight) { background: var(--ink); color: 
 .v2 .v2-bcard .stencil { position: absolute; right: -6px; top: 50%; transform: translateY(-50%) rotate(-8deg); height: 88%; max-width: 52%; object-fit: contain; opacity: .1; pointer-events: none; }
 .v2 .v2-bcard.is-stamped .stencil { opacity: .08; }
 body.night-mode .v2 .v2-bcard .stencil { filter: invert(1); opacity: .12; }
+
+/* Event rows on the brewery page are tappable */
+.v2 .v2-brewery button.event { display: grid; gap: 2px; width: 100%; text-align: left; box-shadow: 4px 4px 0 var(--ink); transition: transform .08s, box-shadow .08s; }
+.v2 .v2-brewery button.event:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--ink); }
+.v2 .v2-brewery button.event .when { font-weight: 800; }
+.v2 .v2-brewery button.event .t { font-weight: 700; font-size: 1rem; }
+.v2 .v2-brewery button.event .more { font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .03em; margin-top: 4px; }
+
+/* Event detail sheet */
+.v2 .v2-sheet:has(.v2-evsheet) { background: var(--ink); color: #fff; border-top-color: var(--yellow); }
+.v2-evsheet { display: grid; gap: 14px; }
+.v2-evsheet .top { display: flex; align-items: center; }
+.v2-evsheet .kind { background: var(--yellow); color: var(--ink); font-weight: 900; font-size: .75rem; letter-spacing: .06em; padding: 4px 8px; }
+.v2-evsheet .kind.new { background: var(--jade); color: #fff; }
+.v2-evsheet .x { background: none; border: 3px solid #fff; color: #fff; width: 38px; height: 38px; font-weight: 900; font-size: 1rem; }
+.v2-evsheet .head { display: flex; gap: 14px; align-items: center; }
+.v2-evsheet .dateblock { flex: none; width: 74px; background: var(--red); color: var(--yellow); border: 3px solid #fff; box-shadow: 4px 4px 0 #fff; display: flex; flex-direction: column; align-items: center; padding: 6px 0 8px; }
+.v2-evsheet .dateblock b { font-family: 'Inter', sans-serif; font-weight: 900; font-size: 2.2rem; line-height: 1; }
+.v2-evsheet .dateblock span { font-weight: 900; font-size: .8rem; letter-spacing: .08em; }
+.v2-evsheet h2 { font-family: Anton, Impact, sans-serif; font-weight: 400; text-transform: uppercase; font-size: 1.9rem; line-height: 1.02; color: var(--yellow); margin: 0; }
+.v2-evsheet .facts { margin: 0; border-top: 2px solid rgba(255,255,255,.2); }
+.v2-evsheet .facts > div { display: flex; gap: 12px; padding: 9px 0; border-bottom: 2px solid rgba(255,255,255,.2); }
+.v2-evsheet .facts dt { width: 64px; flex: none; font-size: .72rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--yellow); padding-top: 2px; }
+.v2-evsheet .facts dd { margin: 0; font-weight: 700; }
+.v2-evsheet .desc { line-height: 1.5; margin: 0; }
+.v2-evsheet .good .eyebrow { color: var(--yellow); margin-bottom: 4px; }
+.v2-evsheet .good ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; line-height: 1.4; }
+.v2-evsheet .actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 10px; }
+.v2-evsheet .act { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 52px; font-weight: 900; text-transform: uppercase; font-size: .85rem; letter-spacing: .02em; text-decoration: none; border: 3px solid #fff; box-shadow: 4px 4px 0 #fff; }
+.v2-evsheet .act svg { width: 20px; height: 20px; }
+.v2-evsheet .act.yellow { background: var(--yellow); color: var(--ink); }
+.v2-evsheet .act.white { background: #fff; color: var(--ink); }
+.v2-evsheet .act:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 #fff; }
+.v2-evsheet .links { display: flex; justify-content: space-between; font-weight: 800; }
+.v2-evsheet .links button, .v2-evsheet .links a { background: none; border: 0; padding: 0; color: #fff; text-decoration: underline; font-weight: 800; font-size: .95rem; }
