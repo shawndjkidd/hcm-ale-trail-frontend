@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useV } from './i18n';
 
 export const LOGO_WHITE = '/brand/logo-white.png';
@@ -186,22 +186,49 @@ export function Glass({ color, size = 20, style }) {
 }
 
 // "Add to home screen" helper, shown once after the first stamp.
+const ShareGlyph = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5" /><path d="M6 11H5v10h14V11h-1" /></svg>);
+const AddGlyph = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3" /><path d="M12 8v8M8 12h8" /></svg>);
+const MenuGlyph = () => (<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="12" cy="19" r="2" /></svg>);
+
 export function InstallPrompt({ language, deferred, onClose }) {
   const v = useV(language);
   const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const [steps, setSteps] = useState(false);
+  const canInstall = deferred && !ios;
+  const icon = (document.getElementById('app-touch-icon')?.getAttribute('href')) || '/icons/pint-180.png';
+  const list = ios
+    ? [{ g: <ShareGlyph />, t: v.installS1, s: v.installS1b }, { g: <AddGlyph />, t: v.installS2 }, { g: <b>Add</b>, t: v.installS3 }]
+    : [{ g: <MenuGlyph />, t: v.installA1 }, { g: <AddGlyph />, t: v.installA2 }, { g: <b>OK</b>, t: v.installA3 }];
   return (
     <Sheet onClose={onClose} label={v.installTitle}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <img src={(document.getElementById('app-touch-icon')?.getAttribute('href')) || '/icons/pint-180.png'} alt="" style={{ width: 56, height: 56, borderRadius: 12, border: '2px solid #111' }} />
+        <img src={icon} alt="" style={{ width: 56, height: 56, borderRadius: 12, border: '2px solid #111' }} />
         <h2 className="display" style={{ fontSize: '1.5rem' }}>{v.installTitle}</h2>
       </div>
-      <p>{ios ? v.installIos : v.installAndroid}</p>
-      {deferred && !ios ? (
-        <button type="button" className="btn block" onClick={async () => { try { deferred.prompt(); await deferred.userChoice; } catch {} onClose(); }}>{v.installBtn}</button>
+      {!steps ? (
+        <>
+          <p>{v.installWhy}</p>
+          {canInstall ? (
+            <button type="button" className="btn block" onClick={async () => { try { deferred.prompt(); await deferred.userChoice; } catch {} onClose(); }}>{v.installAdd}</button>
+          ) : (
+            <button type="button" className="btn block" onClick={() => setSteps(true)}>{v.installShow}</button>
+          )}
+          <button type="button" className="link-btn" onClick={onClose}>{v.installLater}</button>
+        </>
       ) : (
-        <button type="button" className="btn block" onClick={onClose}>{v.gotIt}</button>
+        <>
+          <ol className="v2-install-steps">
+            {list.map((x, i) => (
+              <li key={i}>
+                <span className="n">{i + 1}</span>
+                <span className="t">{x.t}{x.s && <small>{x.s}</small>}</span>
+                <span className="g">{x.g}</span>
+              </li>
+            ))}
+          </ol>
+          <button type="button" className="btn block" onClick={onClose}>{v.installDone}</button>
+        </>
       )}
-      <button type="button" className="link-btn" onClick={onClose}>{v.installLater}</button>
     </Sheet>
   );
 }

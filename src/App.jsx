@@ -10,6 +10,7 @@ import SideQuest from "./v2/SideQuest";
 import MapScreen from "./v2/MapScreen";
 import MyCard from "./v2/MyCard";
 import Events from "./v2/Events";
+import EventSheet from "./v2/EventSheet";
 import Profile from "./v2/Profile";
 import Ask from "./v2/Ask";
 import Onboarding, { MicroQuestion, nextMicroQuestion } from "./v2/Onboarding";
@@ -82,6 +83,7 @@ export default function App() {
   const [stampDates, setStampDates] = useState({});
   const [beers, setBeers] = useState([]);
   const [events, setEvents] = useState([]);
+  const [eventSheet, setEventSheet] = useState(null);
   const [sideQuests, setSideQuests] = useState([]);
   const [questClaims, setQuestClaims] = useState(() => readJSON("hcm-sidequest-checkins", []));
   const [boardTop, setBoardTop] = useState([]);
@@ -488,7 +490,8 @@ export default function App() {
         setLanguage={setLanguage} nightMode={nightMode} toggleNightMode={toggleNightMode} onMenu={() => setMenuOpen(true)}
         onOpenBrewery={openBrewery} onOpenQuest={openQuest}
         onOpenEvents={(ev) => {
-          if (ev?.breweryId && breweries.some((b) => b.id === ev.breweryId)) openBrewery({ id: ev.breweryId });
+          // An event opens its details first; the sheet links on to the brewery
+          if (ev) setEventSheet(ev);
           else { setScreen({ type: "events" }); push("/events"); }
         }}
         onOpenGuide={() => setShowGuide(true)} onOpenBoard={() => { setCardTab("ranking"); goTab("card"); }}
@@ -511,6 +514,11 @@ export default function App() {
           onGuide={() => { setMenuOpen(false); setShowGuide(true); }}
           onSignIn={() => { setMenuOpen(false); setShowAuth({ mode: "login" }); }}
           onLogout={handleLogout} />
+      )}
+
+      {eventSheet && (
+        <EventSheet event={eventSheet} language={language} onClose={() => setEventSheet(null)} onOpenBrewery={openBrewery}
+          brewery={breweries.find((b) => b.id === eventSheet.breweryId || b.name === eventSheet.breweryName)} />
       )}
 
       {checkIn && (

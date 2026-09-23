@@ -693,3 +693,13 @@ body.night-mode .v2 .v2-bcard .stencil { filter: invert(1); opacity: .12; }
 /* Card you just checked in at gives a quick bump when you land back on the Trail */
 @keyframes v2-bump { 0% { transform: scale(1); } 30% { transform: scale(1.04); } 60% { transform: scale(.99); } 100% { transform: scale(1); } }
 .v2 .v2-bcard.just-done { animation: v2-bump .6s ease-out .35s both; }
+
+/* Add-to-home-screen steps */
+.v2-install-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.v2-install-steps li { display: flex; align-items: center; gap: 12px; border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); background: #fff; color: var(--ink); padding: 10px 12px; }
+.v2-install-steps .n { flex: none; width: 34px; height: 34px; display: grid; place-items: center; background: var(--red); color: var(--yellow); font-family: 'Inter', sans-serif; font-weight: 900; font-size: 1.2rem; }
+.v2-install-steps .t { flex: 1; font-weight: 800; line-height: 1.25; }
+.v2-install-steps .t small { display: block; font-weight: 600; font-size: .8rem; color: #6B625E; margin-top: 2px; }
+.v2-install-steps .g { flex: none; width: 40px; height: 40px; display: grid; place-items: center; background: #F2F2F7; border: 2px solid var(--ink); color: #0A84FF; }
+.v2-install-steps .g svg { width: 24px; height: 24px; }
+.v2-install-steps .g b { color: #0A84FF; font-size: .85rem; }
