@@ -36,13 +36,30 @@ export const Icon = {
   cap: (p) => (<svg viewBox="0 0 24 16" width="26" height="18" aria-hidden="true" {...p}><path d="M2 12c0-6 4-10 10-10s10 4 10 10z" fill="currentColor" /><path d="M12 12h11v2H12z" fill="currentColor" /></svg>),
 };
 
+export const LOGO_BLACK = '/logos/HCM Logo-Ale-Trail-2023-BK.png';
+
+// Sun/moon pill, as in the original app
+export function NightToggle({ nightMode, toggleNightMode }) {
+  return (
+    <button type="button" className="v2-night" role="switch" aria-checked={nightMode} aria-label="Night mode" onClick={toggleNightMode}>
+      <span className={`knob${nightMode ? ' on' : ''}`} aria-hidden="true">{nightMode ? '☾' : '☀'}</span>
+      <span className="ghost sun" aria-hidden="true">☀</span>
+      <span className="ghost moon" aria-hidden="true">☾</span>
+    </button>
+  );
+}
+
 export function TopBar({ language, setLanguage, nightMode, toggleNightMode, onMenu }) {
   return (
-    <div className="v2-top">
-      <img className="logo" src={LOGO_WHITE} alt="Ho Chi Minh Ale Trail" />
-      <span className="spacer" />
-      <Flags language={language} setLanguage={setLanguage} size="sm" />
-      <button type="button" className="menu-btn" onClick={onMenu} aria-label="Menu">☰</button>
+    <div className="v2-top2">
+      <div className="row">
+        <Flags language={language} setLanguage={setLanguage} />
+        <NightToggle nightMode={nightMode} toggleNightMode={toggleNightMode} />
+        <button type="button" className="menu-btn" onClick={onMenu} aria-label="Menu">☰</button>
+      </div>
+      <div className="logobox">
+        <img src={LOGO_BLACK} alt="Ho Chi Minh Ale Trail" />
+      </div>
     </div>
   );
 }
