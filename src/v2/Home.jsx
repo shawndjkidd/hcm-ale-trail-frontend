@@ -3,7 +3,7 @@ import { useV, fmt, shortDate, weekdayName } from './i18n';
 import { TopBar, Pints, Icon } from './ui';
 import {
   openStatus, formatClose, formatClock, prettyBoardTime, districtLabel, localized,
-  distanceKm, formatKm, placeGradient, logoFor, photoFor,
+  distanceKm, formatKm, placeGradient, logoFor, photoFor, stencilFor,
 } from './util';
 
 export function useNow(intervalMs = 1000, active = true) {
@@ -36,13 +36,10 @@ export function BreweryCard({ brewery, index, stampedAt, language, onOpen, here 
     <button type="button" className={`v2-bcard is-${state}`} onClick={() => onOpen(brewery)}>
       <span className="photo" style={{ background: photo }}>
         <span className="badge">{isStamped ? '✓' : index + 1}</span>
-        {isStamped ? (
-          <span className="stampmark">{date}</span>
-        ) : logoFor(brewery) ? (
-          <img className="logo" src={logoFor(brewery)} alt="" />
-        ) : null}
+        {isStamped && <span className="stampmark">{date}</span>}
       </span>
       <span className="body">
+        {stencilFor(brewery) && <img className="stencil" src={stencilFor(brewery)} alt="" />}
         <span className="name">{brewery.name}</span>
         <span className="sub">
           {districtLabel(brewery.district, language)}

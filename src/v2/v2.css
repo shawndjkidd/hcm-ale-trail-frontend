@@ -644,3 +644,10 @@ body.night-mode .v2 .v2-evrow:not(.is-tonight) { background: var(--ink); color: 
 .v2 .v2-bcard.is-closed .photo { filter: none; }
 .v2 .v2-bcard.is-stamped .badge { background: var(--jade); color: #fff; border-right: 3px solid var(--ink); border-bottom: 3px solid var(--ink); }
 .v2 .v2-bcard .badge { border-right: 3px solid var(--ink); border-bottom: 3px solid var(--ink); }
+
+/* Brewery logo as a faint stencil on the white side of the card */
+.v2 .v2-bcard .body { position: relative; overflow: hidden; }
+.v2 .v2-bcard .body > :not(.stencil) { position: relative; z-index: 1; }
+.v2 .v2-bcard .stencil { position: absolute; right: -6px; top: 50%; transform: translateY(-50%) rotate(-8deg); height: 88%; max-width: 52%; object-fit: contain; opacity: .1; pointer-events: none; }
+.v2 .v2-bcard.is-stamped .stencil { opacity: .08; }
+body.night-mode .v2 .v2-bcard .stencil { filter: invert(1); opacity: .12; }

@@ -155,6 +155,11 @@ const PREVIEW_PHOTOS = {
 };
 export const photoFor = (b) => b?.photo_url || PREVIEW_PHOTOS[b?.name] || null;
 
+// One-colour cut-out of the brewery logo, used as a faint stencil on the card
+export const stencilFor = (b) => {
+  const local = LOCAL_LOGOS[b?.name];
+  return local ? local.replace('/logos/', '/logos/stencil/') : null;
+};
 export const logoFor = (b) => (b?.logo_url ? b.logo_url : LOCAL_LOGOS[b?.name] || null);
 
 // Short all-caps label for stamps ("7 Bridges Brewing Co." -> "7 BRIDGES").
