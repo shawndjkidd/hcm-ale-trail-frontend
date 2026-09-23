@@ -77,12 +77,19 @@ export function TabBar({ current, onChange, language }) {
       <div className="inner">
         {tabs.map((tab) => {
           const I = tab.icon;
-          return (
+          const btn = (
             <button key={tab.id} type="button" aria-current={current === tab.id ? 'page' : undefined} onClick={() => onChange(tab.id)}>
               <I />
               {tab.label}
             </button>
           );
+          if (tab.id !== 'ask') return btn;
+          // Trail socials sit between My card and Ask
+          return [
+            <a key="ig" className="social" href="https://www.instagram.com/hcm.aletrail/" target="_blank" rel="noreferrer" aria-label="Instagram"><Icon.instagram /></a>,
+            <a key="fb" className="social" href="https://www.facebook.com/hcmaletrail" target="_blank" rel="noreferrer" aria-label="Facebook"><Icon.facebook /></a>,
+            btn,
+          ];
         })}
       </div>
     </nav>

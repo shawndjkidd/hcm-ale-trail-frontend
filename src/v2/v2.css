@@ -137,6 +137,9 @@ body.night-mode .v2 {
 }
 .v2-tabbar button svg { width: 24px; height: 24px; }
 .v2-tabbar button[aria-current="page"] { color: var(--yellow); }
+.v2-tabbar .social { flex: .6; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.72); }
+.v2-tabbar .social svg { width: 22px; height: 22px; }
+.v2-tabbar .social:active { color: var(--yellow); }
 
 /* Stamp card (kept from the original design, deeper green) */
 .v2-stampcard { background: var(--jade); border: 4px solid var(--yellow); box-shadow: 6px 6px 0 var(--ink); padding: 14px; color: #fff; }
