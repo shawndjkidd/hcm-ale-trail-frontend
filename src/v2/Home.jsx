@@ -3,7 +3,7 @@ import { useV, fmt, shortDate, weekdayName } from './i18n';
 import { TopBar, Pints, Icon } from './ui';
 import {
   openStatus, formatClose, formatClock, prettyBoardTime, districtLabel, localized,
-  distanceKm, formatKm, placeGradient, logoFor,
+  distanceKm, formatKm, placeGradient, logoFor, photoFor,
 } from './util';
 
 export function useNow(intervalMs = 1000, active = true) {
@@ -30,7 +30,7 @@ export function BreweryCard({ brewery, index, stampedAt, language, onOpen, here 
   const isStamped = !!stampedAt;
   const state = isStamped ? 'stamped' : st.open ? 'open' : 'closed';
   const km = here && brewery.latitude != null ? distanceKm(here, { lat: brewery.latitude, lng: brewery.longitude }) : null;
-  const photo = brewery.photo_url ? `url("${brewery.photo_url}") center/cover` : placeGradient(brewery.id);
+  const photo = photoFor(brewery) ? `url("${photoFor(brewery)}") center/cover` : placeGradient(brewery.id);
   const date = isStamped ? shortDate(stampedAt, language) : '';
   return (
     <button type="button" className={`v2-bcard is-${state}`} onClick={() => onOpen(brewery)}>

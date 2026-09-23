@@ -517,3 +517,33 @@ body.night-mode .v2 .v2-bcard.is-open { border-color: var(--yellow); box-shadow:
 body.night-mode .v2 .v2-evrow:not(.is-tonight) { background: var(--surface); color: var(--text); border-color: #3A302C; }
 .v2-passport { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .v2 .pstamp { font-size: .6rem; overflow-wrap: anywhere; hyphens: auto; min-width: 0; }
+
+/* ── Brewery page v3: Saigon red ground, poster name, square link tiles ── */
+.v2-brewery { background: var(--ground); color: #fff; }
+.v2-brewery h1 { color: var(--yellow); text-shadow: 3px 3px 0 var(--ink); font-size: 2.6rem; }
+.v2-brewery .statusline { color: #fff; }
+.v2-brewery .statusline span[style] { color: rgba(255,255,255,.85) !important; }
+.v2-brewery .dot { background: #fff; box-shadow: 0 0 0 2px var(--ink); }
+.v2-brewery .dot.on { background: var(--jade); box-shadow: 0 0 0 2px #fff; }
+.v2-brewery .desc { color: rgba(255,255,255,.92); }
+.v2-brewery h2, body.night-mode .v2 .v2-brewery h2 { color: var(--yellow); }
+.v2-brewery .hero .hero-logo { border-color: var(--yellow); }
+.v2-brewery .card { background: var(--paper); color: var(--ink); border: 3px solid var(--ink); box-shadow: 5px 5px 0 var(--ink); padding: 4px 12px; }
+body.night-mode .v2 .v2-brewery .card { background: var(--surface); color: var(--text); border-color: #3A302C; box-shadow: none; }
+.v2-brewery .hours.card { border-collapse: separate; border-spacing: 0; padding: 6px 12px; }
+.v2-brewery .beerrow .m { color: var(--muted); }
+.v2-brewery .beerrow:last-child { border-bottom: 0; }
+.v2-links { display: grid; gap: 10px; }
+.v2-links a {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  min-height: 74px; padding: 10px 4px; text-decoration: none; font-weight: 800; font-size: .74rem; letter-spacing: .02em; text-transform: uppercase;
+  border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); transition: transform .08s, box-shadow .08s;
+}
+.v2-links a:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--ink); }
+.v2-links a svg { width: 26px; height: 26px; }
+.v2-brewery .tagrow { background: var(--ink); color: #fff; }
+.v2-brewery .tagrow button { background: var(--yellow); border-color: var(--yellow); color: var(--ink); }
+.v2-brewery .yourstamp { background: var(--jade); color: #fff; border-color: var(--yellow); }
+.v2-brewery .sticky { background: var(--ink); border-top-color: var(--yellow); }
+.v2-brewery .sticky .btn { border-color: var(--ink); box-shadow: 5px 5px 0 #fff; }
+.v2-brewery .link-btn { color: #fff; }

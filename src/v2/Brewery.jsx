@@ -3,7 +3,7 @@ import { TRAIL_ID } from '../config';
 import { useV, fmt, shortDate, weekdayName } from './i18n';
 import { Icon, Seg, Sheet, Glass } from './ui';
 import { statusText } from './Home';
-import { openStatus, localized, districtLabel, beerLook, placeGradient, logoFor, STYLE_GROUPS } from './util';
+import { openStatus, localized, districtLabel, beerLook, placeGradient, logoFor, photoFor, STYLE_GROUPS } from './util';
 
 const DAY_KEYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
@@ -51,7 +51,7 @@ export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events 
   const isStamped = !!stampedAt;
   const handle = handleFrom(brewery.instagram_url);
   const logo = logoFor(brewery);
-  const hero = brewery.photo_url ? `url("${brewery.photo_url}") center/cover` : placeGradient(brewery.id);
+  const hero = photoFor(brewery) ? `url("${photoFor(brewery)}") center/cover` : placeGradient(brewery.id);
   const desc = brewery.description_i18n ? localized(brewery.description_i18n, language) : brewery.description;
 
   const sorted = useMemo(() => {
@@ -104,7 +104,7 @@ export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events 
           </button>
         </div>
         {showHours && (
-          <table className="hours">
+          <table className="hours card">
             <tbody>
               {DAY_KEYS.map((d, i) => {
                 const h = hours[d];
@@ -123,13 +123,13 @@ export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events 
         {st.tempClosed && <div className="banner-closed">{v.tempClosed}</div>}
 
         {socials.length > 0 && (
-          <div className="socials">
+          <div className="v2-links" style={{ gridTemplateColumns: `repeat(${socials.length}, minmax(0, 1fr))` }}>
             {socials.map((s) => {
               const I = s.icon;
               return (
-                <a key={s.label} href={s.href} target="_blank" rel="noreferrer">
-                  <span className="sico" style={{ background: s.bg, color: s.fg }}><I /></span>
-                  {s.label}
+                <a key={s.label} href={s.href} target="_blank" rel="noreferrer" style={{ background: s.bg, color: s.fg }}>
+                  <I />
+                  <span>{s.label}</span>
                 </a>
               );
             })}
@@ -160,10 +160,10 @@ export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events 
               <span style={{ fontSize: '.85rem', fontWeight: 700 }}>{fmt(v.beersCount, { n: beers.length })}</span>
             </div>
             {beers.length > 5 && (
-              <Seg ink value={sort} onChange={setSort} label={v.onTapNow}
+              <Seg value={sort} onChange={setSort} label={v.onTapNow}
                 options={[{ value: 'popular', label: v.popular }, { value: 'new', label: v.newest }, { value: 'style', label: v.byStyle }]} />
             )}
-            <div className="beerlist" style={{ marginTop: 6 }}>
+            <div className="beerlist card" style={{ marginTop: 8 }}>
               {sorted.slice(0, 5).map((b) => <BeerRow key={b.id} beer={b} />)}
             </div>
             {beers.length > 5 && (
@@ -180,7 +180,7 @@ export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events 
             {recent.length ? (
               <>
                 <p style={{ fontSize: '.8rem', color: 'var(--muted)', marginBottom: 4 }}>{v.recentNote}</p>
-                <div className="beerlist">
+                <div className="beerlist card">
                   {recent.slice(0, 5).map((b) => <BeerRow key={b.name} beer={b} />)}
                 </div>
               </>

@@ -147,6 +147,13 @@ const LOCAL_LOGOS = {
   '7 Bridges Brewing Co.': '/logos/7bridges.png',
   'Belgo Saigon': '/logos/belgo.png',
 };
+// Stand-in venue photos until breweries add their own in the admin dashboard
+// (from each brewery's own website; replace with photos they approve).
+const PREVIEW_PHOTOS = {
+  'Heart of Darkness': '/photos/heart-of-darkness.jpg',
+};
+export const photoFor = (b) => b?.photo_url || PREVIEW_PHOTOS[b?.name] || null;
+
 export const logoFor = (b) => (b?.logo_url ? b.logo_url : LOCAL_LOGOS[b?.name] || null);
 
 // Short all-caps label for stamps ("7 Bridges Brewing Co." -> "7 BRIDGES").
