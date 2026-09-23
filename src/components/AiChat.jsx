@@ -9,7 +9,7 @@ const LANG_MAP = { en: 'en', vn: 'vi', kr: 'ko', jp: 'ja' };
 // Calls the ai-chat Edge Function with a guaranteed-fresh access token.
 // Auto-retries once on 401 by forcing a session refresh, in case the token
 // expired between getSession() and the fetch landing.
-async function callAiChat({ question, language }) {
+export async function callAiChat({ question, language, history }) {
   const getFreshToken = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.access_token) return session.access_token;
@@ -32,7 +32,7 @@ async function callAiChat({ question, language }) {
         Authorization: `Bearer ${token}`,
         apikey: ANON_KEY,
       },
-      body: JSON.stringify({ question, language }),
+      body: JSON.stringify(history ? { question, language, history } : { question, language }),
     });
 
   let token = await getFreshToken();

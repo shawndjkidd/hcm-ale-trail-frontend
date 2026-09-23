@@ -1,70 +1,38 @@
-import { useEffect, useState } from "react";
-import HomePage from "./components/HomePage";
-import BreweryDetail from "./components/BreweryDetail";
-import SideQuestDetail from "./components/SideQuestDetail";
-import FAQ from "./components/FAQ";
-import MyBeers from "./components/MyBeers";
-import Leaderboard from "./components/Leaderboard";
+import { useCallback, useEffect, useState } from "react";
 import AuthModal from "./components/AuthModal";
-import AleTrailMap from "./components/AleTrailMap";
-import AiChat from "./components/AiChat";
-import Settings from "./components/Settings";
-import OnboardingFlow from "./components/OnboardingFlow";
-import MilestoneModal from "./components/MilestoneModal";
-import AgeGate from "./components/AgeGate";
 import UntappdOnboarding from "./components/UntappdOnboarding";
 import CardResetPrompt from "./components/CardResetPrompt";
 
-import translations from "./translations";
+import Home from "./v2/Home";
+import Brewery from "./v2/Brewery";
+import CheckInFlow from "./v2/CheckIn";
+import SideQuest from "./v2/SideQuest";
+import MapScreen from "./v2/MapScreen";
+import MyCard from "./v2/MyCard";
+import Events from "./v2/Events";
+import Profile from "./v2/Profile";
+import Ask from "./v2/Ask";
+import Onboarding, { MicroQuestion, nextMicroQuestion } from "./v2/Onboarding";
+import { Welcome, Guide } from "./v2/Welcome";
+import { Celebrate, HatClaim, shareCard } from "./v2/Celebrate";
+import { TabBar, MenuDrawer, Toast } from "./v2/ui";
+import { useV, fmt } from "./v2/i18n";
+import { openStatus, formatClose } from "./v2/util";
+import "./v2/v2.css";
+
 import { supabase } from "./lib/supabase";
 import { TRAIL_ID, SHOW_UNTAPPD_INTEGRATION } from "./config";
-import { getBreweries, getMe, getMyRatings, logout as apiLogout, startNewRun, postResetCard, getLeaderboard, claimHat, storeLoginTokens, getAccessToken, setTokens, getUnseenNudges, markNudgesSeen, getUserMe, patchUserMe } from "./lib/api";
+import {
+  getBreweries, getMe, getMyRatings, logout as apiLogout, postResetCard, getLeaderboard,
+  storeLoginTokens, getAccessToken, setTokens, getUserMe, patchUserMe,
+} from "./lib/api";
 
 import "./styles/App.css";
 
-function parseBreweryFromUrl() {
-  try {
-    const path = window.location.pathname || "/";
-    const parts = path.split("/").filter(Boolean);
-    if (parts.length >= 2 && parts[0] === "brewery") {
-      const id = parts[1];
-      if (id && id.length >= 10) return id;
-    }
-    const urlParams = new URLSearchParams(window.location.search);
-    const q = urlParams.get("brewery");
-    if (q && q.length >= 10) return q;
-    return null;
-  } catch {
-    return null;
-  }
-}
+const TAB_PATHS = { home: "/", map: "/map", card: "/card", ask: "/ask" };
 
-function parseSideQuestFromUrl() {
-  try {
-    const path = window.location.pathname || "/";
-    const parts = path.split("/").filter(Boolean);
-    if (parts.length >= 2 && parts[0] === "side-quest") {
-      const id = parts[1];
-      if (id && id.length >= 10) return id;
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-function parseCheckinFromUrl() {
-  try {
-    const path = window.location.pathname || "/";
-    const parts = path.split("/").filter(Boolean);
-    if (parts.length >= 2 && parts[0] === "checkin") {
-      const id = parts[1];
-      if (id && id.length >= 10) return id;
-    }
-    return null;
-  } catch {
-    return null;
-  }
+function pathParts() {
+  return (window.location.pathname || "/").split("/").filter(Boolean);
 }
 
 function normalizeBrewery(b) {
@@ -73,835 +41,483 @@ function normalizeBrewery(b) {
     ...b,
     description: typeof b?.description === "string" ? b.description : (descObj?.en || ""),
     description_i18n: descObj || null,
-    logo_url: b?.logo_url ?? null,
+    logo_url: b?.logo_url || null,
   };
 }
 
-export default function App() {
-  const [nightMode, setNightMode] = useState(() => {
-    const saved = localStorage.getItem("hcm-night-mode") === "true";
-    if (saved) document.body.classList.add("night-mode");
-    return saved;
-  });
+const readJSON = (key, fallback) => {
+  try { return JSON.parse(localStorage.getItem(key) || "null") ?? fallback; } catch { return fallback; }
+};
 
+export default function App() {
+  // ── Preferences ───────────────────────────────────────────────────────────
+  const [nightMode, setNightMode] = useState(() => localStorage.getItem("hcm-night-mode") === "true");
   useEffect(() => {
     document.body.classList.toggle("night-mode", nightMode);
     localStorage.setItem("hcm-night-mode", String(nightMode));
   }, [nightMode]);
-
   const toggleNightMode = () => setNightMode((m) => !m);
 
-  const [stamps, setStamps] = useState([]);
-  const [beers, setBeers] = useState([]);
-  const [breweries, setBreweries] = useState([]);
-  const [selectedBrewery, setSelectedBrewery] = useState(null);
-  const [selectedSideQuest, setSelectedSideQuest] = useState(null);
-  const [sideQuestCheckins, setSideQuestCheckins] = useState([]);
-  const [view, setView] = useState("home");
   const [language, setLanguage] = useState(() => {
-    const saved = localStorage.getItem('hcm-language')
-    if (saved) return saved
-    const nav = navigator.language || ''
-    if (nav.startsWith('vi')) return 'vn'
-    if (nav.startsWith('ko')) return 'kr'
-    if (nav.startsWith('ja')) return 'jp'
-    return 'en'
+    const saved = localStorage.getItem("hcm-language");
+    if (saved) return saved;
+    const nav = navigator.language || "";
+    if (nav.startsWith("vi")) return "vn";
+    if (nav.startsWith("ko")) return "kr";
+    if (nav.startsWith("ja")) return "jp";
+    return "en";
   });
-  const [user, setUser] = useState(null);
-  const [showAuth, setShowAuth] = useState(false);
+  useEffect(() => {
+    localStorage.setItem("hcm-language", language);
+    document.documentElement.lang = { en: "en", vn: "vi", kr: "ko", jp: "ja" }[language] || "en";
+  }, [language]);
+  const v = useV(language);
+
+  // ── Trail + user state ────────────────────────────────────────────────────
+  const [breweries, setBreweries] = useState([]);
+  const [stamps, setStamps] = useState(() => readJSON("hcm-stamps", []));
+  const [stampDates, setStampDates] = useState({});
+  const [beers, setBeers] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [sideQuests, setSideQuests] = useState([]);
+  const [questClaims, setQuestClaims] = useState(() => readJSON("hcm-sidequest-checkins", []));
+  const [boardTop, setBoardTop] = useState([]);
+  const [user, setUser] = useState(() => readJSON("hcm-user", null));
+  const [userMe, setUserMe] = useState(null);
   const [timerStart, setTimerStart] = useState(null);
   const [timerEnd, setTimerEnd] = useState(null);
-  const [leaderboardData, setLeaderboardData] = useState([]);
-  const [activeEvents, setActiveEvents] = useState([]);
-  const [initialized, setInitialized] = useState(false);
   const [hatClaimed, setHatClaimed] = useState(() => localStorage.getItem("hcm-hat-claimed") === "true");
+  const [cardRound, setCardRound] = useState(() => parseInt(localStorage.getItem("hcm-card-round") || "1", 10));
+  const [initialized, setInitialized] = useState(false);
+  const [here, setHere] = useState(null);
+
+  // ── Navigation ────────────────────────────────────────────────────────────
+  const [tab, setTab] = useState("home");
+  const [cardTab, setCardTab] = useState("stamps");
+  const [screen, setScreen] = useState(null); // { type: 'brewery'|'quest'|'events'|'profile', ... }
+  const [checkIn, setCheckIn] = useState(null); // brewery being checked in at
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // ── Overlays ──────────────────────────────────────────────────────────────
+  const [ageConfirmed, setAgeConfirmed] = useState(() => !!localStorage.getItem("hcm-age-confirmed-at"));
+  const [welcomeDone, setWelcomeDone] = useState(() => !!localStorage.getItem("hcm-welcome-done") || !!localStorage.getItem("hcm-user"));
+  const [showGuide, setShowGuide] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
+  const [afterAuth, setAfterAuth] = useState(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [milestoneData, setMilestoneData] = useState(null);
-  const [userMe, setUserMe] = useState(null);
-  const [untappdOnboardingDismissed, setUntappdOnboardingDismissed] = useState(
-    () => localStorage.getItem("hcm-untappd-onboarding-dismissed") === "true"
-  );
-  const [untappdConnectStatus, setUntappdConnectStatus] = useState(null);
-  const [ageConfirmed, setAgeConfirmed] = useState(() => !!localStorage.getItem('hcm-age-confirmed-at'));
-  const [cardRound, setCardRound] = useState(() => parseInt(localStorage.getItem('hcm-card-round') || '1', 10));
-  const [meLoaded, setMeLoaded] = useState(false);
-  const [showCardResetPrompt, setShowCardResetPrompt] = useState(() => {
-    const claimed = localStorage.getItem('hcm-hat-claimed') === 'true';
-    if (!claimed) return false;
-    const round = parseInt(localStorage.getItem('hcm-card-round') || '1', 10);
-    return !localStorage.getItem(`hcm-reset-prompt-dismissed-${TRAIL_ID}-${round}`);
-  });
+  const [editTaste, setEditTaste] = useState(false);
+  const [micro, setMicro] = useState(null);
+  const [milestone, setMilestone] = useState(null);
+  const [celebrate, setCelebrate] = useState(null);
+  const [hatClaimOpen, setHatClaimOpen] = useState(false);
+  const [toast, setToast] = useState("");
+  const [showCardResetPrompt, setShowCardResetPrompt] = useState(false);
+  const [untappdOnboardingDismissed, setUntappdOnboardingDismissed] = useState(() => localStorage.getItem("hcm-untappd-onboarding-dismissed") === "true");
 
-  const t = translations[language];
+  const flash = useCallback((text) => { setToast(text); setTimeout(() => setToast(""), 2200); }, []);
 
-  const loadUserMe = async () => {
-    const res = await getUserMe();
-    if (res?.ok && res.user) {
-      const u = res.user;
-      setUserMe(u);
-      // Sync server → localStorage: user confirmed on another device
-      if (u.legal_age_confirmed_at && !localStorage.getItem('hcm-age-confirmed-at')) {
-        localStorage.setItem('hcm-age-confirmed-at', u.legal_age_confirmed_at);
-        setAgeConfirmed(true);
-      }
-      // Sync localStorage → server: user confirmed pre-auth, now logged in
-      if (localStorage.getItem('hcm-age-confirmed-at') && !u.legal_age_confirmed_at) {
-        patchUserMe({ legal_age_confirmed: true }).catch(() => {});
-      }
-      return u;
-    }
-    return null;
-  };
-
-  const handleAgeConfirm = () => {
-    localStorage.setItem('hcm-age-confirmed-at', new Date().toISOString());
-    setAgeConfirmed(true);
-    // Best-effort DB sync if authenticated — don't block UI on response
-    if (userMe) {
-      patchUserMe({ legal_age_confirmed: true }).catch(() => {});
-    }
-  };
-
-  const handleCardReset = async () => {
-    const res = await postResetCard();
-    if (!res?.ok) throw new Error(res?.error || 'Reset failed');
-    const newRound = res.newCardRound || cardRound + 1;
-    setCardRound(newRound);
-    localStorage.setItem('hcm-card-round', String(newRound));
-    setStamps([]);
-    localStorage.removeItem('hcm-stamps');
-    setHatClaimed(false);
-    localStorage.removeItem('hcm-hat-claimed');
-    localStorage.removeItem('hcm-completion-modal-shown');
-    setTimerStart(null);
-    setTimerEnd(null);
-    localStorage.removeItem('hcm-timer-start');
-    localStorage.removeItem('hcm-timer-end');
-    localStorage.removeItem('hcm-milestone-5-seen');
-    localStorage.removeItem('hcm-milestone-7-seen');
-    setShowCardResetPrompt(false);
-    goHome();
-  };
-
-  const handleCardResetDismiss = () => {
-    localStorage.setItem(`hcm-reset-prompt-dismissed-${TRAIL_ID}-${cardRound}`, 'true');
-    setShowCardResetPrompt(false);
-  };
-
-  const handleUntappdOnboardingDismiss = () => {
-    localStorage.setItem("hcm-untappd-onboarding-dismissed", "true");
-    setUntappdOnboardingDismissed(true);
-  };
-
-  const handleLogout = () => {
-    apiLogout();
-    // Sign out of Supabase session too
-    supabase.auth.signOut().catch(() => {});
-    // Clear ALL user-specific localStorage keys
-    localStorage.removeItem("hcm-user");
-    localStorage.removeItem("hcm-stamps");
-    localStorage.removeItem("hcm-beers");
-    localStorage.removeItem("hcm-onboarding-complete");
-    localStorage.removeItem("hcm-onboarding-profile");
-    localStorage.removeItem("hcm-timer-start");
-    localStorage.removeItem("hcm-timer-end");
-    localStorage.removeItem("hcm-leaderboard");
-    localStorage.removeItem("hcm-sidequest-checkins");
-    localStorage.removeItem("hcm-completion-modal-shown");
-    localStorage.removeItem("hcm-untappd-onboarding-dismissed");
-    localStorage.removeItem("hcm-card-round");
-    localStorage.removeItem("hcm-milestone-5-seen");
-    localStorage.removeItem("hcm-milestone-7-seen");
-    // Reset React state
-    setUser(null);
-    setUserMe(null);
-    setUntappdOnboardingDismissed(false);
-    setUntappdConnectStatus(null);
-    setCardRound(1);
-    setShowCardResetPrompt(false);
-    setStamps([]);
-    setBeers([]);
-    setLeaderboardData([]);
-    setSideQuestCheckins([]);
-    setTimerStart(null);
-    setTimerEnd(null);
-    setShowAuth(true);
-    goHome();
-  };
-
-  const goHome = () => {
-    setSelectedBrewery(null);
-    setSelectedSideQuest(null);
-    setView("home");
-    try {
-      window.history.pushState({}, "", "/");
-    } catch {}
-  };
-
+  // ── Loaders ───────────────────────────────────────────────────────────────
   const loadBreweries = async () => {
     const r = await getBreweries(TRAIL_ID);
-    if (r?.ok && Array.isArray(r?.breweries)) {
-      const normalized = r.breweries.map(normalizeBrewery);
-      setBreweries(normalized);
-      return normalized;
+    if (r?.ok && Array.isArray(r.breweries)) {
+      const list = r.breweries.map(normalizeBrewery);
+      setBreweries(list);
+      return list;
     }
     return [];
   };
 
-  const loadSideQuest = async (questId) => {
-    try {
-      const res = await fetch(`/api/trails/${TRAIL_ID}/side-quests/${questId}`);
-      const data = await res.json();
-      const quest = data.sideQuest || data.quest;
-      if (data.ok && quest) {
-        return quest;
-      }
-    } catch (err) {
-      console.error("Failed to load side quest:", err);
-    }
-    return null;
-  };
-
   const loadMe = async () => {
     const r = await getMe(TRAIL_ID);
-    if (r?.ok) {
-      if (Array.isArray(r.checkedInBreweryIds)) {
-        // Server is the source of truth: every stamp is PIN-verified server-side,
-        // so a reset or revoke on another device must clear stamps here too.
-        setStamps(r.checkedInBreweryIds);
-        localStorage.setItem("hcm-stamps", JSON.stringify(r.checkedInBreweryIds));
-      }
-      // Trail clock comes from the server (first stamp of this round → completion)
-      const startMs = r.startedAt ? new Date(r.startedAt).getTime() : null;
-      const endMs = r.completedAt ? new Date(r.completedAt).getTime() : null;
-      setTimerStart(startMs);
-      setTimerEnd(endMs);
-      if (startMs) localStorage.setItem("hcm-timer-start", String(startMs)); else localStorage.removeItem("hcm-timer-start");
-      if (endMs) localStorage.setItem("hcm-timer-end", String(endMs)); else localStorage.removeItem("hcm-timer-end");
-      // Sync hat claim status from server (authoritative)
-      if (r.hatClaimed) {
-        setHatClaimed(true);
-        localStorage.setItem("hcm-hat-claimed", "true");
-        // Show CardResetPrompt on reload when server confirms hat was claimed and prompt not yet dismissed
-        const serverRound = typeof r.cardRound === 'number' ? r.cardRound : cardRound;
-        if (!localStorage.getItem(`hcm-reset-prompt-dismissed-${TRAIL_ID}-${serverRound}`)) {
-          setShowCardResetPrompt(true);
-        }
-      }
-      // Sync profile/onboarding data from server
-      if (r.profile) {
-        localStorage.setItem("hcm-onboarding-profile", JSON.stringify(r.profile));
-        if (r.profile.onboarding_completed_at) {
-          localStorage.setItem("hcm-onboarding-complete", "true");
-        }
-      }
-      // Sync card round from server
-      if (typeof r.cardRound === 'number' && r.cardRound !== cardRound) {
-        setCardRound(r.cardRound);
-        localStorage.setItem('hcm-card-round', String(r.cardRound));
-      }
-      setMeLoaded(true);
-      return r;
+    if (!r?.ok) return null;
+    if (Array.isArray(r.checkedInBreweryIds)) {
+      setStamps(r.checkedInBreweryIds);
+      localStorage.setItem("hcm-stamps", JSON.stringify(r.checkedInBreweryIds));
     }
-    setMeLoaded(true);
-    return null;
-  };
-
-  const handleHatClaimed = () => {
-    setHatClaimed(true);
-    localStorage.setItem("hcm-hat-claimed", "true");
-    setShowCardResetPrompt(true);
-  };
-
-  useEffect(() => {
-    const init = async () => {
-      // ── Restore local state ───────────────────────────────────────────────
-      const savedStamps = localStorage.getItem("hcm-stamps");
-      const savedBeers = localStorage.getItem("hcm-beers");
-      const savedLang = localStorage.getItem("hcm-language");
-      const savedUser = localStorage.getItem("hcm-user");
-      const savedTimerStart = localStorage.getItem("hcm-timer-start");
-      const savedTimerEnd = localStorage.getItem("hcm-timer-end");
-      const savedLeaderboard = localStorage.getItem("hcm-leaderboard");
-      const savedSideQuestCheckins = localStorage.getItem("hcm-sidequest-checkins");
-
-      if (savedStamps) setStamps(JSON.parse(savedStamps));
-      if (savedBeers) setBeers(JSON.parse(savedBeers));
-      if (savedTimerStart) setTimerStart(parseInt(savedTimerStart, 10));
-      if (savedTimerEnd) setTimerEnd(parseInt(savedTimerEnd, 10));
-      if (savedSideQuestCheckins) setSideQuestCheckins(JSON.parse(savedSideQuestCheckins));
-
-      // ── Google OAuth callback ─────────────────────────────────────────────
-      // Must run before auth state decision to avoid flash of auth modal
-      const urlParams = new URLSearchParams(window.location.search);
-      const oauthError = urlParams.get("error");
-      const oauthErrorDesc = urlParams.get("error_description");
-
-      if (oauthError) {
-        try { window.history.replaceState({}, "", window.location.pathname); } catch {}
-        setShowAuth(true);
-        loadBreweries().then(() => setInitialized(true));
-        return;
-      }
-
-      const hash = window.location.hash;
-      if (hash && hash.includes("access_token")) {
-        try {
-          // Parse tokens directly from hash — more reliable than getSession()
-          // which can race with the Supabase client processing the hash
-          const hashParams = new URLSearchParams(hash.substring(1));
-          let accessToken = hashParams.get("access_token");
-          let refreshToken = hashParams.get("refresh_token");
-          let expiresAt = hashParams.get("expires_at");
-
-          // Fallback: try getSession if hash parsing didn't work
-          if (!accessToken) {
-            const { data: { session } } = await supabase.auth.getSession();
-            accessToken = session?.access_token;
-            refreshToken = session?.refresh_token;
-            expiresAt = session?.expires_at;
-          }
-
-          if (accessToken) {
-            const res = await fetch("/api/auth/google", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                access_token: accessToken,
-                refresh_token: refreshToken,
-                expires_at: expiresAt,
-              }),
-            });
-            const data = await res.json().catch(() => null);
-            if (res.ok && data?.ok) {
-              storeLoginTokens(data);
-              const u = data.user ? { id: data.user.id, email: data.user.email } : { id: null };
-              setUser(u);
-              localStorage.setItem("hcm-user", JSON.stringify(u));
-              try { window.history.replaceState({}, "", window.location.pathname); } catch {}
-              setShowAuth(false);
-              loadBreweries().then(() => setInitialized(true));
-              // loadMe syncs onboarding flag from server — check AFTER it completes
-              loadMe().then(() => {
-                const flag = localStorage.getItem("hcm-onboarding-complete");
-                if (!flag) {
-                  setShowOnboarding(true);
-                }
-              }).catch(() => {});
-              return;
-            }
-          }
-        } catch (e) {
-          console.error("OAuth callback error:", e);
-        }
-        // OAuth hash present but failed — clean URL and fall through to normal auth
-        try { window.history.replaceState({}, "", window.location.pathname); } catch {}
-      }
-
-      // ── Untappd OAuth callback ────────────────────────────────────────────
-      if (window.location.pathname === "/onboarding/untappd") {
-        const utStatus = urlParams.get("status");
-        if (utStatus === "error") setUntappdConnectStatus("error");
-        try { window.history.replaceState({}, "", "/"); } catch {}
-      }
-
-      // ── Sync tokens from Supabase session if missing ─────────────────────
-      // If hcm-access-token is missing but Supabase has a valid session,
-      // extract tokens so API calls (merch, etc.) work on page reload
-      if (!getAccessToken() && savedUser) {
-        try {
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session?.access_token) {
-            setTokens({
-              access_token: session.access_token,
-              refresh_token: session.refresh_token,
-              expires_at: session.expires_at,
-            });
-          }
-        } catch {
-          // silently ignore — user will re-authenticate if token is missing
-        }
-      }
-
-      // ── Reverse: seed Supabase client from custom keys ───────────────────
-      // Email/password users: hcm-* tokens exist but the Supabase JS client
-      // has no in-memory session (it was never seeded at login time for
-      // pre-fix logins). Seed it now so auto-refresh works going forward.
-      if (getAccessToken() && savedUser) {
-        try {
-          const { data: { session: existingSession } } = await supabase.auth.getSession();
-          if (!existingSession?.access_token) {
-            const rt = localStorage.getItem('hcm-refresh-token');
-            if (rt) {
-              await supabase.auth.setSession({
-                access_token: getAccessToken(),
-                refresh_token: rt,
-              });
-            }
-          }
-        } catch {
-          // silently ignore — getFreshToken() in AddBeerModal handles the fallback
-        }
-      }
-
-      // ── Normal auth state ─────────────────────────────────────────────────
-      if (savedUser) {
-        setUser(JSON.parse(savedUser));
-        setShowAuth(false);
-        // Don't check onboarding here — let loadMe sync the flag from server first
-        // The onboarding check happens after loadMe completes (see useEffect below)
-      } else {
-        setShowAuth(true);
-      }
-
-      // ── Route handling ────────────────────────────────────────────────────
-      if (window.location.pathname === '/settings') {
-        loadBreweries().then(() => setInitialized(true));
-        setView('settings');
-        return;
-      }
-
-      if (window.location.pathname === '/map') {
-        loadBreweries().then(() => setInitialized(true));
-        setView('map');
-        return;
-      }
-
-      const sideQuestId = parseSideQuestFromUrl();
-      if (sideQuestId) {
-        loadSideQuest(sideQuestId).then((quest) => {
-          if (quest) {
-            setSelectedSideQuest(quest);
-            setView("sidequest");
-          }
-          setInitialized(true);
-        });
-        loadBreweries();
-        return;
-      }
-
-      loadBreweries().then((list) => {
-        // Old /checkin/{breweryId} links (printed QR codes) just open the brewery page.
-        const checkinId = parseCheckinFromUrl();
-        if (checkinId) {
-          try { window.history.replaceState({}, "", `/brewery/${checkinId}`); } catch {}
-        }
-        const directBreweryId = checkinId || parseBreweryFromUrl();
-
-        if (directBreweryId) {
-          const brewery = list.find((b) => b.id === directBreweryId);
-          if (brewery) {
-            setSelectedBrewery(brewery);
-            setView("brewery");
-          }
-        }
-        setInitialized(true);
-      });
-    };
-
-    init();
-
-    const onPop = () => {
-      const breweryId = parseBreweryFromUrl();
-      if (breweryId) {
-        const b = breweries.find((x) => x.id === breweryId);
-        if (b) {
-          setSelectedBrewery(b);
-          setView("brewery");
-          return;
-        }
-      }
-      const questId = parseSideQuestFromUrl();
-      if (questId) {
-        loadSideQuest(questId).then((quest) => {
-          if (quest) {
-            setSelectedSideQuest(quest);
-            setView("sidequest");
-          }
-        });
-        return;
-      }
-      setSelectedBrewery(null);
-      setSelectedSideQuest(null);
-      setView("home");
-    };
-    window.addEventListener("popstate", onPop);
-    return () => window.removeEventListener("popstate", onPop);
-  }, []);
-
-  useEffect(() => {
-    fetch(`/api/trails/${TRAIL_ID}/events`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.ok) {
-          const now = new Date();
-          setActiveEvents(
-            (data.events || []).filter(
-              (e) => new Date(e.startsAt) <= now && (!e.endsAt || new Date(e.endsAt) >= now)
-            )
-          );
-        }
-      })
-      .catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("hcm-stamps", JSON.stringify(stamps));
-  }, [stamps]);
-
-  useEffect(() => {
-    localStorage.setItem("hcm-beers", JSON.stringify(beers));
-  }, [beers]);
-
-  useEffect(() => {
-    localStorage.setItem("hcm-language", language);
-    document.body.classList.toggle("lang-jp", language === "jp");
-    document.body.classList.toggle("lang-kr", language === "kr");
-  }, [language]);
-
-  // Cross-tab sync: if another tab confirms the age gate, close it here too
-  useEffect(() => {
-    const onStorage = (e) => {
-      if (e.key === 'hcm-age-confirmed-at' && e.newValue) setAgeConfirmed(true);
-    };
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
-  }, []);
-
-  // Every screen opens at the top (brewery pages used to open mid-scroll)
-  useEffect(() => {
-    try { window.scrollTo(0, 0); } catch {}
-  }, [view, selectedBrewery?.id, selectedSideQuest?.id]);
-
-  const handleUserRegistration = (userData) => {
-    setUser(userData);
-    localStorage.setItem("hcm-user", JSON.stringify(userData));
-    setShowAuth(false);
-  };
-
-  const addStamp = async (breweryId) => {
-    if (!stamps.includes(breweryId)) {
-      const newStamps = [...stamps, breweryId];
-      setStamps(newStamps);
-      if (newStamps.length === 1 && !timerStart) {
-        const startTime = Date.now();
-        setTimerStart(startTime);
-        localStorage.setItem("hcm-timer-start", startTime.toString());
-      }
-      // Milestone notification — check locally after stamp is recorded
-      const totalActive = breweries.filter(b => b.status !== 'temporarily_closed').length || 8;
-      const MILESTONE_THRESHOLDS = [5, 7];
-      for (const m of MILESTONE_THRESHOLDS) {
-        if (newStamps.length === m) {
-          const seenKey = `hcm-milestone-${m}-seen`;
-          if (!localStorage.getItem(seenKey)) {
-            localStorage.setItem(seenKey, 'true');
-            setTimeout(() => {
-              setMilestoneData({ milestone: m, stampCount: m, totalBreweries: totalActive });
-            }, 1500);
-          }
-          break;
-        }
-      }
-
-      // Re-sync clock, completion and stamps from the server after each stamp
-      if (user?.id) loadMe().catch(() => {});
+    const dates = {};
+    for (const c of r.checkins || []) if (c.brewery_id && !dates[c.brewery_id]) dates[c.brewery_id] = c.checked_in_at;
+    setStampDates(dates);
+    setTimerStart(r.startedAt ? new Date(r.startedAt).getTime() : null);
+    setTimerEnd(r.completedAt ? new Date(r.completedAt).getTime() : null);
+    setHatClaimed(!!r.hatClaimed);
+    localStorage.setItem("hcm-hat-claimed", String(!!r.hatClaimed));
+    if (r.hatClaimed) {
+      const round = typeof r.cardRound === "number" ? r.cardRound : cardRound;
+      if (!localStorage.getItem(`hcm-reset-prompt-dismissed-${TRAIL_ID}-${round}`)) setShowCardResetPrompt(true);
     }
+    if (r.profile) {
+      localStorage.setItem("hcm-onboarding-profile", JSON.stringify({ ...readJSON("hcm-onboarding-profile", {}), ...r.profile }));
+      if (r.profile.onboarding_completed_at) localStorage.setItem("hcm-onboarding-complete", "true");
+    }
+    if (typeof r.cardRound === "number") {
+      setCardRound(r.cardRound);
+      localStorage.setItem("hcm-card-round", String(r.cardRound));
+    }
+    return r;
   };
 
   const loadMyBeers = async () => {
     const res = await getMyRatings(TRAIL_ID);
     if (res?.ok && Array.isArray(res.ratings)) {
-      const mapped = res.ratings.map((r) => ({
-        id: r.id,
-        breweryId: r.brewery_id,
-        breweryName: r.brewery_name,
-        name: r.beer_name,
-        rating: r.rating,
-        notes: r.notes || "",
-        createdAt: r.created_at || null,
-      }));
-      setBeers(mapped);
+      setBeers(res.ratings.map((r) => ({
+        id: r.id, breweryId: r.brewery_id, breweryName: r.brewery_name, name: r.beer_name,
+        rating: r.rating, notes: r.notes || "", createdAt: r.created_at || null,
+      })));
     }
   };
 
-  const addBeer = (beer) => {
-    setBeers([...beers, { ...beer, id: Date.now() }]);
-  };
-
-  const handleBreweryClick = (brewery) => {
-    setSelectedBrewery(brewery);
-    setView("brewery");
-    try {
-      window.history.pushState({}, "", `/brewery/${brewery.id}`);
-    } catch {}
-  };
-
-  const handleSideQuestClick = (quest) => {
-    setSelectedSideQuest(quest);
-    setView("sidequest");
-  };
-
-  const handleSideQuestComplete = (questId) => {
-    if (!sideQuestCheckins.includes(questId)) {
-      const updated = [...sideQuestCheckins, questId];
-      setSideQuestCheckins(updated);
-      localStorage.setItem("hcm-sidequest-checkins", JSON.stringify(updated));
-    }
-  };
-
-  const handleNavigate = (newView) => {
-    setView(newView);
-    if (newView === "leaderboard") {
-      getLeaderboard().then((res) => {
-        if (res?.ok) setLeaderboardData(res.leaderboard || []);
-      }).catch(() => {});
-    }
-    if (newView === "mybeers" && user?.id) {
-      loadMyBeers().catch(() => {});
-    }
-    if (newView !== "brewery" && newView !== "sidequest") {
-      setSelectedBrewery(null);
-      setSelectedSideQuest(null);
-      try {
-        if (newView === "home") window.history.pushState({}, "", "/");
-        else if (newView === "map") window.history.pushState({}, "", "/map");
-        else if (newView === "settings") window.history.pushState({}, "", "/settings");
-      } catch {}
-    }
-  };
-
-  const resetCard = async () => {
-    if (!window.confirm(t.resetConfirm)) return;
-    if (user?.id) {
-      try {
-        const result = await startNewRun();
-        if (!result?.ok) {
-          console.error("Failed to start new run:", result?.error);
-        } else {
-          await loadMe();
-        }
-      } catch (err) {
-        console.error("Error starting new run:", err);
+  const loadUserMe = async () => {
+    const res = await getUserMe();
+    if (res?.ok && res.user) {
+      setUserMe(res.user);
+      if (localStorage.getItem("hcm-age-confirmed-at") && !res.user.legal_age_confirmed_at) patchUserMe({ legal_age_confirmed: true }).catch(() => {});
+      if (res.user.legal_age_confirmed_at && !localStorage.getItem("hcm-age-confirmed-at")) {
+        localStorage.setItem("hcm-age-confirmed-at", res.user.legal_age_confirmed_at);
+        setAgeConfirmed(true);
       }
     }
-    setStamps([]);
-    setBeers([]);
-    setTimerStart(null);
-    setTimerEnd(null);
-    setHatClaimed(false);
-    setSideQuestCheckins([]);
-    localStorage.removeItem("hcm-stamps");
-    localStorage.removeItem("hcm-beers");
-    localStorage.removeItem("hcm-hat-claimed");
-    localStorage.removeItem("hcm-timer-start");
-    localStorage.removeItem("hcm-timer-end");
-    localStorage.removeItem("hcm-completion-modal-shown");
-    localStorage.removeItem("hcm-sidequest-checkins");
-    alert(t.resetSuccess);
   };
 
-  const getUserCompletionTime = () => {
-    if (timerStart && timerEnd) return timerEnd - timerStart;
-    return null;
+  const loadBoardTop = () => getLeaderboard().then((res) => res?.ok && setBoardTop(res.leaderboard || [])).catch(() => {});
+
+  const requestLocation = useCallback(() => {
+    if (here || !navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (p) => setHere({ lat: p.coords.latitude, lng: p.coords.longitude }),
+      () => {},
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 },
+    );
+  }, [here]);
+
+  // ── Routing helpers ───────────────────────────────────────────────────────
+  const push = (path) => { try { window.history.pushState({}, "", path); } catch {} };
+  const goTab = (id) => { setScreen(null); setTab(id); push(TAB_PATHS[id] || "/"); };
+  const openBrewery = (b) => { setScreen({ type: "brewery", id: b.id }); push(`/brewery/${b.id}`); };
+  const openQuest = (q) => { setScreen({ type: "quest", quest: q }); push(`/side-quest/${q.id}`); };
+  const closeScreen = () => { setScreen(null); push(TAB_PATHS[tab] || "/"); };
+
+  const routeFromUrl = (list, quests) => {
+    const [a, b] = pathParts();
+    if ((a === "brewery" || a === "checkin") && b) {
+      if (list.some((x) => x.id === b)) { setScreen({ type: "brewery", id: b }); if (a === "checkin") push(`/brewery/${b}`); }
+    } else if (a === "side-quest" && b) {
+      const q = quests.find((x) => x.id === b);
+      if (q) setScreen({ type: "quest", quest: q });
+    } else if (a === "settings" || a === "profile") {
+      setScreen({ type: "profile" });
+    } else if (a === "events") {
+      setScreen({ type: "events" });
+    } else if (a && ["map", "card", "ask"].includes(a)) {
+      setScreen(null); setTab(a);
+    } else {
+      setScreen(null); setTab("home");
+    }
   };
+
+  // ── Boot ──────────────────────────────────────────────────────────────────
+  useEffect(() => {
+    const init = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const hash = window.location.hash;
+
+      // Google OAuth callback
+      if (urlParams.get("error")) {
+        try { window.history.replaceState({}, "", window.location.pathname); } catch {}
+      } else if (hash && hash.includes("access_token")) {
+        try {
+          const hp = new URLSearchParams(hash.substring(1));
+          let accessToken = hp.get("access_token"); let refreshToken = hp.get("refresh_token"); let expiresAt = hp.get("expires_at");
+          if (!accessToken) {
+            const { data: { session } } = await supabase.auth.getSession();
+            accessToken = session?.access_token; refreshToken = session?.refresh_token; expiresAt = session?.expires_at;
+          }
+          if (accessToken) {
+            const res = await fetch("/api/auth/google", {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ access_token: accessToken, refresh_token: refreshToken, expires_at: expiresAt }),
+            });
+            const data = await res.json().catch(() => null);
+            if (res.ok && data?.ok) {
+              storeLoginTokens(data);
+              const u = data.user ? { id: data.user.id, email: data.user.email } : { id: null };
+              setUser(u); localStorage.setItem("hcm-user", JSON.stringify(u));
+              localStorage.setItem("hcm-welcome-done", "true"); setWelcomeDone(true);
+            }
+          }
+        } catch (e) { console.error("OAuth callback error:", e); }
+        try { window.history.replaceState({}, "", window.location.pathname); } catch {}
+      }
+
+      // Keep the hcm-* tokens and the Supabase client session in step
+      if (localStorage.getItem("hcm-user")) {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (!getAccessToken() && session?.access_token) setTokens(session);
+          else if (getAccessToken() && !session?.access_token && localStorage.getItem("hcm-refresh-token")) {
+            await supabase.auth.setSession({ access_token: getAccessToken(), refresh_token: localStorage.getItem("hcm-refresh-token") });
+          }
+        } catch {}
+      }
+
+      const [list, quests] = await Promise.all([
+        loadBreweries(),
+        fetch(`/api/trails/${TRAIL_ID}/side-quests`).then((r) => r.json()).then((d) => (d?.ok ? d.sideQuests || [] : [])).catch(() => []),
+      ]);
+      setSideQuests(quests);
+      fetch(`/api/trails/${TRAIL_ID}/events`).then((r) => r.json()).then((d) => d?.ok && setEvents(d.events || [])).catch(() => {});
+      loadBoardTop();
+      routeFromUrl(list, quests);
+      setInitialized(true);
+    };
+    init();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Back/forward buttons
+  useEffect(() => {
+    const onPop = () => routeFromUrl(breweries, sideQuests);
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, [breweries, sideQuests]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Signed-in data
+  useEffect(() => {
+    if (!user?.id) return;
+    loadUserMe();
+    loadMe().then(() => {
+      if (!localStorage.getItem("hcm-onboarding-complete")) setShowOnboarding(true);
+    }).catch(() => {});
+    loadMyBeers().catch(() => {});
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Screens open at the top
+  useEffect(() => { try { window.scrollTo(0, 0); } catch {} }, [tab, screen]);
+
+  // ── Actions ───────────────────────────────────────────────────────────────
+  const confirmAge = () => {
+    localStorage.setItem("hcm-age-confirmed-at", new Date().toISOString());
+    setAgeConfirmed(true);
+    if (userMe) patchUserMe({ legal_age_confirmed: true }).catch(() => {});
+  };
+
+  const requireSignIn = (then) => { setAfterAuth(() => then || null); setShowAuth(true); };
 
   const onAuthSuccess = async (authRes) => {
     const u = authRes?.user ? { id: authRes.user.id, email: authRes.user.email } : { id: null };
     setUser(u);
     localStorage.setItem("hcm-user", JSON.stringify(u));
+    localStorage.setItem("hcm-welcome-done", "true");
+    setWelcomeDone(true);
     setShowAuth(false);
-    // loadMe syncs onboarding flag from server — check AFTER it completes
-    await loadMe();
-    if (!localStorage.getItem("hcm-onboarding-complete")) {
-      setShowOnboarding(true);
+    const next = afterAuth; setAfterAuth(null);
+    if (next) setTimeout(next, 50);
+  };
+
+  const handleLogout = () => {
+    apiLogout();
+    supabase.auth.signOut().catch(() => {});
+    ["hcm-user", "hcm-stamps", "hcm-beers", "hcm-onboarding-complete", "hcm-onboarding-profile", "hcm-timer-start", "hcm-timer-end",
+      "hcm-leaderboard", "hcm-sidequest-checkins", "hcm-completion-modal-shown", "hcm-untappd-onboarding-dismissed", "hcm-card-round",
+      "hcm-milestone-5-seen", "hcm-milestone-7-seen", "hcm-micro-asked", "hcm-hat-claimed"].forEach((k) => localStorage.removeItem(k));
+    setUser(null); setUserMe(null); setStamps([]); setStampDates({}); setBeers([]); setTimerStart(null); setTimerEnd(null);
+    setHatClaimed(false); setCardRound(1); setQuestClaims([]); setMenuOpen(false); setScreen(null); setTab("home"); push("/");
+  };
+
+  const startCheckIn = (brewery) => {
+    if (!user) return requireSignIn(() => setCheckIn(brewery));
+    setCheckIn(brewery);
+  };
+
+  const activeBreweries = breweries.filter((b) => b.status !== "inactive");
+  const total = activeBreweries.length || 8;
+
+  const onStamped = (breweryId, n) => {
+    setStamps((s) => (s.includes(breweryId) ? s : [...s, breweryId]));
+    setStampDates((d) => ({ ...d, [breweryId]: d[breweryId] || new Date().toISOString() }));
+    if (!timerStart) setTimerStart(Date.now());
+    loadMe().catch(() => {});
+    loadMyBeers().catch(() => {});
+    // Milestone line on Home
+    const left = activeBreweries.filter((b) => b.id !== breweryId && !stamps.includes(b.id));
+    const openLeft = left.find((b) => openStatus(b).open);
+    if (n === 1) setMilestone({ count: n, title: v.m1, line: "" });
+    else if (n === Math.ceil(total / 2)) setMilestone({ count: n, title: fmt(v.m4, { n: total - n }), line: "" });
+    else if (n === total - 1) {
+      setMilestone({ count: n, title: openLeft ? fmt(v.m7open, { place: openLeft.name, t: formatClose(openStatus(openLeft).closesAt, v) }) : v.m7, line: "" });
+    }
+    if (n >= total) {
+      const place = breweries.find((b) => b.id === breweryId)?.name;
+      getLeaderboard().then((res) => {
+        const rows = res?.leaderboard || [];
+        setBoardTop(rows);
+        const mine = rows.findIndex((r) => r.userId === user?.id);
+        setCelebrate({ pendingRank: mine >= 0 ? mine + 1 : null, place });
+      }).catch(() => setCelebrate({ place }));
     }
   };
 
-  useEffect(() => {
-    if (user?.id) {
-      loadUserMe(); // parallel — updates userMe for age gate + untappd gate
-      loadMe().then(() => {
-        const flag = localStorage.getItem("hcm-onboarding-complete");
-        if (!flag) {
-          setShowOnboarding(true);
-        }
-      }).catch(() => {});
+  const afterCheckInClosed = () => {
+    setCheckIn(null);
+    if (!celebrate) {
+      const q = nextMicroQuestion(stamps.length);
+      if (q) setTimeout(() => setMicro(q), 350);
     }
-  }, [user?.id]);
+  };
 
-  // Fetch unseen nudges on app load (catches any missed real-time nudges)
-  useEffect(() => {
-    if (user?.id && initialized && !showOnboarding) {
-      getUnseenNudges().then(res => {
-        if (res?.ok && res.nudges?.length > 0) {
-          const nudge = res.nudges[0]; // Show the most recent unseen nudge
-          setMilestoneData({
-            milestone: nudge.milestone,
-            stampCount: nudge.stamp_count,
-            totalBreweries: nudge.total_breweries,
-            nudgeId: nudge.id,
-          });
-        }
-      }).catch(() => {});
-    }
-  }, [user?.id, initialized, showOnboarding]);
+  const handleCardReset = async () => {
+    const res = await postResetCard();
+    if (!res?.ok) throw new Error(res?.error || "Reset failed");
+    const newRound = res.newCardRound || cardRound + 1;
+    setCardRound(newRound); localStorage.setItem("hcm-card-round", String(newRound));
+    setStamps([]); setStampDates({}); localStorage.removeItem("hcm-stamps");
+    setHatClaimed(false); localStorage.removeItem("hcm-hat-claimed");
+    setTimerStart(null); setTimerEnd(null);
+    localStorage.removeItem("hcm-micro-asked");
+    setShowCardResetPrompt(false);
+    goTab("home");
+  };
 
-  if (!ageConfirmed) {
-    // For a logged-in user, wait for loadUserMe to sync from DB before showing the gate
-    // (avoids a flash of the gate for users who confirmed on another device)
-    const potentiallyLoggedIn = !!localStorage.getItem('hcm-user');
-    if (potentiallyLoggedIn && !userMe) {
-      return (
-        <div className="loading">
-          <div className="loading-spinner"></div>
-          <p>{t.loading}</p>
-        </div>
-      );
-    }
-    return (
-      <div className="app" data-lang={language}>
-        <AgeGate language={language} setLanguage={setLanguage} onConfirm={handleAgeConfirm} />
-      </div>
-    );
-  }
+  const doShare = async () => {
+    const ms = timerStart ? (timerEnd || Date.now()) - timerStart : null;
+    const mine = boardTop.findIndex((r) => r.userId === user?.id);
+    await shareCard({ language, stamps, breweries: activeBreweries, totalMs: ms, running: !timerEnd, rank: mine >= 0 ? mine + 1 : null, beersCount: beers.length });
+  };
 
+  // ── Render ────────────────────────────────────────────────────────────────
   if (!initialized) {
     return (
-      <div className="loading">
-        <div className="loading-spinner"></div>
-        <p>{t.loading}</p>
+      <div className="v2" style={{ display: "grid", placeItems: "center" }}>
+        <div className="loading-spinner" aria-label={v.loading} />
       </div>
     );
   }
 
-  const showUntappdOnboarding =
-    SHOW_UNTAPPD_INTEGRATION &&
-    ageConfirmed &&
-    !showAuth && !!user && !!userMe &&
-    userMe.is_untappd_tester && !userMe.untappd?.connected &&
-    !showOnboarding && !untappdOnboardingDismissed;
+  const needsWelcome = !ageConfirmed || (!user && !welcomeDone);
+  const profile = readJSON("hcm-onboarding-profile", {});
+  const currentBrewery = screen?.type === "brewery" ? breweries.find((b) => b.id === screen.id) : null;
+  const clockMs = timerStart && timerEnd ? timerEnd - timerStart : null;
+
+  const showUntappd = SHOW_UNTAPPD_INTEGRATION && !!user && !!userMe && userMe.is_untappd_tester && !userMe.untappd?.connected
+    && !showOnboarding && !untappdOnboardingDismissed;
+
+  let content;
+  if (screen?.type === "brewery" && currentBrewery) {
+    content = (
+      <Brewery brewery={currentBrewery} stampedAt={stamps.includes(currentBrewery.id) ? stampDates[currentBrewery.id] || new Date().toISOString() : null}
+        beerCountHere={beers.filter((b) => b.breweryId === currentBrewery.id).length} events={events} language={language}
+        onBack={closeScreen} onCheckIn={() => startCheckIn(currentBrewery)} />
+    );
+  } else if (screen?.type === "quest") {
+    content = (
+      <SideQuest quest={screen.quest} claimed={questClaims.includes(screen.quest.id)} language={language} user={user} onBack={closeScreen}
+        onRequireSignIn={() => requireSignIn()}
+        onClaimed={(id) => { const next = [...new Set([...questClaims, id])]; setQuestClaims(next); localStorage.setItem("hcm-sidequest-checkins", JSON.stringify(next)); }} />
+    );
+  } else if (screen?.type === "events") {
+    content = <Events events={events} breweries={breweries} language={language} onBack={closeScreen} onOpenBrewery={openBrewery} />;
+  } else if (screen?.type === "profile" && user) {
+    content = (
+      <Profile user={user} userMe={userMe} profile={profile} stampsCount={stamps.length} total={total} beersCount={beers.length} bestMs={clockMs}
+        language={language} setLanguage={setLanguage} nightMode={nightMode} toggleNightMode={toggleNightMode}
+        onBack={closeScreen} onEditTaste={() => setEditTaste(true)} onLogout={handleLogout}
+        onDeleted={() => { handleLogout(); localStorage.removeItem("hcm-welcome-done"); setWelcomeDone(false); }} />
+    );
+  } else if (tab === "map") {
+    content = <MapScreen breweries={breweries} sideQuests={sideQuests} stamps={stamps} language={language} here={here} requestLocation={requestLocation} onOpenBrewery={openBrewery} onOpenQuest={openQuest} />;
+  } else if (tab === "card") {
+    content = (
+      <MyCard tab={cardTab} setTab={setCardTab} user={user} breweries={activeBreweries} stamps={stamps} stampDates={stampDates} beers={beers}
+        timerStart={timerStart} timerEnd={timerEnd} hatClaimed={hatClaimed} language={language}
+        onSignIn={() => requireSignIn()} onShare={doShare} onLoadBeers={loadMyBeers} />
+    );
+  } else if (tab === "ask") {
+    content = (
+      <Ask user={user} name={profile?.display_name} breweries={activeBreweries} stamps={stamps} hatClaimed={hatClaimed} language={language}
+        onSignIn={() => requireSignIn()} onOpenBrewery={openBrewery} />
+    );
+  } else {
+    content = (
+      <Home breweries={breweries} stamps={stamps} stampDates={stampDates} timerStart={timerStart} timerEnd={timerEnd} events={events}
+        sideQuests={sideQuests} boardTop={boardTop} user={user} hatClaimed={hatClaimed} cardRound={cardRound} language={language}
+        setLanguage={setLanguage} nightMode={nightMode} toggleNightMode={toggleNightMode} onMenu={() => setMenuOpen(true)}
+        onOpenBrewery={openBrewery} onOpenQuest={openQuest}
+        onOpenEvents={(ev) => {
+          if (ev?.breweryId && breweries.some((b) => b.id === ev.breweryId)) openBrewery({ id: ev.breweryId });
+          else { setScreen({ type: "events" }); push("/events"); }
+        }}
+        onOpenGuide={() => setShowGuide(true)} onOpenBoard={() => { setCardTab("ranking"); goTab("card"); }}
+        milestone={milestone} onDismissMilestone={() => setMilestone(null)} here={here} requestLocation={requestLocation} />
+    );
+  }
+
+  const showTabs = !screen || screen.type === "events";
 
   return (
-    <div className="app" data-lang={language}>
-      {showAuth && <AuthModal onSuccess={onAuthSuccess} language={language} setLanguage={setLanguage} />}
-      {showOnboarding && !showAuth && (
-        <OnboardingFlow
-          user={user}
-          language={language}
-          onComplete={() => setShowOnboarding(false)}
-          onClose={() => setShowOnboarding(false)}
-        />
+    <div className="v2 app" data-lang={language}>
+      {content}
+      {showTabs && <TabBar current={screen ? null : tab} onChange={goTab} language={language} />}
+
+      {menuOpen && (
+        <MenuDrawer language={language} setLanguage={setLanguage} nightMode={nightMode} toggleNightMode={toggleNightMode} user={user}
+          onClose={() => setMenuOpen(false)}
+          onProfile={() => { setMenuOpen(false); setScreen({ type: "profile" }); push("/profile"); }}
+          onGuide={() => { setMenuOpen(false); setShowGuide(true); }}
+          onSignIn={() => { setMenuOpen(false); requireSignIn(); }}
+          onLogout={handleLogout} />
       )}
-      {showUntappdOnboarding && (
-        <UntappdOnboarding
-          language={language}
-          onDismiss={handleUntappdOnboardingDismiss}
-          connectStatus={untappdConnectStatus}
-        />
+
+      {checkIn && (
+        <CheckInFlow brewery={checkIn} isStamped={stamps.includes(checkIn.id)} stampCount={stamps.length} total={total} language={language}
+          onClose={afterCheckInClosed} onStamped={onStamped} onBeerSaved={() => loadMyBeers()} onToast={flash} />
       )}
-      {showCardResetPrompt && (
-        <CardResetPrompt
-          language={language}
-          setLanguage={setLanguage}
-          cardRound={cardRound}
-          onReset={handleCardReset}
-          onDismiss={handleCardResetDismiss}
-        />
+
+      {micro && !checkIn && <MicroQuestion question={micro} language={language} onClose={() => setMicro(null)} />}
+
+      {celebrate && !checkIn && (
+        <Celebrate language={language} totalMs={timerStart ? (timerEnd || Date.now()) - timerStart : 0} rank={celebrate.pendingRank} lastPlace={celebrate.place}
+          onClaim={() => { setCelebrate(null); setHatClaimOpen(true); }} onClose={() => setCelebrate(null)} />
       )}
-      {milestoneData && (
-        <MilestoneModal
-          milestone={milestoneData.milestone}
-          stampCount={milestoneData.stampCount}
-          totalBreweries={milestoneData.totalBreweries}
-          language={language}
-          onClose={() => {
-            // Mark nudge as seen if it came from the unseen fetch
-            if (milestoneData.nudgeId) {
-              markNudgesSeen([milestoneData.nudgeId]).catch(() => {});
-            }
-            setMilestoneData(null);
+      {hatClaimOpen && (
+        <HatClaim language={language} breweries={activeBreweries} onClose={() => setHatClaimOpen(false)}
+          onClaimed={() => { setHatClaimed(true); localStorage.setItem("hcm-hat-claimed", "true"); loadMe(); }} />
+      )}
+
+      {showCardResetPrompt && !celebrate && !hatClaimOpen && (
+        <CardResetPrompt language={language} setLanguage={setLanguage} cardRound={cardRound} onReset={handleCardReset}
+          onDismiss={() => { localStorage.setItem(`hcm-reset-prompt-dismissed-${TRAIL_ID}-${cardRound}`, "true"); setShowCardResetPrompt(false); }} />
+      )}
+
+      {showOnboarding && user && !showAuth && (
+        <Onboarding language={language} breweries={activeBreweries} stamps={stamps}
+          onDone={(firstStop) => { setShowOnboarding(false); if (firstStop) openBrewery(firstStop); }} />
+      )}
+      {editTaste && (
+        <Onboarding language={language} breweries={activeBreweries} stamps={stamps} editing onDone={() => setEditTaste(false)} />
+      )}
+
+      {showGuide && <Guide language={language} onDone={() => { setShowGuide(false); localStorage.setItem("hcm-guide-seen", "true"); }} />}
+
+      {needsWelcome && (
+        <Welcome language={language} setLanguage={setLanguage}
+          onStart={() => {
+            confirmAge(); localStorage.setItem("hcm-welcome-done", "true"); setWelcomeDone(true);
+            if (!localStorage.getItem("hcm-guide-seen")) setShowGuide(true);
           }}
-        />
+          onSignIn={() => { confirmAge(); localStorage.setItem("hcm-welcome-done", "true"); setWelcomeDone(true); setShowAuth(true); }} />
       )}
-      {view === "home" && (
-        <HomePage
-          breweries={breweries}
-          stamps={stamps}
-          onBreweryClick={handleBreweryClick}
-          onSideQuestClick={handleSideQuestClick}
-          sideQuestCheckins={sideQuestCheckins}
-          onNavigate={handleNavigate}
-          resetCard={resetCard}
-          language={language}
-          setLanguage={setLanguage}
-          user={user}
-          timerStart={timerStart}
-          timerEnd={timerEnd}
-          activeEvents={activeEvents}
-          nightMode={nightMode}
-          toggleNightMode={toggleNightMode}
-          onLogout={handleLogout}
-          onSettings={() => handleNavigate("settings")}
-          hatClaimed={hatClaimed}
-          onHatClaimed={handleHatClaimed}
-          cardRound={cardRound}
-          meLoaded={meLoaded}
-          onCardResetPrompt={() => setShowCardResetPrompt(true)}
-        />
+
+      {showAuth && (
+        <div className="v2-auth-host">
+          <AuthModal onSuccess={onAuthSuccess} language={language} setLanguage={setLanguage} />
+          <button type="button" className="round-btn" onClick={() => { setShowAuth(false); setAfterAuth(null); }} aria-label={v.close}
+            style={{ position: "fixed", top: "calc(12px + env(safe-area-inset-top, 0px))", right: 12, zIndex: 1001 }}>✕</button>
+        </div>
       )}
-      {view === "brewery" && selectedBrewery && (
-        <BreweryDetail
-          brewery={selectedBrewery}
-          breweries={breweries}
-          stamps={stamps}
-          beers={beers}
-          addStamp={addStamp}
-          addBeer={addBeer}
-          onBack={goHome}
-          language={language}
-          user={user}
-          userMe={userMe}
-        />
+
+      {showUntappd && (
+        <UntappdOnboarding language={language} onDismiss={() => { localStorage.setItem("hcm-untappd-onboarding-dismissed", "true"); setUntappdOnboardingDismissed(true); }} />
       )}
-      {view === "sidequest" && selectedSideQuest && (
-        <SideQuestDetail
-          quest={selectedSideQuest}
-          isCompleted={sideQuestCheckins.includes(selectedSideQuest.id)}
-          onComplete={handleSideQuestComplete}
-          onBack={goHome}
-          language={language}
-          user={user}
-        />
-      )}
-      {view === "map" && (
-        <AleTrailMap
-          breweries={breweries}
-          stamps={stamps}
-          onBack={() => handleNavigate("home")}
-          nightMode={nightMode}
-          onBreweryNavigate={handleBreweryClick}
-          language={language}
-        />
-      )}
-      {view === "settings" && (
-        <Settings user={user} userMe={userMe} language={language} onBack={() => handleNavigate("home")} onUserMeRefresh={loadUserMe} />
-      )}
-      {view === "faq" && <FAQ onBack={() => handleNavigate("home")} language={language} user={user} />}
-      {view === "mybeers" && <MyBeers beers={beers} breweries={breweries} onBack={() => handleNavigate("home")} language={language} />}
-      {view === "leaderboard" && (
-        <Leaderboard
-          leaderboard={leaderboardData}
-          user={user}
-          timerStart={timerStart}
-          completionTime={getUserCompletionTime()}
-          onBack={() => handleNavigate("home")}
-          language={language}
-        />
-      )}
-      {view === "chat" && (
-        <AiChat language={language} onBack={() => handleNavigate("home")} stamps={stamps} hatClaimed={hatClaimed} />
-      )}
+
+      <Toast text={toast} />
     </div>
   );
 }

@@ -307,3 +307,8 @@ export function storeLoginTokens(data) {
     seedSupabaseSession(data);
   }
 }
+
+// Permanently delete the signed-in user's account and trail data.
+export function deleteAccount() {
+  return request(`/users/me`, { method: "DELETE" });
+}

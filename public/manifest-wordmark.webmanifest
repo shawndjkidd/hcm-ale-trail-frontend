@@ -1,0 +1,14 @@
+{
+  "name": "HCM Ale Trail",
+  "short_name": "Ale Trail",
+  "description": "Saigon's craft-beer passport. 8 breweries, 8 stamps, 1 free hat.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#C8102E",
+  "theme_color": "#C8102E",
+  "icons": [
+    { "src": "/icons/wordmark-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/wordmark-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

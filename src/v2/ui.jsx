@@ -1,0 +1,160 @@
+import { useEffect } from 'react';
+import { useV } from './i18n';
+
+export const LOGO_WHITE = '/brand/logo-white.png';
+
+const LANGS = [
+  { code: 'en', label: 'EN' },
+  { code: 'vn', label: 'VI' },
+  { code: 'kr', label: 'KO' },
+  { code: 'jp', label: 'JA' },
+];
+
+export const Icon = {
+  trail: (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" {...p}><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z" /></svg>),
+  map: (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" {...p}><path d="M12 21s-7-6.2-7-12a7 7 0 0114 0c0 5.8-7 12-7 12z" /><circle cx="12" cy="9" r="2.5" /></svg>),
+  card: (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" {...p}><rect x="4" y="3" width="16" height="18" rx="2" /><circle cx="12" cy="11" r="3.5" /></svg>),
+  ask: (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" {...p}><path d="M4 5h16v11H9l-5 4z" /></svg>),
+  instagram: (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true" {...p}><rect x="4" y="4" width="16" height="16" rx="5" /><circle cx="12" cy="12" r="3.6" /><circle cx="17" cy="7" r="1" fill="currentColor" /></svg>),
+  facebook: (p) => (<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...p}><path d="M14 8h3V4h-3c-2.8 0-4.5 1.8-4.5 4.6V11H7v4h2.5v6h4v-6h3l.5-4h-3.5V9c0-.6.4-1 1-1z" /></svg>),
+  globe: (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true" {...p}><circle cx="12" cy="12" r="8" /><path d="M4 12h16M12 4c3 3 3 13 0 16M12 4c-3 3-3 13 0 16" /></svg>),
+  pin: (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true" {...p}><path d="M12 21s-7-6.2-7-12a7 7 0 0114 0c0 5.8-7 12-7 12z" /><circle cx="12" cy="9" r="2.5" /></svg>),
+  search: (p) => (<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.6" aria-hidden="true" {...p}><circle cx="11" cy="11" r="6" /><path d="M16 16l4 4" /></svg>),
+  cap: (p) => (<svg viewBox="0 0 24 16" width="26" height="18" aria-hidden="true" {...p}><path d="M2 12c0-6 4-10 10-10s10 4 10 10z" fill="currentColor" /><path d="M12 12h11v2H12z" fill="currentColor" /></svg>),
+};
+
+export function TopBar({ language, setLanguage, nightMode, toggleNightMode, onMenu }) {
+  const next = LANGS[(LANGS.findIndex((l) => l.code === language) + 1) % LANGS.length];
+  const current = LANGS.find((l) => l.code === language) || LANGS[0];
+  return (
+    <div className="v2-top">
+      <img className="logo" src={LOGO_WHITE} alt="Ho Chi Minh Ale Trail" />
+      <span className="spacer" />
+      <button type="button" className="chip-btn" onClick={() => setLanguage(next.code)} aria-label={`Language: ${current.label}. Switch to ${next.label}`}>
+        {current.label}
+      </button>
+      <button type="button" className="chip-btn" onClick={toggleNightMode} aria-pressed={nightMode} aria-label="Night mode">
+        {nightMode ? '☀' : '☾'}
+      </button>
+      <button type="button" className="menu-btn" onClick={onMenu} aria-label="Menu">☰</button>
+    </div>
+  );
+}
+
+export function TabBar({ current, onChange, language }) {
+  const v = useV(language);
+  const tabs = [
+    { id: 'home', label: v.tabTrail, icon: Icon.trail },
+    { id: 'map', label: v.tabMap, icon: Icon.map },
+    { id: 'card', label: v.tabCard, icon: Icon.card },
+    { id: 'ask', label: v.tabAsk, icon: Icon.ask },
+  ];
+  return (
+    <nav className="v2-tabbar" aria-label="Main">
+      <div className="inner">
+        {tabs.map((tab) => {
+          const I = tab.icon;
+          return (
+            <button key={tab.id} type="button" aria-current={current === tab.id ? 'page' : undefined} onClick={() => onChange(tab.id)}>
+              <I />
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
+
+export function Seg({ options, value, onChange, ink = false, label }) {
+  return (
+    <div className={`seg${ink ? ' ink' : ''}`} role="group" aria-label={label}>
+      {options.map((o) => (
+        <button key={o.value} type="button" aria-pressed={value === o.value} onClick={() => onChange(o.value)}>
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export function Pints({ count, total = 8, className = '' }) {
+  return (
+    <div className={`pints ${className}`} aria-label={`${count} of ${total}`}>
+      {Array.from({ length: total }).map((_, i) => <i key={i} className={`pint${i < count ? ' on' : ''}`} />)}
+    </div>
+  );
+}
+
+export function useEscape(onClose) {
+  useEffect(() => {
+    const h = (e) => { if (e.key === 'Escape') onClose?.(); };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, [onClose]);
+}
+
+export function Sheet({ onClose, children, label }) {
+  useEscape(onClose);
+  return (
+    <>
+      <div className="v2-scrim" onClick={onClose} />
+      <div className="v2-sheet" role="dialog" aria-modal="true" aria-label={label}>
+        <div className="inner">{children}</div>
+      </div>
+    </>
+  );
+}
+
+export function MenuDrawer({ language, setLanguage, nightMode, toggleNightMode, user, onClose, onProfile, onGuide, onLogout, onSignIn, trail }) {
+  const v = useV(language);
+  useEscape(onClose);
+  const links = [
+    { label: v.menuWebsite, href: 'https://www.hochiminhaletrail.com/' },
+    { label: 'Instagram', href: 'https://www.instagram.com/hcm.aletrail/' },
+    { label: 'Facebook', href: 'https://www.facebook.com/hcmaletrail' },
+  ];
+  return (
+    <>
+      <div className="v2-scrim" onClick={onClose} />
+      <aside className="v2-drawer" role="dialog" aria-modal="true" aria-label="Menu">
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+          <img src={LOGO_WHITE} alt="" style={{ height: 30 }} />
+          <span style={{ flex: 1 }} />
+          <button type="button" className="round-btn" onClick={onClose} aria-label={v.close}>✕</button>
+        </div>
+        {user ? (
+          <button type="button" className="item" onClick={onProfile}>{v.menuProfile}<span>›</span></button>
+        ) : (
+          <button type="button" className="item" onClick={onSignIn}>{v.menuSignIn}<span>›</span></button>
+        )}
+        <button type="button" className="item" onClick={onGuide}>{v.menuHowItWorks}<span>›</span></button>
+        {links.map((l) => (
+          <a key={l.label} className="item" href={l.href} target="_blank" rel="noreferrer">{l.label}<span>↗</span></a>
+        ))}
+        <div className="item" style={{ borderBottom: 0, paddingBottom: 0 }}>{v.menuLanguage}</div>
+        <div className="langs">
+          {LANGS.map((l) => (
+            <button key={l.code} type="button" aria-pressed={language === l.code} onClick={() => setLanguage(l.code)}>{l.label}</button>
+          ))}
+        </div>
+        <div className="item">
+          {v.menuNight}
+          <button type="button" className="switch" role="switch" aria-checked={nightMode} onClick={toggleNightMode} aria-label={v.menuNight} />
+        </div>
+        {user && (
+          <button type="button" className="item" onClick={onLogout} style={{ marginTop: 'auto' }}>{v.menuLogout}<span /></button>
+        )}
+      </aside>
+    </>
+  );
+}
+
+export function Toast({ text }) {
+  if (!text) return null;
+  return <div className="v2-toast" role="status">{text}</div>;
+}
+
+export function Glass({ color, size = 20, style }) {
+  return <i className="glass" style={{ background: color, width: size, height: size * 1.35, ...style }} />;
+}
