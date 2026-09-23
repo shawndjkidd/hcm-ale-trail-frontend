@@ -149,7 +149,7 @@ export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events 
         {isStamped && (
           <div className="yourstamp">
             <span style={{ fontSize: '1.3rem' }}>✓</span>
-            <span>{fmt(v.stamped, { date: shortDate(stampedAt, language) })}{beerCountHere ? ` · ${fmt(v.beersCount, { n: beerCountHere })}` : ''}</span>
+            <span>{fmt(v.stamped, { date: shortDate(stampedAt, language) })}{beerCountHere ? ` · ${(beerCountHere === 1 && v.beersCount1) || fmt(v.beersCount, { n: beerCountHere })}` : ''}</span>
           </div>
         )}
 
@@ -160,7 +160,7 @@ export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events 
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 8 }}>
               <h2>{v.onTapNow}</h2>
               <span style={{ flex: 1 }} />
-              <span style={{ fontSize: '.85rem', fontWeight: 700 }}>{fmt(v.beersCount, { n: beers.length })}</span>
+              <span style={{ fontSize: '.85rem', fontWeight: 700 }}>{(beers.length === 1 && v.beersCount1) || fmt(v.beersCount, { n: beers.length })}</span>
             </div>
             {beers.length > 5 && (
               <Seg value={sort} onChange={setSort} label={v.onTapNow}

@@ -33,7 +33,7 @@ export function BreweryCard({ brewery, index, stampedAt, language, onOpen, here 
   const photo = photoFor(brewery) ? `url("${photoFor(brewery)}") center/cover` : placeGradient(brewery.id);
   const date = isStamped ? shortDate(stampedAt, language) : '';
   return (
-    <button type="button" className={`v2-bcard is-${state}`} onClick={() => onOpen(brewery)}>
+    <button type="button" data-id={brewery.id} className={`v2-bcard is-${state}`} onClick={() => onOpen(brewery)}>
       <span className="photo" style={{ background: photo }}>
         <span className="badge">{isStamped ? '✓' : index + 1}</span>
         {isStamped && <span className="stampmark">{date}</span>}

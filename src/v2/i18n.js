@@ -35,7 +35,7 @@ const en = {
   menuNight: 'Night mode', menuLogout: 'Log out', menuSignIn: 'Sign in',
   // Brewery
   checkInHere: 'Check in here', logAnother: 'Log another beer', directions: 'Directions', website: 'Website',
-  tagUs: 'Tag us', hours: 'Hours', onTapNow: 'On tap now', beersCount: '{n} beers', popular: 'Popular', newest: 'New',
+  tagUs: 'Tag us', hours: 'Hours', onTapNow: 'On tap now', beersCount: '{n} beers', beersCount1: '1 beer', popular: 'Popular', newest: 'New',
   byStyle: 'By style', seeAllBeers: 'See all {n} beers', recentlyHere: 'Recently drunk here',
   recentNote: 'From trail check-ins', noBeersYet: "Ask the staff what's pouring today.", comingUp: 'Coming up',
   fullMenu: 'Full menu',

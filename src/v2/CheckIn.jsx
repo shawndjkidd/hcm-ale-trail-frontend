@@ -269,7 +269,8 @@ export function Slam({ language, label, sub, headline, line, onDone }) {
 }
 
 // ── Orchestrator ────────────────────────────────────────────────────────────
-export default function CheckInFlow({ brewery, isStamped, stampCount, total, language, onClose, onStamped, onBeerSaved, onToast }) {
+export default function CheckInFlow({ brewery, isStamped, stampCount, total, language, onClose, onFinished, onStamped, onBeerSaved, onToast }) {
+  const finish = onFinished || onClose;
   const v = useV(language);
   const [step, setStep] = useState('pick');
   const [beer, setBeer] = useState(null);
@@ -284,7 +285,7 @@ export default function CheckInFlow({ brewery, isStamped, stampCount, total, lan
       beer_name: beer.name, rating, notes: review.trim() || null, brewery_beer_id: beer.brewery_beer_id || null,
     });
     setBusy(false);
-    if (res?.ok !== false) { onBeerSaved?.(); onToast?.(v.beerSaved); onClose(); }
+    if (res?.ok !== false) { onBeerSaved?.(); onToast?.(v.beerSaved); finish(); }
     else onToast?.(res?.error || v.sessionGone);
   };
 
@@ -309,7 +310,7 @@ export default function CheckInFlow({ brewery, isStamped, stampCount, total, lan
     return (
       <Slam language={language} label={stampLabel(brewery.name)}
         sub={new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' }).replace('/', '·')}
-        headline={slam.headline} line={slam.line} onDone={onClose} />
+        headline={slam.headline} line={slam.line} onDone={finish} />
     );
   }
   if (step === 'staff') {

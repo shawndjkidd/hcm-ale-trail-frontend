@@ -689,3 +689,7 @@ body.night-mode .v2 .v2-bcard .stencil { filter: invert(1); opacity: .12; }
 .v2-evsheet .act:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 #fff; }
 .v2-evsheet .links { display: flex; justify-content: space-between; font-weight: 800; }
 .v2-evsheet .links button, .v2-evsheet .links a { background: none; border: 0; padding: 0; color: #fff; text-decoration: underline; font-weight: 800; font-size: .95rem; }
+
+/* Card you just checked in at gives a quick bump when you land back on the Trail */
+@keyframes v2-bump { 0% { transform: scale(1); } 30% { transform: scale(1.04); } 60% { transform: scale(.99); } 100% { transform: scale(1); } }
+.v2 .v2-bcard.just-done { animation: v2-bump .6s ease-out .35s both; }

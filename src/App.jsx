@@ -515,7 +515,20 @@ export default function App() {
 
       {checkIn && (
         <CheckInFlow brewery={checkIn} isStamped={stamps.includes(checkIn.id)} stampCount={stamps.filter((id) => activeBreweries.some((b) => b.id === id)).length} total={total} language={language}
-          onClose={afterCheckInClosed} onStamped={onStamped} onBeerSaved={() => loadMyBeers()} onToast={flash} />
+          onClose={afterCheckInClosed} onStamped={onStamped}
+          onFinished={() => {
+            // Done: back to the Trail with the brewery's card in view
+            const id = checkIn.id;
+            afterCheckInClosed();
+            goTab("home");
+            setTimeout(() => {
+              const el = document.querySelector(`.v2-bcard[data-id="${id}"]`);
+              if (!el) return;
+              el.scrollIntoView({ block: "center", behavior: "smooth" });
+              el.classList.add("just-done");
+              setTimeout(() => el.classList.remove("just-done"), 1400);
+            }, 250);
+          }} onBeerSaved={() => loadMyBeers()} onToast={flash} />
       )}
 
       {installPrompt && !checkIn && <InstallPrompt language={language} deferred={deferredInstall} onClose={() => setInstallPrompt(false)} />}
