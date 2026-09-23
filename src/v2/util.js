@@ -151,6 +151,7 @@ const LOCAL_LOGOS = {
 // (from each brewery's own website; replace with photos they approve).
 const PREVIEW_PHOTOS = {
   'Heart of Darkness': '/photos/heart-of-darkness.jpg',
+  'East West Brewing': '/photos/east-west.jpg',
 };
 export const photoFor = (b) => b?.photo_url || PREVIEW_PHOTOS[b?.name] || null;
 

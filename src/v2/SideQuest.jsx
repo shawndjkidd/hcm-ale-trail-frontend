@@ -75,12 +75,12 @@ export default function SideQuest({ quest, claimed, language, user, onBack, onCl
         {desc && <p style={{ lineHeight: 1.5 }}>{desc}</p>}
         {quest.address && <p style={{ opacity: .8, fontSize: '.9rem' }}>{quest.address}</p>}
         {links.length > 0 && (
-          <div className="socials" style={{ gridTemplateColumns: `repeat(${links.length}, 1fr)` }}>
+          <div className="v2-links" style={{ gridTemplateColumns: `repeat(${links.length}, minmax(0, 1fr))` }}>
             {links.map((l) => {
               const I = l.icon;
               return (
-                <a key={l.label} href={l.href} target="_blank" rel="noreferrer" style={{ color: '#fff' }}>
-                  <span className="sico" style={{ background: l.bg, color: l.fg, borderColor: '#fff' }}><I /></span>{l.label}
+                <a key={l.label} href={l.href} target="_blank" rel="noreferrer" style={{ background: l.bg, color: l.fg, borderColor: '#fff', boxShadow: '4px 4px 0 #fff' }}>
+                  <I /><span>{l.label}</span>
                 </a>
               );
             })}
