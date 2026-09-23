@@ -9,8 +9,8 @@ import { openStatus, districtLabel, distanceKm, formatKm } from './util';
 const pinIcon = (cls, label) => L.divIcon({
   className: '',
   html: `<div class="v2-pin ${cls}"><span>${label}</span></div>`,
-  iconSize: [38, 38],
-  iconAnchor: [19, 19],
+  iconSize: [44, 44],
+  iconAnchor: [22, 22],
 });
 const meIcon = L.divIcon({ className: '', html: '<div class="v2-pin me"></div>', iconSize: [18, 18], iconAnchor: [9, 9] });
 
