@@ -137,7 +137,7 @@ async function request(path, { method = "GET", body, headers } = {}, _retry = fa
       return request(path, { method, body, headers }, true);
     } else {
       clearTokens();
-      return { ok: false, error: "Unauthorized" };
+      return { ok: false, error: "Unauthorized", status: 401 };
     }
   }
 

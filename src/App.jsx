@@ -25,7 +25,7 @@ import { supabase } from "./lib/supabase";
 import { TRAIL_ID, SHOW_UNTAPPD_INTEGRATION } from "./config";
 import {
   getBreweries, getMe, getMyRatings, logout as apiLogout, postResetCard, getLeaderboard,
-  storeLoginTokens, getAccessToken, setTokens, getUserMe, patchUserMe,
+  storeLoginTokens, getAccessToken, setTokens, getUserMe, patchUserMe, claimHat, postRating, saveOnboardingProfile,
 } from "./lib/api";
 
 import "./styles/App.css";
@@ -150,7 +150,8 @@ export default function App() {
       if (!localStorage.getItem(`hcm-reset-prompt-dismissed-${TRAIL_ID}-${round}`)) setShowCardResetPrompt(true);
     }
     if (r.profile) {
-      localStorage.setItem("hcm-onboarding-profile", JSON.stringify({ ...readJSON("hcm-onboarding-profile", {}), ...r.profile }));
+      const serverProfile = Object.fromEntries(Object.entries(r.profile).filter(([, val]) => val != null && !(Array.isArray(val) && !val.length)));
+      localStorage.setItem("hcm-onboarding-profile", JSON.stringify({ ...readJSON("hcm-onboarding-profile", {}), ...serverProfile }));
       if (r.profile.onboarding_completed_at) localStorage.setItem("hcm-onboarding-complete", "true");
     }
     if (typeof r.cardRound === "number") {
@@ -207,7 +208,7 @@ export default function App() {
     } else if (a === "side-quest" && b) {
       const q = quests.find((x) => x.id === b);
       if (q) setScreen({ type: "quest", quest: q });
-    } else if (a === "settings" || a === "profile") {
+    } else if ((a === "settings" || a === "profile") && localStorage.getItem("hcm-user")) {
       setScreen({ type: "profile" });
     } else if (a === "events") {
       setScreen({ type: "events" });
@@ -324,6 +325,8 @@ export default function App() {
     localStorage.setItem("hcm-welcome-done", "true");
     setWelcomeDone(true);
     setShowAuth(false);
+    const localName = readJSON("hcm-onboarding-profile", {})?.display_name;
+    if (localName) saveOnboardingProfile({ display_name: localName }).catch(() => {});
     const next = afterAuth; setAfterAuth(null);
     if (next) setTimeout(next, 50);
   };
@@ -339,9 +342,23 @@ export default function App() {
   };
 
   const startCheckIn = (brewery) => {
-    if (!user) return requireSignIn(() => setCheckIn(brewery), v.signInToCheckIn);
+    if (!user) {
+      try { sessionStorage.setItem("hcm-pending-checkin", brewery.id); } catch {}
+      return requireSignIn(null, v.signInToCheckIn);
+    }
     setCheckIn(brewery);
   };
+
+  // Resume a check-in that was waiting on sign-in (email or the Google redirect)
+  useEffect(() => {
+    if (!user?.id || !breweries.length) return;
+    let pending = null;
+    try { pending = sessionStorage.getItem("hcm-pending-checkin"); } catch {}
+    if (!pending) return;
+    try { sessionStorage.removeItem("hcm-pending-checkin"); } catch {}
+    const b = breweries.find((x) => x.id === pending);
+    if (b) { setScreen({ type: "brewery", id: b.id }); setCheckIn(b); }
+  }, [user?.id, breweries.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const activeBreweries = breweries.filter((b) => b.status !== "inactive");
   const total = activeBreweries.length || 8;
@@ -362,7 +379,7 @@ export default function App() {
     }
     if (n >= total) {
       const place = breweries.find((b) => b.id === breweryId)?.name;
-      getLeaderboard().then((res) => {
+      loadMe().catch(() => {}).then(() => getLeaderboard()).then((res) => {
         const rows = res?.leaderboard || [];
         setBoardTop(rows);
         const mine = rows.findIndex((r) => r.userId === user?.id);
@@ -452,7 +469,7 @@ export default function App() {
     content = (
       <MyCard tab={cardTab} setTab={setCardTab} user={user} breweries={activeBreweries} stamps={stamps} stampDates={stampDates} beers={beers}
         timerStart={timerStart} timerEnd={timerEnd} hatClaimed={hatClaimed} language={language}
-        onSignIn={() => requireSignIn()} onShare={doShare} onLoadBeers={loadMyBeers} />
+        onSignIn={() => requireSignIn()} onShare={doShare} onLoadBeers={loadMyBeers} onClaimHat={() => setHatClaimOpen(true)} />
     );
   } else if (tab === "ask") {
     content = (
@@ -470,6 +487,7 @@ export default function App() {
           else { setScreen({ type: "events" }); push("/events"); }
         }}
         onOpenGuide={() => setShowGuide(true)} onOpenBoard={() => { setCardTab("ranking"); goTab("card"); }}
+        onClaimHat={() => setHatClaimOpen(true)}
         milestone={milestone} onDismissMilestone={() => setMilestone(null)} here={here} requestLocation={requestLocation} />
     );
   }
@@ -491,7 +509,7 @@ export default function App() {
       )}
 
       {checkIn && (
-        <CheckInFlow brewery={checkIn} isStamped={stamps.includes(checkIn.id)} stampCount={stamps.length} total={total} language={language}
+        <CheckInFlow brewery={checkIn} isStamped={stamps.includes(checkIn.id)} stampCount={stamps.filter((id) => activeBreweries.some((b) => b.id === id)).length} total={total} language={language}
           onClose={afterCheckInClosed} onStamped={onStamped} onBeerSaved={() => loadMyBeers()} onToast={flash} />
       )}
 
@@ -504,7 +522,7 @@ export default function App() {
       )}
       {hatClaimOpen && (
         <HatClaim language={language} breweries={activeBreweries} onClose={() => setHatClaimOpen(false)}
-          onClaimed={() => { setHatClaimed(true); localStorage.setItem("hcm-hat-claimed", "true"); loadMe(); }} />
+          onClaimed={async () => { setHatClaimed(true); localStorage.setItem("hcm-hat-claimed", "true"); await claimHat().catch(() => {}); loadMe(); }} />
       )}
 
       {showCardResetPrompt && !celebrate && !hatClaimOpen && (

@@ -511,3 +511,9 @@ body.night-mode .v2 .v2-ask { background: var(--ground); color: var(--text); }
 @media (prefers-reduced-motion: reduce) {
   .v2 *, .v2 *::before, .v2 *::after { animation: none !important; transition: none !important; }
 }
+
+/* Night mode: keep "open now" cards standing out on the dark ground */
+body.night-mode .v2 .v2-bcard.is-open { border-color: var(--yellow); box-shadow: 5px 5px 0 var(--yellow); }
+body.night-mode .v2 .v2-evrow:not(.is-tonight) { background: var(--surface); color: var(--text); border-color: #3A302C; }
+.v2-passport { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.v2 .pstamp { font-size: .6rem; overflow-wrap: anywhere; hyphens: auto; min-width: 0; }

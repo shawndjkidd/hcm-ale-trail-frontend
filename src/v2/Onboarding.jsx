@@ -34,7 +34,7 @@ export default function Onboarding({ language, breweries, stamps, onDone, editin
 
   const toggle = (s) => setStyles((cur) => (cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s]));
   const finishQuestions = async () => {
-    await saveProfile({ beer_styles: styles, era });
+    await saveProfile({ beer_styles: styles, era, ...(existing.display_name ? { display_name: existing.display_name } : {}) });
     localStorage.setItem('hcm-onboarding-complete', 'true');
     if (editing) onDone(null); else setStep(2);
   };
@@ -194,7 +194,6 @@ export function MicroQuestion({ question, language, onClose }) {
       <>
         {optionBtn(t.optMale || 'Male', () => answer({ gender: 'male' }))}
         {optionBtn(t.optFemale || 'Female', () => answer({ gender: 'female' }))}
-        {optionBtn(t.optOther || 'Other', () => answer({ gender: 'other' }))}
         {optionBtn(v.preferNot, () => answer({ gender: 'skip' }))}
       </>
     );

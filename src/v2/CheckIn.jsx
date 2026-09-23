@@ -291,6 +291,10 @@ export default function CheckInFlow({ brewery, isStamped, stampCount, total, lan
   const submitPin = async (pin) => {
     const res = await serverCheckin({ breweryId: brewery.id, pin, beerName: beer.name, rating, notes: review.trim() || null });
     if (res?.ok) {
+      if (res.duplicate) {
+        // Already stamped here on the server: the check-in route skips the rating, so save it directly
+        postRating(TRAIL_ID, brewery.id, { beer_name: beer.name, rating, notes: review.trim() || null, brewery_beer_id: beer.brewery_beer_id || null }).catch(() => {});
+      }
       const n = stampCount + (res.duplicate ? 0 : 1);
       const left = Math.max(0, total - n);
       const headline = n >= total ? v.allEight : n === Math.ceil(total / 2) ? `${fmt(v.stampN, { n })} ${v.halfway}` : n === total - 1 ? `${fmt(v.stampN, { n })} ${v.oneLeft}` : fmt(v.stampN, { n });

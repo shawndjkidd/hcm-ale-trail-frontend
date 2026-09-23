@@ -149,10 +149,10 @@ const LOCAL_LOGOS = {
 };
 export const logoFor = (b) => (b?.logo_url ? b.logo_url : LOCAL_LOGOS[b?.name] || null);
 
-// Short all-caps label for stamps ("Heart of Darkness" -> "HEART OF DARK").
+// Short all-caps label for stamps ("7 Bridges Brewing Co." -> "7 BRIDGES").
 export function stampLabel(name = '') {
-  const clean = name.replace(/\b(Brewing|Brewery|Beers|Co\.?|Saigon)\b/gi, '').trim() || name;
-  return clean.length > 13 ? clean.slice(0, 12).trim().toUpperCase() : clean.toUpperCase();
+  const clean = name.replace(/\b(Brewing|Brewery|Beers|Co)\b\.?/gi, '').replace(/\s+/g, ' ').trim() || name;
+  return (clean.length > 18 ? `${clean.slice(0, 17).trim()}.` : clean).toUpperCase();
 }
 
 // Beer personality from the onboarding answers (beer_styles + era).

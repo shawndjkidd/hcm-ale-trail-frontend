@@ -91,7 +91,7 @@ export function HatClaim({ language, breweries, onClose, onClaimed }) {
     <Sheet onClose={onClose} label={v.claimHat}>
       <h2 className="display" style={{ fontSize: '1.7rem' }}>{v.claimHat}</h2>
       {items === null && <p>{v.loading}</p>}
-      {items && !item && <p>{items.length ? '✓' : v.hatReady}</p>}
+      {items && !item && <p>{items.length ? '✓' : v.hatNoStock}</p>}
       {item && (
         <>
           <p>{v.hatReady}</p>

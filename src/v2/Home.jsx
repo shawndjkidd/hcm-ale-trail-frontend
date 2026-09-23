@@ -96,7 +96,7 @@ export function isTonight(ev) {
 export default function Home({
   breweries, stamps, stampDates, timerStart, timerEnd, events, sideQuests, boardTop, user, hatClaimed, cardRound,
   language, setLanguage, nightMode, toggleNightMode, onMenu, onOpenBrewery, onOpenQuest, onOpenEvents, onOpenGuide,
-  onOpenBoard, milestone, onDismissMilestone, here, requestLocation,
+  onOpenBoard, milestone, onDismissMilestone, here, requestLocation, onClaimHat,
 }) {
   const v = useV(language);
   const running = !!timerStart && !timerEnd;
@@ -154,6 +154,9 @@ export default function Home({
           <span className="spacer" />
           <button type="button" onClick={onOpenGuide}>{v.howItWorks}</button>
         </div>
+        {user && count >= total && !hatClaimed && (
+          <button type="button" className="btn block" style={{ marginTop: 12 }} onClick={onClaimHat}>{v.claimHat}</button>
+        )}
       </section>
 
       <button type="button" className="v2-clockbar" onClick={onOpenBoard}>

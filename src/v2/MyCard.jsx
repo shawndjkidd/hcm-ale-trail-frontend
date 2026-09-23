@@ -26,7 +26,7 @@ function Passport({ breweries, stamps, stampDates, language }) {
   );
 }
 
-function StampsView({ breweries, stamps, stampDates, timerStart, timerEnd, hatClaimed, language, onShare, firstPlace }) {
+function StampsView({ breweries, stamps, stampDates, timerStart, timerEnd, hatClaimed, language, onShare, firstPlace, onClaimHat }) {
   const v = useV(language);
   const running = !!timerStart && !timerEnd;
   const now = useNow(1000, running);
@@ -54,6 +54,7 @@ function StampsView({ breweries, stamps, stampDates, timerStart, timerEnd, hatCl
         <span className="spacer" />
         <span style={{ fontSize: '.9rem' }}>{hatClaimed ? '✓' : count >= total ? v.hatReady : fmt(v.toGo, { n: total - count })}</span>
       </div>
+      {!hatClaimed && count >= total && <button type="button" className="btn block" onClick={onClaimHat}>{v.claimHat}</button>}
       {count > 0 && <button type="button" className="btn block" onClick={onShare}>{v.shareCard}</button>}
     </>
   );
@@ -178,7 +179,7 @@ function RankingView({ timerStart, timerEnd, language, userId }) {
   );
 }
 
-export default function MyCard({ tab, setTab, user, breweries, stamps, stampDates, beers, timerStart, timerEnd, hatClaimed, language, onSignIn, onShare, onLoadBeers }) {
+export default function MyCard({ tab, setTab, user, breweries, stamps, stampDates, beers, timerStart, timerEnd, hatClaimed, language, onSignIn, onShare, onLoadBeers, onClaimHat }) {
   const v = useV(language);
   useEffect(() => { if (tab === 'beers' && user) onLoadBeers?.(); }, [tab, user]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -199,7 +200,7 @@ export default function MyCard({ tab, setTab, user, breweries, stamps, stampDate
             options={[{ value: 'stamps', label: v.stamps }, { value: 'beers', label: `${v.beers}${beers.length ? ` ${beers.length}` : ''}` }, { value: 'ranking', label: v.ranking }]} />
           {tab === 'stamps' && (
             <StampsView breweries={breweries} stamps={stamps} stampDates={stampDates} timerStart={timerStart} timerEnd={timerEnd}
-              hatClaimed={hatClaimed} language={language} onShare={onShare} firstPlace={firstPlace} />
+              hatClaimed={hatClaimed} language={language} onShare={onShare} firstPlace={firstPlace} onClaimHat={onClaimHat} />
           )}
           {tab === 'beers' && <BeersView breweries={breweries} beers={beers} language={language} />}
           {tab === 'ranking' && <RankingView timerStart={timerStart} timerEnd={timerEnd} language={language} userId={user?.id} />}
