@@ -179,7 +179,7 @@ export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events 
             <h2 style={{ marginBottom: 4 }}>{recent.length ? v.recentlyHere : v.onTapNow}</h2>
             {recent.length ? (
               <>
-                <p style={{ fontSize: '.8rem', color: 'var(--muted)', marginBottom: 4 }}>{v.recentNote}</p>
+                <p style={{ fontSize: '.8rem', color: 'rgba(255,255,255,.85)', marginBottom: 6 }}>{v.recentNote}</p>
                 <div className="beerlist card">
                   {recent.slice(0, 5).map((b) => <BeerRow key={b.name} beer={b} />)}
                 </div>
