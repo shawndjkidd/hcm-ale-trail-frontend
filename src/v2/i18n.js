@@ -2,6 +2,7 @@
 // Placeholders use {name}; fill them with fmt().
 
 const en = {
+  updateTitle: 'New version ready', updateBody: "We've just added new things to the Ale Trail. Tap to update, it takes a second.", updateBtn: 'Update now',
   completedTag: 'COMPLETED!',
   hatNoStock: 'Show this screen to staff at any brewery to collect your hat.',
   passkeySignIn: 'Sign in with Face ID / passkey', passkeyFail: 'Passkey could not be added. Try again.', installLater: 'Not now',
@@ -109,6 +110,7 @@ const en = {
 };
 
 const vn = {
+  updateTitle: 'Đã có phiên bản mới', updateBody: 'Ale Trail vừa có thêm tính năng mới. Nhấn để cập nhật, chỉ mất một giây.', updateBtn: 'Cập nhật ngay',
   completedTag: 'HOÀN THÀNH!',
   hatNoStock: 'Đưa màn hình này cho nhân viên ở bất kỳ nhà máy bia nào để nhận mũ.',
   passkeySignIn: 'Đăng nhập bằng Face ID / passkey', passkeyFail: 'Không thêm được passkey. Thử lại nhé.', installLater: 'Để sau',
@@ -202,6 +204,7 @@ const vn = {
 };
 
 const kr = {
+  updateTitle: '새 버전이 준비됐어요', updateBody: '에일 트레일에 새로운 기능이 추가됐어요. 눌러서 업데이트하세요. 금방 끝나요.', updateBtn: '지금 업데이트',
   completedTag: '완료!',
   hatNoStock: '아무 브루어리에서나 직원에게 이 화면을 보여주고 모자를 받으세요.',
   passkeySignIn: 'Face ID / 패스키로 로그인', passkeyFail: '패스키를 추가하지 못했어요. 다시 시도하세요.', installLater: '나중에',
@@ -295,6 +298,7 @@ const kr = {
 };
 
 const jp = {
+  updateTitle: '新しいバージョンがあります', updateBody: 'エールトレイルに新機能が追加されました。タップして更新してください。すぐに終わります。', updateBtn: '今すぐ更新',
   completedTag: '達成！',
   hatNoStock: 'どのブルワリーでもスタッフにこの画面を見せてキャップを受け取ってください。',
   passkeySignIn: 'Face ID / パスキーでログイン', passkeyFail: 'パスキーを追加できませんでした。もう一度お試しください。', installLater: 'あとで',

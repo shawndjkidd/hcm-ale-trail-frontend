@@ -20,6 +20,8 @@ import { passkeySupported, listPasskeys, addPasskey } from "./v2/passkey";
 import { useV, fmt } from "./v2/i18n";
 import { openStatus, formatClose } from "./v2/util";
 import "./v2/v2.css";
+import { DEMO_MODE, demoEvents, DEMO_SIDE_QUESTS } from "./v2/demo";
+import UpdatePrompt from "./v2/UpdatePrompt";
 
 import { supabase } from "./lib/supabase";
 import { TRAIL_ID, SHOW_UNTAPPD_INTEGRATION } from "./config";
@@ -268,10 +270,13 @@ export default function App() {
         loadBreweries(),
         fetch(`/api/trails/${TRAIL_ID}/side-quests`).then((r) => r.json()).then((d) => (d?.ok ? d.sideQuests || [] : [])).catch(() => []),
       ]);
-      setSideQuests(quests);
-      fetch(`/api/trails/${TRAIL_ID}/events`).then((r) => r.json()).then((d) => d?.ok && setEvents(d.events || [])).catch(() => {});
+      const allQuests = DEMO_MODE ? [...quests, ...DEMO_SIDE_QUESTS] : quests;
+      setSideQuests(allQuests);
+      fetch(`/api/trails/${TRAIL_ID}/events`).then((r) => r.json())
+        .then((d) => { const real = d?.ok ? d.events || [] : []; setEvents(DEMO_MODE ? [...real, ...demoEvents(list)] : real); })
+        .catch(() => { if (DEMO_MODE) setEvents(demoEvents(list)); });
       loadBoardTop();
-      routeFromUrl(list, quests);
+      routeFromUrl(list, allQuests);
       setInitialized(true);
     };
     init();
@@ -558,6 +563,7 @@ export default function App() {
         <UntappdOnboarding language={language} onDismiss={() => { localStorage.setItem("hcm-untappd-onboarding-dismissed", "true"); setUntappdOnboardingDismissed(true); }} />
       )}
 
+      <UpdatePrompt language={language} paused={!!checkIn} />
       <Toast text={toast} />
     </div>
   );

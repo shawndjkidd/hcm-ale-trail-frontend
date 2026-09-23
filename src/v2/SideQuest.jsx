@@ -7,6 +7,8 @@ import { localized, placeGradient, openStatus, stampLabel } from './util';
 import { statusText } from './Home';
 
 async function claimQuest(questId, pin) {
+  // Preview-only demo quests accept any 4-digit code so the flow can be seen end to end
+  if (String(questId).startsWith('demo-')) return { ok: true };
   const token = getAccessToken();
   try {
     const res = await fetch('/api/side-quests/checkin', {
