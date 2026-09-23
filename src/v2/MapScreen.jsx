@@ -4,7 +4,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useV } from './i18n';
 import { statusText } from './Home';
-import { openStatus, districtLabel, distanceKm, formatKm } from './util';
+import { openStatus, districtLabel, distanceKm, formatKm, photoFor, logoFor, placeGradient } from './util';
 
 const pinIcon = (cls, label) => L.divIcon({
   className: '',
@@ -79,17 +79,25 @@ export default function MapScreen({ breweries, sideQuests = [], stamps, language
 
       {sel && (
         <div className="card" role="dialog" aria-label={sel.item.name}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <b style={{ fontSize: '1.05rem', flex: 1 }}>{sel.item.name}</b>
-            <button type="button" className="link-btn" onClick={() => setSelected(null)} aria-label={v.close}>✕</button>
-          </div>
-          <div style={{ fontSize: '.85rem', color: 'var(--muted)' }}>
-            {[districtLabel(sel.item.district, language), statusText(sel.st, v, language), km != null ? formatKm(km) : null].filter(Boolean).join(' · ')}
-          </div>
-          <div className="actions">
-            <a className="btn plain" style={{ fontSize: '.95rem', padding: '8px 12px', boxShadow: 'none' }} href={directions} target="_blank" rel="noreferrer">{v.directions}</a>
-            <button type="button" className="btn" style={{ fontSize: '.95rem', padding: '8px 16px' }} onClick={() => onOpenBrewery(sel.item)}>{v.view}</button>
-          </div>
+          <span className="photo" style={{ background: photoFor(sel.item) ? `url("${photoFor(sel.item)}") center/cover` : placeGradient(sel.item.id) }}>
+            <span className={`badge ${sel.state}`}>{sel.stamped ? '✓' : sel.n}</span>
+            {logoFor(sel.item) && <img className="logo" src={logoFor(sel.item)} alt="" />}
+          </span>
+          <span className="body">
+            <span className="toprow">
+              <span className="name">{sel.item.name}</span>
+              <button type="button" className="x" onClick={() => setSelected(null)} aria-label={v.close}>✕</button>
+            </span>
+            <span className="sub">{[districtLabel(sel.item.district, language), km != null ? formatKm(km) : null].filter(Boolean).join(' · ')}</span>
+            <span>
+              {sel.stamped ? <span className="tag done-map">{v.completedTag}</span>
+                : <span className={`tag ${sel.st.open ? 'open' : 'closed-map'}`}>{statusText(sel.st, v, language)}</span>}
+            </span>
+            <span className="actions">
+              <a className="mbtn light" href={directions} target="_blank" rel="noreferrer">{v.directions}</a>
+              <button type="button" className="mbtn" onClick={() => onOpenBrewery(sel.item)}>{v.view} →</button>
+            </span>
+          </span>
         </div>
       )}
     </div>
