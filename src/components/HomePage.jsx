@@ -503,9 +503,6 @@ function HomePage({ trail, breweries, stamps, language, setLanguage, onBreweryCl
 
       <div className="footer">
         <div className="footer-year">HCM ALE TRAIL 2026</div>
-        <button className="reset-btn" onClick={resetCard}>
-          {t.resetCard}
-        </button>
         {user && onLogout && (
           <button className="logout-link" onClick={onLogout}>
             {t.logOut || 'Log out'}

@@ -53,6 +53,19 @@ export function logout() {
 }
 
 async function refreshAccessToken() {
+  // Prefer the Supabase client's own refresh: Supabase rotates refresh tokens,
+  // so refreshing through two different paths makes one of them fail.
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.refresh_token) {
+      const { data, error } = await supabase.auth.refreshSession();
+      if (!error && data?.session?.access_token) {
+        setTokens(data.session);
+        return { ok: true, access_token: data.session.access_token };
+      }
+    }
+  } catch {}
+
   const refresh_token = getRefreshToken();
   if (!refresh_token) return { ok: false, error: "Missing refresh token" };
 
@@ -74,21 +87,33 @@ async function refreshAccessToken() {
     refresh_token: data.refresh_token,
     expires_at: data.expires_at,
   });
+  seedSupabaseSession(data);
 
   return { ok: true, access_token: data.access_token };
 }
 
-// Adds Authorization: Bearer if a token is stored; otherwise falls back to
-// X-User-Id so the backend can identify the caller from the client-stored user.
+// Keep the Supabase client and the hcm-* keys holding the same session, so
+// the AI chat and direct Supabase calls work for email/password users too.
+function seedSupabaseSession(data) {
+  if (!data?.access_token || !data?.refresh_token) return;
+  supabase.auth
+    .setSession({ access_token: data.access_token, refresh_token: data.refresh_token })
+    .catch(() => {});
+}
+
+try {
+  supabase.auth.onAuthStateChange((event, session) => {
+    if ((event === "TOKEN_REFRESHED" || event === "SIGNED_IN") && session?.access_token) {
+      setTokens(session);
+    }
+  });
+} catch {}
+
+// Adds Authorization: Bearer when a token is stored. The backend no longer
+// accepts a bare X-User-Id header, so unauthenticated calls get a 401.
 function authHeaders(extra = {}) {
   const token = getAccessToken();
   if (token) return { ...extra, Authorization: `Bearer ${token}` };
-
-  try {
-    const u = JSON.parse(localStorage.getItem("hcm-user") || "null");
-    if (u?.id) return { ...extra, "X-User-Id": u.id };
-  } catch {}
-
   return { ...extra };
 }
 
@@ -200,8 +225,8 @@ export function postRating(trailId = TRAIL_ID, breweryId, payload) {
   });
 }
 
-export function getLeaderboard(trailId = TRAIL_ID) {
-  return request(`/trails/${trailId}/leaderboard`);
+export function getLeaderboard(trailId = TRAIL_ID, board = "fastest") {
+  return request(`/trails/${trailId}/leaderboard${board === "month" ? "?board=month" : ""}`);
 }
 
 /**
@@ -250,11 +275,11 @@ export function saveOnboardingProfile(profileData) {
 
 // --- User Me ---
 export function getUserMe() {
-  return request(`/user/me`);
+  return request(`/users/me`);
 }
 
 export function patchUserMe(payload) {
-  return request(`/user/me`, {
+  return request(`/users/me`, {
     method: "PATCH",
     body: payload,
   });
@@ -279,5 +304,6 @@ export function storeLoginTokens(data) {
       refresh_token: data.refresh_token,
       expires_at: data.expires_at,
     });
+    seedSupabaseSession(data);
   }
 }

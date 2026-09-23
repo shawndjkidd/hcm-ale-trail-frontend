@@ -11,11 +11,17 @@ const LANG_MAP = { en: 'en', vn: 'vi', kr: 'ko', jp: 'ja' };
 // expired between getSession() and the fetch landing.
 async function callAiChat({ question, language }) {
   const getFreshToken = async () => {
-    const { data: { session }, error } = await supabase.auth.getSession();
-    if (error || !session?.access_token) {
-      throw new Error('Not signed in. Please sign in again.');
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.access_token) return session.access_token;
+    // Email/password sign-ins keep their session under hcm-* keys; hand it to
+    // the Supabase client before giving up.
+    const access_token = localStorage.getItem('hcm-access-token');
+    const refresh_token = localStorage.getItem('hcm-refresh-token');
+    if (access_token && refresh_token) {
+      const { data, error } = await supabase.auth.setSession({ access_token, refresh_token });
+      if (!error && data?.session?.access_token) return data.session.access_token;
     }
-    return session.access_token;
+    throw new Error('Not signed in. Please sign in again.');
   };
 
   const doFetch = async (token) =>

@@ -3,39 +3,7 @@ import translations from '../translations'
 
 const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a921'
 
-// Demo events to show until real ones are added
-const DEMO_EVENTS = [
-  {
-    id: 'demo-1',
-    category: 'event',
-    breweryName: 'BiaCraft',
-    title: 'Craft Beer Trivia Night',
-    description: 'Test your beer knowledge and win prizes. Teams of up to 4 people welcome.',
-    startsAt: '2025-05-10T19:00:00+07:00',
-    endsAt: '2025-05-10T22:00:00+07:00',
-    link: 'https://www.instagram.com/biacraft.artisanales/',
-  },
-  {
-    id: 'demo-2',
-    category: 'new_release',
-    breweryName: 'Heart of Darkness',
-    title: 'Kurtz IPA — Limited Release',
-    description: 'A bold new West Coast IPA with tropical hop notes. First 50 pints get a free glass.',
-    startsAt: '2025-05-15T17:00:00+07:00',
-    endsAt: '2025-05-15T23:00:00+07:00',
-    link: 'https://www.instagram.com/heartofdarkness.craft/',
-  },
-  {
-    id: 'demo-3',
-    category: 'event',
-    breweryName: 'Rooster Beers',
-    title: 'Live Music & BBQ Saturday',
-    description: 'Local bands, smoked ribs, and cold craft beer. No cover charge.',
-    startsAt: '2025-05-17T18:00:00+07:00',
-    endsAt: '2025-05-17T23:30:00+07:00',
-    link: 'https://www.instagram.com/roosterbeers/',
-  },
-]
+const DATE_LOCALE = { en: 'en', vn: 'vi', kr: 'ko', jp: 'ja' }
 
 function EventsPage({ language, onClose }) {
   const [events, setEvents] = useState([])
@@ -55,14 +23,14 @@ function EventsPage({ language, onClose }) {
       const res = await fetch(`/api/trails/${TRAIL_ID}/events?v=${Date.now()}`)
       const data = await res.json()
       if (data.ok) {
-        // Use API events if available, otherwise show demo events
-        setEvents(data.events && data.events.length > 0 ? data.events : DEMO_EVENTS)
+        // Real events only — never show placeholder events to customers
+        setEvents(Array.isArray(data.events) ? data.events : [])
       } else {
-        setEvents(DEMO_EVENTS)
+        setEvents([])
       }
     } catch (err) {
       console.error('Events fetch error:', err)
-      setEvents(DEMO_EVENTS)
+      setEvents([])
     }
     setLoading(false)
   }
@@ -81,7 +49,7 @@ function EventsPage({ language, onClose }) {
 
   const formatDate = (dateStr) => {
     const date = new Date(dateStr)
-    return date.toLocaleDateString('en', {
+    return date.toLocaleDateString(DATE_LOCALE[language] || 'en', {
       weekday: 'short',
       month: 'short',
       day: 'numeric',

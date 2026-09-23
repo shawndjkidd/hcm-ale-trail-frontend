@@ -18,7 +18,7 @@ import CardResetPrompt from "./components/CardResetPrompt";
 import translations from "./translations";
 import { supabase } from "./lib/supabase";
 import { TRAIL_ID, SHOW_UNTAPPD_INTEGRATION } from "./config";
-import { getBreweries, getMe, logout as apiLogout, startNewRun, postResetCard, getLeaderboard, claimHat, storeLoginTokens, getAccessToken, setTokens, getUnseenNudges, markNudgesSeen, getUserMe, patchUserMe } from "./lib/api";
+import { getBreweries, getMe, getMyRatings, logout as apiLogout, startNewRun, postResetCard, getLeaderboard, claimHat, storeLoginTokens, getAccessToken, setTokens, getUnseenNudges, markNudgesSeen, getUserMe, patchUserMe } from "./lib/api";
 
 import "./styles/App.css";
 
@@ -177,6 +177,8 @@ export default function App() {
     setTimerEnd(null);
     localStorage.removeItem('hcm-timer-start');
     localStorage.removeItem('hcm-timer-end');
+    localStorage.removeItem('hcm-milestone-5-seen');
+    localStorage.removeItem('hcm-milestone-7-seen');
     setShowCardResetPrompt(false);
     goHome();
   };
@@ -208,6 +210,8 @@ export default function App() {
     localStorage.removeItem("hcm-completion-modal-shown");
     localStorage.removeItem("hcm-untappd-onboarding-dismissed");
     localStorage.removeItem("hcm-card-round");
+    localStorage.removeItem("hcm-milestone-5-seen");
+    localStorage.removeItem("hcm-milestone-7-seen");
     // Reset React state
     setUser(null);
     setUserMe(null);
@@ -262,14 +266,18 @@ export default function App() {
     const r = await getMe(TRAIL_ID);
     if (r?.ok) {
       if (Array.isArray(r.checkedInBreweryIds)) {
-        // Merge server stamps with any locally-held stamps to avoid wiping
-        // stamps that were saved to state/localStorage but not yet persisted to DB
-        setStamps(prev => {
-          const merged = [...new Set([...prev, ...r.checkedInBreweryIds])];
-          localStorage.setItem("hcm-stamps", JSON.stringify(merged));
-          return merged;
-        });
+        // Server is the source of truth: every stamp is PIN-verified server-side,
+        // so a reset or revoke on another device must clear stamps here too.
+        setStamps(r.checkedInBreweryIds);
+        localStorage.setItem("hcm-stamps", JSON.stringify(r.checkedInBreweryIds));
       }
+      // Trail clock comes from the server (first stamp of this round → completion)
+      const startMs = r.startedAt ? new Date(r.startedAt).getTime() : null;
+      const endMs = r.completedAt ? new Date(r.completedAt).getTime() : null;
+      setTimerStart(startMs);
+      setTimerEnd(endMs);
+      if (startMs) localStorage.setItem("hcm-timer-start", String(startMs)); else localStorage.removeItem("hcm-timer-start");
+      if (endMs) localStorage.setItem("hcm-timer-end", String(endMs)); else localStorage.removeItem("hcm-timer-end");
       // Sync hat claim status from server (authoritative)
       if (r.hatClaimed) {
         setHatClaimed(true);
@@ -321,7 +329,6 @@ export default function App() {
       if (savedBeers) setBeers(JSON.parse(savedBeers));
       if (savedTimerStart) setTimerStart(parseInt(savedTimerStart, 10));
       if (savedTimerEnd) setTimerEnd(parseInt(savedTimerEnd, 10));
-      if (savedLeaderboard) setLeaderboardData(JSON.parse(savedLeaderboard));
       if (savedSideQuestCheckins) setSideQuestCheckins(JSON.parse(savedSideQuestCheckins));
 
       // ── Google OAuth callback ─────────────────────────────────────────────
@@ -561,6 +568,11 @@ export default function App() {
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
+  // Every screen opens at the top (brewery pages used to open mid-scroll)
+  useEffect(() => {
+    try { window.scrollTo(0, 0); } catch {}
+  }, [view, selectedBrewery?.id, selectedSideQuest?.id]);
+
   const handleUserRegistration = (userData) => {
     setUser(userData);
     localStorage.setItem("hcm-user", JSON.stringify(userData));
@@ -592,24 +604,24 @@ export default function App() {
         }
       }
 
-      const requiredCount = breweries.filter(b => b.status !== 'temporarily_closed').length || 8;
-      if (newStamps.length >= requiredCount && timerStart && !timerEnd) {
-        const endTime = Date.now();
-        setTimerEnd(endTime);
-        localStorage.setItem("hcm-timer-end", endTime.toString());
-        if (user) {
-          const completionTime = endTime - timerStart;
-          const newEntry = {
-            id: Date.now(),
-            name: user.name,
-            time: completionTime,
-            completedAt: new Date().toISOString(),
-          };
-          const updatedLeaderboard = [...leaderboardData, newEntry];
-          setLeaderboardData(updatedLeaderboard);
-          localStorage.setItem("hcm-leaderboard", JSON.stringify(updatedLeaderboard));
-        }
-      }
+      // Re-sync clock, completion and stamps from the server after each stamp
+      if (user?.id) loadMe().catch(() => {});
+    }
+  };
+
+  const loadMyBeers = async () => {
+    const res = await getMyRatings(TRAIL_ID);
+    if (res?.ok && Array.isArray(res.ratings)) {
+      const mapped = res.ratings.map((r) => ({
+        id: r.id,
+        breweryId: r.brewery_id,
+        breweryName: r.brewery_name,
+        name: r.beer_name,
+        rating: r.rating,
+        notes: r.notes || "",
+        createdAt: r.created_at || null,
+      }));
+      setBeers(mapped);
     }
   };
 
@@ -642,10 +654,11 @@ export default function App() {
     setView(newView);
     if (newView === "leaderboard") {
       getLeaderboard().then((res) => {
-        if (res?.leaderboard?.length) {
-          setLeaderboardData(res.leaderboard);
-        }
+        if (res?.ok) setLeaderboardData(res.leaderboard || []);
       }).catch(() => {});
+    }
+    if (newView === "mybeers" && user?.id) {
+      loadMyBeers().catch(() => {});
     }
     if (newView !== "brewery" && newView !== "sidequest") {
       setSelectedBrewery(null);
@@ -880,6 +893,7 @@ export default function App() {
         <Leaderboard
           leaderboard={leaderboardData}
           user={user}
+          timerStart={timerStart}
           completionTime={getUserCompletionTime()}
           onBack={() => handleNavigate("home")}
           language={language}

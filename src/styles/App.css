@@ -14,7 +14,7 @@
   --red-dark: #C41E3A;
   --yellow-primary: #FFD100;
   --yellow-dark: #FFA500;
-  --green-primary: #00B050;
+  --green-primary: #007A37;
   --black: #000000;
   --white: #FFFFFF;
   --gray: #808080;
@@ -1826,7 +1826,7 @@ body {
    ========================================== */
 
 .brewery-item.side-quest-green {
-  background: linear-gradient(135deg, #00B050 0%, #008C41 100%);
+  background: linear-gradient(135deg, #007A37 0%, #008C41 100%);
   border: 4px solid var(--black);
 }
 
@@ -2353,7 +2353,7 @@ body {
 }
 
 .retro-step.bonus {
-  border-color: #00B050;
+  border-color: #007A37;
   background: rgba(0, 176, 80, 0.2);
 }
 
@@ -2419,7 +2419,7 @@ body {
 .retro-btn {
   display: block;
   width: 100%;
-  background: linear-gradient(180deg, #00B050 0%, #007030 100%);
+  background: linear-gradient(180deg, #007A37 0%, #007030 100%);
   border: 4px solid #FFD100;
   padding: 18px;
   cursor: pointer;
@@ -3526,7 +3526,7 @@ body {
   --theme-footer-text: #FFCC00;
   --theme-link-bg-1: #FFCC00;
   --theme-link-bg-2: #CC0000;
-  --theme-link-bg-3: #00AA44;
+  --theme-link-bg-3: #007A37;
   --theme-link-bg-4: #FF69B4;
   --theme-link-bg-5: #2196F3;
   --theme-link-bg-6: #00BCD4;
@@ -9129,12 +9129,12 @@ body.night-mode .ev-card-link {
 /* Stamped card treatment */
 .brewery-item.stamped {
   background: #f0ebe3;
-  border-color: var(--green-primary, #00B050);
+  border-color: var(--green-primary, #007A37);
 }
 
 /* Number turns green with a big checkmark */
 .brewery-number-done {
-  background: var(--green-primary, #00B050) !important;
+  background: var(--green-primary, #007A37) !important;
   color: #fff !important;
 }
 .brewery-check {
@@ -9147,7 +9147,7 @@ body.night-mode .ev-card-link {
 .stamped-badge {
   display: inline-block;
   margin-top: 4px;
-  background: var(--green-primary, #00B050);
+  background: var(--green-primary, #007A37);
   color: #fff;
   padding: 2px 10px;
   border-radius: 3px;
@@ -9169,14 +9169,14 @@ body.night-mode .ev-card-link {
 /* Night mode — stamped cards */
 body.night-mode .brewery-item.stamped {
   background: #1a2e1f;
-  border-color: var(--green-primary, #00B050);
+  border-color: var(--green-primary, #007A37);
 }
 body.night-mode .brewery-number-done {
-  background: var(--green-primary, #00B050) !important;
+  background: var(--green-primary, #007A37) !important;
   color: #fff !important;
 }
 body.night-mode .stamped-badge {
-  background: var(--green-primary, #00B050);
+  background: var(--green-primary, #007A37);
 }
 body.night-mode .brewery-item.stamped .brewery-name {
   color: #e0e0e0;
@@ -9319,7 +9319,7 @@ body.night-mode .brewery-item.temp-closed .brewery-district {
   flex-shrink: 0;
 }
 .side-quest-icon-home.sq-icon-done {
-  background: var(--green-primary, #00B050);
+  background: var(--green-primary, #007A37);
   border-color: rgba(0, 0, 0, 0.3);
   color: #fff;
   font-size: 1.3rem !important;
@@ -9332,7 +9332,7 @@ body.night-mode .side-quest-icon-home {
   color: rgba(255, 255, 255, 0.35);
 }
 body.night-mode .side-quest-icon-home.sq-icon-done {
-  background: var(--green-primary, #00B050) !important;
+  background: var(--green-primary, #007A37) !important;
   border-color: rgba(0, 0, 0, 0.3);
   color: #fff;
 }
@@ -9354,14 +9354,14 @@ body.night-mode .side-quest-icon-home.sq-icon-done {
 }
 
 .sq-card {
-  border-color: var(--green-primary, #00B050) !important;
+  border-color: var(--green-primary, #007A37) !important;
   box-shadow: 4px 4px 0 rgba(0, 176, 80, 0.4) !important;
 }
 .sq-card:hover {
   box-shadow: 6px 6px 0 rgba(0, 176, 80, 0.5) !important;
 }
 .sq-number {
-  background: linear-gradient(135deg, #00B050 0%, #00913E 100%) !important;
+  background: linear-gradient(135deg, #007A37 0%, #00913E 100%) !important;
   color: #fff !important;
 }
 .sq-quest-icon {
@@ -9392,12 +9392,12 @@ body.night-mode .side-quest-icon-home.sq-icon-done {
   text-overflow: ellipsis;
 }
 .sq-arrow {
-  border-left: 3px solid var(--green-primary, #00B050) !important;
+  border-left: 3px solid var(--green-primary, #007A37) !important;
 }
 .sq-chevron {
   font-size: 2rem;
   font-weight: 300;
-  color: var(--green-primary, #00B050);
+  color: var(--green-primary, #007A37);
   line-height: 1;
 }
 
@@ -9408,21 +9408,21 @@ body.night-mode .side-quest-icon-home.sq-icon-done {
 
 /* Night mode — side quest cards */
 body.night-mode .sq-card {
-  border-color: var(--green-primary, #00B050) !important;
+  border-color: var(--green-primary, #007A37) !important;
   box-shadow: 4px 4px 0 rgba(0, 176, 80, 0.25) !important;
 }
 body.night-mode .sq-card:hover {
   box-shadow: 6px 6px 0 rgba(0, 176, 80, 0.35) !important;
 }
 body.night-mode .sq-number {
-  background: linear-gradient(135deg, #00B050 0%, #00913E 100%) !important;
+  background: linear-gradient(135deg, #007A37 0%, #00913E 100%) !important;
   color: #fff !important;
 }
 body.night-mode .sq-arrow {
   border-left-color: rgba(0, 176, 80, 0.4) !important;
 }
 body.night-mode .sq-chevron {
-  color: var(--green-primary, #00B050);
+  color: var(--green-primary, #007A37);
 }
 
 /* =====================================================
@@ -11177,4 +11177,34 @@ body.night-mode .ai-chat-suggestion {
 @media (hover: none) {
   .star:hover svg polygon { fill: none; stroke: #000; }
   .star.active:hover svg polygon { fill: #E31E24; stroke: #000; }
+}
+
+/* ── Readability pass (Sep 2026 audit) ─────────────────────────────────────
+   WCAG AA needs 4.5:1 for normal text. These override pairs that failed:
+   grey-on-yellow PIN instruction (1.2:1), green-on-red "bonus" (1.6:1),
+   grey-on-red log out (1.7:1), and a Next button that looked enabled. */
+body:not(.night-mode) .pin-subtitle {
+  color: #111 !important;
+  font-weight: 700;
+  font-size: 1rem;
+}
+body:not(.night-mode) .btn-back-to-beer {
+  color: #111 !important;
+}
+.btn-save:disabled,
+.btn-save[disabled] {
+  background: #CFC8C3 !important;
+  color: #4A4441 !important;
+  border-color: #8A7F7A !important;
+  box-shadow: none !important;
+  cursor: not-allowed;
+  transform: none !important;
+}
+.tg-step-prize {
+  color: #FFD100 !important;
+}
+.logout-link,
+.logout-link:hover {
+  color: #fff !important;
+  opacity: 1;
 }

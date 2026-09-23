@@ -63,7 +63,7 @@ function FAQ({ language, onBack }) {
         </button>
 
         <div className="tg-footer">
-          © 2025 HCM ALE TRAIL
+          © {new Date().getFullYear()} HCM ALE TRAIL
         </div>
       </div>
     </div>
