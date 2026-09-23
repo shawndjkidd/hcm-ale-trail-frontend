@@ -4,11 +4,24 @@ import { useV } from './i18n';
 export const LOGO_WHITE = '/brand/logo-white.png';
 
 const LANGS = [
-  { code: 'en', label: 'EN' },
-  { code: 'vn', label: 'VI' },
-  { code: 'kr', label: 'KO' },
-  { code: 'jp', label: 'JA' },
+  { code: 'en', label: 'EN', flag: 'us', name: 'English' },
+  { code: 'vn', label: 'VI', flag: 'vn', name: 'Tiếng Việt' },
+  { code: 'kr', label: 'KO', flag: 'kr', name: '한국어' },
+  { code: 'jp', label: 'JA', flag: 'jp', name: '日本語' },
 ];
+
+// Flag buttons for switching language (the look people liked in the original app)
+export function Flags({ language, setLanguage, size = 'md' }) {
+  return (
+    <div className={`v2-flags ${size}`} role="group" aria-label="Language">
+      {LANGS.map((l) => (
+        <button key={l.code} type="button" aria-pressed={language === l.code} aria-label={l.name} title={l.name} onClick={() => setLanguage(l.code)}>
+          <img src={`/flags/${l.flag}.png`} alt="" />
+        </button>
+      ))}
+    </div>
+  );
+}
 
 export const Icon = {
   trail: (p) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" {...p}><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z" /></svg>),
@@ -24,18 +37,11 @@ export const Icon = {
 };
 
 export function TopBar({ language, setLanguage, nightMode, toggleNightMode, onMenu }) {
-  const next = LANGS[(LANGS.findIndex((l) => l.code === language) + 1) % LANGS.length];
-  const current = LANGS.find((l) => l.code === language) || LANGS[0];
   return (
     <div className="v2-top">
       <img className="logo" src={LOGO_WHITE} alt="Ho Chi Minh Ale Trail" />
       <span className="spacer" />
-      <button type="button" className="chip-btn" onClick={() => setLanguage(next.code)} aria-label={`Language: ${current.label}. Switch to ${next.label}`}>
-        {current.label}
-      </button>
-      <button type="button" className="chip-btn" onClick={toggleNightMode} aria-pressed={nightMode} aria-label="Night mode">
-        {nightMode ? '☀' : '☾'}
-      </button>
+      <Flags language={language} setLanguage={setLanguage} size="sm" />
       <button type="button" className="menu-btn" onClick={onMenu} aria-label="Menu">☰</button>
     </div>
   );
@@ -133,11 +139,7 @@ export function MenuDrawer({ language, setLanguage, nightMode, toggleNightMode, 
           <a key={l.label} className="item" href={l.href} target="_blank" rel="noreferrer">{l.label}<span>↗</span></a>
         ))}
         <div className="item" style={{ borderBottom: 0, paddingBottom: 0 }}>{v.menuLanguage}</div>
-        <div className="langs">
-          {LANGS.map((l) => (
-            <button key={l.code} type="button" aria-pressed={language === l.code} onClick={() => setLanguage(l.code)}>{l.label}</button>
-          ))}
-        </div>
+        <div style={{ padding: '10px 0' }}><Flags language={language} setLanguage={setLanguage} /></div>
         <div className="item">
           {v.menuNight}
           <button type="button" className="switch" role="switch" aria-checked={nightMode} onClick={toggleNightMode} aria-label={v.menuNight} />

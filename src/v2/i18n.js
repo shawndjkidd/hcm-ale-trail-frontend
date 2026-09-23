@@ -2,6 +2,7 @@
 // Placeholders use {name}; fill them with fmt().
 
 const en = {
+  completedTag: 'COMPLETED!',
   hatNoStock: 'Show this screen to staff at any brewery to collect your hat.',
   passkeySignIn: 'Sign in with Face ID / passkey', passkeyFail: 'Passkey could not be added. Try again.', installLater: 'Not now',
   siUp: 'Join the trail', siIn: 'Welcome back', siForgot: 'Reset your password', google: 'Continue with Google', orEmail: 'or with email', nameLabel: 'Your name', emailLabel: 'Email', passwordLabel: 'Password', confirmLabel: 'Confirm password', createAccount: 'Create account', signInBtn: 'Sign in', toSignIn: 'Already have an account? Sign in', toSignUp: 'New here? Create an account', forgotLink: 'Forgot password?', sendReset: 'Send reset link', resetSent: 'Check your email for a reset link.', backToSignIn: 'Back to sign in', errFill: 'Please fill in every field.', errPwShort: 'Password needs at least 8 characters.', errMismatch: 'Passwords do not match.', errExists: 'An account with that email already exists. Sign in instead.', errLogin: 'Email or password is incorrect.', accountCreated: 'Account created. Please sign in.',
@@ -108,6 +109,7 @@ const en = {
 };
 
 const vn = {
+  completedTag: 'HOÀN THÀNH!',
   hatNoStock: 'Đưa màn hình này cho nhân viên ở bất kỳ nhà máy bia nào để nhận mũ.',
   passkeySignIn: 'Đăng nhập bằng Face ID / passkey', passkeyFail: 'Không thêm được passkey. Thử lại nhé.', installLater: 'Để sau',
   siUp: 'Tham gia hành trình', siIn: 'Chào mừng trở lại', siForgot: 'Đặt lại mật khẩu', google: 'Tiếp tục với Google', orEmail: 'hoặc dùng email', nameLabel: 'Tên của bạn', emailLabel: 'Email', passwordLabel: 'Mật khẩu', confirmLabel: 'Xác nhận mật khẩu', createAccount: 'Tạo tài khoản', signInBtn: 'Đăng nhập', toSignIn: 'Đã có tài khoản? Đăng nhập', toSignUp: 'Lần đầu? Tạo tài khoản', forgotLink: 'Quên mật khẩu?', sendReset: 'Gửi liên kết đặt lại', resetSent: 'Kiểm tra email để lấy liên kết đặt lại.', backToSignIn: 'Quay lại đăng nhập', errFill: 'Vui lòng điền đủ thông tin.', errPwShort: 'Mật khẩu cần ít nhất 8 ký tự.', errMismatch: 'Mật khẩu không khớp.', errExists: 'Email này đã có tài khoản. Hãy đăng nhập.', errLogin: 'Email hoặc mật khẩu không đúng.', accountCreated: 'Đã tạo tài khoản. Vui lòng đăng nhập.',
@@ -200,6 +202,7 @@ const vn = {
 };
 
 const kr = {
+  completedTag: '완료!',
   hatNoStock: '아무 브루어리에서나 직원에게 이 화면을 보여주고 모자를 받으세요.',
   passkeySignIn: 'Face ID / 패스키로 로그인', passkeyFail: '패스키를 추가하지 못했어요. 다시 시도하세요.', installLater: '나중에',
   siUp: '트레일 참여하기', siIn: '다시 오신 걸 환영해요', siForgot: '비밀번호 재설정', google: 'Google로 계속하기', orEmail: '또는 이메일로', nameLabel: '이름', emailLabel: '이메일', passwordLabel: '비밀번호', confirmLabel: '비밀번호 확인', createAccount: '계정 만들기', signInBtn: '로그인', toSignIn: '이미 계정이 있나요? 로그인', toSignUp: '처음인가요? 계정 만들기', forgotLink: '비밀번호를 잊으셨나요?', sendReset: '재설정 링크 보내기', resetSent: '이메일에서 재설정 링크를 확인하세요.', backToSignIn: '로그인으로 돌아가기', errFill: '모든 항목을 입력하세요.', errPwShort: '비밀번호는 8자 이상이어야 해요.', errMismatch: '비밀번호가 일치하지 않아요.', errExists: '이미 가입된 이메일이에요. 로그인해 주세요.', errLogin: '이메일 또는 비밀번호가 올바르지 않아요.', accountCreated: '계정이 만들어졌어요. 로그인해 주세요.',
@@ -292,6 +295,7 @@ const kr = {
 };
 
 const jp = {
+  completedTag: '達成！',
   hatNoStock: 'どのブルワリーでもスタッフにこの画面を見せてキャップを受け取ってください。',
   passkeySignIn: 'Face ID / パスキーでログイン', passkeyFail: 'パスキーを追加できませんでした。もう一度お試しください。', installLater: 'あとで',
   siUp: 'トレイルに参加', siIn: 'おかえりなさい', siForgot: 'パスワードの再設定', google: 'Googleで続ける', orEmail: 'またはメールで', nameLabel: 'お名前', emailLabel: 'メール', passwordLabel: 'パスワード', confirmLabel: 'パスワード（確認）', createAccount: 'アカウント作成', signInBtn: 'ログイン', toSignIn: 'アカウントをお持ちの方はログイン', toSignUp: '初めての方はアカウント作成', forgotLink: 'パスワードをお忘れですか？', sendReset: '再設定リンクを送る', resetSent: 'メールで再設定リンクをご確認ください。', backToSignIn: 'ログインに戻る', errFill: 'すべての項目を入力してください。', errPwShort: 'パスワードは8文字以上にしてください。', errMismatch: 'パスワードが一致しません。', errExists: 'このメールは登録済みです。ログインしてください。', errLogin: 'メールまたはパスワードが正しくありません。', accountCreated: 'アカウントを作成しました。ログインしてください。',

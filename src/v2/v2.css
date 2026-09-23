@@ -548,3 +548,32 @@ body.night-mode .v2 .v2-brewery .card { background: var(--surface); color: var(-
 .v2-brewery .sticky .btn { border-color: var(--ink); box-shadow: 5px 5px 0 #fff; }
 .v2-brewery .link-btn { color: #fff; }
 .v2-links a { font-size: .66rem; letter-spacing: 0; }
+
+/* ── Language flags ─────────────────────────────────────────────────────── */
+.v2-flags { display: flex; gap: 8px; }
+.v2-flags button { padding: 0; border: 3px solid var(--ink); background: #fff; line-height: 0; box-shadow: 3px 3px 0 var(--ink); border-radius: 3px; overflow: hidden; }
+.v2-flags button img { display: block; width: 44px; height: 30px; object-fit: cover; }
+.v2-flags button[aria-pressed="true"] { border-color: var(--yellow); box-shadow: 3px 3px 0 var(--ink), 0 0 0 2px var(--ink); }
+.v2-flags.sm { gap: 5px; }
+.v2-flags.sm button { border-width: 2px; box-shadow: 2px 2px 0 var(--ink); }
+.v2-flags.sm button img { width: 30px; height: 20px; }
+.v2-flags.lg { gap: 12px; }
+.v2-flags.lg button img { width: 58px; height: 38px; }
+.v2-top .logo { height: 30px; }
+
+/* ── Bolder brewery cards (the original app's punch) ────────────────────── */
+.v2 .v2-bcard { border-width: 4px; min-height: 120px; box-shadow: 6px 6px 0 var(--ink); }
+.v2 .v2-bcard.is-stamped { border-color: var(--jade); background: #EFEAE3; }
+.v2 .v2-bcard.is-closed { border-color: var(--ink); background: #EFEAE3; }
+.v2 .v2-bcard.is-open { background: #fff; }
+.v2 .v2-bcard .name { font-family: 'Inter', var(--body); font-weight: 900; text-transform: uppercase; font-size: 1.45rem; line-height: 1; letter-spacing: -.01em; color: var(--ink); }
+.v2 .v2-bcard.is-closed .name { color: var(--ink); }
+.v2 .v2-bcard .sub { font-size: .95rem; font-weight: 700; color: #6B625E; }
+.v2 .v2-bcard .body { padding: 12px 14px; gap: 5px; }
+.v2 .v2-bcard .badge { font-size: 1.7rem; padding: 4px 12px; }
+.v2 .v2-bcard.is-stamped .badge { font-size: 2rem; padding: 2px 14px; }
+.v2 .v2-bcard .tag { font-size: .8rem; padding: 3px 9px; border-width: 3px; }
+.v2 .v2-bcard .tag.done { background: var(--jade); color: #fff; border-color: var(--jade); padding: 3px 10px; letter-spacing: .12em; font-weight: 900; }
+.v2 .v2-bcard .tag.closed { color: #4A4441; border-color: #8A7F7A; }
+body.night-mode .v2 .v2-bcard .name, body.night-mode .v2 .v2-bcard.is-closed .name { color: var(--text); }
+body.night-mode .v2 .v2-bcard.is-stamped, body.night-mode .v2 .v2-bcard.is-closed { background: var(--surface); }

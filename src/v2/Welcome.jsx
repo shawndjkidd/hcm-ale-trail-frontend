@@ -1,20 +1,15 @@
 import { useRef, useState } from 'react';
 import { useV } from './i18n';
-import { LOGO_WHITE, Pints } from './ui';
+import { LOGO_WHITE, Pints, Flags } from './ui';
 
-const LANGS = [{ code: 'en', label: 'EN' }, { code: 'vn', label: 'VI' }, { code: 'kr', label: 'KO' }, { code: 'jp', label: 'JA' }];
 
 export function Welcome({ language, setLanguage, onStart, onSignIn }) {
   const v = useV(language);
   return (
     <div className="v2-full v2-welcome">
       <div className="wrap">
-        <div className="top" style={{ justifyContent: 'flex-end', gap: 6 }}>
-          {LANGS.map((l) => (
-            <button key={l.code} type="button" className="sq-btn" aria-pressed={language === l.code}
-              style={language === l.code ? { background: '#fff', color: 'var(--red)' } : undefined}
-              onClick={() => setLanguage(l.code)}>{l.label}</button>
-          ))}
+        <div className="top" style={{ justifyContent: 'center' }}>
+          <Flags language={language} setLanguage={setLanguage} size="lg" />
         </div>
         <img className="logo" src={LOGO_WHITE} alt="Ho Chi Minh Ale Trail" />
         <h1 className="headline">{v.w1}<br />{v.w2}<br />{v.w3}</h1>

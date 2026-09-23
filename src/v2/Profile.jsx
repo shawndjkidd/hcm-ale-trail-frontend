@@ -2,10 +2,9 @@ import { useState } from 'react';
 import translations from '../translations';
 import { changePassword, changeEmail, deleteAccount } from '../lib/api';
 import { useV, fmt, shortDate } from './i18n';
-import { Sheet, Seg } from './ui';
+import { Sheet, Flags } from './ui';
 import { formatClock, personalityFor } from './util';
 
-const LANGS = [{ value: 'en', label: 'EN' }, { value: 'vn', label: 'VI' }, { value: 'kr', label: 'KO' }, { value: 'jp', label: 'JA' }];
 
 export default function Profile({
   user, userMe, profile, stampsCount, total, beersCount, bestMs, language, setLanguage, nightMode, toggleNightMode,
@@ -97,7 +96,7 @@ export default function Profile({
         <div className="v2-list">
           <div className="li" style={{ flexWrap: 'wrap' }}>
             <span className="k">{v.language}</span>
-            <div style={{ width: 200 }}><Seg ink value={language} onChange={setLanguage} options={LANGS} label={v.language} /></div>
+            <Flags language={language} setLanguage={setLanguage} size="sm" />
           </div>
           <div className="li">
             <span className="k">{v.menuNight}</span>

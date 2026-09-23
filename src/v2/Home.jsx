@@ -47,10 +47,11 @@ export function BreweryCard({ brewery, index, stampedAt, language, onOpen, here 
         <span className="sub">
           {districtLabel(brewery.district, language)}
           {km != null ? ` · ${formatKm(km)}` : ''}
+          {isStamped && date ? ` · ${date}` : ''}
         </span>
         <span className="status">
           {isStamped ? (
-            <span className="tag done">{fmt(v.stamped, { date })}</span>
+            <span className="tag done">{v.completedTag}</span>
           ) : (
             <span className={`tag ${st.open ? 'open' : 'closed'}`}>{statusText(st, v, language)}</span>
           )}
@@ -186,21 +187,7 @@ export default function Home({
         </button>
       )}
 
-      <div className="v2-section-head">
-        <h2>{v.theTrail}</h2>
-        <span className="spacer" />
-        <button
-          type="button"
-          className="sq-btn"
-          onClick={() => {
-            if (order === 'trail') { requestLocation?.(); setOrder('nearest'); } else setOrder('trail');
-          }}
-        >
-          {order === 'trail' ? `${v.orderTrail} ▾` : `${v.orderNearest} ▾`}
-        </button>
-      </div>
-
-      <div style={{ display: 'grid', gap: 12 }}>
+      <div style={{ display: 'grid', gap: 14, marginTop: 4 }}>
         {list.map(({ b, i }) => (
           <BreweryCard
             key={b.id}
