@@ -17,7 +17,13 @@ const meIcon = L.divIcon({ className: '', html: '<div class="v2-pin me"></div>',
 function FitAll({ points }) {
   const map = useMap();
   useEffect(() => {
-    if (points.length) map.fitBounds(L.latLngBounds(points), { padding: [48, 48], maxZoom: 15 });
+    if (!points.length) return undefined;
+    // Wait for the full-screen container to have its final size, then zoom to fit
+    const t = setTimeout(() => {
+      map.invalidateSize();
+      map.fitBounds(L.latLngBounds(points), { paddingTopLeft: [30, 80], paddingBottomRight: [30, 110], maxZoom: 16 });
+    }, 120);
+    return () => clearTimeout(t);
   }, [points.length]); // eslint-disable-line react-hooks/exhaustive-deps
   return null;
 }

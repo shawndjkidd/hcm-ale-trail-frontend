@@ -9,6 +9,9 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
+    // Passkey sign-in (Face ID / fingerprint). Also needs Authentication →
+    // Passkeys switched on in the Supabase dashboard.
+    experimental: { passkey: true },
   },
 });
 

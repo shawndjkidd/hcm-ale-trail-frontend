@@ -47,7 +47,7 @@ export default function HQDashboard({ adminEmail = '' }) {
 
   const [showBreweryForm, setShowBreweryForm] = useState(false);
   const [editingBrewery, setEditingBrewery] = useState(null);
-  const [breweryForm, setBreweryForm] = useState({ name: '', address: '', district: '', pinCode: '', logoUrl: '', mapsUrl: '', instagramUrl: '', facebookUrl: '', descriptionEn: '', descriptionVn: '', status: 'active', staffEmail: '', staffPassword: '' });
+  const [breweryForm, setBreweryForm] = useState({ name: '', address: '', district: '', pinCode: '', logoUrl: '', photoUrl: '', mapsUrl: '', instagramUrl: '', facebookUrl: '', descriptionEn: '', descriptionVn: '', status: 'active', staffEmail: '', staffPassword: '' });
   const [savingBrewery, setSavingBrewery] = useState(false);
   const [existingBreweryLogin, setExistingBreweryLogin] = useState(null);
 
@@ -342,6 +342,7 @@ export default function HQDashboard({ adminEmail = '' }) {
         district: brewery.district || '',
         pinCode: brewery.pinCode || '',
         logoUrl: brewery.logoUrl || '',
+        photoUrl: brewery.photoUrl || brewery.photo_url || '',
         mapsUrl: brewery.maps_url || brewery.mapsUrl || '',
         instagramUrl: brewery.instagram_url || brewery.instagramUrl || '',
         facebookUrl: brewery.facebook_url || brewery.facebookUrl || '',
@@ -354,7 +355,7 @@ export default function HQDashboard({ adminEmail = '' }) {
       getBreweryLogin(brewery.id).then(r => { if (r.ok && r.email) setExistingBreweryLogin(r.email); });
     } else {
       setEditingBrewery(null);
-      setBreweryForm({ name: '', address: '', district: '', pinCode: '', logoUrl: '', mapsUrl: '', instagramUrl: '', facebookUrl: '', descriptionEn: '', descriptionVn: '', status: 'active', staffEmail: '', staffPassword: generatePassword() });
+      setBreweryForm({ name: '', address: '', district: '', pinCode: '', logoUrl: '', photoUrl: '', mapsUrl: '', instagramUrl: '', facebookUrl: '', descriptionEn: '', descriptionVn: '', status: 'active', staffEmail: '', staffPassword: generatePassword() });
     }
     setShowBreweryForm(true);
   };
@@ -375,6 +376,8 @@ export default function HQDashboard({ adminEmail = '' }) {
       district: breweryForm.district,
       ...(breweryForm.pinCode ? { pin_code: breweryForm.pinCode } : {}),
       logo_url: breweryForm.logoUrl,
+      // Only sent once filled in (needs the Sep 2026 photo_url migration)
+      ...(breweryForm.photoUrl ? { photo_url: breweryForm.photoUrl } : {}),
       maps_url: breweryForm.mapsUrl || null,
       instagram_url: breweryForm.instagramUrl || null,
       facebook_url: breweryForm.facebookUrl || null,
@@ -693,6 +696,7 @@ export default function HQDashboard({ adminEmail = '' }) {
                 <div className="admin-form-group"><label className="admin-form-label">District</label><input type="text" className="admin-form-input" value={breweryForm.district} onChange={(e) => setBreweryForm(prev => ({...prev, district: e.target.value}))} placeholder="District 1" /></div>
                 <div className="admin-form-group"><label className="admin-form-label">PIN Code (4 digits)</label><input type="text" className="admin-form-input" value={breweryForm.pinCode} onChange={(e) => setBreweryForm(prev => ({...prev, pinCode: e.target.value.replace(/\D/g, '').slice(0, 4)}))} placeholder="1234" maxLength="4" /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Logo URL</label><input type="text" className="admin-form-input" value={breweryForm.logoUrl} onChange={(e) => setBreweryForm(prev => ({...prev, logoUrl: e.target.value}))} placeholder="https://..." /></div>
+                <div className="admin-form-group"><label className="admin-form-label">Photo URL (landscape, shown on the brewery card and page)</label><input type="text" className="admin-form-input" value={breweryForm.photoUrl} onChange={(e) => setBreweryForm(prev => ({...prev, photoUrl: e.target.value}))} placeholder="https://..." /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Maps URL</label><input type="text" className="admin-form-input" value={breweryForm.mapsUrl} onChange={(e) => setBreweryForm(prev => ({...prev, mapsUrl: e.target.value}))} placeholder="https://maps.google.com/..." /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Instagram URL</label><input type="text" className="admin-form-input" value={breweryForm.instagramUrl} onChange={(e) => setBreweryForm(prev => ({...prev, instagramUrl: e.target.value}))} placeholder="https://instagram.com/..." /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Facebook URL</label><input type="text" className="admin-form-input" value={breweryForm.facebookUrl} onChange={(e) => setBreweryForm(prev => ({...prev, facebookUrl: e.target.value}))} placeholder="https://facebook.com/..." /></div>

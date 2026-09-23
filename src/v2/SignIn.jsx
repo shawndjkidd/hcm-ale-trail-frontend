@@ -3,6 +3,7 @@ import { storeLoginTokens } from '../lib/api';
 import { supabase } from '../lib/supabase';
 import { useV } from './i18n';
 import { LOGO_WHITE } from './ui';
+import { passkeySupported, passkeySignIn } from './passkey';
 
 const GoogleIcon = () => (
   <svg width="20" height="20" viewBox="0 0 18 18" aria-hidden="true">
@@ -82,6 +83,14 @@ export default function SignIn({ language, initialMode = 'signup', reason, onSuc
     }
   };
 
+  const withPasskey = async () => {
+    setBusy(true); setErr('');
+    const res = await passkeySignIn();
+    setBusy(false);
+    if (res.ok) onSuccess?.({ user: res.user });
+    else if (res.code !== 'ERROR_CEREMONY_ABORTED' && !/abort|cancel/i.test(res.error || '')) setErr(res.error || v.errLogin);
+  };
+
   const title = mode === 'signup' ? v.siUp : mode === 'login' ? v.siIn : v.siForgot;
 
   return (
@@ -101,6 +110,12 @@ export default function SignIn({ language, initialMode = 'signup', reason, onSuc
               style={{ fontFamily: 'var(--body)', textTransform: 'none', fontWeight: 800, fontSize: '1rem', letterSpacing: 0 }}>
               <GoogleIcon /> {v.google}
             </button>
+            {mode === 'login' && passkeySupported() && (
+              <button type="button" className="btn ink block" onClick={withPasskey} disabled={busy}
+                style={{ fontFamily: 'var(--body)', textTransform: 'none', fontWeight: 800, fontSize: '1rem', letterSpacing: 0, boxShadow: 'none', borderColor: '#fff' }}>
+                {v.passkeySignIn}
+              </button>
+            )}
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '.8rem', fontWeight: 700, opacity: .9 }}>
               <span style={{ flex: 1, height: 2, background: 'rgba(255,255,255,.4)' }} />{v.orEmail}<span style={{ flex: 1, height: 2, background: 'rgba(255,255,255,.4)' }} />
             </div>

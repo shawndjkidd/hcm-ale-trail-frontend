@@ -15,7 +15,8 @@ import Ask from "./v2/Ask";
 import Onboarding, { MicroQuestion, nextMicroQuestion } from "./v2/Onboarding";
 import { Welcome, Guide } from "./v2/Welcome";
 import { Celebrate, HatClaim, shareCard } from "./v2/Celebrate";
-import { TabBar, MenuDrawer, Toast } from "./v2/ui";
+import { TabBar, MenuDrawer, Toast, InstallPrompt, isStandalone } from "./v2/ui";
+import { passkeySupported, listPasskeys, addPasskey } from "./v2/passkey";
 import { useV, fmt } from "./v2/i18n";
 import { openStatus, formatClose } from "./v2/util";
 import "./v2/v2.css";
@@ -112,6 +113,9 @@ export default function App() {
   const [hatClaimOpen, setHatClaimOpen] = useState(false);
   const [toast, setToast] = useState("");
   const [showCardResetPrompt, setShowCardResetPrompt] = useState(false);
+  const [installPrompt, setInstallPrompt] = useState(false);
+  const [deferredInstall, setDeferredInstall] = useState(null);
+  const [passkeyCount, setPasskeyCount] = useState(0);
   const [untappdOnboardingDismissed, setUntappdOnboardingDismissed] = useState(() => localStorage.getItem("hcm-untappd-onboarding-dismissed") === "true");
 
   const flash = useCallback((text) => { setToast(text); setTimeout(() => setToast(""), 2200); }, []);
@@ -289,6 +293,18 @@ export default function App() {
     loadMyBeers().catch(() => {});
   }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Android install prompt: keep the browser's event for our own button
+  useEffect(() => {
+    const h = (e) => { e.preventDefault(); setDeferredInstall(e); };
+    window.addEventListener("beforeinstallprompt", h);
+    return () => window.removeEventListener("beforeinstallprompt", h);
+  }, []);
+
+  // Passkeys the signed-in user already has
+  useEffect(() => {
+    if (user?.id && passkeySupported()) listPasskeys().then((l) => setPasskeyCount(l.length)).catch(() => {});
+  }, [user?.id]);
+
   // Screens open at the top
   useEffect(() => { try { window.scrollTo(0, 0); } catch {} }, [tab, screen]);
 
@@ -357,10 +373,15 @@ export default function App() {
 
   const afterCheckInClosed = () => {
     setCheckIn(null);
-    if (!celebrate) {
-      const q = nextMicroQuestion(stamps.length);
-      if (q) setTimeout(() => setMicro(q), 350);
+    if (celebrate) return;
+    // After the first stamp, offer "Add to home screen" once
+    if (stamps.length >= 1 && !isStandalone() && !localStorage.getItem("hcm-install-offered")) {
+      localStorage.setItem("hcm-install-offered", "true");
+      setTimeout(() => setInstallPrompt(true), 350);
+      return;
     }
+    const q = nextMicroQuestion(stamps.length);
+    if (q) setTimeout(() => setMicro(q), 350);
   };
 
   const handleCardReset = async () => {
@@ -419,7 +440,11 @@ export default function App() {
       <Profile user={user} userMe={userMe} profile={profile} stampsCount={stamps.length} total={total} beersCount={beers.length} bestMs={clockMs}
         language={language} setLanguage={setLanguage} nightMode={nightMode} toggleNightMode={toggleNightMode}
         onBack={closeScreen} onEditTaste={() => setEditTaste(true)} onLogout={handleLogout}
-        onDeleted={() => { handleLogout(); localStorage.removeItem("hcm-welcome-done"); setWelcomeDone(false); }} />
+        onDeleted={() => { handleLogout(); localStorage.removeItem("hcm-welcome-done"); setWelcomeDone(false); }}
+        passkey={passkeySupported() ? {
+          supported: true, added: passkeyCount > 0,
+          onAdd: async () => { const r = await addPasskey(); if (r.ok) { setPasskeyCount((n) => n + 1); flash(v.passkeyAdded); } else flash(v.passkeyFail); },
+        } : null} />
     );
   } else if (tab === "map") {
     content = <MapScreen breweries={breweries} sideQuests={sideQuests} stamps={stamps} language={language} here={here} requestLocation={requestLocation} onOpenBrewery={openBrewery} onOpenQuest={openQuest} />;
@@ -470,7 +495,8 @@ export default function App() {
           onClose={afterCheckInClosed} onStamped={onStamped} onBeerSaved={() => loadMyBeers()} onToast={flash} />
       )}
 
-      {micro && !checkIn && <MicroQuestion question={micro} language={language} onClose={() => setMicro(null)} />}
+      {installPrompt && !checkIn && <InstallPrompt language={language} deferred={deferredInstall} onClose={() => setInstallPrompt(false)} />}
+      {micro && !checkIn && !showOnboarding && !installPrompt && <MicroQuestion question={micro} language={language} onClose={() => setMicro(null)} />}
 
       {celebrate && !checkIn && (
         <Celebrate language={language} totalMs={timerStart ? (timerEnd || Date.now()) - timerStart : 0} rank={celebrate.pendingRank} lastPlace={celebrate.place}
@@ -486,7 +512,7 @@ export default function App() {
           onDismiss={() => { localStorage.setItem(`hcm-reset-prompt-dismissed-${TRAIL_ID}-${cardRound}`, "true"); setShowCardResetPrompt(false); }} />
       )}
 
-      {showOnboarding && user && !showAuth && (
+      {showOnboarding && user && !showAuth && !checkIn && !celebrate && (
         <Onboarding language={language} breweries={activeBreweries} stamps={stamps}
           onDone={(firstStop) => { setShowOnboarding(false); if (firstStop) openBrewery(firstStop); }} />
       )}

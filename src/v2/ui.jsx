@@ -158,3 +158,27 @@ export function Toast({ text }) {
 export function Glass({ color, size = 20, style }) {
   return <i className="glass" style={{ background: color, width: size, height: size * 1.35, ...style }} />;
 }
+
+// "Add to home screen" helper, shown once after the first stamp.
+export function InstallPrompt({ language, deferred, onClose }) {
+  const v = useV(language);
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  return (
+    <Sheet onClose={onClose} label={v.installTitle}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <img src={(document.getElementById('app-touch-icon')?.getAttribute('href')) || '/icons/pint-180.png'} alt="" style={{ width: 56, height: 56, borderRadius: 12, border: '2px solid #111' }} />
+        <h2 className="display" style={{ fontSize: '1.5rem' }}>{v.installTitle}</h2>
+      </div>
+      <p>{ios ? v.installIos : v.installAndroid}</p>
+      {deferred && !ios ? (
+        <button type="button" className="btn block" onClick={async () => { try { deferred.prompt(); await deferred.userChoice; } catch {} onClose(); }}>{v.installBtn}</button>
+      ) : (
+        <button type="button" className="btn block" onClick={onClose}>{v.gotIt}</button>
+      )}
+      <button type="button" className="link-btn" onClick={onClose}>{v.installLater}</button>
+    </Sheet>
+  );
+}
+
+export const isStandalone = () =>
+  (typeof window !== 'undefined' && window.matchMedia?.('(display-mode: standalone)').matches) || window.navigator?.standalone === true;
