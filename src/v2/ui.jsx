@@ -86,8 +86,8 @@ export function TabBar({ current, onChange, language }) {
           if (tab.id !== 'ask') return btn;
           // Trail socials sit between My card and Ask
           return [
-            <a key="ig" className="social" href="https://www.instagram.com/hcm.aletrail/" target="_blank" rel="noreferrer" aria-label="Instagram"><Icon.instagram /></a>,
-            <a key="fb" className="social" href="https://www.facebook.com/hcmaletrail" target="_blank" rel="noreferrer" aria-label="Facebook"><Icon.facebook /></a>,
+            <a key="ig" className="social" href="https://www.instagram.com/hcm.aletrail/" target="_blank" rel="noreferrer" ><Icon.instagram />Instagram</a>,
+            <a key="fb" className="social" href="https://www.facebook.com/hcmaletrail" target="_blank" rel="noreferrer" ><Icon.facebook />Facebook</a>,
             btn,
           ];
         })}

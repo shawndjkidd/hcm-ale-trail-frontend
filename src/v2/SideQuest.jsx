@@ -38,6 +38,7 @@ export default function SideQuest({ quest, claimed, language, user, onBack, onCl
         onSubmit={async (pin) => {
           const res = await claimQuest(quest.id, pin);
           if (res.ok) { onClaimed?.(quest.id); setStep('done'); }
+          if (res.alreadyClaimed) { onClaimed?.(quest.id); return { ok: false, error: v.alreadyUsed }; }
           return res;
         }} />
     );
@@ -65,7 +66,7 @@ export default function SideQuest({ quest, claimed, language, user, onBack, onCl
         </p>
         {quest.reward && (
           <div style={{ background: 'var(--yellow)', color: 'var(--ink)', padding: '12px 14px' }}>
-            <div className="eyebrow">{v.yourReward}</div>
+            <div className="eyebrow">{v.yourReward}{quest.one_time !== false ? ` · ${v.oneTimeNote.toUpperCase()}` : ''}</div>
             <div style={{ fontWeight: 800, fontSize: '1.1rem' }}>{quest.reward}</div>
             <div style={{ fontSize: '.82rem' }}>
               {v.staffPinNote}{quest.ends_at ? ` · ${fmt(v.until, { d: shortDate(quest.ends_at, language) })}` : ''}
@@ -90,7 +91,7 @@ export default function SideQuest({ quest, claimed, language, user, onBack, onCl
       <div className="sticky" style={{ background: 'var(--ink)', borderTopColor: 'var(--yellow)' }}>
         <div className="inner">
           {claimed ? (
-            <div className="btn block" aria-disabled="true" style={{ background: 'var(--jade)', color: '#fff', borderColor: '#fff', boxShadow: 'none' }}>✓ {v.claimedQuest}</div>
+            <div className="btn block" aria-disabled="true" style={{ background: 'var(--jade)', color: '#fff', borderColor: '#fff', boxShadow: 'none' }}>✓ {quest.one_time !== false ? v.alreadyUsed : v.claimedQuest}</div>
           ) : (
             <button type="button" className="btn block" style={{ borderColor: '#fff', boxShadow: '5px 5px 0 #fff' }}
               onClick={() => (user ? setStep('staff') : onRequireSignIn?.())}>

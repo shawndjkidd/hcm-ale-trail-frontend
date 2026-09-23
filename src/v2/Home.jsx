@@ -58,7 +58,7 @@ export function BreweryCard({ brewery, index, stampedAt, language, onOpen, here 
   );
 }
 
-export function SideQuestCard({ quest, language, onOpen }) {
+export function SideQuestCard({ quest, language, onOpen, claimed }) {
   const v = useV(language);
   const st = quest.operating_hours ? openStatus(quest) : { unknown: true };
   const kind = [quest.kind, quest.district].filter(Boolean).join(' · ').toUpperCase();
@@ -71,7 +71,8 @@ export function SideQuestCard({ quest, language, onOpen }) {
         <span className="kind">
           <span>{[kind, ends].filter(Boolean).join(' · ') || v.sideQuest}</span>
           <span className="spacer" />
-          {st.open && <span className="tag open" style={{ fontSize: '.6rem' }}>{v.open}</span>}
+          {claimed ? <span className="tag done" style={{ fontSize: '.6rem' }}>✓ {v.claimedQuest}</span>
+            : st.open && <span className="tag open" style={{ fontSize: '.6rem' }}>{v.open}</span>}
         </span>
         <span className="name" style={{ display: 'block' }}>{localized(quest.title, language)}</span>
         {quest.reward && <span className="reward">{quest.reward}</span>}
@@ -94,7 +95,7 @@ export function isTonight(ev) {
 }
 
 export default function Home({
-  breweries, stamps, stampDates, timerStart, timerEnd, events, sideQuests, boardTop, user, hatClaimed, cardRound,
+  breweries, stamps, stampDates, timerStart, timerEnd, events, sideQuests, questClaims, boardTop, user, hatClaimed, cardRound,
   language, setLanguage, nightMode, toggleNightMode, onMenu, onOpenBrewery, onOpenQuest, onOpenEvents, onOpenGuide,
   onOpenBoard, milestone, onDismissMilestone, here, requestLocation, onClaimHat,
 }) {
@@ -208,7 +209,7 @@ export default function Home({
             <span className="tag light" style={{ fontSize: '.64rem' }}>{v.bonusNote}</span>
           </div>
           <div style={{ display: 'grid', gap: 8 }}>
-            {sideQuests.map((q) => <SideQuestCard key={q.id} quest={q} language={language} onOpen={onOpenQuest} />)}
+            {sideQuests.map((q) => <SideQuestCard key={q.id} quest={q} language={language} onOpen={onOpenQuest} claimed={questClaims?.includes(q.id)} />)}
           </div>
         </>
       )}

@@ -86,6 +86,8 @@ export default function App() {
   const [eventSheet, setEventSheet] = useState(null);
   const [sideQuests, setSideQuests] = useState([]);
   const [questClaims, setQuestClaims] = useState(() => readJSON("hcm-sidequest-checkins", []));
+  // One-time offers disappear once used; repeatable ones stay and show as claimed
+  const visibleQuests = sideQuests.filter((q) => !(q.one_time !== false && questClaims.includes(q.id)));
   const [boardTop, setBoardTop] = useState([]);
   const [user, setUser] = useState(() => readJSON("hcm-user", null));
   const [userMe, setUserMe] = useState(null);
@@ -148,6 +150,13 @@ export default function App() {
     setTimerStart(r.startedAt ? new Date(r.startedAt).getTime() : null);
     setTimerEnd(r.completedAt ? new Date(r.completedAt).getTime() : null);
     setHatClaimed(!!r.hatClaimed);
+    if (Array.isArray(r.sideQuestClaims)) {
+      setQuestClaims((prev) => {
+        const next = [...new Set([...prev.filter((id) => String(id).startsWith("demo-")), ...r.sideQuestClaims])];
+        localStorage.setItem("hcm-sidequest-checkins", JSON.stringify(next));
+        return next;
+      });
+    }
     localStorage.setItem("hcm-hat-claimed", String(!!r.hatClaimed));
     if (r.hatClaimed) {
       const round = typeof r.cardRound === "number" ? r.cardRound : cardRound;
@@ -471,7 +480,7 @@ export default function App() {
         } : null} />
     );
   } else if (tab === "map") {
-    content = <MapScreen breweries={breweries} sideQuests={sideQuests} stamps={stamps} language={language} here={here} requestLocation={requestLocation} onOpenBrewery={openBrewery} onOpenQuest={openQuest} />;
+    content = <MapScreen breweries={breweries} sideQuests={visibleQuests} stamps={stamps} language={language} here={here} requestLocation={requestLocation} onOpenBrewery={openBrewery} onOpenQuest={openQuest} />;
   } else if (tab === "card") {
     content = (
       <MyCard tab={cardTab} setTab={setCardTab} user={user} breweries={activeBreweries} stamps={stamps} stampDates={stampDates} beers={beers}
@@ -486,7 +495,7 @@ export default function App() {
   } else {
     content = (
       <Home breweries={breweries} stamps={stamps} stampDates={stampDates} timerStart={timerStart} timerEnd={timerEnd} events={events}
-        sideQuests={sideQuests} boardTop={boardTop} user={user} hatClaimed={hatClaimed} cardRound={cardRound} language={language}
+        sideQuests={visibleQuests} questClaims={questClaims} boardTop={boardTop} user={user} hatClaimed={hatClaimed} cardRound={cardRound} language={language}
         setLanguage={setLanguage} nightMode={nightMode} toggleNightMode={toggleNightMode} onMenu={() => setMenuOpen(true)}
         onOpenBrewery={openBrewery} onOpenQuest={openQuest}
         onOpenEvents={(ev) => {

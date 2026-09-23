@@ -137,8 +137,9 @@ body.night-mode .v2 {
 }
 .v2-tabbar button svg { width: 24px; height: 24px; }
 .v2-tabbar button[aria-current="page"] { color: var(--yellow); }
-.v2-tabbar .social { flex: .6; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.72); }
-.v2-tabbar .social svg { width: 22px; height: 22px; }
+.v2-tabbar .social { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 0; font-size: .72rem; font-weight: 700; text-decoration: none; color: rgba(255,255,255,.72); }
+.v2-tabbar .social svg { width: 24px; height: 24px; }
+@media (max-width: 400px) { .v2-tabbar button, .v2-tabbar .social { font-size: .64rem; } }
 .v2-tabbar .social:active { color: var(--yellow); }
 
 /* Stamp card (kept from the original design, deeper green) */
