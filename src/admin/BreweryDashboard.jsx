@@ -50,6 +50,12 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   const [hoursMessage, setHoursMessage] = useState('');
 
   const [socialLinks, setSocialLinks] = useState({ mapsUrl: '', instagramUrl: '', facebookUrl: '' });
+  const [photoUrl, setPhotoUrl] = useState('');
+  const [savingPhoto, setSavingPhoto] = useState(false);
+  const [photoMessage, setPhotoMessage] = useState('');
+  // Owners, managers, brewery admins and HQ manage the venue; plain staff don't
+  // (the API enforces this; hiding the controls just avoids dead ends).
+  const canManage = staffRole !== 'staff';
   const [savingSocial, setSavingSocial] = useState(false);
   const [socialMessage, setSocialMessage] = useState('');
 
@@ -134,6 +140,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       if (hours) {
         setOperatingHours({ ...DEFAULT_HOURS, ...hours });
       }
+      setPhotoUrl(dashResult.brewery?.photoUrl || dashResult.brewery?.photo_url || '');
       setSocialLinks({
         mapsUrl: dashResult.brewery?.maps_url || dashResult.brewery?.mapsUrl || '',
         instagramUrl: dashResult.brewery?.instagram_url || dashResult.brewery?.instagramUrl || '',
@@ -254,6 +261,24 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       setSocialMessage(result.error || 'Failed to update');
     }
     setSavingSocial(false);
+  };
+
+  const handleSavePhoto = async () => {
+    const value = photoUrl.trim();
+    if (value && !/^https:\/\//i.test(value)) {
+      setPhotoMessage('Photo link must start with https://');
+      return;
+    }
+    setSavingPhoto(true);
+    setPhotoMessage('');
+    const result = await updateBrewery(breweryId, { photo_url: value || null });
+    if (result.ok) {
+      setPhotoMessage(value ? '✓ Photo updated' : '✓ Photo removed');
+      setTimeout(() => setPhotoMessage(''), 3000);
+    } else {
+      setPhotoMessage(result.error || 'Failed to update');
+    }
+    setSavingPhoto(false);
   };
 
   const handleSaveDescription = async () => {
@@ -731,9 +756,9 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
         <button className={`admin-tab ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>Overview</button>
         <button className={`admin-tab ${activeTab === 'ratings' ? 'active' : ''}`} onClick={() => setActiveTab('ratings')}>Beer Ratings</button>
         <button className={`admin-tab ${activeTab === 'competition' ? 'active' : ''}`} onClick={() => setActiveTab('competition')}>Trail Competition</button>
-        <button className={`admin-tab ${activeTab === 'events' ? 'active' : ''}`} onClick={() => setActiveTab('events')}>Events ({events.length})</button>
-        <button className={`admin-tab ${activeTab === 'beers' ? 'active' : ''}`} onClick={() => setActiveTab('beers')}>Beer Menu</button>
-        <button className={`admin-tab ${activeTab === 'stock' ? 'active' : ''}`} onClick={() => setActiveTab('stock')}>Stock{brewMerch.some(m => m.lowStock) ? ' ⚠️' : ''}</button>
+        {canManage && <button className={`admin-tab ${activeTab === 'events' ? 'active' : ''}`} onClick={() => setActiveTab('events')}>Events ({events.length})</button>}
+        {canManage && <button className={`admin-tab ${activeTab === 'beers' ? 'active' : ''}`} onClick={() => setActiveTab('beers')}>Beer Menu</button>}
+        {canManage && <button className={`admin-tab ${activeTab === 'stock' ? 'active' : ''}`} onClick={() => setActiveTab('stock')}>Stock{brewMerch.some(m => m.lowStock) ? ' ⚠️' : ''}</button>}
         <button className={`admin-tab ${activeTab === 'audience' ? 'active' : ''}`} onClick={() => {
           setActiveTab('audience');
           if (!audience && !audienceLoading) {
@@ -1263,8 +1288,8 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
 
       {activeTab === 'settings' && (
         <div className="admin-settings-grid">
-          {/* Left column: Venue Status, Social Links, Operating Hours */}
-          <div>
+          {/* Left column: Venue Status, Social Links, Operating Hours (managers only) */}
+          {canManage ? (<div>
           <div className="admin-card" style={{ borderLeft: venueStatus === 'temporarily_closed' ? '4px solid var(--admin-danger)' : '4px solid var(--admin-success)' }}>
             <h3 className="admin-card-title">Venue Status</h3>
             <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>
@@ -1356,10 +1381,30 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
               {hoursMessage && <span style={{ fontSize: 13, color: hoursMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{hoursMessage}</span>}
             </div>
           </div>
-          </div>{/* end left column */}
+          </div>) : <div />}{/* end left column */}
 
           {/* Right column: Check-in PIN Code, Venue Description */}
           <div>
+          {canManage && (
+          <div className="admin-card">
+            <h3 className="admin-card-title">Venue Photo</h3>
+            <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>Paste a link to a photo of your venue (starts with https://). Shown at the top of your venue page. Leave empty to remove it.</p>
+            <div className="admin-form-group">
+              <label className="admin-form-label" htmlFor="venue-photo-url">Photo URL</label>
+              <input id="venue-photo-url" type="url" className="admin-form-input" value={photoUrl} onChange={(e) => setPhotoUrl(e.target.value)} placeholder="https://..." />
+            </div>
+            {photoUrl.trim().startsWith('https://') && (
+              <img src={photoUrl.trim()} alt="Venue photo preview" style={{ width: '100%', maxHeight: 180, objectFit: 'cover', borderRadius: 6, marginBottom: 10 }} />
+            )}
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <button className="admin-btn admin-btn-primary settings-btn" onClick={handleSavePhoto} disabled={savingPhoto}>
+                {savingPhoto ? 'Saving...' : 'Save Photo'}
+              </button>
+              {photoMessage && <span style={{ fontSize: 13, color: photoMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{photoMessage}</span>}
+            </div>
+          </div>
+          )}
+
           {/* Venue codes: owners, managers, brewery admins and HQ only (plain staff can't see or change them) */}
           {staffRole !== 'staff' && (
           <div className="admin-card">
@@ -1384,6 +1429,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
           </div>
           )}
 
+          {canManage && (
           <div className="admin-card">
             <h3 className="admin-card-title">Venue Description</h3>
             <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>Shown on your venue page in the app.</p>
@@ -1402,6 +1448,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
               {descriptionMessage && <span style={{ fontSize: 13, color: descriptionMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{descriptionMessage}</span>}
             </div>
           </div>
+          )}
 
           {!isHQ && (
           <div className="admin-card">
