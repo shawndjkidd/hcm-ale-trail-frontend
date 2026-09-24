@@ -144,7 +144,7 @@ export default function Home({
         <Pints count={count} total={total} />
         <div className="foot">
           <span>
-            {hatClaimed ? fmt(v.hatClaimedLine, { n: cardRound + 1 })
+            {hatClaimed ? v.hatCollectedLine
               : count >= total ? v.hatEarned
               : fmt(v.moreToHat, { n: total - count })}
           </span>

@@ -2,6 +2,7 @@
 // Placeholders use {name}; fill them with fmt().
 
 const en = {
+  hatCollectedLine: 'Your Ale Trail hat is collected.',
   checkEmail: 'Check your email and tap the link to confirm your account, then sign in.',
   ecoBack: 'Back to {name}', ecoHide: 'Hide', partOf: 'Part of Made SMPL',
   alreadyUsed: 'You have already used this offer.', usedTag: 'USED', oneTimeNote: 'One-time offer',
@@ -115,6 +116,7 @@ const en = {
 };
 
 const vn = {
+  hatCollectedLine: 'Bạn đã nhận mũ Ale Trail.',
   checkEmail: 'Kiểm tra email và nhấn vào liên kết để xác nhận tài khoản, rồi đăng nhập.',
   ecoBack: 'Quay lại {name}', ecoHide: 'Ẩn', partOf: 'Thuộc Made SMPL',
   alreadyUsed: 'Bạn đã dùng ưu đãi này rồi.', usedTag: 'ĐÃ DÙNG', oneTimeNote: 'Ưu đãi dùng một lần',
@@ -214,6 +216,7 @@ const vn = {
 };
 
 const kr = {
+  hatCollectedLine: '에일 트레일 모자를 수령했어요.',
   checkEmail: '이메일의 링크를 눌러 계정을 확인한 뒤 로그인하세요.',
   ecoBack: '{name}(으)로 돌아가기', ecoHide: '숨기기', partOf: 'Made SMPL의 일부',
   alreadyUsed: '이미 사용한 혜택이에요.', usedTag: '사용함', oneTimeNote: '1회 한정 혜택',
@@ -313,6 +316,7 @@ const kr = {
 };
 
 const jp = {
+  hatCollectedLine: 'エールトレイルのキャップは受け取り済みです。',
   checkEmail: 'メールのリンクをタップしてアカウントを確認してから、ログインしてください。',
   ecoBack: '{name}に戻る', ecoHide: '閉じる', partOf: 'Made SMPLの一部',
   alreadyUsed: 'この特典はすでに使用済みです。', usedTag: '使用済み', oneTimeNote: '1回限りの特典',

@@ -1,7 +1,11 @@
 import { supabase } from '../lib/supabase';
 import { storeLoginTokens } from '../lib/api';
+import { passkeysEnabled } from './features.js';
 
+// Passkeys are OFF unless the build sets VITE_PASSKEYS_ENABLED=true. Only then do we
+// ask whether this browser and the Supabase client can do WebAuthn.
 export const passkeySupported = () =>
+  passkeysEnabled() &&
   typeof window !== 'undefined' && !!window.PublicKeyCredential && typeof supabase.auth.registerPasskey === 'function';
 
 export async function listPasskeys() {

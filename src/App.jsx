@@ -149,8 +149,9 @@ export default function App() {
     setStampDates(dates);
     setTimerStart(r.startedAt ? new Date(r.startedAt).getTime() : null);
     setTimerEnd(r.completedAt ? new Date(r.completedAt).getTime() : null);
-    // "Hat claimed" means the gift was handed over at a venue (venue code or venue staff).
-    // Older backends don't send giftCollected; fall back to the legacy flag there.
+    // "Hat collected" = a venue-confirmed pickup for this Trail edition (one per person;
+    // a card reset doesn't re-open it). Older backends don't send giftCollected; fall back
+    // to the legacy flag there.
     const giftCollected = typeof r.giftCollected === "boolean" ? r.giftCollected : !!r.hatClaimed;
     setHatClaimed(giftCollected);
     if (Array.isArray(r.sideQuestClaims)) {
@@ -161,7 +162,9 @@ export default function App() {
       });
     }
     localStorage.setItem("hcm-hat-claimed", String(giftCollected));
-    if (giftCollected) {
+    // The "start a new card" offer belongs to the card that collected the hat (hatClaimed
+    // is cleared by a reset), so it doesn't reappear at the start of the next card.
+    if (giftCollected && r.hatClaimed) {
       const round = typeof r.cardRound === "number" ? r.cardRound : cardRound;
       if (!localStorage.getItem(`hcm-reset-prompt-dismissed-${TRAIL_ID}-${round}`)) setShowCardResetPrompt(true);
     }

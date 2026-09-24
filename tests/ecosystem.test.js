@@ -23,8 +23,8 @@ test('BrewAsia entry: captured, labelled, stripped from the URL', () => {
   assert.equal(w.location.pathname, '/');
 });
 
-test('Made SMPL canonical entry with a deep link and language', () => {
-  const ret = 'https://app.madesmpl.com/experience/hcmc-ale-trail';
+test('Made SMPL entry (city return) with a deep link and language', () => {
+  const ret = 'https://app.madesmpl.com/saigon?from=hcmc-ale-trail';
   const w = fakeWindow(`${AT}/brewery/3f80?from=made-smpl&return=${encodeURIComponent(ret)}&lang=vi&icon=pint`);
   const ctx = eco.captureEcosystem(w);
   assert.equal(ctx.label, 'Made SMPL');
