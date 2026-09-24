@@ -1,3 +1,4 @@
+import { DEMO_MODE } from './demo.js';
 // Shared helpers for the v2 screens.
 
 // ── Beer colour + style group ───────────────────────────────────────────────
@@ -147,26 +148,41 @@ const LOCAL_LOGOS = {
   '7 Bridges Brewing Co.': '/logos/7bridges.png',
   'Belgo Saigon': '/logos/belgo.png',
 };
-// Stand-in venue photos until breweries add their own in the admin dashboard
-// (from each brewery's own website; replace with photos they approve).
+// Stand-in venue photos for PREVIEW BUILDS ONLY (Google Maps / venue-site images whose
+// rights we don't hold). They live in public/preview/, which the production build
+// deletes (vite.config.js), and are only referenced when DEMO_MODE is on. Production
+// shows a venue's own photo_url (set in the admin) or the designed placeholder.
 const PREVIEW_PHOTOS = {
-  'Heart of Darkness': '/photos/heart-of-darkness.jpg',
-  'East West Brewing': '/photos/east-west.jpg',
-  'BiaCraft': '/photos/biacraft.jpg',
-  'Deme': '/photos/deme.jpg',
-  'Steersman': '/photos/steersman.jpg',
-  'Rooster Beers': '/photos/rooster.jpg',
-  '7 Bridges Brewing Co.': '/photos/7bridges.jpg',
-  'Belgo Saigon': '/photos/belgo.jpg',
+  'Heart of Darkness': '/preview/heart-of-darkness.jpg',
+  'East West Brewing': '/preview/east-west.jpg',
+  'BiaCraft': '/preview/biacraft.jpg',
+  'Deme': '/preview/deme.jpg',
+  'Steersman': '/preview/steersman.jpg',
+  'Rooster Beers': '/preview/rooster.jpg',
+  '7 Bridges Brewing Co.': '/preview/7bridges.jpg',
+  'Belgo Saigon': '/preview/belgo.jpg',
 };
-export const photoFor = (b) => b?.photo_url || PREVIEW_PHOTOS[b?.name] || null;
+export const photoFor = (b) => safeImageUrl(b?.photo_url) || (DEMO_MODE ? PREVIEW_PHOTOS[b?.name] || null : null);
+
+// Links and images typed into the admin are only used if they are https (images may
+// also be our own /paths). javascript:, data:, http: and junk are dropped.
+export function safeHref(url) {
+  if (typeof url !== 'string' || !url.trim()) return null;
+  try { const u = new URL(url.trim()); return u.protocol === 'https:' ? u.toString() : null; } catch { return null; }
+}
+export function safeImageUrl(url) {
+  if (typeof url !== 'string' || !url.trim()) return null;
+  const s = url.trim();
+  if (s.startsWith('/') && !s.startsWith('//')) return s;
+  return safeHref(s);
+}
 
 // One-colour cut-out of the brewery logo, used as a faint stencil on the card
 export const stencilFor = (b) => {
   const local = LOCAL_LOGOS[b?.name];
   return local ? local.replace('/logos/', '/logos/stencil/') : null;
 };
-export const logoFor = (b) => (b?.logo_url ? b.logo_url : LOCAL_LOGOS[b?.name] || null);
+export const logoFor = (b) => safeImageUrl(b?.logo_url) || LOCAL_LOGOS[b?.name] || null;
 
 // Short all-caps label for stamps ("7 Bridges Brewing Co." -> "7 BRIDGES").
 export function stampLabel(name = '') {

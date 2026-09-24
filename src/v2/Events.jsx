@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useV, shortDate } from './i18n';
 import { Seg } from './ui';
 import { isTonight } from './Home';
-import { localized, logoFor } from './util';
+import { localized, logoFor, safeHref } from './util';
 import EventSheet, { calendarLink } from './EventSheet';
 
 export default function Events({ events, breweries, language, onBack, onOpenBrewery }) {
@@ -64,7 +64,7 @@ export default function Events({ events, breweries, language, onBack, onOpenBrew
                 {localized(e.description, language) && <p style={{ fontSize: '.85rem', marginTop: 4 }}>{localized(e.description, language)}</p>}
                 <div style={{ display: 'flex', gap: 14, fontSize: '.82rem', fontWeight: 700, marginTop: 6 }}>
                   <a href={calendarLink(e, title)} target="_blank" rel="noreferrer">{v.addCalendar}</a>
-                  {e.link && <a href={e.link} target="_blank" rel="noreferrer">{v.moreInfo} ↗</a>}
+                  {safeHref(e.link) && <a href={safeHref(e.link)} target="_blank" rel="noreferrer">{v.moreInfo} ↗</a>}
                 </div>
               </div>
             );

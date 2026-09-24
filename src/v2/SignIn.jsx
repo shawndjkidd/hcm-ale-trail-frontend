@@ -68,11 +68,25 @@ export default function SignIn({ language, initialMode = 'signup', reason, onSuc
     setBusy(true);
     try {
       if (mode === 'signup') {
-        const { res, data } = await postJSON('/api/auth/register', { email: email.trim(), password, name: name.trim() });
-        if (!res.ok || !data?.ok) { setErr(res.status === 409 ? v.errExists : data?.error || v.errFill); return; }
+        // Straight to Supabase Auth: it applies the project's email-confirmation setting and
+        // its own rate limits, and never marks an address verified that wasn't.
+        const { data, error } = await supabase.auth.signUp({
+          email: email.trim(),
+          password,
+          options: { data: { name: name.trim() }, emailRedirectTo: window.location.origin + window.location.pathname },
+        });
+        if (error) { setErr(/already|registered|exists/i.test(error.message || '') ? v.errExists : error.message || v.errFill); return; }
         localStorage.setItem('hcm-onboarding-profile', JSON.stringify({ display_name: name.trim() }));
-        const ok = await login();
-        if (!ok) { setInfo(v.accountCreated); switchTo('login'); }
+        const session = data?.session;
+        if (session?.access_token) {
+          const payload = { access_token: session.access_token, refresh_token: session.refresh_token, expires_at: session.expires_at, user: { id: session.user?.id, email: session.user?.email } };
+          storeLoginTokens(payload);
+          onSuccess?.(payload);
+        } else {
+          // Confirmation required (or the address already has an account; we don't say which)
+          switchTo('login');
+          setInfo(v.checkEmail);
+        }
       } else {
         await login();
       }

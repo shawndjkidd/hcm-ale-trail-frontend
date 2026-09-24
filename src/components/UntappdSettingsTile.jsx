@@ -1,14 +1,8 @@
+import { untappdConnectUrl } from '../lib/api'
 import { useState } from 'react'
 import translations from '../translations'
 import { disconnectUntappd } from '../lib/api'
 
-function getUntappdStartUrl() {
-  try {
-    const u = JSON.parse(localStorage.getItem('hcm-user') || 'null')
-    if (u?.id) return `/api/untappd/oauth/start?user_id=${encodeURIComponent(u.id)}`
-  } catch {}
-  return '/api/untappd/oauth/start'
-}
 
 export default function UntappdSettingsTile({ language, userMe, onRefresh }) {
   const [busy, setBusy] = useState(false)
@@ -19,7 +13,7 @@ export default function UntappdSettingsTile({ language, userMe, onRefresh }) {
   const username = userMe?.untappd?.username
 
   const handleConnect = () => {
-    window.location.href = getUntappdStartUrl()
+    untappdConnectUrl().then((url) => { if (url) window.location.href = url }).catch(() => {})
   }
 
   const handleDisconnect = async () => {

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import SignIn from "./v2/SignIn";
 import UntappdOnboarding from "./components/UntappdOnboarding";
-import CardResetPrompt from "./components/CardResetPrompt";
+import CardReset from "./v2/CardReset";
 
 import Home from "./v2/Home";
 import Brewery from "./v2/Brewery";
@@ -16,7 +16,7 @@ import Ask from "./v2/Ask";
 import Onboarding, { MicroQuestion, nextMicroQuestion } from "./v2/Onboarding";
 import { Welcome, Guide } from "./v2/Welcome";
 import { Celebrate, HatClaim, shareCard } from "./v2/Celebrate";
-import { TabBar, MenuDrawer, Toast, InstallPrompt, isStandalone } from "./v2/ui";
+import { TabBar, MenuDrawer, Toast, InstallPrompt, isStandalone, EcosystemReturn } from "./v2/ui";
 import { passkeySupported, listPasskeys, addPasskey } from "./v2/passkey";
 import { useV, fmt } from "./v2/i18n";
 import { openStatus, formatClose } from "./v2/util";
@@ -28,7 +28,7 @@ import { supabase } from "./lib/supabase";
 import { TRAIL_ID, SHOW_UNTAPPD_INTEGRATION } from "./config";
 import {
   getBreweries, getMe, getMyRatings, logout as apiLogout, postResetCard, getLeaderboard,
-  storeLoginTokens, getAccessToken, setTokens, getUserMe, patchUserMe, claimHat, postRating, saveOnboardingProfile,
+  storeLoginTokens, getAccessToken, setTokens, getUserMe, patchUserMe, postRating, saveOnboardingProfile,
 } from "./lib/api";
 
 import "./styles/App.css";
@@ -149,7 +149,10 @@ export default function App() {
     setStampDates(dates);
     setTimerStart(r.startedAt ? new Date(r.startedAt).getTime() : null);
     setTimerEnd(r.completedAt ? new Date(r.completedAt).getTime() : null);
-    setHatClaimed(!!r.hatClaimed);
+    // "Hat claimed" means the gift was handed over at a venue (venue code or venue staff).
+    // Older backends don't send giftCollected; fall back to the legacy flag there.
+    const giftCollected = typeof r.giftCollected === "boolean" ? r.giftCollected : !!r.hatClaimed;
+    setHatClaimed(giftCollected);
     if (Array.isArray(r.sideQuestClaims)) {
       setQuestClaims((prev) => {
         const next = [...new Set([...prev.filter((id) => String(id).startsWith("demo-")), ...r.sideQuestClaims])];
@@ -157,8 +160,8 @@ export default function App() {
         return next;
       });
     }
-    localStorage.setItem("hcm-hat-claimed", String(!!r.hatClaimed));
-    if (r.hatClaimed) {
+    localStorage.setItem("hcm-hat-claimed", String(giftCollected));
+    if (giftCollected) {
       const round = typeof r.cardRound === "number" ? r.cardRound : cardRound;
       if (!localStorage.getItem(`hcm-reset-prompt-dismissed-${TRAIL_ID}-${round}`)) setShowCardResetPrompt(true);
     }
@@ -214,13 +217,23 @@ export default function App() {
   const openQuest = (q) => { setScreen({ type: "quest", quest: q }); push(`/side-quest/${q.id}`); };
   const closeScreen = () => { setScreen(null); push(TAB_PATHS[tab] || "/"); };
 
+  // Unknown or stale links (a removed venue, a typo) land on the Trail with a clean address
+  const goHomeClean = () => {
+    setScreen(null); setTab("home");
+    try { window.history.replaceState({}, "", "/" + window.location.search + window.location.hash); } catch {}
+  };
+
   const routeFromUrl = (list, quests) => {
     const [a, b] = pathParts();
     if ((a === "brewery" || a === "checkin") && b) {
-      if (list.some((x) => x.id === b)) { setScreen({ type: "brewery", id: b }); if (a === "checkin") push(`/brewery/${b}`); }
+      if (list.some((x) => x.id === b)) {
+        setScreen({ type: "brewery", id: b });
+        if (a === "checkin") { try { window.history.replaceState({}, "", `/brewery/${b}`); } catch {} }
+      } else goHomeClean();
     } else if (a === "side-quest" && b) {
       const q = quests.find((x) => x.id === b);
       if (q) setScreen({ type: "quest", quest: q });
+      else goHomeClean();
     } else if ((a === "settings" || a === "profile") && localStorage.getItem("hcm-user")) {
       setScreen({ type: "profile" });
     } else if (a === "events") {
@@ -513,6 +526,7 @@ export default function App() {
 
   return (
     <div className="v2 app" data-lang={language}>
+      <EcosystemReturn language={language} />
       {content}
       {showTabs && <TabBar current={screen ? null : tab} onChange={goTab} language={language} />}
 
@@ -557,11 +571,11 @@ export default function App() {
       )}
       {hatClaimOpen && (
         <HatClaim language={language} breweries={activeBreweries} onClose={() => setHatClaimOpen(false)}
-          onClaimed={async () => { setHatClaimed(true); localStorage.setItem("hcm-hat-claimed", "true"); await claimHat().catch(() => {}); loadMe(); }} />
+          onClaimed={() => { setHatClaimed(true); localStorage.setItem("hcm-hat-claimed", "true"); loadMe(); }} />
       )}
 
       {showCardResetPrompt && !celebrate && !hatClaimOpen && (
-        <CardResetPrompt language={language} setLanguage={setLanguage} cardRound={cardRound} onReset={handleCardReset}
+        <CardReset language={language} setLanguage={setLanguage} onReset={handleCardReset}
           onDismiss={() => { localStorage.setItem(`hcm-reset-prompt-dismissed-${TRAIL_ID}-${cardRound}`, "true"); setShowCardResetPrompt(false); }} />
       )}
 

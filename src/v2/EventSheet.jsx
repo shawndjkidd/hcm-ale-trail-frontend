@@ -1,6 +1,6 @@
 import { useV, weekdayName } from './i18n';
 import { Sheet, Icon } from './ui';
-import { localized, districtLabel } from './util';
+import { localized, districtLabel, safeHref } from './util';
 
 const TZ = 'Asia/Ho_Chi_Minh';
 const clock = (iso) => new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: TZ });
@@ -25,7 +25,7 @@ export default function EventSheet({ event: e, brewery, language, onClose, onOpe
   const isNew = e.category === 'new_release';
   const when = `${weekdayName(d.getDay(), language)} ${d.getDate()} ${month} · ${clock(e.startsAt)}${e.endsAt ? `–${clock(e.endsAt)}` : ''}`;
   const where = [e.breweryName || brewery?.name, brewery?.district ? districtLabel(brewery.district, language) : null].filter(Boolean).join(' · ');
-  const directions = brewery ? (brewery.maps_url || (brewery.latitude != null ? `https://www.google.com/maps/dir/?api=1&destination=${brewery.latitude},${brewery.longitude}` : null)) : null;
+  const directions = brewery ? (safeHref(brewery.maps_url) || (brewery.latitude != null ? `https://www.google.com/maps/dir/?api=1&destination=${brewery.latitude},${brewery.longitude}` : null)) : null;
 
   return (
     <Sheet onClose={onClose} label={title}>
@@ -55,10 +55,10 @@ export default function EventSheet({ event: e, brewery, language, onClose, onOpe
           <a className="act yellow" href={calendarLink(e, title)} target="_blank" rel="noreferrer">{v.addToCalendar}</a>
           {directions && <a className="act white" href={directions} target="_blank" rel="noreferrer"><Icon.pin />{v.directions}</a>}
         </div>
-        {(e.link || onOpenBrewery) && (
+        {(safeHref(e.link) || onOpenBrewery) && (
           <div className="links">
             {onOpenBrewery && brewery && <button type="button" onClick={() => { onClose(); onOpenBrewery(brewery); }}>{v.viewBrewery} →</button>}
-            {e.link && <a href={e.link} target="_blank" rel="noreferrer">{v.moreInfo} ↗</a>}
+            {safeHref(e.link) && <a href={safeHref(e.link)} target="_blank" rel="noreferrer">{v.moreInfo} ↗</a>}
           </div>
         )}
       </div>

@@ -1,9 +1,13 @@
-// Demo side quests and events, shown ONLY on preview/local addresses so the
-// founder can see the full layout. Never shown on the live domain.
+// Demo side quests, events, tap lists and stand-in venue photos, shown ONLY on Vercel
+// preview deployments and local development so the founder can see the full layout.
+// Opt-in by host: any other host (the live domain, www.thealetrail.app, anything new)
+// gets real data only.
+export function isDemoHost(hostname) {
+  const h = String(hostname || '').toLowerCase();
+  return h === 'localhost' || h === '127.0.0.1' || /^hcm-ale-trail-frontend-[a-z0-9-]+\.vercel\.app$/.test(h);
+}
 
-export const DEMO_MODE =
-  typeof window !== 'undefined' &&
-  !/^(hcm\.)?thealetrail\.app$/i.test(window.location.hostname);
+export const DEMO_MODE = typeof window !== 'undefined' && isDemoHost(window.location.hostname);
 
 // ISO time for a Saigon wall-clock time, `dayOffset` days from today.
 function saigonAt(dayOffset, hh, mm = 0) {
@@ -86,13 +90,13 @@ export const DEMO_SIDE_QUESTS = [
     id: 'demo-sq-1', kind: 'Wine bar', district: 'D3', title: { en: 'Vin Saigon', vn: 'Vin Saigon' },
     description: { en: 'Natural wines from small producers, in a 1960s shophouse. A break from the hops.', vn: 'Rượu vang tự nhiên trong một căn nhà phố thập niên 60.' },
     reward: 'Free glass of house red', address: '12 Tu Xuong, District 3',
-    photo_url: '/photos/demo-wine.jpg', operating_hours: ALL_DAY, latitude: 10.7818, longitude: 106.6889,
+    photo_url: '/preview/demo-wine.jpg', operating_hours: ALL_DAY, latitude: 10.7818, longitude: 106.6889,
     maps_url: 'https://maps.google.com/?q=10.7818,106.6889', instagram_url: 'https://instagram.com/',
   },
   {
     id: 'demo-sq-2', kind: 'Sake bar', district: 'D1', title: { en: 'Kura Sake Stand', vn: 'Kura Sake Stand' },
     description: { en: 'Eight sakes by the glass and a tiny standing counter.', vn: 'Tám loại sake theo ly và quầy đứng nhỏ.' },
-    reward: 'Sake flight for 2 stamps', address: '5 Thai Van Lung, District 1', photo_url: '/photos/demo-sake.jpg',
+    reward: 'Sake flight for 2 stamps', address: '5 Thai Van Lung, District 1', photo_url: '/preview/demo-sake.jpg',
     ends_at: (() => { const d = new Date(); d.setDate(d.getDate() + ((7 - d.getDay()) % 7 || 7)); return d.toISOString(); })(),
     operating_hours: OPEN_LATE, latitude: 10.7783, longitude: 106.7045,
     maps_url: 'https://maps.google.com/?q=10.7783,106.7045',
@@ -100,7 +104,7 @@ export const DEMO_SIDE_QUESTS = [
   {
     id: 'demo-sq-3', kind: 'Coffee', district: 'D1', title: { en: 'The Workshop', vn: 'The Workshop' },
     description: { en: 'Morning-after cold brew on a roastery rooftop.', vn: 'Cold brew trên sân thượng xưởng rang.' },
-    reward: '20% off any coffee', address: '27 Ngo Duc Ke, District 1', photo_url: '/photos/demo-coffee.jpg',
+    reward: '20% off any coffee', address: '27 Ngo Duc Ke, District 1', photo_url: '/preview/demo-coffee.jpg',
     operating_hours: { ...ALL_DAY, sunday: { closed: true } }, latitude: 10.7747, longitude: 106.7048,
     maps_url: 'https://maps.google.com/?q=10.7747,106.7048',
   },

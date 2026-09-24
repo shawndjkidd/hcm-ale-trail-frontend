@@ -3,8 +3,7 @@ import { useV, fmt, shortDate, weekdayName } from './i18n';
 import { TopBar, Pints, Icon } from './ui';
 import {
   openStatus, formatClose, formatClock, prettyBoardTime, districtLabel, localized,
-  distanceKm, formatKm, placeGradient, logoFor, photoFor, stencilFor,
-} from './util';
+  distanceKm, formatKm, placeGradient, logoFor, photoFor, stencilFor, safeImageUrl } from './util';
 
 export function useNow(intervalMs = 1000, active = true) {
   const [now, setNow] = useState(Date.now());
@@ -59,7 +58,7 @@ export function SideQuestCard({ quest, language, onOpen, claimed }) {
   const v = useV(language);
   const st = quest.operating_hours ? openStatus(quest) : { unknown: true };
   const kind = [quest.kind, quest.district].filter(Boolean).join(' · ').toUpperCase();
-  const photo = quest.photo_url ? `url("${quest.photo_url}") center/cover` : placeGradient(`sq-${quest.id}`);
+  const photo = safeImageUrl(quest.photo_url) ? `url("${safeImageUrl(quest.photo_url)}") center/cover` : placeGradient(`sq-${quest.id}`);
   const ends = quest.ends_at ? fmt(v.endsOn, { d: shortDate(quest.ends_at, language) }).toUpperCase() : '';
   return (
     <button type="button" className="v2-sqcard" onClick={() => onOpen(quest)}>

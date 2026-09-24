@@ -1,5 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { rmSync } from "node:fs";
+import { resolve } from "node:path";
 
 // One id per build: the app embeds it and /version.json publishes it, so open
 // copies of the app can tell when a newer version has gone live.
@@ -11,12 +13,25 @@ const versionFile = () => ({
   },
 });
 
+// Stand-in photos we don't hold rights to live in public/preview/. Production builds
+// (Vercel sets VERCEL_ENV=production) delete that folder from the output so the files
+// are never served on the live domain. STRIP_PREVIEW_ASSETS=1 does the same locally.
+const STRIP_PREVIEW = process.env.VERCEL_ENV === "production" || process.env.STRIP_PREVIEW_ASSETS === "1";
+const stripPreviewAssets = () => ({
+  name: "strip-preview-assets",
+  apply: "build",
+  closeBundle() {
+    if (STRIP_PREVIEW) rmSync(resolve(__dirname, "dist/preview"), { recursive: true, force: true });
+  },
+});
+
 // Dev proxy so localhost can call backend without CORS issues.
 // Any request to /api/* will be forwarded to the backend.
-const BACKEND = "https://hcm-ale-trail-backend-flm8.vercel.app";
+// DEV_BACKEND lets local testing point at a locally running backend branch.
+const BACKEND = process.env.DEV_BACKEND || "https://hcm-ale-trail-backend-flm8.vercel.app";
 
 export default defineConfig({
-  plugins: [react(), versionFile()],
+  plugins: [react(), versionFile(), stripPreviewAssets()],
   define: { __BUILD_ID__: JSON.stringify(BUILD_ID) },
   server: {
     proxy: {

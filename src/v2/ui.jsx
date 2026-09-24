@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useV } from './i18n';
+import { useV, fmt } from './i18n';
+import { getEcosystem, hideEcosystem, outboundUrl } from './ecosystem';
 
 export const LOGO_WHITE = '/brand/logo-white.png';
 
@@ -171,6 +172,7 @@ export function MenuDrawer({ language, setLanguage, nightMode, toggleNightMode, 
         {user && (
           <button type="button" className="item" onClick={onLogout} style={{ marginTop: 'auto' }}>{v.menuLogout}<span /></button>
         )}
+        <PartOfMadeSmpl language={language} pushDown={!user} />
       </aside>
     </>
   );
@@ -235,3 +237,35 @@ export function InstallPrompt({ language, deferred, onClose }) {
 
 export const isStandalone = () =>
   (typeof window !== 'undefined' && window.matchMedia?.('(display-mode: standalone)').matches) || window.navigator?.standalone === true;
+
+// The one ecosystem mark in Ale Trail. Same-tab link: back to the Made SMPL page the
+// person came from if we know it, otherwise Made SMPL itself, with from/return attached.
+function PartOfMadeSmpl({ language, pushDown }) {
+  const v = useV(language);
+  const ctx = getEcosystem();
+  const dest = ctx && ctx.label === 'Made SMPL' ? ctx.returnUrl : 'https://app.madesmpl.com/';
+  const href = outboundUrl(dest);
+  if (!href) return null;
+  return (
+    <a className="v2-partof" href={href} style={pushDown ? { marginTop: 'auto' } : undefined}>{v.partOf}</a>
+  );
+}
+
+// "← Back to Brew Asia / Made SMPL" for people who arrived from another Experience.
+// Same-tab link to the validated return URL; Hide keeps it hidden for this session.
+export function EcosystemReturn({ language }) {
+  const v = useV(language);
+  const [ctx, setCtx] = useState(() => getEcosystem());
+  const show = !!ctx && !ctx.hidden;
+  useEffect(() => {
+    document.documentElement.classList.toggle('has-eco', show);
+    return () => document.documentElement.classList.remove('has-eco');
+  }, [show]);
+  if (!show) return null;
+  return (
+    <div className="v2-eco" role="navigation" aria-label={fmt(v.ecoBack, { name: ctx.label })}>
+      <a href={ctx.returnUrl}>← {fmt(v.ecoBack, { name: ctx.label })}</a>
+      <button type="button" onClick={() => { hideEcosystem(); setCtx(getEcosystem()); }}>{v.ecoHide}</button>
+    </div>
+  );
+}

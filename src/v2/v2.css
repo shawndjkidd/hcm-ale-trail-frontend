@@ -707,3 +707,25 @@ body.night-mode .v2 .v2-bcard .stencil { filter: invert(1); opacity: .12; }
 
 /* Completed cards: small check badge, photo left clear */
 .v2 .v2-bcard.is-stamped .badge { font-size: 1.05rem; padding: 3px 8px; line-height: 1.1; border-right-width: 2px; border-bottom-width: 2px; }
+
+/* Ecosystem return bar ("← Back to Brew Asia"). Sits above everything, full width;
+   while it shows, every full-screen layer starts below it. */
+:root { --eco-h: 0px; }
+html.has-eco { --eco-h: calc(34px + env(safe-area-inset-top, 0px)); }
+.v2-eco {
+  position: fixed; left: 0; right: 0; top: 0; z-index: 200; height: var(--eco-h);
+  padding: env(safe-area-inset-top, 0px) 12px 0; display: flex; align-items: center; gap: 12px;
+  background: var(--ink); color: #fff; border-bottom: 2px solid var(--yellow); font-weight: 700; font-size: .85rem;
+}
+.v2-eco a { color: var(--yellow); text-decoration: none; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.v2-eco a:focus-visible, .v2-eco button:focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; }
+.v2-eco button { background: none; border: 0; color: rgba(255,255,255,.75); font: inherit; font-weight: 700; padding: 4px 2px; }
+html.has-eco .v2.app { padding-top: var(--eco-h); }
+html.has-eco .v2-full, html.has-eco .v2-flow, html.has-eco .v2-map, html.has-eco .v2-celebrate,
+html.has-eco .v2-drawer { top: var(--eco-h); }
+.v2-drawer .v2-partof { display: block; padding: 14px 0 2px; font-size: .78rem; font-weight: 600; color: rgba(255,255,255,.6); text-decoration: none; letter-spacing: .02em; }
+.v2-drawer .v2-partof:hover, .v2-drawer .v2-partof:focus-visible { color: #fff; text-decoration: underline; }
+.v2-cardreset { background: var(--jade); color: #fff; }
+.v2-cardreset .wrap { max-width: 560px; width: 100%; margin: 0 auto; padding: calc(18px + env(safe-area-inset-top, 0px)) 20px calc(24px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 16px; min-height: 100%; }
+.v2-cardreset .top { display: flex; }
+.v2-cardreset .headline { font-family: Anton, Impact, sans-serif; font-weight: 400; text-transform: uppercase; font-size: clamp(2.6rem, 11vw, 4rem); line-height: .95; color: var(--yellow); margin: 24px 0 0; }

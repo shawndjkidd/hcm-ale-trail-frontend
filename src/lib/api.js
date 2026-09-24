@@ -192,6 +192,15 @@ export function getMyRatings(trailId = TRAIL_ID) {
   return request(`/trails/${trailId}/me/ratings`);
 }
 
+// Untappd link: the backend signs the OAuth state for the signed-in caller only and
+// returns the authorize URL; the app then navigates there (same tab).
+export async function untappdConnectUrl() {
+  const res = await request(`/untappd/oauth/start`, { method: "POST" });
+  return res?.ok && res.url ? res.url : null;
+}
+
+// Retired server-side (410): a gift only counts when a venue confirms the handover.
+// Kept so old imports don't break; use claimMerchandise() instead.
 export function claimHat(trailId = TRAIL_ID) {
   return request(`/trails/${trailId}/me/claim-hat`, { method: "POST" });
 }

@@ -3,7 +3,7 @@ import { getAccessToken } from '../lib/api';
 import { useV, fmt, shortDate } from './i18n';
 import { Icon } from './ui';
 import { StaffPin, Slam } from './CheckIn';
-import { localized, placeGradient, openStatus, stampLabel } from './util';
+import { localized, placeGradient, openStatus, stampLabel, safeHref, safeImageUrl } from './util';
 import { statusText } from './Home';
 
 async function claimQuest(questId, pin) {
@@ -28,7 +28,7 @@ export default function SideQuest({ quest, claimed, language, user, onBack, onCl
   const [step, setStep] = useState('view');
   const title = localized(quest.title, language);
   const desc = localized(quest.description, language);
-  const hero = quest.photo_url ? `url("${quest.photo_url}") center/cover` : placeGradient(`sq-${quest.id}`);
+  const hero = safeImageUrl(quest.photo_url) ? `url("${safeImageUrl(quest.photo_url)}") center/cover` : placeGradient(`sq-${quest.id}`);
   const st = quest.operating_hours ? openStatus(quest) : null;
 
   if (step === 'staff') {
@@ -48,9 +48,9 @@ export default function SideQuest({ quest, claimed, language, user, onBack, onCl
   }
 
   const links = [
-    quest.instagram_url && { label: 'Instagram', href: quest.instagram_url, bg: '#E1306C', fg: '#fff', icon: Icon.instagram },
-    quest.facebook_url && { label: 'Facebook', href: quest.facebook_url, bg: '#1877F2', fg: '#fff', icon: Icon.facebook },
-    quest.maps_url && { label: v.directions, href: quest.maps_url, bg: '#FFD100', fg: '#111', icon: Icon.pin },
+    safeHref(quest.instagram_url) && { label: 'Instagram', href: safeHref(quest.instagram_url), bg: '#E1306C', fg: '#fff', icon: Icon.instagram },
+    safeHref(quest.facebook_url) && { label: 'Facebook', href: safeHref(quest.facebook_url), bg: '#1877F2', fg: '#fff', icon: Icon.facebook },
+    safeHref(quest.maps_url) && { label: v.directions, href: safeHref(quest.maps_url), bg: '#FFD100', fg: '#111', icon: Icon.pin },
   ].filter(Boolean);
 
   return (

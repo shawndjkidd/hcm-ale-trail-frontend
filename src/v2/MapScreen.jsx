@@ -4,7 +4,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useV } from './i18n';
 import { statusText } from './Home';
-import { openStatus, districtLabel, distanceKm, formatKm, photoFor, logoFor, placeGradient } from './util';
+import { openStatus, districtLabel, distanceKm, formatKm, photoFor, logoFor, placeGradient, safeHref } from './util';
 
 const pinIcon = (cls, label) => L.divIcon({
   className: '',
@@ -52,7 +52,7 @@ export default function MapScreen({ breweries, sideQuests = [], stamps, language
 
   const sel = selected;
   const km = sel && here ? distanceKm(here, { lat: sel.item.latitude, lng: sel.item.longitude }) : null;
-  const directions = sel ? (sel.item.maps_url || `https://www.google.com/maps/dir/?api=1&destination=${sel.item.latitude},${sel.item.longitude}`) : null;
+  const directions = sel ? (safeHref(sel.item.maps_url) || `https://www.google.com/maps/dir/?api=1&destination=${sel.item.latitude},${sel.item.longitude}`) : null;
 
   return (
     <div className="v2-map">

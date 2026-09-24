@@ -2,6 +2,8 @@
 // Placeholders use {name}; fill them with fmt().
 
 const en = {
+  checkEmail: 'Check your email and tap the link to confirm your account, then sign in.',
+  ecoBack: 'Back to {name}', ecoHide: 'Hide', partOf: 'Part of Made SMPL',
   alreadyUsed: 'You have already used this offer.', usedTag: 'USED', oneTimeNote: 'One-time offer',
   installShow: 'Show me how', installAdd: 'Add it', installDone: 'Done', installWhy: 'Opens full screen with one tap, like a real app. No download.', installS1: 'Tap the Share button', installS1b: 'In Safari it may be under •••', installS2: 'Scroll down and tap “Add to Home Screen”', installS3: 'Tap “Add” in the top corner', installA1: 'Tap the ⋮ menu, top right', installA2: 'Tap “Add to Home screen” or “Install app”', installA3: 'Tap “Install”',
   evWhen: 'When', evWhere: 'Where', evEntry: 'Entry', evGood: 'Good to know', addToCalendar: 'Add to calendar', viewBrewery: 'View brewery',
@@ -16,13 +18,13 @@ const en = {
   tabTrail: 'Trail', tabMap: 'Map', tabCard: 'My card', tabAsk: 'Ask',
   // Welcome + guide
   w1: '8 breweries.', w2: '8 stamps.', w3: '1 free hat.',
-  welcomeBody: "Saigon's craft-beer passport. Drink at a brewery, get a stamp, collect all eight for an Ale Trail hat.",
+  welcomeBody: "Saigon's craft-beer passport. Visit a brewery, check in with the staff's code to get a stamp, and collect all eight for an Ale Trail hat.",
   startTrail: 'Start the trail', haveAccount: 'I already have an account',
   ageNote: "18+ only. Tapping either button confirms you're 18 or older.",
   step: 'STEP {n}',
   g1Title: 'Drink', g1Body: 'Order a beer at any of the 8 breweries, in any order. Take months if you like; the clock is just for bragging rights.',
   g2Title: 'Stamp', g2Body: 'Tap Check in, pick your beer and rate it. Then hand your phone to the staff: they enter their PIN and your stamp lands.',
-  g3Title: 'Hat', g3Body: 'Collect all 8 stamps and claim your free Ale Trail hat at any brewery. Your clock starts at stamp one. How fast can you go?',
+  g3Title: 'Hat', g3Body: 'Collect all 8 stamps, then pick up your free Ale Trail hat at any brewery: staff confirm it with their code. Your clock starts at stamp one. How fast can you go?',
   // Home
   beerStamps: 'Beer stamps', moreToHat: '{n} more to your free hat', hatEarned: 'Your free hat is waiting', hatClaimedLine: 'Hat claimed. Round {n} is on.',
   howItWorks: 'How it works', yourClock: 'YOUR CLOCK', yourTime: 'YOUR TIME', leaderboard: 'Leaderboard',
@@ -113,6 +115,8 @@ const en = {
 };
 
 const vn = {
+  checkEmail: 'Kiểm tra email và nhấn vào liên kết để xác nhận tài khoản, rồi đăng nhập.',
+  ecoBack: 'Quay lại {name}', ecoHide: 'Ẩn', partOf: 'Thuộc Made SMPL',
   alreadyUsed: 'Bạn đã dùng ưu đãi này rồi.', usedTag: 'ĐÃ DÙNG', oneTimeNote: 'Ưu đãi dùng một lần',
   installShow: 'Chỉ tôi cách làm', installAdd: 'Thêm ngay', installDone: 'Xong', installWhy: 'Mở toàn màn hình chỉ với một chạm, như ứng dụng thật. Không cần tải về.', installS1: 'Nhấn nút Chia sẻ', installS1b: 'Trong Safari có thể nằm trong •••', installS2: 'Kéo xuống, nhấn “Thêm vào MH chính”', installS3: 'Nhấn “Thêm” ở góc trên', installA1: 'Nhấn menu ⋮ góc trên bên phải', installA2: 'Nhấn “Thêm vào màn hình chính” hoặc “Cài đặt ứng dụng”', installA3: 'Nhấn “Cài đặt”',
   evWhen: 'Khi nào', evWhere: 'Ở đâu', evEntry: 'Vào cửa', evGood: 'Cần biết', addToCalendar: 'Thêm vào lịch', viewBrewery: 'Xem quán',
@@ -126,13 +130,13 @@ const vn = {
   cancel: 'Huỷ', save: 'Lưu', signIn: 'Đăng nhập', midnight: 'nửa đêm',
   tabTrail: 'Hành trình', tabMap: 'Bản đồ', tabCard: 'Thẻ của tôi', tabAsk: 'Hỏi',
   w1: '8 nhà máy bia.', w2: '8 con tem.', w3: '1 mũ miễn phí.',
-  welcomeBody: 'Hộ chiếu bia thủ công của Sài Gòn. Uống ở một nhà máy bia, nhận tem, sưu tầm đủ tám để nhận mũ Ale Trail.',
+  welcomeBody: 'Hộ chiếu bia thủ công của Sài Gòn. Ghé một nhà máy bia, check in bằng mã của nhân viên để nhận tem, sưu tầm đủ tám để nhận mũ Ale Trail.',
   startTrail: 'Bắt đầu hành trình', haveAccount: 'Tôi đã có tài khoản',
   ageNote: 'Chỉ dành cho người từ 18 tuổi. Nhấn nút là bạn xác nhận mình đủ 18 tuổi.',
   step: 'BƯỚC {n}',
   g1Title: 'Uống', g1Body: 'Gọi một ly bia ở bất kỳ nhà máy nào trong 8 nơi, theo thứ tự nào cũng được. Không cần vội; đồng hồ chỉ để khoe thôi.',
   g2Title: 'Tem', g2Body: 'Nhấn Check in, chọn bia và đánh giá. Sau đó đưa điện thoại cho nhân viên: họ nhập mã PIN và bạn nhận tem.',
-  g3Title: 'Mũ', g3Body: 'Sưu tầm đủ 8 tem và nhận mũ Ale Trail miễn phí tại bất kỳ nhà máy nào. Đồng hồ chạy từ tem đầu tiên. Bạn nhanh đến đâu?',
+  g3Title: 'Mũ', g3Body: 'Sưu tầm đủ 8 tem rồi nhận mũ Ale Trail miễn phí tại bất kỳ nhà máy nào: nhân viên xác nhận bằng mã của họ. Đồng hồ chạy từ tem đầu tiên. Bạn nhanh đến đâu?',
   beerStamps: 'Tem bia', moreToHat: 'Còn {n} tem nữa là có mũ', hatEarned: 'Mũ miễn phí đang chờ bạn', hatClaimedLine: 'Đã nhận mũ. Vòng {n} bắt đầu.',
   howItWorks: 'Cách chơi', yourClock: 'ĐỒNG HỒ CỦA BẠN', yourTime: 'THỜI GIAN CỦA BẠN', leaderboard: 'Bảng xếp hạng',
   clockStarts: 'Đồng hồ chạy từ tem đầu tiên', topTime: '#1 {name} · {time}', noFinishers: 'Hãy là người đầu tiên hoàn thành',
@@ -210,6 +214,8 @@ const vn = {
 };
 
 const kr = {
+  checkEmail: '이메일의 링크를 눌러 계정을 확인한 뒤 로그인하세요.',
+  ecoBack: '{name}(으)로 돌아가기', ecoHide: '숨기기', partOf: 'Made SMPL의 일부',
   alreadyUsed: '이미 사용한 혜택이에요.', usedTag: '사용함', oneTimeNote: '1회 한정 혜택',
   installShow: '방법 보기', installAdd: '추가하기', installDone: '완료', installWhy: '앱처럼 한 번에 전체 화면으로 열려요. 다운로드 필요 없어요.', installS1: '공유 버튼을 누르세요', installS1b: 'Safari에서는 ••• 안에 있을 수 있어요', installS2: '아래로 내려 “홈 화면에 추가”를 누르세요', installS3: '오른쪽 위 “추가”를 누르세요', installA1: '오른쪽 위 ⋮ 메뉴를 누르세요', installA2: '“홈 화면에 추가” 또는 “앱 설치”를 누르세요', installA3: '“설치”를 누르세요',
   evWhen: '언제', evWhere: '어디서', evEntry: '입장', evGood: '알아두세요', addToCalendar: '캘린더에 추가', viewBrewery: '양조장 보기',
@@ -223,13 +229,13 @@ const kr = {
   cancel: '취소', save: '저장', signIn: '로그인', midnight: '자정',
   tabTrail: '트레일', tabMap: '지도', tabCard: '내 카드', tabAsk: '질문',
   w1: '브루어리 8곳.', w2: '스탬프 8개.', w3: '무료 모자 1개.',
-  welcomeBody: '사이공 크래프트 맥주 여권. 브루어리에서 한 잔 마시고 스탬프를 받아, 8개를 모으면 에일 트레일 모자를 드려요.',
+  welcomeBody: '사이공 크래프트 맥주 여권. 브루어리를 방문해 직원 코드로 체크인하면 스탬프를 받고, 8개를 모으면 에일 트레일 모자를 드려요.',
   startTrail: '트레일 시작하기', haveAccount: '이미 계정이 있어요',
   ageNote: '만 18세 이상만 이용할 수 있습니다. 버튼을 누르면 18세 이상임을 확인한 것으로 간주합니다.',
   step: '{n}단계',
   g1Title: '마시기', g1Body: '8곳 중 아무 브루어리에서 순서 상관없이 맥주를 주문하세요. 천천히 해도 돼요. 시계는 자랑용일 뿐이에요.',
   g2Title: '스탬프', g2Body: '체크인을 누르고 맥주를 골라 평가하세요. 그다음 휴대폰을 직원에게 건네면 PIN을 입력해 스탬프가 찍혀요.',
-  g3Title: '모자', g3Body: '스탬프 8개를 모아 아무 브루어리에서 무료 모자를 받으세요. 시계는 첫 스탬프부터 시작돼요. 얼마나 빨리 할 수 있을까요?',
+  g3Title: '모자', g3Body: '스탬프 8개를 모은 뒤 아무 브루어리에서 무료 모자를 받으세요. 직원이 코드로 확인해요. 시계는 첫 스탬프부터 시작돼요. 얼마나 빨리 할 수 있을까요?',
   beerStamps: '맥주 스탬프', moreToHat: '무료 모자까지 {n}개 남음', hatEarned: '무료 모자가 기다리고 있어요', hatClaimedLine: '모자 수령 완료. {n}라운드 시작.',
   howItWorks: '이용 방법', yourClock: '내 시계', yourTime: '내 기록', leaderboard: '리더보드',
   clockStarts: '첫 스탬프부터 시계가 시작돼요', topTime: '1위 {name} · {time}', noFinishers: '첫 완주자가 되어 보세요',
@@ -307,6 +313,8 @@ const kr = {
 };
 
 const jp = {
+  checkEmail: 'メールのリンクをタップしてアカウントを確認してから、ログインしてください。',
+  ecoBack: '{name}に戻る', ecoHide: '閉じる', partOf: 'Made SMPLの一部',
   alreadyUsed: 'この特典はすでに使用済みです。', usedTag: '使用済み', oneTimeNote: '1回限りの特典',
   installShow: '手順を見る', installAdd: '追加する', installDone: '完了', installWhy: 'アプリのようにワンタップで全画面表示。ダウンロード不要です。', installS1: '共有ボタンをタップ', installS1b: 'Safariでは ••• の中にある場合があります', installS2: '下にスクロールして「ホーム画面に追加」をタップ', installS3: '右上の「追加」をタップ', installA1: '右上の ⋮ メニューをタップ', installA2: '「ホーム画面に追加」または「アプリをインストール」をタップ', installA3: '「インストール」をタップ',
   evWhen: '日時', evWhere: '場所', evEntry: '入場', evGood: 'ポイント', addToCalendar: 'カレンダーに追加', viewBrewery: 'ブルワリーを見る',
@@ -320,13 +328,13 @@ const jp = {
   cancel: 'キャンセル', save: '保存', signIn: 'ログイン', midnight: '深夜0時',
   tabTrail: 'トレイル', tabMap: 'マップ', tabCard: 'マイカード', tabAsk: '質問',
   w1: 'ブルワリー8軒。', w2: 'スタンプ8個。', w3: '無料キャップ1つ。',
-  welcomeBody: 'サイゴンのクラフトビール・パスポート。ブルワリーで一杯飲んでスタンプを集め、8個そろえるとエールトレイルのキャップがもらえます。',
+  welcomeBody: 'サイゴンのクラフトビール・パスポート。ブルワリーを訪れてスタッフのコードでチェックインするとスタンプ。8個そろえるとエールトレイルのキャップがもらえます。',
   startTrail: 'トレイルを始める', haveAccount: 'アカウントをお持ちの方',
   ageNote: '18歳以上限定です。ボタンを押すと18歳以上であることを確認したことになります。',
   step: 'ステップ {n}',
   g1Title: '飲む', g1Body: '8軒のどこでも、好きな順番でビールを注文。何ヶ月かかっても大丈夫。タイムは自慢用です。',
   g2Title: 'スタンプ', g2Body: 'チェックインを押してビールを選び、評価します。スマホをスタッフに渡すとPINを入力してスタンプが押されます。',
-  g3Title: 'キャップ', g3Body: '8個のスタンプを集めて、どのブルワリーでも無料キャップを受け取れます。タイムは最初のスタンプから。どこまで速く回れる？',
+  g3Title: 'キャップ', g3Body: '8個のスタンプを集めたら、どのブルワリーでも無料キャップを受け取れます。スタッフがコードで確認します。タイムは最初のスタンプから。どこまで速く回れる？',
   beerStamps: 'ビールスタンプ', moreToHat: '無料キャップまであと{n}個', hatEarned: '無料キャップが待っています', hatClaimedLine: 'キャップ受け取り済み。第{n}ラウンド開始。',
   howItWorks: '遊び方', yourClock: 'あなたのタイム', yourTime: 'あなたの記録', leaderboard: 'ランキング',
   clockStarts: '最初のスタンプでタイムがスタート', topTime: '1位 {name} · {time}', noFinishers: '最初の完走者になろう',

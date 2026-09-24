@@ -1360,6 +1360,8 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
 
           {/* Right column: Check-in PIN Code, Venue Description */}
           <div>
+          {/* Venue codes: owners, managers, brewery admins and HQ only (plain staff can't see or change them) */}
+          {staffRole !== 'staff' && (
           <div className="admin-card">
             <h3 className="admin-card-title">Check-in PIN Code</h3>
             <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>4-digit PIN staff enter on the guest's phone to confirm a check-in.</p>
@@ -1371,14 +1373,16 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                 value={pinCode}
                 onChange={(e) => setPinCode(e.target.value.replace(/\D/g, '').slice(0, 4))}
                 maxLength="4"
-                placeholder="1234"
+                placeholder="4 digits"
               />
               <button className="admin-btn admin-btn-primary settings-btn" onClick={handleSavePin} disabled={savingPin}>
                 {savingPin ? 'Saving...' : 'Save PIN'}
               </button>
               {pinMessage && <span style={{ fontSize: 13, color: pinMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{pinMessage}</span>}
             </div>
+            <p style={{ color: 'var(--admin-text-muted)', marginTop: 10, fontSize: 13 }}>Use a code only your team knows. Don't reuse another venue's code.</p>
           </div>
+          )}
 
           <div className="admin-card">
             <h3 className="admin-card-title">Venue Description</h3>

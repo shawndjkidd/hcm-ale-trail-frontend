@@ -5,6 +5,7 @@ import App from './App.jsx'
 const AdminApp = lazy(() => import('./admin/AdminApp.jsx'))
 import ResetPassword from './components/ResetPassword.jsx'
 import './styles/App.css'
+import { captureEcosystem } from './v2/ecosystem'
 
 // App icon trial: ?icon=pint|wordmark|hcm swaps the home-screen icon so the
 // founder can add each version to a phone and compare. The choice is remembered.
@@ -22,6 +23,11 @@ try {
 // Simple routing: /admin → AdminApp, /reset-password → ResetPassword, everything else → App
 const isAdminRoute = window.location.pathname.startsWith('/admin')
 const isResetPassword = window.location.pathname === '/reset-password'
+
+// Made SMPL ecosystem handoff (?from=&return=&lang=): capture it now, before Welcome,
+// sign-in or the Google redirect can lose the query string. Local dev may also return
+// to localhost; production only trusts the approved hosts in ecosystem.js.
+if (!isAdminRoute) captureEcosystem(window, import.meta.env.DEV ? { localhost: 'Local test' } : {})
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

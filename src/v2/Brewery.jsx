@@ -5,7 +5,7 @@ import { Icon, Seg, Sheet, Glass } from './ui';
 import { statusText } from './Home';
 import EventSheet from './EventSheet';
 import { DEMO_MODE, demoBeers } from './demo';
-import { openStatus, localized, districtLabel, beerLook, placeGradient, logoFor, photoFor, STYLE_GROUPS } from './util';
+import { openStatus, localized, districtLabel, beerLook, placeGradient, logoFor, photoFor, STYLE_GROUPS, safeHref } from './util';
 
 const DAY_KEYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
@@ -78,12 +78,12 @@ export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events 
   const hours = brewery.operating_hours || {};
 
   const socials = [
-    brewery.instagram_url && { label: 'Instagram', href: brewery.instagram_url, bg: '#E1306C', fg: '#fff', icon: Icon.instagram },
-    brewery.facebook_url && { label: 'Facebook', href: brewery.facebook_url, bg: '#1877F2', fg: '#fff', icon: Icon.facebook },
-    brewery.website_url && { label: v.website, href: brewery.website_url, bg: '#fff', fg: '#111', icon: Icon.globe },
-    (brewery.maps_url || brewery.latitude) && {
+    safeHref(brewery.instagram_url) && { label: 'Instagram', href: safeHref(brewery.instagram_url), bg: '#E1306C', fg: '#fff', icon: Icon.instagram },
+    safeHref(brewery.facebook_url) && { label: 'Facebook', href: safeHref(brewery.facebook_url), bg: '#1877F2', fg: '#fff', icon: Icon.facebook },
+    safeHref(brewery.website_url) && { label: v.website, href: safeHref(brewery.website_url), bg: '#fff', fg: '#111', icon: Icon.globe },
+    (safeHref(brewery.maps_url) || brewery.latitude != null) && {
       label: v.directions,
-      href: brewery.maps_url || `https://www.google.com/maps/dir/?api=1&destination=${brewery.latitude},${brewery.longitude}`,
+      href: safeHref(brewery.maps_url) || `https://www.google.com/maps/dir/?api=1&destination=${brewery.latitude},${brewery.longitude}`,
       bg: '#FFD100', fg: '#111', icon: Icon.pin,
     },
   ].filter(Boolean);
