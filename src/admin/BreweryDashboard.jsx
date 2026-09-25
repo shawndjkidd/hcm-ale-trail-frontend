@@ -878,7 +878,8 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
           {(() => {
             const activeMenuNames = new Set(beers.filter(b => b.active !== false).map(b => b.name.toLowerCase()));
             const unmatched = beerRatings.filter(r => !activeMenuNames.has(r.beerName.toLowerCase()));
-            if (activeMenuNames.size === 0 || unmatched.length === 0) return null;
+            // Merging rating names edits the venue's beer data: owners/managers/admins only
+            if (!canManage || activeMenuNames.size === 0 || unmatched.length === 0) return null;
             const menuOptions = beers.filter(b => b.active !== false);
             return (
               <div className="admin-card">

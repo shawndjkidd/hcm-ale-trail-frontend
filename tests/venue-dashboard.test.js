@@ -19,3 +19,7 @@ test('venue dashboard: management tabs and settings are hidden from plain staff 
   assert.match(src, /\{canManage \? \(<div>/, 'left settings column (status, links, hours)');
   assert.match(src, /\{staffRole !== 'staff' && \(\s*<div className="admin-card">\s*<h3 className="admin-card-title">Check-in PIN Code/, 'PIN card');
 });
+
+test('venue dashboard: the Merge Ratings card (beer data) is owner/manager/admin only', () => {
+  assert.match(src, /if \(!canManage \|\| activeMenuNames\.size === 0 \|\| unmatched\.length === 0\) return null;/);
+});
