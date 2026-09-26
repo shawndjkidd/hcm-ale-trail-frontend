@@ -265,16 +265,17 @@ export default function Home({
       </div>
 
       {sideQuests?.length > 0 && (
-        <>
-          <div className="v2-section-head">
+        <section className="v2-sqzone" aria-label={v.sideQuests}>
+          <div className="zhead">
+            <span className="eyebrow">{v.sqEyebrow}</span>
             <h2>{v.sideQuests}</h2>
-            <span className="spacer" />
-            <span className="tag light" style={{ fontSize: '.64rem' }}>{v.bonusNote}</span>
+            <p>{v.sqExplain}</p>
+            <span className="tag bonus">{v.bonusNote}</span>
           </div>
           <div style={{ display: 'grid', gap: 16 }}>
             {sideQuests.map((q) => <SideQuestCard key={q.id} quest={q} language={language} onOpen={onOpenQuest} claimed={questClaims?.includes(q.id)} />)}
           </div>
-        </>
+        </section>
       )}
 
       {upcoming.length > 0 && (
