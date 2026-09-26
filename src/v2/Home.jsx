@@ -108,6 +108,11 @@ export function SideQuestCard({ quest, language, onOpen, claimed }) {
   );
 }
 
+const EVENT_PLACEHOLDER = {
+  event: 'https://images.unsplash.com/photo-1778794944415-1656a72993c6?w=1000&q=70&fm=jpg&fit=crop&ar=16:9',
+  new: 'https://images.unsplash.com/photo-1777558578003-e65755409d8e?w=1000&q=70&fm=jpg&fit=crop&ar=16:9',
+};
+
 // Big swipeable card for What's On: date block, venue logo, event type, title, venue.
 function EventCard({ ev, brewery, language, onOpen }) {
   const v = useV(language);
@@ -120,10 +125,12 @@ function EventCard({ ev, brewery, language, onOpen }) {
   const logo = brewery ? logoFor(brewery) : null;
   const stencil = brewery ? stencilFor(brewery) : null;
   const isNew = ev.category === 'new_release';
+  // Event photo: the venue's photo, else a placeholder beer shot, so every card shows a picture.
+  const img = safeImageUrl(ev.photo_url) || (brewery && photoFor(brewery)) || (isNew ? EVENT_PLACEHOLDER.new : EVENT_PLACEHOLDER.event);
   return (
     <button type="button" className={`v2-evcard${tonight ? ' is-tonight' : ''}`} onClick={() => onOpen(ev)}>
-      <span className="top" style={{ background: placeGradient(ev.breweryId || ev.id) }}>
-        {stencil && <span className="stencil" style={{ backgroundImage: `url("${stencil}")` }} />}
+      <span className={`top${img ? ' has-photo' : ''}`} style={{ background: img ? `url("${img}") center/cover` : placeGradient(ev.breweryId || ev.id) }}>
+        {!img && stencil && <span className="stencil" style={{ backgroundImage: `url("${stencil}")` }} />}
         <span className="date">
           {tonight
             ? <><span className="sm">{v.tonight}</span><span className="big">{time}</span></>
@@ -139,6 +146,42 @@ function EventCard({ ev, brewery, language, onOpen }) {
           <span>{ev.breweryName || ''}</span>
           <span>{brewery ? districtLabel(brewery.district, language) : ''}</span>
         </span>
+      </span>
+    </button>
+  );
+}
+
+// Tonight: a flickering neon sign at the top of the home page, with a live countdown.
+function TonightNeon({ events, breweries, language, here, onOpen }) {
+  const v = useV(language);
+  const now = useNow(1000);
+  const ev = events[0];
+  const b = (breweries || []).find((x) => x.id === ev.breweryId);
+  const start = new Date(ev.startsAt).getTime();
+  const end = ev.endsAt ? new Date(ev.endsAt).getTime() : start + 4 * 3600e3;
+  const ms = start - now;
+  const on = ms <= 0 && now < end;
+  const h = Math.floor(ms / 3600e3), m = Math.floor((ms % 3600e3) / 60e3), sec = Math.floor((ms % 60e3) / 1e3);
+  const pad = (n) => String(Math.max(0, n)).padStart(2, '0');
+  const hm = (t) => new Date(t).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' });
+  const title = demoSplit(localized(ev.title, language));
+  const logo = b ? logoFor(b) : null;
+  const km = here && b?.latitude != null ? distanceKm(here, { lat: b.latitude, lng: b.longitude }) : null;
+  return (
+    <button type="button" className="v2-neon" onClick={() => onOpen(ev)}>
+      {title.demo && <span className="tag demo">DEMO</span>}
+      <span className="sign">{v.tonight}</span>
+      <span className="sub">{shortDate(ev.startsAt, language).toUpperCase()} · {hm(start)}{events.length > 1 ? ` · ${fmt(v.moreTonight, { n: events.length - 1 })}` : ''}</span>
+      <span className="ev">
+        {logo && <img src={logo} alt="" />}
+        <span>
+          <b>{title.text}</b>
+          <span>{[ev.breweryName, b && districtLabel(b.district, language), km != null && formatKm(km)].filter(Boolean).join(' · ')}</span>
+        </span>
+      </span>
+      <span className="time">
+        <span>{on ? v.onNow : v.startsIn}</span>
+        <big>{on ? `${v.tillTime} ${hm(end)}` : `${h}h ${pad(m)}m ${pad(sec)}s`}</big>
       </span>
     </button>
   );
@@ -283,15 +326,7 @@ export default function Home({
       </button>
 
       {tonight.length > 0 && (
-        <button type="button" className="v2-tonight" onClick={() => onOpenEvents(tonight[0])}>
-          <span className="when">{v.tonight}<br />{eventWhen(tonight[0], language, v).bottom}</span>
-          <span className="what">
-            <b>{demoSplit(localized(tonight[0].title, language)).text}</b>
-            {tonight[0].breweryName}
-            {tonight.length > 1 ? ` · ${fmt(v.moreTonight, { n: tonight.length - 1 })}` : ''}
-          </span>
-          <b aria-hidden="true">›</b>
-        </button>
+        <TonightNeon events={tonight} breweries={breweries} language={language} here={here} onOpen={onOpenEvents} />
       )}
 
       <section className="v2-trailzone" aria-label={v.theTrail}>
