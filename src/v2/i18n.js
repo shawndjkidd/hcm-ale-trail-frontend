@@ -4,7 +4,7 @@
 const en = {
   hatCollectedLine: 'Your Ale Trail hat is collected.',
   checkEmail: 'Check your email and tap the link to confirm your account, then sign in.',
-  ecoBack: 'Back to {name}', ecoHide: 'Hide', partOf: 'Part of Made SMPL',
+  ecoBack: 'Back to {name}', ecoHide: 'Hide', partOf: 'Part of Made SMPL', experienceOn: 'HCMC Ale Trail is an Experience on',
   alreadyUsed: 'You have already used this offer.', usedTag: 'USED', oneTimeNote: 'One-time offer',
   installShow: 'Show me how', installAdd: 'Add it', installDone: 'Done', installWhy: 'Opens full screen with one tap, like a real app. No download.', installS1: 'Tap the Share button', installS1b: 'In Safari it may be under •••', installS2: 'Scroll down and tap “Add to Home Screen”', installS3: 'Tap “Add” in the top corner', installA1: 'Tap the ⋮ menu, top right', installA2: 'Tap “Add to Home screen” or “Install app”', installA3: 'Tap “Install”',
   evWhen: 'When', evWhere: 'Where', evEntry: 'Entry', evGood: 'Good to know', addToCalendar: 'Add to calendar', viewBrewery: 'View brewery',
@@ -118,7 +118,7 @@ const en = {
 const vn = {
   hatCollectedLine: 'Bạn đã nhận mũ Ale Trail.',
   checkEmail: 'Kiểm tra email và nhấn vào liên kết để xác nhận tài khoản, rồi đăng nhập.',
-  ecoBack: 'Quay lại {name}', ecoHide: 'Ẩn', partOf: 'Thuộc Made SMPL',
+  ecoBack: 'Quay lại {name}', ecoHide: 'Ẩn', partOf: 'Thuộc Made SMPL', experienceOn: 'HCMC Ale Trail là một Experience trên',
   alreadyUsed: 'Bạn đã dùng ưu đãi này rồi.', usedTag: 'ĐÃ DÙNG', oneTimeNote: 'Ưu đãi dùng một lần',
   installShow: 'Chỉ tôi cách làm', installAdd: 'Thêm ngay', installDone: 'Xong', installWhy: 'Mở toàn màn hình chỉ với một chạm, như ứng dụng thật. Không cần tải về.', installS1: 'Nhấn nút Chia sẻ', installS1b: 'Trong Safari có thể nằm trong •••', installS2: 'Kéo xuống, nhấn “Thêm vào MH chính”', installS3: 'Nhấn “Thêm” ở góc trên', installA1: 'Nhấn menu ⋮ góc trên bên phải', installA2: 'Nhấn “Thêm vào màn hình chính” hoặc “Cài đặt ứng dụng”', installA3: 'Nhấn “Cài đặt”',
   evWhen: 'Khi nào', evWhere: 'Ở đâu', evEntry: 'Vào cửa', evGood: 'Cần biết', addToCalendar: 'Thêm vào lịch', viewBrewery: 'Xem quán',
@@ -218,7 +218,7 @@ const vn = {
 const kr = {
   hatCollectedLine: '에일 트레일 모자를 수령했어요.',
   checkEmail: '이메일의 링크를 눌러 계정을 확인한 뒤 로그인하세요.',
-  ecoBack: '{name}(으)로 돌아가기', ecoHide: '숨기기', partOf: 'Made SMPL의 일부',
+  ecoBack: '{name}(으)로 돌아가기', ecoHide: '숨기기', partOf: 'Made SMPL의 일부', experienceOn: 'HCMC Ale Trail의 플랫폼',
   alreadyUsed: '이미 사용한 혜택이에요.', usedTag: '사용함', oneTimeNote: '1회 한정 혜택',
   installShow: '방법 보기', installAdd: '추가하기', installDone: '완료', installWhy: '앱처럼 한 번에 전체 화면으로 열려요. 다운로드 필요 없어요.', installS1: '공유 버튼을 누르세요', installS1b: 'Safari에서는 ••• 안에 있을 수 있어요', installS2: '아래로 내려 “홈 화면에 추가”를 누르세요', installS3: '오른쪽 위 “추가”를 누르세요', installA1: '오른쪽 위 ⋮ 메뉴를 누르세요', installA2: '“홈 화면에 추가” 또는 “앱 설치”를 누르세요', installA3: '“설치”를 누르세요',
   evWhen: '언제', evWhere: '어디서', evEntry: '입장', evGood: '알아두세요', addToCalendar: '캘린더에 추가', viewBrewery: '양조장 보기',
@@ -318,7 +318,7 @@ const kr = {
 const jp = {
   hatCollectedLine: 'エールトレイルのキャップは受け取り済みです。',
   checkEmail: 'メールのリンクをタップしてアカウントを確認してから、ログインしてください。',
-  ecoBack: '{name}に戻る', ecoHide: '閉じる', partOf: 'Made SMPLの一部',
+  ecoBack: '{name}に戻る', ecoHide: '閉じる', partOf: 'Made SMPLの一部', experienceOn: 'HCMC Ale Trail のプラットフォーム',
   alreadyUsed: 'この特典はすでに使用済みです。', usedTag: '使用済み', oneTimeNote: '1回限りの特典',
   installShow: '手順を見る', installAdd: '追加する', installDone: '完了', installWhy: 'アプリのようにワンタップで全画面表示。ダウンロード不要です。', installS1: '共有ボタンをタップ', installS1b: 'Safariでは ••• の中にある場合があります', installS2: '下にスクロールして「ホーム画面に追加」をタップ', installS3: '右上の「追加」をタップ', installA1: '右上の ⋮ メニューをタップ', installA2: '「ホーム画面に追加」または「アプリをインストール」をタップ', installA3: '「インストール」をタップ',
   evWhen: '日時', evWhere: '場所', evEntry: '入場', evGood: 'ポイント', addToCalendar: 'カレンダーに追加', viewBrewery: 'ブルワリーを見る',

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useV, fmt, shortDate, weekdayName } from './i18n';
 import { TopBar, Pints, Icon } from './ui';
+import SmplPint from './SmplPint';
 import {
   openStatus, formatClose, formatClock, prettyBoardTime, districtLabel, localized,
   distanceKm, formatKm, placeGradient, logoFor, photoFor, stencilFor, safeImageUrl } from './util';
@@ -228,6 +229,7 @@ export default function Home({
         </>
       )}
 
+      <SmplPint language={language} />
     </div>
   );
 }
