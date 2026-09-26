@@ -838,3 +838,14 @@ body.night-mode .v2 .v2-evcard:not(.is-tonight) { background: var(--surface); co
 .v2-trailzone .zhead { padding: 18px 0 16px; }
 .v2-trailzone .eyebrow { display: inline-block; background: var(--ink); color: var(--yellow); font-weight: 800; font-size: .66rem; letter-spacing: .16em; padding: 3px 8px; text-transform: uppercase; }
 .v2-trailzone h2 { font-family: var(--display); font-weight: 400; font-size: 2.6rem; line-height: .95; color: var(--yellow); text-transform: uppercase; margin: 8px 0 0; letter-spacing: .01em; }
+
+/* One width all the way down (founder, Sep 2026): top blocks go edge to edge like the zones */
+.v2 .v2-top2 .logobox, .v2 .v2-stampcard, .v2 .v2-clockbar, .v2 .v2-tonight, .v2 .v2-milestone {
+  margin-left: -16px; margin-right: -16px; width: auto; border-left: 0; border-right: 0; box-shadow: none;
+}
+.v2 .v2-top2 .logobox { border-top-width: 6px; border-bottom-width: 6px; }
+.v2 .v2-stampcard { border-top-width: 6px; border-bottom-width: 6px; padding-left: 16px; padding-right: 16px; }
+.v2 .v2-clockbar, .v2 .v2-tonight { padding-left: 16px; padding-right: 16px; }
+
+/* The trail block: charcoal instead of burgundy */
+.v2-trailzone { background-color: #262626; background-image: repeating-linear-gradient(135deg, rgba(255,255,255,.03) 0 12px, transparent 12px 24px); }
