@@ -764,3 +764,19 @@ body.night-mode .v2 .v2-sq2 { background: var(--surface); color: var(--text); }
 .v2 .v2-evcard.is-tonight { background: var(--yellow); }
 .v2-evcard.is-tonight .date { background: var(--ink); color: var(--yellow); }
 body.night-mode .v2 .v2-evcard:not(.is-tonight) { background: var(--surface); color: var(--text); }
+
+/* ── Brewery card, big (venues with their own photo) ─────────────────── */
+.v2 .v2-bcard.is-big { flex-direction: column; min-height: 0; }
+.v2 .v2-bcard.is-big .photo { width: 100%; height: 170px; position: relative; }
+.v2-bcard.is-big .photo::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.25), transparent 35%, transparent 65%, rgba(0,0,0,.35)); pointer-events: none; }
+.v2 .v2-bcard.is-big .badge { z-index: 1; font-size: 1.5rem; padding: 4px 12px; }
+.v2-bcard.is-big .corner { position: absolute; right: 8px; top: 8px; z-index: 1; }
+.v2 .v2-bcard.is-big .photo .logo { z-index: 2; right: 10px; bottom: 0; width: 64px; height: 64px; border-width: 3px; padding: 5px; transform: translateY(30%); }
+.v2-bcard.is-big .bigstamp { position: absolute; left: 50%; top: 50%; z-index: 1; transform: translate(-50%, -50%) rotate(-12deg); border: 4px solid #fff; color: #fff; font-family: var(--display); font-size: 1.6rem; letter-spacing: .06em; padding: 2px 12px; background: rgba(0,122,55,.85); white-space: nowrap; }
+.v2 .v2-bcard.is-big .body { padding: 12px; gap: 4px; }
+.v2 .v2-bcard.is-big .name { font-family: var(--display); font-weight: 400; font-size: 1.75rem; line-height: 1; text-transform: uppercase; padding-right: 70px; }
+.v2 .v2-bcard.is-big .sub { font-size: .85rem; font-weight: 600; }
+.v2-bcard.is-big .foot { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 2px dashed var(--line); font-weight: 800; font-size: .8rem; }
+.v2-bcard.is-big .foot .ok { color: var(--jade); }
+.v2-bcard.is-big .foot .go { color: var(--red); }
+.v2 .v2-bcard.is-big.is-stamped { border-color: var(--jade); box-shadow: 6px 6px 0 var(--jade); }

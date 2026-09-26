@@ -30,7 +30,32 @@ export function BreweryCard({ brewery, index, stampedAt, language, onOpen, here 
   const isStamped = !!stampedAt;
   const state = isStamped ? 'stamped' : st.open ? 'open' : 'closed';
   const km = here && brewery.latitude != null ? distanceKm(here, { lat: brewery.latitude, lng: brewery.longitude }) : null;
-  const photo = photoFor(brewery) ? `url("${photoFor(brewery)}") center/cover` : placeGradient(brewery.id);
+  const img = photoFor(brewery);
+  const photo = img ? `url("${img}") center/cover` : placeGradient(brewery.id);
+  // A venue with its own photo gets the big card; the rest stay compact until they add one.
+  if (img) {
+    const logo = logoFor(brewery);
+    return (
+      <button type="button" data-id={brewery.id} className={`v2-bcard is-big is-${state}`} onClick={() => onOpen(brewery)}>
+        <span className="photo" style={{ background: photo }}>
+          <span className="badge">{isStamped ? '✓' : index + 1}</span>
+          {!isStamped && <span className="corner"><span className={`tag ${st.open ? 'open' : 'closed'}`}>{statusText(st, v, language)}</span></span>}
+          {isStamped && <span className="bigstamp">{v.completedTag}</span>}
+          {logo && <img className="logo" src={logo} alt="" loading="lazy" />}
+        </span>
+        <span className="body">
+          <span className="name">{brewery.name}</span>
+          <span className="sub">{[districtLabel(brewery.district, language), brewery.address && String(brewery.address).split(',')[0]].filter(Boolean).join(' · ')}</span>
+          <span className="foot">
+            <span className={isStamped ? 'ok' : ''}>
+              {isStamped ? `✓ ${fmt(v.stamped, { date: shortDate(stampedAt, language) })}` : km != null ? formatKm(km) : ''}
+            </span>
+            <span className="go">{v.moreInfo} ›</span>
+          </span>
+        </span>
+      </button>
+    );
+  }
   return (
     <button type="button" data-id={brewery.id} className={`v2-bcard is-${state}`} onClick={() => onOpen(brewery)}>
       <span className="photo" style={{ background: photo }}>
