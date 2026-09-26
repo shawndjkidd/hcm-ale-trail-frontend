@@ -872,3 +872,4 @@ body.night-mode .v2 .v2-evcard:not(.is-tonight) { background: var(--surface); co
 .v2-neon .time { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; background: var(--yellow); color: var(--ink); padding: 8px 12px; font-weight: 800; font-size: .8rem; letter-spacing: .08em; }
 .v2-neon .time big { font-family: var(--display); font-weight: 400; font-size: 1.6rem; letter-spacing: .02em; font-variant-numeric: tabular-nums; }
 @media (prefers-reduced-motion: reduce) { .v2-neon .sign { animation: none; } }
+.v2-neon > .tag.demo { position: static; display: table; margin: 0 auto 8px; }
