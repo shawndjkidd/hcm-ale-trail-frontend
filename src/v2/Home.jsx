@@ -4,7 +4,7 @@ import { TopBar, Pints, Icon } from './ui';
 import SmplPint from './SmplPint';
 import {
   openStatus, formatClose, formatClock, prettyBoardTime, districtLabel, localized,
-  distanceKm, formatKm, placeGradient, logoFor, photoFor, stencilFor, safeImageUrl } from './util';
+  distanceKm, formatKm, placeGradient, logoFor, photoFor, stencilFor, safeImageUrl, demoSplit } from './util';
 
 export function useNow(intervalMs = 1000, active = true) {
   const [now, setNow] = useState(Date.now());
@@ -59,20 +59,61 @@ export function SideQuestCard({ quest, language, onOpen, claimed }) {
   const v = useV(language);
   const st = quest.operating_hours ? openStatus(quest) : { unknown: true };
   const kind = [quest.kind, quest.district].filter(Boolean).join(' · ').toUpperCase();
-  const photo = safeImageUrl(quest.photo_url) ? `url("${safeImageUrl(quest.photo_url)}") center/cover` : placeGradient(`sq-${quest.id}`);
+  const img = safeImageUrl(quest.photo_url);
+  const photo = img ? `url("${img}") center/cover` : placeGradient(`sq-${quest.id}`);
   const ends = quest.ends_at ? fmt(v.endsOn, { d: shortDate(quest.ends_at, language) }).toUpperCase() : '';
+  const title = demoSplit(localized(quest.title, language));
+  const reward = demoSplit(quest.reward);
+  const blurb = demoSplit(localized(quest.description, language)).text;
   return (
-    <button type="button" className="v2-sqcard" onClick={() => onOpen(quest)}>
-      <span className="photo" style={{ background: photo }} />
-      <span className="body">
-        <span className="kind">
-          <span>{[kind, ends].filter(Boolean).join(' · ') || v.sideQuest}</span>
-          <span className="spacer" />
-          {claimed ? <span className="tag done" style={{ fontSize: '.6rem' }}>✓ {v.claimedQuest}</span>
-            : st.open && <span className="tag open" style={{ fontSize: '.6rem' }}>{v.open}</span>}
+    <button type="button" className="v2-sq2" onClick={() => onOpen(quest)}>
+      <span className="photo" style={{ background: photo }}>
+        <span className="kind">{[kind, ends].filter(Boolean).join(' · ') || v.sideQuest}</span>
+        <span className="state">
+          {claimed ? <span className="tag done-dark">✓ {v.claimedQuest}</span> : st.open && <span className="tag open">{v.open}</span>}
         </span>
-        <span className="name" style={{ display: 'block' }}>{localized(quest.title, language)}</span>
-        {quest.reward && <span className="reward">{quest.reward}</span>}
+        {(title.demo || reward.demo) && <span className="tag demo">DEMO</span>}
+      </span>
+      <span className="body">
+        <span className="name">{title.text}</span>
+        {blurb && !/^DEMO/i.test(blurb) && <span className="blurb">{blurb}</span>}
+        {quest.reward && <span className="reward"><small>{v.yourReward}</small>{reward.text}</span>}
+      </span>
+    </button>
+  );
+}
+
+// Big swipeable card for What's On: date block, venue logo, event type, title, venue.
+function EventCard({ ev, brewery, language, onOpen }) {
+  const v = useV(language);
+  const tonight = isTonight(ev);
+  const d = new Date(ev.startsAt);
+  const time = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' });
+  const w = eventWhen(ev, language, v);
+  const day = d.toLocaleDateString('en-GB', { day: 'numeric', timeZone: 'Asia/Ho_Chi_Minh' });
+  const title = demoSplit(localized(ev.title, language));
+  const logo = brewery ? logoFor(brewery) : null;
+  const stencil = brewery ? stencilFor(brewery) : null;
+  const isNew = ev.category === 'new_release';
+  return (
+    <button type="button" className={`v2-evcard${tonight ? ' is-tonight' : ''}`} onClick={() => onOpen(ev)}>
+      <span className="top" style={{ background: placeGradient(ev.breweryId || ev.id) }}>
+        {stencil && <span className="stencil" style={{ backgroundImage: `url("${stencil}")` }} />}
+        <span className="date">
+          {tonight
+            ? <><span className="sm">{v.tonight}</span><span className="big">{time}</span></>
+            : <><span className="sm">{w.top}</span><span className="big">{day}</span><span className="sm">{w.bottom.replace(/^\d+\s*/, '')} · {time}</span></>}
+        </span>
+        {title.demo && <span className="tag demo">DEMO</span>}
+        {logo && <img className="logo" src={logo} alt="" loading="lazy" />}
+      </span>
+      <span className="body">
+        <span className="cat">{isNew ? v.newBeerTag : v.eventTag}</span>
+        <span className="ttl">{title.text}</span>
+        <span className="ven">
+          <span>{ev.breweryName || ''}</span>
+          <span>{brewery ? districtLabel(brewery.district, language) : ''}</span>
+        </span>
       </span>
     </button>
   );
@@ -176,7 +217,7 @@ export default function Home({
         <button type="button" className="v2-tonight" onClick={() => onOpenEvents(tonight[0])}>
           <span className="when">{v.tonight}<br />{eventWhen(tonight[0], language, v).bottom}</span>
           <span className="what">
-            <b>{localized(tonight[0].title, language)}</b>
+            <b>{demoSplit(localized(tonight[0].title, language)).text}</b>
             {tonight[0].breweryName}
             {tonight.length > 1 ? ` · ${fmt(v.moreTonight, { n: tonight.length - 1 })}` : ''}
           </span>
@@ -205,7 +246,7 @@ export default function Home({
             <span className="spacer" />
             <span className="tag light" style={{ fontSize: '.64rem' }}>{v.bonusNote}</span>
           </div>
-          <div style={{ display: 'grid', gap: 8 }}>
+          <div style={{ display: 'grid', gap: 16 }}>
             {sideQuests.map((q) => <SideQuestCard key={q.id} quest={q} language={language} onOpen={onOpenQuest} claimed={questClaims?.includes(q.id)} />)}
           </div>
         </>
@@ -218,12 +259,10 @@ export default function Home({
             <span className="spacer" />
             <button type="button" className="link-btn" style={{ color: '#fff', fontSize: '.85rem' }} onClick={() => onOpenEvents()}>{v.allEvents}</button>
           </div>
-          <div style={{ display: 'grid', gap: 8 }}>
-            {upcoming.slice(0, 4).map((ev) => (
-              <button key={ev.id} type="button" className={`v2-evrow${isTonight(ev) ? ' is-tonight' : ''}`} onClick={() => onOpenEvents(ev)}>
-                {(() => { const w = eventWhen(ev, language, v); return <span className="when"><b>{w.top}</b>{w.bottom}</span>; })()}
-                <span className="what"><b>{localized(ev.title, language)}</b>{ev.breweryName || ''}</span>
-              </button>
+          <div className="v2-rail">
+            {upcoming.slice(0, 8).map((ev) => (
+              <EventCard key={ev.id} ev={ev} language={language} onOpen={onOpenEvents}
+                brewery={(breweries || []).find((b) => b.id === ev.breweryId)} />
             ))}
           </div>
         </>

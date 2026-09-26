@@ -112,6 +112,13 @@ export function districtLabel(district, language) {
   return district;
 }
 
+// Demo content is stored as "DEMO · Title". Split it so the UI can show a small DEMO tag instead.
+export function demoSplit(text) {
+  const t = String(text ?? '');
+  const m = t.match(/^\s*DEMO\s*·\s*/i);
+  return m ? { demo: true, text: t.slice(m[0].length) } : { demo: false, text: t };
+}
+
 export function localized(value, language) {
   if (!value) return '';
   if (typeof value === 'string') return value;
