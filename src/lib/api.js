@@ -235,7 +235,7 @@ export function postRating(trailId = TRAIL_ID, breweryId, payload) {
 }
 
 export function getLeaderboard(trailId = TRAIL_ID, board = "fastest") {
-  return request(`/trails/${trailId}/leaderboard${board === "month" ? "?board=month" : ""}`);
+  return request(`/trails/${trailId}/leaderboard${board === "month" || board === "stamps" ? `?board=${board}` : ""}`);
 }
 
 /**

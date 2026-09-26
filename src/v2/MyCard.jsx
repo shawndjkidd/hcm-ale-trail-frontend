@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getLeaderboard } from '../lib/api';
-import { useV, fmt, shortDate, monthName } from './i18n';
+import { useV, fmt, shortDate } from './i18n';
 import { Seg, Icon } from './ui';
 import { useNow } from './Home';
 import { beerLook, formatClock, prettyBoardTime, stampLabel } from './util';
@@ -151,9 +151,9 @@ function RankingView({ timerStart, timerEnd, language, userId }) {
   return (
     <>
       <Seg value={board} onChange={setBoard} label={v.ranking}
-        options={[{ value: 'fastest', label: v.fastestTrail }, { value: 'month', label: fmt(v.mostStamps, { month: monthName(language) }) }]} />
+        options={[{ value: 'fastest', label: v.fastestTrail }, { value: 'stamps', label: v.mostStampsEver }]} />
       {rows === null && <p>{v.loading}</p>}
-      {rows && rows.length === 0 && <p style={{ fontWeight: 600 }}>{board === 'fastest' ? v.boardEmpty : v.monthEmpty}</p>}
+      {rows && rows.length === 0 && <p style={{ fontWeight: 600 }}>{board === 'fastest' ? v.boardEmpty : v.stampsEmpty}</p>}
       {rows && rows.length > 0 && (
         <div className="v2-board">
           {rows.slice(0, 20).map((r, i) => (
