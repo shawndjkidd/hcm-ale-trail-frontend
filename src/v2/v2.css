@@ -817,3 +817,18 @@ body.night-mode .v2 .v2-evcard:not(.is-tonight) { background: var(--surface); co
 .v2-evzone .arrow:disabled { opacity: .3; box-shadow: none; }
 .v2-evzone .arrow:first-child { margin-right: auto; }
 .v2-evzone .arrow:last-child { margin-left: auto; }
+
+/* What's On: black with yellow highlights (founder, Sep 2026) */
+.v2-evzone { background: var(--ink); color: #fff; border-top-color: var(--yellow); border-bottom-color: var(--yellow); }
+.v2-evzone .eyebrow { background: var(--yellow); color: var(--ink); }
+.v2-evzone h2 { color: var(--yellow); }
+.v2-evzone .all { color: var(--yellow); }
+.v2 .v2-carousel .v2-evcard { background: #1B1B1B; color: #fff; border-color: var(--yellow); box-shadow: 6px 6px 0 var(--yellow); }
+.v2-carousel .v2-evcard .cat { color: var(--yellow); }
+.v2-carousel .v2-evcard .ven { color: rgba(255,255,255,.72); }
+.v2-carousel .v2-evcard .date { border-color: var(--ink); }
+.v2-carousel .v2-evcard .top > .tag.demo { border-color: var(--yellow); color: var(--yellow); }
+.v2 .v2-carousel .v2-evcard.is-tonight { background: var(--red); color: #fff; border-color: var(--yellow); }
+.v2-evzone .dot { border-color: var(--yellow); }
+.v2-evzone .dot.on { background: var(--yellow); }
+.v2-evzone .arrow { background: var(--ink); color: var(--yellow); border-color: var(--yellow); box-shadow: 3px 3px 0 var(--yellow); }
