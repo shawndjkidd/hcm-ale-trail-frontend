@@ -294,7 +294,12 @@ export default function Home({
         </button>
       )}
 
-      <div style={{ display: 'grid', gap: 14, marginTop: 4 }}>
+      <section className="v2-trailzone" aria-label={v.theTrail}>
+      <div className="zhead">
+        <span className="eyebrow">{v.theTrail}</span>
+        <h2>{fmt(v.trailTitle, { n: list.length })}</h2>
+      </div>
+      <div style={{ display: 'grid', gap: 16 }}>
         {list.map(({ b, i }) => (
           <BreweryCard
             key={b.id}
@@ -307,6 +312,7 @@ export default function Home({
           />
         ))}
       </div>
+      </section>
 
       {sideQuests?.length > 0 && (
         <section className="v2-sqzone" aria-label={v.sideQuests}>
