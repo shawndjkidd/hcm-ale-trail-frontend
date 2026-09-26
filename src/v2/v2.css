@@ -789,3 +789,31 @@ body.night-mode .v2 .v2-evcard:not(.is-tonight) { background: var(--surface); co
 .v2-sqzone p { margin: 0 0 10px; color: #fff; font-size: .92rem; line-height: 1.35; max-width: 32ch; }
 .v2 .v2-sqzone .tag.bonus { background: transparent; color: #fff; border-color: rgba(255,255,255,.7); font-size: .66rem; }
 .v2-sqzone .v2-sq2 { box-shadow: 6px 6px 0 var(--yellow); }
+
+/* ── What's On zone: yellow band, one big card at a time ─────────────── */
+.v2-evzone { margin: 18px -16px 4px; padding: 0 0 18px; background: var(--yellow); color: var(--ink); border-top: 6px solid var(--ink); border-bottom: 6px solid var(--ink); }
+.v2-evzone .zhead { padding: 18px 16px 14px; }
+.v2-evzone .eyebrow { display: inline-block; background: var(--ink); color: var(--yellow); font-weight: 800; font-size: .66rem; letter-spacing: .16em; padding: 3px 8px; }
+.v2-evzone .row { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; }
+.v2-evzone h2 { font-family: var(--display); font-weight: 400; font-size: 2.6rem; line-height: .95; text-transform: uppercase; margin: 8px 0 0; color: var(--ink); }
+.v2-evzone .all { background: none; border: 0; padding: 0 0 4px; font-weight: 800; font-size: .9rem; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.v2-carousel { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 2px 16px 12px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.v2-carousel::-webkit-scrollbar { display: none; }
+.v2 .v2-carousel .v2-evcard { width: calc(100% - 28px); max-width: 420px; scroll-snap-align: center; }
+.v2-carousel .v2-evcard .top { height: 190px; }
+.v2-carousel .v2-evcard .logo { width: 104px; height: 104px; padding: 8px; box-shadow: 4px 4px 0 var(--ink); }
+.v2-carousel .v2-evcard .date .big { font-size: 2.3rem; }
+.v2-carousel .v2-evcard .date { padding: 7px 12px 8px; }
+.v2-carousel .v2-evcard .body { padding: 12px 14px 14px; }
+.v2-carousel .v2-evcard .ttl { font-size: 1.9rem; }
+.v2 .v2-carousel .v2-evcard.is-tonight { background: var(--red); color: #fff; }
+.v2-carousel .v2-evcard.is-tonight .cat { color: var(--yellow); }
+.v2-carousel .v2-evcard.is-tonight .ven { color: rgba(255,255,255,.85); }
+.v2-carousel .v2-evcard.is-tonight .date { background: var(--ink); color: var(--yellow); }
+.v2-evzone .dots { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 4px 16px 0; }
+.v2-evzone .dot { width: 10px; height: 10px; padding: 0; border-radius: 50%; border: 2px solid var(--ink); background: transparent; }
+.v2-evzone .dot.on { width: 26px; border-radius: 6px; background: var(--ink); }
+.v2-evzone .arrow { width: 34px; height: 34px; padding: 0; border: 3px solid var(--ink); background: #fff; color: var(--ink); font-size: 1.3rem; font-weight: 900; line-height: 1; box-shadow: 3px 3px 0 var(--ink); }
+.v2-evzone .arrow:disabled { opacity: .3; box-shadow: none; }
+.v2-evzone .arrow:first-child { margin-right: auto; }
+.v2-evzone .arrow:last-child { margin-left: auto; }

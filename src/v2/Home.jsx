@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useV, fmt, shortDate, weekdayName } from './i18n';
 import { TopBar, Pints, Icon } from './ui';
 import SmplPint from './SmplPint';
@@ -144,6 +144,50 @@ function EventCard({ ev, brewery, language, onOpen }) {
   );
 }
 
+// What's On: its own yellow zone with one big card at a time; swipe left/right, dots show where you are.
+function EventCarousel({ events, breweries, language, onOpenEvents }) {
+  const v = useV(language);
+  const rail = useRef(null);
+  const [at, setAt] = useState(0);
+  const onScroll = () => {
+    const el = rail.current;
+    if (!el || !el.firstElementChild) return;
+    const step = el.firstElementChild.getBoundingClientRect().width + 14;
+    setAt(Math.max(0, Math.min(events.length - 1, Math.round(el.scrollLeft / step))));
+  };
+  const go = (i) => {
+    const el = rail.current;
+    const card = el?.children?.[i];
+    if (card) el.scrollTo({ left: card.offsetLeft - el.offsetLeft - 16, behavior: 'smooth' });
+  };
+  return (
+    <section className="v2-evzone" aria-label={v.whatsOn}>
+      <div className="zhead">
+        <span className="eyebrow">{v.evEyebrow}</span>
+        <div className="row">
+          <h2>{v.whatsOn}</h2>
+          <button type="button" className="all" onClick={() => onOpenEvents()}>{v.allEvents} ›</button>
+        </div>
+      </div>
+      <div className="v2-carousel" ref={rail} onScroll={onScroll}>
+        {events.map((ev) => (
+          <EventCard key={ev.id} ev={ev} language={language} onOpen={onOpenEvents}
+            brewery={(breweries || []).find((b) => b.id === ev.breweryId)} />
+        ))}
+      </div>
+      {events.length > 1 && (
+        <div className="dots">
+          <button type="button" className="arrow" aria-label="Previous" disabled={at === 0} onClick={() => go(at - 1)}>‹</button>
+          {events.map((ev, i) => (
+            <button key={ev.id} type="button" className={`dot${i === at ? ' on' : ''}`} aria-label={`${i + 1} / ${events.length}`} onClick={() => go(i)} />
+          ))}
+          <button type="button" className="arrow" aria-label="Next" disabled={at === events.length - 1} onClick={() => go(at + 1)}>›</button>
+        </div>
+      )}
+    </section>
+  );
+}
+
 function eventWhen(ev, language, v) {
   const d = new Date(ev.startsAt);
   const time = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' });
@@ -279,19 +323,7 @@ export default function Home({
       )}
 
       {upcoming.length > 0 && (
-        <>
-          <div className="v2-section-head">
-            <h2>{v.whatsOn}</h2>
-            <span className="spacer" />
-            <button type="button" className="link-btn" style={{ color: '#fff', fontSize: '.85rem' }} onClick={() => onOpenEvents()}>{v.allEvents}</button>
-          </div>
-          <div className="v2-rail">
-            {upcoming.slice(0, 8).map((ev) => (
-              <EventCard key={ev.id} ev={ev} language={language} onOpen={onOpenEvents}
-                brewery={(breweries || []).find((b) => b.id === ev.breweryId)} />
-            ))}
-          </div>
-        </>
+        <EventCarousel events={upcoming.slice(0, 8)} breweries={breweries} language={language} onOpenEvents={onOpenEvents} />
       )}
 
       <SmplPint language={language} />
