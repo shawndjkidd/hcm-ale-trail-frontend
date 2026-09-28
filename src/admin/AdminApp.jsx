@@ -4,6 +4,7 @@ import AdminLogin from './AdminLogin';
 import HQDashboard from './HQDashboard';
 import BreweryDashboard from './BreweryDashboard';
 import AdminFeedbackProvider from './AdminFeedback';
+import AdminUpdateBar from './AdminUpdateBar';
 import './admin.css';
 
 // Default export wraps the app in AdminFeedbackProvider so any descendant
@@ -161,6 +162,7 @@ function AdminAppInner() {
   if (!adminUser) {
     return (
       <div className="admin-app">
+        <AdminUpdateBar />
         <AdminLogin onLoginSuccess={checkAuth} />
       </div>
     );
@@ -178,6 +180,7 @@ function AdminAppInner() {
 
   return (
     <div className="admin-app">
+      <AdminUpdateBar />
       <header className="admin-header">
         <div className="admin-header-left">
           <span className="admin-logo">Ho Chi Minh Ale Trail Admin</span>
