@@ -66,30 +66,34 @@ export function TopBar({ language, setLanguage, nightMode, toggleNightMode, onMe
   );
 }
 
+// Only corrects once scrolling has settled, and only when the bar is clearly misplaced
+// (the Brave toolbar bug leaves it hundreds of pixels up). Small toolbar movements while
+// scrolling are left to the browser, so the bar doesn't bounce.
+const MISPLACED_PX = 40;
+const SETTLE_MS = 140;
+
 function usePinnedToVisibleBottom() {
   const ref = useRef(null);
   useEffect(() => {
     const vv = window.visualViewport;
     if (!vv) return undefined;
-    let frame = 0;
-    const update = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        const el = ref.current;
-        if (!el) return;
-        const shift = visibleBottomShift();
-        el.style.transform = shift ? `translateY(${shift}px)` : '';
-      });
+    let timer = 0;
+    const settle = () => {
+      const el = ref.current;
+      if (!el) return;
+      const shift = visibleBottomShift();
+      el.style.transform = Math.abs(shift) >= MISPLACED_PX ? `translateY(${shift}px)` : '';
     };
-    vv.addEventListener('resize', update);
-    vv.addEventListener('scroll', update);
-    window.addEventListener('scroll', update, { passive: true });
-    update();
+    const onMove = () => { clearTimeout(timer); timer = setTimeout(settle, SETTLE_MS); };
+    vv.addEventListener('resize', onMove);
+    vv.addEventListener('scroll', onMove);
+    window.addEventListener('scroll', onMove, { passive: true });
+    settle();
     return () => {
-      cancelAnimationFrame(frame);
-      vv.removeEventListener('resize', update);
-      vv.removeEventListener('scroll', update);
-      window.removeEventListener('scroll', update);
+      clearTimeout(timer);
+      vv.removeEventListener('resize', onMove);
+      vv.removeEventListener('scroll', onMove);
+      window.removeEventListener('scroll', onMove);
     };
   }, []);
   return ref;
