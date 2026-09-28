@@ -45,14 +45,14 @@ export default function AdminUpdateBar() {
         padding: 26, textAlign: 'center', boxShadow: '0 30px 60px rgba(0,0,0,.6)', fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
       }}>
         <div style={{ width: 52, height: 52, borderRadius: 14, background: '#1F2125', display: 'grid', placeItems: 'center', margin: '0 auto 14px' }}>
-          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#FFD100" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5" />
           </svg>
         </div>
         <h2 id="admin-update-title" style={{ fontSize: 18, fontWeight: 700, margin: '0 0 6px' }}>A new version is ready</h2>
         <p style={{ color: '#A4A8AF', margin: '0 0 18px', fontSize: 14, lineHeight: 1.5 }}>We've updated the dashboard. Refresh to keep going. Anything you've already saved is safe.</p>
         <button type="button" autoFocus onClick={() => window.location.reload()} style={{
-          width: '100%', background: '#FFD100', color: '#111', border: 0, borderRadius: 10, padding: 12, fontWeight: 700, fontSize: 15, cursor: 'pointer',
+          width: '100%', background: '#F97316', color: '#111', border: 0, borderRadius: 10, padding: 12, fontWeight: 700, fontSize: 15, cursor: 'pointer',
         }}>Refresh now</button>
       </div>
     </div>

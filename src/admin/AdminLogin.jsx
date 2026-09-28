@@ -52,7 +52,7 @@ export default function AdminLogin({ onLoginSuccess }) {
               className="admin-form-input"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@aletrail.com"
+              placeholder="admin@aletrail.app"
               required
               autoComplete="email"
             />

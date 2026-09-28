@@ -12,7 +12,6 @@ import { useToast, useConfirm } from './AdminFeedback';
 import AddStampsCard from './AddStampsCard';
 import HQHome from './HQHome';
 import HQLaunch from './HQLaunch';
-import './hq.css';
 
 const generateStaffEmail = (name) => name.toLowerCase().replace(/[^a-z0-9]/g, '') + '@aletrail.app';
 const generatePassword = () => {
@@ -24,7 +23,7 @@ import {
   PieChart, Pie, Cell, LineChart, Line
 } from 'recharts';
 
-const CHART_COLORS = ['#f97316', '#7a9e5c', '#8a8680', '#94b374', '#fb923c', '#a9a6a0'];
+const CHART_COLORS = ['#F97316', '#60A5FA', '#8B919A', '#22C55E', '#E5243B', '#A78BFA'];
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export default function HQDashboard({ adminEmail = '' }) {
@@ -687,11 +686,11 @@ export default function HQDashboard({ adminEmail = '' }) {
 
           <div className="admin-grid-2">
             <div className="admin-card"><h3 className="admin-card-title">Check-ins by Brewery</h3><div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Rank</th><th>Brewery</th><th>Check-ins</th></tr></thead><tbody>{checkinsByBrewery.sort((a, b) => b.count - a.count).map((brewery, index) => (<tr key={brewery.breweryId}><td><span className={`admin-rank ${index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : 'default'}`}>{index + 1}</span></td><td>{brewery.breweryName}</td><td><strong>{brewery.count}</strong></td></tr>))}</tbody></table></div></div>
-            <div className="admin-card"><h3 className="admin-card-title">Daily Check-ins</h3><div className="admin-chart-container"><ResponsiveContainer width="100%" height="100%"><LineChart data={checkinsTrend}><CartesianGrid strokeDasharray="3 3" stroke="var(--admin-border)" /><XAxis dataKey="date" tick={{ fill: 'var(--admin-text-muted)', fontSize: 12 }} tickFormatter={(d) => new Date(d).toLocaleDateString('en', { month: 'short', day: 'numeric' })} /><YAxis tick={{ fill: 'var(--admin-text-muted)', fontSize: 12 }} /><Tooltip contentStyle={{ background: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)', borderRadius: 8 }} /><Line type="monotone" dataKey="count" stroke="#f97316" strokeWidth={2} dot={{ fill: '#f97316' }} /></LineChart></ResponsiveContainer></div></div>
+            <div className="admin-card"><h3 className="admin-card-title">Daily Check-ins</h3><div className="admin-chart-container"><ResponsiveContainer width="100%" height="100%"><LineChart data={checkinsTrend}><CartesianGrid strokeDasharray="3 3" stroke="var(--admin-border)" /><XAxis dataKey="date" tick={{ fill: 'var(--admin-text-muted)', fontSize: 12 }} tickFormatter={(d) => new Date(d).toLocaleDateString('en', { month: 'short', day: 'numeric' })} /><YAxis tick={{ fill: 'var(--admin-text-muted)', fontSize: 12 }} /><Tooltip contentStyle={{ background: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)', borderRadius: 8 }} /><Line type="monotone" dataKey="count" stroke="#F97316" strokeWidth={2} dot={{ fill: '#F97316' }} /></LineChart></ResponsiveContainer></div></div>
           </div>
 
           <div className="admin-grid-2">
-            <div className="admin-card"><h3 className="admin-card-title">Drop-off Funnel</h3><div className="admin-chart-container"><ResponsiveContainer width="100%" height="100%"><BarChart data={funnelData} layout="vertical"><CartesianGrid strokeDasharray="3 3" stroke="var(--admin-border)" /><XAxis type="number" tick={{ fill: 'var(--admin-text-muted)', fontSize: 12 }} /><YAxis type="category" dataKey="name" tick={{ fill: 'var(--admin-text-muted)', fontSize: 12 }} width={80} /><Tooltip contentStyle={{ background: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)', borderRadius: 8 }} /><Bar dataKey="value" fill="#7a9e5c" radius={[0, 4, 4, 0]} /></BarChart></ResponsiveContainer></div></div>
+            <div className="admin-card"><h3 className="admin-card-title">Drop-off Funnel</h3><div className="admin-chart-container"><ResponsiveContainer width="100%" height="100%"><BarChart data={funnelData} layout="vertical"><CartesianGrid strokeDasharray="3 3" stroke="var(--admin-border)" /><XAxis type="number" tick={{ fill: 'var(--admin-text-muted)', fontSize: 12 }} /><YAxis type="category" dataKey="name" tick={{ fill: 'var(--admin-text-muted)', fontSize: 12 }} width={80} /><Tooltip contentStyle={{ background: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)', borderRadius: 8 }} /><Bar dataKey="value" fill="#60A5FA" radius={[0, 4, 4, 0]} /></BarChart></ResponsiveContainer></div></div>
             <div className="admin-card"><h3 className="admin-card-title">Ratings by Brewery</h3>{avgRatingByBrewery.length === 0 ? (<div className="admin-empty">No ratings yet</div>) : (<div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Brewery</th><th>Avg Rating</th><th>Count</th></tr></thead><tbody>{avgRatingByBrewery.sort((a, b) => b.avgRating - a.avgRating).map((brewery) => (<tr key={brewery.breweryId}><td>{brewery.breweryName}</td><td>{brewery.avgRating?.toFixed(1)} stars</td><td>{brewery.ratingsCount}</td></tr>))}</tbody></table></div>)}</div>
           </div>
 
@@ -1307,7 +1306,7 @@ export default function HQDashboard({ adminEmail = '' }) {
 
           {saResult && (
             <div style={{
-              background: 'rgba(122, 158, 92, 0.15)',
+              background: 'var(--hq-panel2)',
               border: '1px solid var(--admin-success)',
               borderRadius: 8,
               padding: '14px 16px',

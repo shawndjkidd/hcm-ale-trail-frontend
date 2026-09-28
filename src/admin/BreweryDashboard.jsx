@@ -936,7 +936,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
               {checkinsByBrewery.sort((a, b) => b.count - a.count).map((b, index) => {
                 const isYou = b.breweryId === breweryId;
                 return (
-                  <tr key={b.breweryId} style={isYou ? { background: 'rgba(249, 115, 22, 0.15)' } : {}}>
+                  <tr key={b.breweryId} style={isYou ? { background: 'var(--hq-panel2)' } : {}}>
                     <td>
                       <span className={`admin-rank ${index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : 'default'}`}>
                         {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
@@ -1113,7 +1113,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
 
           {inviteResult && (
             <div style={{
-              background: 'rgba(122, 158, 92, 0.15)',
+              background: 'var(--hq-panel2)',
               border: '1px solid var(--admin-success)',
               borderRadius: 8,
               padding: '14px 16px',

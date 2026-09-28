@@ -1,6 +1,6 @@
-/* HQ dashboard only (.hq-theme on .admin-app while on HQ Overview).
-   Cool gunmetal greys, rounded cards, grouped sidebar. The venue dashboard keeps
-   admin.css untouched, so venues see no change. */
+/* Cool gunmetal theme for the whole dashboard (.hq-theme on .admin-app): HQ, the
+   venue dashboard and the login. Layout classes (.hq-shell, .hq-side, .hq-card…) are
+   used by HQ pages only; the venue dashboard keeps its layout and just takes the colours. */
 
 .hq-theme {
   --admin-bg: #F4F5F7;
@@ -8,12 +8,12 @@
   --admin-text: #16181B;
   --admin-text-muted: #5F646C;
   --admin-border: #E1E3E7;
-  --admin-primary: #16181B;
-  --admin-primary-hover: #2A2D32;
+  --admin-primary: #EA580C;
+  --admin-primary-hover: #C2410C;
   --admin-success: #16A34A;
   --admin-success-light: #22C55E;
   --hq-panel2: #F0F1F3;
-  --hq-accent: #C9A200;
+  --hq-accent: #EA580C;
   --hq-accent-ink: #FFFFFF;
   --hq-good: #16A34A;
   --hq-warn: #D97706;
@@ -27,23 +27,27 @@
   --admin-text: #F3F4F6;
   --admin-text-muted: #A4A8AF;
   --admin-border: #2A2D32;
-  --admin-primary: #FFD100;
-  --admin-primary-hover: #FFDD40;
+  --admin-primary: #F97316;
+  --admin-primary-hover: #FB8A3C;
   --admin-success: #22C55E;
   --admin-success-light: #4ADE80;
   --admin-shadow: none;
   --admin-shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.5);
   --hq-panel2: #1F2125;
-  --hq-accent: #FFD100;
+  --hq-accent: #F97316;
   --hq-accent-ink: #111111;
   --hq-good: #22C55E;
-  --hq-warn: #FFD100;
+  --hq-warn: #FBBF24;
   --hq-bad: #F87171;
 }
 .hq-theme .admin-header { border-bottom: 1px solid var(--admin-border); box-shadow: none; }
 .hq-theme .admin-btn { border-radius: 9px; font-weight: 600; }
-.hq-theme .admin-btn-primary { color: var(--hq-accent-ink); }
-[data-theme="dark"] .hq-theme .admin-btn-primary { color: #111; }
+/* Text on the orange accent: white in light mode, near-black in dark mode. */
+.hq-theme .admin-btn-primary,
+.hq-theme .admin-quick-filter.active,
+.hq-theme .admin-you-badge,
+.hq-theme .admin-confirm-primary,
+.hq-theme .admin-toast-info .admin-toast-icon { color: var(--hq-accent-ink); }
 .hq-theme .admin-card, .hq-theme .admin-kpi-card, .hq-theme .admin-chart-card, .hq-theme .admin-table-container {
   border-radius: 14px; border: 1px solid var(--admin-border); box-shadow: none;
 }

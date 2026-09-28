@@ -6,6 +6,7 @@ import BreweryDashboard from './BreweryDashboard';
 import AdminFeedbackProvider from './AdminFeedback';
 import AdminUpdateBar from './AdminUpdateBar';
 import './admin.css';
+import './hq.css';
 
 // Default export wraps the app in AdminFeedbackProvider so any descendant
 // component can call useToast() / useConfirm(). All real logic lives in
@@ -151,7 +152,7 @@ function AdminAppInner() {
 
   if (loading) {
     return (
-      <div className="admin-app">
+      <div className="admin-app hq-theme">
         <div className="admin-loading">
           <div className="admin-spinner" />
         </div>
@@ -161,7 +162,7 @@ function AdminAppInner() {
 
   if (!adminUser) {
     return (
-      <div className="admin-app">
+      <div className="admin-app hq-theme">
         <AdminUpdateBar />
         <AdminLogin onLoginSuccess={checkAuth} />
       </div>
@@ -179,7 +180,7 @@ function AdminAppInner() {
     (adminUser.primaryRole || '').replace(/_/g, ' ');
 
   return (
-    <div className={`admin-app${isHQ && currentView === 'dashboard' ? ' hq-theme' : ''}`}>
+    <div className="admin-app hq-theme">
       <AdminUpdateBar />
       <header className="admin-header">
         <div className="admin-header-left">
