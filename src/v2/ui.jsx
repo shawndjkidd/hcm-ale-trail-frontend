@@ -243,12 +243,23 @@ export const isInAppBrowser = () =>
   typeof navigator !== 'undefined' && /Instagram|FBAN|FBAV|FB_IAB|Messenger|Zalo|Line\/|TikTok|musical_ly|BytedanceWebview|WhatsApp/i.test(navigator.userAgent);
 
 const INSTALL_SNOOZE = 'hcm-install-banner-snoozed';
+const INSTALLED = 'hcm-app-installed';
+
+// Remember once the app is installed (or opened from the home-screen icon), so the browser
+// stops asking. Android shares this between the installed app and Chrome; iPhone keeps the
+// home-screen app and Safari separate, so there the close button (3 days) is the only gate.
+if (typeof window !== 'undefined') {
+  const mark = () => { try { localStorage.setItem(INSTALLED, '1'); } catch {} };
+  window.addEventListener('appinstalled', mark);
+  if (window.matchMedia?.('(display-mode: standalone)').matches || window.navigator?.standalone === true) mark();
+}
 
 // Home-page block: "Put the trail on your phone". Hidden inside the installed app; closing it hides it for 3 days.
 export function InstallBanner({ language, onInstall }) {
   const v = useV(language);
   const [hidden, setHidden] = useState(() => {
     if (isStandalone()) return true;
+    try { if (localStorage.getItem(INSTALLED)) return true; } catch {}
     try { const t = Number(localStorage.getItem(INSTALL_SNOOZE) || 0); return Date.now() - t < 3 * 864e5; } catch { return false; }
   });
   if (hidden) return null;
