@@ -513,6 +513,7 @@ export default function App() {
       <Home breweries={breweries} stamps={stamps} stampDates={stampDates} timerStart={timerStart} timerEnd={timerEnd} events={events}
         sideQuests={visibleQuests} questClaims={questClaims} boardTop={boardTop} user={user} hatClaimed={hatClaimed} cardRound={cardRound} language={language}
         setLanguage={setLanguage} nightMode={nightMode} toggleNightMode={toggleNightMode} onMenu={() => setMenuOpen(true)}
+        onInstall={() => setInstallPrompt(true)}
         onOpenBrewery={openBrewery} onOpenQuest={openQuest}
         onOpenEvents={(ev) => {
           // An event opens its details first; the sheet links on to the brewery

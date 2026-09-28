@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useV, fmt, shortDate, weekdayName } from './i18n';
-import { TopBar, Pints, Icon } from './ui';
+import { TopBar, Pints, Icon, InstallBanner } from './ui';
 import SmplPint from './SmplPint';
 import {
   openStatus, formatClose, formatClock, prettyBoardTime, districtLabel, localized,
@@ -247,7 +247,7 @@ export function isTonight(ev) {
 export default function Home({
   breweries, stamps, stampDates, timerStart, timerEnd, events, sideQuests, questClaims, boardTop, user, hatClaimed, cardRound,
   language, setLanguage, nightMode, toggleNightMode, onMenu, onOpenBrewery, onOpenQuest, onOpenEvents, onOpenGuide,
-  onOpenBoard, milestone, onDismissMilestone, here, requestLocation, onClaimHat,
+  onOpenBoard, milestone, onDismissMilestone, here, requestLocation, onClaimHat, onInstall,
 }) {
   const v = useV(language);
   const running = !!timerStart && !timerEnd;
@@ -324,6 +324,8 @@ export default function Home({
             : v.noFinishers}
         </span>
       </button>
+
+      {onInstall && <InstallBanner language={language} onInstall={onInstall} />}
 
       {tonight.length > 0 && (
         <TonightNeon events={tonight} breweries={breweries} language={language} here={here} onOpen={onOpenEvents} />

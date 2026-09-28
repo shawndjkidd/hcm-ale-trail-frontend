@@ -195,10 +195,13 @@ const MenuGlyph = () => (<svg viewBox="0 0 24 24" fill="currentColor" aria-hidde
 export function InstallPrompt({ language, deferred, onClose }) {
   const v = useV(language);
   const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  const [steps, setSteps] = useState(false);
-  const canInstall = deferred && !ios;
+  const inApp = isInAppBrowser();
+  const [steps, setSteps] = useState(inApp);
+  const canInstall = deferred && !ios && !inApp;
   const icon = (document.getElementById('app-touch-icon')?.getAttribute('href')) || '/icons/pint-180.png';
-  const list = ios
+  const list = inApp
+    ? [{ g: <MenuGlyph />, t: v.installIn1 }, { g: <b>{ios ? 'Safari' : 'Chrome'}</b>, t: ios ? v.installIn2i : v.installIn2a }, { g: <AddGlyph />, t: v.installIn3 }]
+    : ios
     ? [{ g: <ShareGlyph />, t: v.installS1, s: v.installS1b }, { g: <AddGlyph />, t: v.installS2 }, { g: <b>Add</b>, t: v.installS3 }]
     : [{ g: <MenuGlyph />, t: v.installA1 }, { g: <AddGlyph />, t: v.installA2 }, { g: <b>OK</b>, t: v.installA3 }];
   return (
@@ -232,6 +235,37 @@ export function InstallPrompt({ language, deferred, onClose }) {
         </>
       )}
     </Sheet>
+  );
+}
+
+// Instagram, Facebook, Messenger, Zalo, LINE, TikTok and similar in-app browsers can't add to the home screen.
+export const isInAppBrowser = () =>
+  typeof navigator !== 'undefined' && /Instagram|FBAN|FBAV|FB_IAB|Messenger|Zalo|Line\/|TikTok|musical_ly|BytedanceWebview|WhatsApp/i.test(navigator.userAgent);
+
+const INSTALL_SNOOZE = 'hcm-install-banner-snoozed';
+
+// Home-page block: "Put the trail on your phone". Hidden inside the installed app; closing it hides it for 3 days.
+export function InstallBanner({ language, onInstall }) {
+  const v = useV(language);
+  const [hidden, setHidden] = useState(() => {
+    if (isStandalone()) return true;
+    try { const t = Number(localStorage.getItem(INSTALL_SNOOZE) || 0); return Date.now() - t < 3 * 864e5; } catch { return false; }
+  });
+  if (hidden) return null;
+  const icon = (typeof document !== 'undefined' && document.getElementById('app-touch-icon')?.getAttribute('href')) || '/icons/pint-180.png';
+  const close = () => { try { localStorage.setItem(INSTALL_SNOOZE, String(Date.now())); } catch {} setHidden(true); };
+  return (
+    <section className="v2-installbar" aria-label={v.installBannerTitle}>
+      <button type="button" className="x" aria-label={v.installLater} onClick={close}>×</button>
+      <div className="row">
+        <img src={icon} alt="" />
+        <div>
+          <b>{v.installBannerTitle}</b>
+          <span>{v.installBannerSub}</span>
+        </div>
+      </div>
+      <button type="button" className="go" onClick={onInstall}>{v.installBannerBtn}</button>
+    </section>
   );
 }
 
