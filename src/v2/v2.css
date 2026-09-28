@@ -902,3 +902,9 @@ body.night-mode .v2 .v2-locations .loc { background: var(--surface); color: var(
 .v2-locations .side .go { text-align: center; }
 .v2-locations .nearest { display: block; text-align: center; background: #19D35E; color: #fff; border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); font-weight: 900; font-size: .72rem; letter-spacing: .12em; padding: 4px 8px; text-shadow: 0 1px 0 rgba(0,0,0,.25); }
 .v2 .v2-locations .loc.is-nearest { border-color: #19D35E; box-shadow: 4px 4px 0 #0F8A3C; }
+
+/* NEAREST as a caption on a green frame around Directions (not a button) */
+.v2-locations .side { gap: 0; }
+.v2-locations .side.nearest-wrap { background: #19D35E; border: 2px solid var(--ink); padding: 0 4px 4px; }
+.v2-locations .side.nearest-wrap .nearest { background: none; border: 0; box-shadow: none; color: #0B2E17; text-shadow: none; font-size: .6rem; letter-spacing: .18em; padding: 3px 0 3px; }
+.v2-locations .side.nearest-wrap .go { border-width: 2px; }

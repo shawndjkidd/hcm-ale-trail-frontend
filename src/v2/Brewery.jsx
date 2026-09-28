@@ -138,8 +138,8 @@ export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events 
                     <span>{[p.address, p.km != null ? formatKm(p.km) : null].filter(Boolean).join(' · ')}</span>
                     <span className={pst.open ? 'open' : 'closed'}>{statusText(pst, v, language)}</span>
                   </div>
-                  <div className="side">
-                    {nearest && <span className="nearest">{v.nearestTag}</span>}
+                  <div className={`side${nearest ? ' nearest-wrap' : ''}`}>
+                    {nearest && <span className="nearest" aria-label={v.nearestTag}>{v.nearestTag}</span>}
                     {href && <a className="go" href={href} target="_blank" rel="noreferrer">{v.directions}</a>}
                   </div>
                 </div>

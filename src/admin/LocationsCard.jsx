@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getBreweryLocations, addBreweryLocation, removeBreweryLocation } from './adminApi';
+import { getBreweryLocations, addBreweryLocation, removeBreweryLocation, updateBreweryLocation } from './adminApi';
 import { coordsFromMapsLink } from './mapsLink';
 
 const EMPTY = { name: '', address: '', district: '', maps_url: '', latitude: '', longitude: '' };
@@ -45,6 +45,15 @@ export default function LocationsCard({ breweryId, breweryName }) {
     load();
   };
 
+  // Show or hide a location in the app without deleting it.
+  const toggle = async (loc) => {
+    const status = loc.status === 'active' ? 'inactive' : 'active';
+    setList((xs) => xs.map((x) => (x.id === loc.id ? { ...x, status } : x)));
+    const r = await updateBreweryLocation(breweryId, loc.id, { status });
+    if (!r.ok) { setMsg(r.error || 'Could not update'); load(); return; }
+    setMsg(status === 'active' ? `✓ ${loc.name} is showing in the app` : `✓ ${loc.name} is hidden from the app`);
+  };
+
   const remove = async (loc) => {
     if (!window.confirm(`Remove "${loc.name}" from the app?`)) return;
     const r = await removeBreweryLocation(breweryId, loc.id);
@@ -58,7 +67,7 @@ export default function LocationsCard({ breweryId, breweryName }) {
       <h3 className="admin-card-title">Locations</h3>
       <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>
         Have more than one taproom? Add each extra location here. Guests see all of them on your page, sorted by which is nearest,
-        and a stamp at any location counts for {breweryName || 'your brewery'}. Your main address stays in Venue details.
+        and a stamp at any location counts for {breweryName || 'your brewery'}. Untick "Showing" to hide a location without deleting it. Your main address stays in Venue details.
       </p>
 
       {list === null ? <p>Loading…</p> : list.length === 0 ? (
@@ -68,11 +77,15 @@ export default function LocationsCard({ breweryId, breweryName }) {
           {list.map((l) => (
             <div key={l.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', border: '1px solid var(--admin-border)', borderRadius: 6 }}>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 700 }}>{l.name}{l.status !== 'active' && ' (hidden)'}</div>
+                <div style={{ fontWeight: 700, opacity: l.status === 'active' ? 1 : 0.55 }}>{l.name}</div>
                 <div style={{ fontSize: 13, color: 'var(--admin-text-muted)' }}>
                   {[l.address, l.latitude == null ? 'No map pin yet' : null].filter(Boolean).join(' · ')}
                 </div>
               </div>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                <input type="checkbox" role="switch" checked={l.status === 'active'} onChange={() => toggle(l)} style={{ width: 18, height: 18 }} />
+                {l.status === 'active' ? 'Showing' : 'Hidden'}
+              </label>
               <button type="button" className="admin-btn admin-btn-danger" onClick={() => remove(l)}>Remove</button>
             </div>
           ))}
