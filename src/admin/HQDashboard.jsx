@@ -9,6 +9,7 @@ import {
   TRAIL_ID
 } from './adminApi';
 import { useToast, useConfirm } from './AdminFeedback';
+import AddStampsCard from './AddStampsCard';
 
 const generateStaffEmail = (name) => name.toLowerCase().replace(/[^a-z0-9]/g, '') + '@aletrail.com';
 const generatePassword = () => {
@@ -639,6 +640,7 @@ export default function HQDashboard({ adminEmail = '' }) {
         <button className={`admin-tab ${activeTab === 'stock' ? 'active' : ''}`} onClick={() => setActiveTab('stock')}>Stock{merchandise.some(m => m.lowStockBreweries?.length > 0) ? ' ⚠️' : ''}</button>
         <button className={`admin-tab ${activeTab === 'analytics' ? 'active' : ''}`} onClick={() => { setActiveTab('analytics'); if (!analytics) loadAnalytics(); }}>Analytics</button>
         <button className={`admin-tab ${activeTab === 'export' ? 'active' : ''}`} onClick={() => setActiveTab('export')}>Export</button>
+        <button className={`admin-tab ${activeTab === 'addstamps' ? 'active' : ''}`} onClick={() => setActiveTab('addstamps')}>Add Stamps</button>
         <button className={`admin-tab ${activeTab === 'superadmins' ? 'active' : ''}`} onClick={() => { setActiveTab('superadmins'); if (superAdmins.length === 0) loadSuperAdmins(); }}>Super Admins</button>
       </div>
 
@@ -1278,6 +1280,8 @@ export default function HQDashboard({ adminEmail = '' }) {
       {activeTab === 'export' && (
         <div className="admin-card"><h3 className="admin-card-title">Export Participants</h3><p style={{ color: 'var(--admin-text-muted)', marginBottom: 20 }}>Download participant data.</p><div style={{ display: 'flex', gap: 12 }}><button className="admin-btn admin-btn-primary" style={{ width: 'auto' }} onClick={() => handleExport('json')} disabled={exporting}>{exporting ? 'Exporting...' : 'Export JSON'}</button><button className="admin-btn admin-btn-secondary" style={{ width: 'auto' }} onClick={() => handleExport('csv')} disabled={exporting}>{exporting ? 'Exporting...' : 'Export CSV'}</button></div></div>
       )}
+
+      {activeTab === 'addstamps' && <AddStampsCard trailId={TRAIL_ID} />}
 
       {activeTab === 'superadmins' && (
         <>

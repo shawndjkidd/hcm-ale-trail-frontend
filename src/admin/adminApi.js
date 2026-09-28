@@ -718,3 +718,17 @@ export async function removeBreweryLocation(breweryId, locationId) {
     return await res.json();
   } catch (err) { return { ok: false, error: err.message }; }
 }
+
+// ==================== HQ PAPER-CARD TRANSFER ====================
+export async function hqLookupStamps(trailId, email) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/stamps?email=${encodeURIComponent(email)}`, { headers: authHeaders() });
+    return await res.json();
+  } catch (err) { return { ok: false, error: err.message }; }
+}
+export async function hqAddStamps(trailId, email, breweryIds) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/stamps`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ email, breweryIds }) });
+    return await res.json();
+  } catch (err) { return { ok: false, error: err.message }; }
+}
