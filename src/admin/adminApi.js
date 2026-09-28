@@ -692,3 +692,29 @@ export async function refreshAdminSession() {
     return { ok: false, error: err.message };
   }
 }
+
+// ==================== LOCATIONS (extra taprooms) ====================
+export async function getBreweryLocations(breweryId) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/locations`, { headers: authHeaders() });
+    return await res.json();
+  } catch (err) { return { ok: false, error: err.message }; }
+}
+export async function addBreweryLocation(breweryId, location) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/locations`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(location) });
+    return await res.json();
+  } catch (err) { return { ok: false, error: err.message }; }
+}
+export async function updateBreweryLocation(breweryId, locationId, fields) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/locations/${locationId}`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(fields) });
+    return await res.json();
+  } catch (err) { return { ok: false, error: err.message }; }
+}
+export async function removeBreweryLocation(breweryId, locationId) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/locations/${locationId}`, { method: 'DELETE', headers: authHeaders() });
+    return await res.json();
+  } catch (err) { return { ok: false, error: err.message }; }
+}

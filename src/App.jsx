@@ -474,7 +474,7 @@ export default function App() {
     content = (
       <Brewery brewery={currentBrewery} stampedAt={stamps.includes(currentBrewery.id) ? stampDates[currentBrewery.id] || new Date().toISOString() : null}
         beerCountHere={beers.filter((b) => b.breweryId === currentBrewery.id).length} events={events} language={language}
-        onBack={closeScreen} onCheckIn={() => startCheckIn(currentBrewery)} />
+        here={here} onBack={closeScreen} onCheckIn={() => startCheckIn(currentBrewery)} />
     );
   } else if (screen?.type === "quest") {
     content = (

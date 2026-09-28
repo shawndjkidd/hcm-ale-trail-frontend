@@ -5,7 +5,7 @@ import { Icon, Seg, Sheet, Glass } from './ui';
 import { statusText } from './Home';
 import EventSheet from './EventSheet';
 import { DEMO_MODE, demoBeers } from './demo';
-import { openStatus, localized, districtLabel, beerLook, placeGradient, logoFor, photoFor, STYLE_GROUPS, safeHref } from './util';
+import { openStatus, localized, districtLabel, beerLook, placeGradient, logoFor, photoFor, STYLE_GROUPS, safeHref, placesByDistance, directionsHref, formatKm, brandOpenStatus } from './util';
 
 const DAY_KEYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
@@ -42,9 +42,9 @@ function BeerRow({ beer }) {
   );
 }
 
-export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events = [], language, onBack, onCheckIn }) {
+export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events = [], language, onBack, onCheckIn, here }) {
   const v = useV(language);
-  const st = openStatus(brewery);
+  const st = brandOpenStatus(brewery);
   const { beers, recent, loaded } = useBreweryBeers(brewery.id);
   const [sort, setSort] = useState('popular');
   const [showHours, setShowHours] = useState(false);
@@ -121,7 +121,28 @@ export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events 
             </tbody>
           </table>
         )}
-        {brewery.address && <p className="desc" style={{ marginTop: -6 }}>{brewery.address}</p>}
+        {!(brewery.locations?.length > 0) && brewery.address && <p className="desc" style={{ marginTop: -6 }}>{brewery.address}</p>}
+
+        {brewery.locations?.length > 0 && (
+          <div className="v2-locations">
+            <h3>{fmt(v.locationsN, { n: brewery.locations.length + 1 })}</h3>
+            <p className="note">{v.stampAnyLocation}</p>
+            {placesByDistance(brewery, here).map((p, i) => {
+              const pst = openStatus(p);
+              const href = directionsHref(p);
+              return (
+                <div key={p.id} className="loc">
+                  <div className="info">
+                    <b>{p.main ? brewery.name : p.name}{here && i === 0 && p.km != null && <span className="tag nearest">{v.nearestTag}</span>}</b>
+                    <span>{[p.address, p.km != null ? formatKm(p.km) : null].filter(Boolean).join(' · ')}</span>
+                    <span className={pst.open ? 'open' : 'closed'}>{statusText(pst, v, language)}</span>
+                  </div>
+                  {href && <a className="go" href={href} target="_blank" rel="noreferrer">{v.directions}</a>}
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {st.tempClosed && <div className="banner-closed">{v.tempClosed}</div>}
 

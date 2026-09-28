@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, bulkUploadBeers, mergeRatings, updateAdminAccount, getBreweryMerchandise, restockMerchandise, getTrailAnalytics, getBreweryStaff, inviteBreweryStaff, updateBreweryStaffRole, removeBreweryStaff, TRAIL_ID } from './adminApi';
 import { useToast, useConfirm } from './AdminFeedback';
+import LocationsCard from './LocationsCard';
 
 const DAY_NAMES = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 const DAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -1405,6 +1406,8 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
             </div>
           </div>
           )}
+
+          {canManage && <LocationsCard breweryId={breweryId} breweryName={brewery?.name} />}
 
           {/* Venue codes: owners, managers, brewery admins and HQ only (plain staff can't see or change them) */}
           {staffRole !== 'staff' && (

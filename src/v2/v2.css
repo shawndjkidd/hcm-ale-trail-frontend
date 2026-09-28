@@ -882,3 +882,17 @@ body.night-mode .v2 .v2-evcard:not(.is-tonight) { background: var(--surface); co
 .v2-installbar span { display: block; font-size: .88rem; font-weight: 600; margin-top: 4px; opacity: .92; }
 .v2 .v2-installbar .go { display: block; width: 100%; margin-top: 12px; padding: 12px; background: var(--yellow); color: var(--ink); border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); font-family: var(--display); font-size: 1.2rem; letter-spacing: .03em; text-transform: uppercase; }
 .v2 .v2-installbar .x { position: absolute; right: 10px; top: 8px; background: none; border: 0; color: #fff; font-size: 1.8rem; line-height: 1; padding: 4px 8px; }
+
+/* ── Brewery page: all locations, nearest first ──────────────────────── */
+.v2-locations { margin: 4px 0 16px; }
+.v2-locations h3 { font-family: var(--display); font-weight: 400; font-size: 1.4rem; text-transform: uppercase; margin: 0; }
+.v2-locations .note { margin: 2px 0 10px; font-size: .85rem; font-weight: 600; opacity: .8; }
+.v2-locations .loc { display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin-bottom: 8px; background: var(--paper); color: var(--ink); border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); }
+.v2-locations .info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.v2-locations .info b { font-weight: 800; font-size: 1rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.v2-locations .info span { font-size: .82rem; color: var(--muted); }
+.v2-locations .info span.open { color: var(--jade-ink); font-weight: 700; }
+.v2-locations .info span.closed { font-weight: 700; }
+.v2 .v2-locations .tag.nearest { background: var(--ink); color: var(--yellow); font-size: .62rem; padding: 1px 6px; }
+.v2-locations .go { flex: none; background: var(--yellow); color: var(--ink); border: 2px solid var(--ink); padding: 7px 10px; font-weight: 800; font-size: .8rem; text-decoration: none; }
+body.night-mode .v2 .v2-locations .loc { background: var(--surface); color: var(--text); }

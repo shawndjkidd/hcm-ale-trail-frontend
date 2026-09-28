@@ -96,6 +96,41 @@ export function prettyBoardTime(entry) {
 }
 
 // ── Places ──────────────────────────────────────────────────────────────────
+// Every place a brewery pours: the brewery itself (main) plus any extra locations.
+// A stamp is per brewery, so any of these counts.
+export function breweryPlaces(b) {
+  if (!b) return [];
+  const main = { id: b.id, main: true, name: b.name, address: b.address, district: b.district, latitude: b.latitude, longitude: b.longitude,
+    maps_url: b.maps_url, operating_hours: b.operating_hours, status: b.status, photo_url: b.photo_url };
+  const extra = (Array.isArray(b.locations) ? b.locations : []).map((l) => ({ ...l, main: false, operating_hours: l.operating_hours || b.operating_hours, status: l.status === 'active' ? b.status : l.status }));
+  return [main, ...extra];
+}
+
+/** Places with their distance from `here` (km or null), nearest first when we know where you are. */
+export function placesByDistance(b, here) {
+  const list = breweryPlaces(b).map((p) => ({ ...p, km: here && p.latitude != null ? distanceKm(here, { lat: p.latitude, lng: p.longitude }) : null }));
+  return here ? list.sort((x, y) => (x.km ?? 999) - (y.km ?? 999)) : list;
+}
+
+/** Distance to the nearest of a brewery's places. */
+export const nearestKm = (b, here) => {
+  const ks = breweryPlaces(b).map((p) => (here && p.latitude != null ? distanceKm(here, { lat: p.latitude, lng: p.longitude }) : null)).filter((k) => k != null);
+  return ks.length ? Math.min(...ks) : null;
+};
+
+/** Open status for the brewery as a whole: open if any of its places is open right now. */
+export function brandOpenStatus(b) {
+  const places = breweryPlaces(b);
+  const main = openStatus(places[0]);
+  if (main.open || places.length === 1) return main;
+  const openOne = places.slice(1).map((p) => openStatus(p)).find((st) => st.open);
+  return openOne || main;
+}
+
+export function directionsHref(p) {
+  return safeHref(p?.maps_url) || (p?.latitude != null ? `https://www.google.com/maps/dir/?api=1&destination=${p.latitude},${p.longitude}` : null);
+}
+
 export function distanceKm(a, b) {
   if (!a || !b || a.lat == null || b.lat == null) return null;
   const R = 6371, toR = (x) => (x * Math.PI) / 180;

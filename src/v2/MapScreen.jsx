@@ -39,10 +39,17 @@ export default function MapScreen({ breweries, sideQuests = [], stamps, language
   const items = useMemo(() => {
     const sorted = [...breweries].filter((b) => b.latitude != null && b.status !== 'inactive')
       .sort((a, b) => (a.display_order ?? 99) - (b.display_order ?? 99));
-    return sorted.map((b, i) => {
-      const st = openStatus(b);
+    // One pin per place: the brewery plus each extra location, all with the brewery's number.
+    return sorted.flatMap((b, i) => {
       const stamped = stamps.includes(b.id);
-      return { kind: 'brewery', item: b, n: i + 1, st, stamped, state: stamped ? 'stamped' : st.open ? 'open' : 'closed' };
+      const places = [b, ...(Array.isArray(b.locations) ? b.locations : [])
+        .filter((l) => l.latitude != null)
+        .map((l) => ({ ...b, ...l, id: `${b.id}:${l.id}`, name: `${b.name} · ${l.name}`, photo_url: l.photo_url || b.photo_url,
+          logo_url: b.logo_url, operating_hours: l.operating_hours || b.operating_hours, status: l.status === 'active' ? b.status : l.status }))];
+      return places.map((item) => {
+        const st = openStatus(item);
+        return { kind: 'brewery', item, brewery: b, n: i + 1, st, stamped, state: stamped ? 'stamped' : st.open ? 'open' : 'closed' };
+      });
     });
   }, [breweries, stamps]);
 
@@ -95,7 +102,7 @@ export default function MapScreen({ breweries, sideQuests = [], stamps, language
             </span>
             <span className="actions">
               <a className="mbtn light" href={directions} target="_blank" rel="noreferrer">{v.directions}</a>
-              <button type="button" className="mbtn" onClick={() => onOpenBrewery(sel.item)}>{v.view} →</button>
+              <button type="button" className="mbtn" onClick={() => onOpenBrewery(sel.brewery || sel.item)}>{v.view} →</button>
             </span>
           </span>
         </div>

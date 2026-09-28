@@ -4,7 +4,7 @@ import { TopBar, Pints, Icon, InstallBanner } from './ui';
 import SmplPint from './SmplPint';
 import {
   openStatus, formatClose, formatClock, prettyBoardTime, districtLabel, localized,
-  distanceKm, formatKm, placeGradient, logoFor, photoFor, stencilFor, safeImageUrl, demoSplit } from './util';
+  distanceKm, formatKm, placeGradient, logoFor, photoFor, stencilFor, safeImageUrl, demoSplit, nearestKm, brandOpenStatus } from './util';
 
 export function useNow(intervalMs = 1000, active = true) {
   const [now, setNow] = useState(Date.now());
@@ -26,10 +26,12 @@ export function statusText(st, v, language) {
 
 export function BreweryCard({ brewery, index, stampedAt, language, onOpen, here }) {
   const v = useV(language);
-  const st = openStatus(brewery);
+  const st = brandOpenStatus(brewery);
+  const extra = Array.isArray(brewery.locations) ? brewery.locations.length : 0;
+  const locTag = extra > 0 ? fmt(v.locationsN, { n: extra + 1 }) : null;
   const isStamped = !!stampedAt;
   const state = isStamped ? 'stamped' : st.open ? 'open' : 'closed';
-  const km = here && brewery.latitude != null ? distanceKm(here, { lat: brewery.latitude, lng: brewery.longitude }) : null;
+  const km = nearestKm(brewery, here);
   const img = photoFor(brewery);
   const photo = img ? `url("${img}") center/cover` : placeGradient(brewery.id);
   // A venue with its own photo gets the big card; the rest stay compact until they add one.
@@ -45,7 +47,7 @@ export function BreweryCard({ brewery, index, stampedAt, language, onOpen, here 
         </span>
         <span className="body">
           <span className="name">{brewery.name}</span>
-          <span className="sub">{[districtLabel(brewery.district, language), brewery.address && String(brewery.address).split(',')[0]].filter(Boolean).join(' · ')}</span>
+          <span className="sub">{[locTag || districtLabel(brewery.district, language), !locTag && brewery.address && String(brewery.address).split(',')[0]].filter(Boolean).join(' · ')}</span>
           <span className="foot">
             <span className={isStamped ? 'ok' : ''}>
               {isStamped ? `✓ ${fmt(v.stamped, { date: shortDate(stampedAt, language) })}` : km != null ? formatKm(km) : ''}
@@ -65,7 +67,7 @@ export function BreweryCard({ brewery, index, stampedAt, language, onOpen, here 
         {stencilFor(brewery) && <img className="stencil" src={stencilFor(brewery)} alt="" />}
         <span className="name">{brewery.name}</span>
         <span className="sub">
-          {districtLabel(brewery.district, language)}
+          {locTag || districtLabel(brewery.district, language)}
           {km != null ? ` · ${formatKm(km)}` : ''}
         </span>
         <span className="status">
@@ -262,11 +264,11 @@ export default function Home({
     const byTrail = [...active].sort((a, b) => (a.display_order ?? 99) - (b.display_order ?? 99));
     if (order !== 'nearest' || !here) return byTrail.map((b, i) => ({ b, i }));
     return byTrail
-      .map((b, i) => ({ b, i, km: b.latitude != null ? distanceKm(here, { lat: b.latitude, lng: b.longitude }) : 999 }))
+      .map((b, i) => ({ b, i, km: nearestKm(b, here) ?? 999 }))
       .sort((x, y) => {
         const sx = stamps.includes(x.b.id) ? 1 : 0; const sy = stamps.includes(y.b.id) ? 1 : 0;
         if (sx !== sy) return sx - sy;
-        const ox = openStatus(x.b).open ? 0 : 1; const oy = openStatus(y.b).open ? 0 : 1;
+        const ox = brandOpenStatus(x.b).open ? 0 : 1; const oy = brandOpenStatus(y.b).open ? 0 : 1;
         if (ox !== oy) return ox - oy;
         return x.km - y.km;
       });
