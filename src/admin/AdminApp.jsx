@@ -179,7 +179,7 @@ function AdminAppInner() {
     (adminUser.primaryRole || '').replace(/_/g, ' ');
 
   return (
-    <div className="admin-app">
+    <div className={`admin-app${isHQ && currentView === 'dashboard' ? ' hq-theme' : ''}`}>
       <AdminUpdateBar />
       <header className="admin-header">
         <div className="admin-header-left">

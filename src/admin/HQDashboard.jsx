@@ -10,6 +10,9 @@ import {
 } from './adminApi';
 import { useToast, useConfirm } from './AdminFeedback';
 import AddStampsCard from './AddStampsCard';
+import HQHome from './HQHome';
+import HQLaunch from './HQLaunch';
+import './hq.css';
 
 const generateStaffEmail = (name) => name.toLowerCase().replace(/[^a-z0-9]/g, '') + '@aletrail.app';
 const generatePassword = () => {
@@ -38,7 +41,7 @@ export default function HQDashboard({ adminEmail = '' }) {
   const [dateRange, setDateRange] = useState('7d');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('home');
   const [exporting, setExporting] = useState(false);
 
   const [showEventForm, setShowEventForm] = useState(false);
@@ -617,21 +620,43 @@ export default function HQDashboard({ adminEmail = '' }) {
   const inactiveBreweries = breweries.filter(b => b.status === 'inactive');
 
   return (
-    <div className="admin-content">
-      <h1 className="admin-page-title">HQ Dashboard</h1>
+    <div className="admin-content hq-shell">
+      <nav className="hq-side" aria-label="HQ sections">
+        {[
+          { grp: 'Operate' },
+          { id: 'home', label: 'Home' },
+          { id: 'breweries', label: 'Venues', ct: breweries.length },
+          { id: 'events', label: "What's On", ct: events.length },
+          { id: 'sidequests', label: 'Side quests', ct: sideQuests.length },
+          { id: 'stock', label: 'Hats & merch', dot: merchandise.some(m => m.lowStockBreweries?.length > 0) },
+          { id: 'addstamps', label: 'Add stamps' },
+          { grp: 'Understand' },
+          { id: 'overview', label: 'Trail performance' },
+          { id: 'analytics', label: 'Audience & insights', onOpen: () => { if (!analytics) loadAnalytics(); } },
+          { id: 'leaderboard', label: 'Leaderboard & ratings' },
+          { grp: 'Manage' },
+          { id: 'export', label: 'Reports & export' },
+          { id: 'superadmins', label: 'HQ team', onOpen: () => { if (superAdmins.length === 0) loadSuperAdmins(); } },
+          { id: 'launch', label: 'Launch & settings' },
+        ].map((item) => item.grp
+          ? <div key={item.grp} className="grp">{item.grp}</div>
+          : (
+            <button key={item.id} type="button" className={activeTab === item.id ? 'on' : ''} aria-current={activeTab === item.id ? 'page' : undefined}
+              onClick={() => { setActiveTab(item.id); item.onOpen?.(); }}>
+              {item.label}
+              {item.dot ? <span className="dot" aria-label="needs attention" /> : item.ct != null ? <span className="ct">{item.ct}</span> : null}
+            </button>
+          ))}
+      </nav>
+      <div className="hq-main">
 
-      <div className="admin-tabs">
-        <button className={`admin-tab ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>Overview</button>
-        <button className={`admin-tab ${activeTab === 'breweries' ? 'active' : ''}`} onClick={() => setActiveTab('breweries')}>Breweries ({breweries.length})</button>
-        <button className={`admin-tab ${activeTab === 'events' ? 'active' : ''}`} onClick={() => setActiveTab('events')}>Events ({events.length})</button>
-        <button className={`admin-tab ${activeTab === 'sidequests' ? 'active' : ''}`} onClick={() => setActiveTab('sidequests')}>Side Quests ({sideQuests.length})</button>
-        <button className={`admin-tab ${activeTab === 'leaderboard' ? 'active' : ''}`} onClick={() => setActiveTab('leaderboard')}>Leaderboard</button>
-        <button className={`admin-tab ${activeTab === 'stock' ? 'active' : ''}`} onClick={() => setActiveTab('stock')}>Stock{merchandise.some(m => m.lowStockBreweries?.length > 0) ? ' ⚠️' : ''}</button>
-        <button className={`admin-tab ${activeTab === 'analytics' ? 'active' : ''}`} onClick={() => { setActiveTab('analytics'); if (!analytics) loadAnalytics(); }}>Analytics</button>
-        <button className={`admin-tab ${activeTab === 'export' ? 'active' : ''}`} onClick={() => setActiveTab('export')}>Export</button>
-        <button className={`admin-tab ${activeTab === 'addstamps' ? 'active' : ''}`} onClick={() => setActiveTab('addstamps')}>Add Stamps</button>
-        <button className={`admin-tab ${activeTab === 'superadmins' ? 'active' : ''}`} onClick={() => { setActiveTab('superadmins'); if (superAdmins.length === 0) loadSuperAdmins(); }}>Super Admins</button>
-      </div>
+      {activeTab === 'home' && <HQHome onGo={(tab) => {
+        setActiveTab(tab);
+        if (tab === 'analytics' && !analytics) loadAnalytics();
+        if (tab === 'superadmins' && superAdmins.length === 0) loadSuperAdmins();
+        window.scrollTo({ top: 0 });
+      }} />}
+      {activeTab === 'launch' && <HQLaunch />}
 
       {activeTab === 'overview' && (
         <>
@@ -1407,6 +1432,7 @@ export default function HQDashboard({ adminEmail = '' }) {
           )}
         </>
       )}
+      </div>
     </div>
   );
 }

@@ -732,3 +732,26 @@ export async function hqAddStamps(trailId, email, breweryIds) {
     return await res.json();
   } catch (err) { return { ok: false, error: err.message }; }
 }
+
+// ==================== HQ HOME & LAUNCH ====================
+
+export async function getHqSummary(trailId) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/hq`, { headers: authHeaders() });
+    return await res.json();
+  } catch (err) { return { ok: false, error: err.message }; }
+}
+
+export async function hqRemoveDemo(trailId, confirm) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/hq/demo`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ confirm }) });
+    return await res.json();
+  } catch (err) { return { ok: false, error: err.message }; }
+}
+
+export async function hqGenerateCodes(trailId, confirm) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/hq/codes`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ confirm }) });
+    return await res.json();
+  } catch (err) { return { ok: false, error: err.message }; }
+}
