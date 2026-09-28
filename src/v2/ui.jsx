@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useV, fmt } from './i18n';
 import { getEcosystem, hideEcosystem, outboundUrl } from './ecosystem';
+import { visibleBottomShift } from './util';
 
 export const LOGO_WHITE = '/brand/logo-white.png';
 
@@ -65,8 +66,38 @@ export function TopBar({ language, setLanguage, nightMode, toggleNightMode, onMe
   );
 }
 
+function usePinnedToVisibleBottom() {
+  const ref = useRef(null);
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return undefined;
+    let frame = 0;
+    const update = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const el = ref.current;
+        if (!el) return;
+        const shift = visibleBottomShift();
+        el.style.transform = shift ? `translateY(${shift}px)` : '';
+      });
+    };
+    vv.addEventListener('resize', update);
+    vv.addEventListener('scroll', update);
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+    return () => {
+      cancelAnimationFrame(frame);
+      vv.removeEventListener('resize', update);
+      vv.removeEventListener('scroll', update);
+      window.removeEventListener('scroll', update);
+    };
+  }, []);
+  return ref;
+}
+
 export function TabBar({ current, onChange, language }) {
   const v = useV(language);
+  const barRef = usePinnedToVisibleBottom();
   const tabs = [
     { id: 'home', label: v.tabTrail, icon: Icon.trail },
     { id: 'map', label: v.tabMap, icon: Icon.map },
@@ -74,7 +105,7 @@ export function TabBar({ current, onChange, language }) {
     { id: 'ask', label: v.tabAsk, icon: Icon.ask },
   ];
   return (
-    <nav className="v2-tabbar" aria-label="Main">
+    <nav className="v2-tabbar" aria-label="Main" ref={barRef}>
       <div className="inner">
         {tabs.map((tab) => {
           const I = tab.icon;

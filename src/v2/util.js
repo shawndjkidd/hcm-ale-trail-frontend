@@ -245,3 +245,14 @@ export function personalityFor(profile) {
   if (styles.includes('ipa')) return { key: 'pHop', color: '#D9822B', style: 'IPA' };
   return { key: 'pEasy', color: '#F2C230', style: 'Lager' };
 }
+
+// Some mobile browsers (seen in Brave on iPhone) mis-place bottom-fixed bars while their
+// toolbars collapse, leaving the bar floating mid-screen. Pin it to the bottom of the
+// *visible* screen instead. Where the browser behaves, the shift is 0 and nothing moves.
+export function visibleBottomShift(win = typeof window !== 'undefined' ? window : undefined) {
+  const vv = win?.visualViewport;
+  if (!vv || Math.abs((vv.scale || 1) - 1) > 0.01) return 0; // leave pinch-zoom alone
+  const shift = Math.round(vv.offsetTop + vv.height - win.innerHeight);
+  return Math.abs(shift) > 1 ? shift : 0;
+}
+
