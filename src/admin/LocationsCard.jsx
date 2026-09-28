@@ -86,7 +86,7 @@ export default function LocationsCard({ breweryId, breweryName }) {
                 <input type="checkbox" role="switch" checked={l.status === 'active'} onChange={() => toggle(l)} style={{ width: 18, height: 18 }} />
                 {l.status === 'active' ? 'Showing' : 'Hidden'}
               </label>
-              <button type="button" className="admin-btn admin-btn-danger" onClick={() => remove(l)}>Remove</button>
+              <button type="button" className="admin-btn admin-btn-danger" onClick={() => remove(l)} style={{ width: 'auto', flex: 'none' }}>Remove</button>
             </div>
           ))}
         </div>
@@ -105,7 +105,7 @@ export default function LocationsCard({ breweryId, breweryName }) {
           The map pin and "nearest" need latitude and longitude. In Google Maps, press and hold on your bar and copy the two numbers shown. Opening hours follow your main venue's hours.
         </p>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <button type="button" className="admin-btn admin-btn-primary settings-btn" onClick={add} disabled={busy}>{busy ? 'Adding…' : '+ Add Location'}</button>
+          <button type="button" className="admin-btn admin-btn-primary settings-btn" onClick={add} disabled={busy} style={{ width: 'auto', flex: 'none' }}>{busy ? 'Adding…' : '+ Add Location'}</button>
           {msg && <span style={{ fontSize: 13, color: msg.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{msg}</span>}
         </div>
       </div>

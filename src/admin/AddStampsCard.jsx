@@ -44,8 +44,8 @@ export default function AddStampsCard({ trailId }) {
         and add. Stamps go onto their current app card straight away and are marked as an HQ transfer.
       </p>
       <form onSubmit={lookup} style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
-        <input className="admin-form-input" type="email" placeholder="guest@email.com" value={email} onChange={(e) => setEmail(e.target.value)} style={{ flex: 1 }} />
-        <button type="submit" className="admin-btn admin-btn-primary" disabled={busy}>{busy && !guest ? 'Looking…' : 'Look up'}</button>
+        <input className="admin-form-input" type="email" placeholder="guest@email.com" value={email} onChange={(e) => setEmail(e.target.value)} style={{ flex: 1, minWidth: 0 }} />
+        <button type="submit" className="admin-btn admin-btn-primary" disabled={busy} style={{ width: 'auto', flex: 'none' }}>{busy && !guest ? 'Looking…' : 'Look up'}</button>
       </form>
 
       {guest && (
@@ -62,7 +62,7 @@ export default function AddStampsCard({ trailId }) {
               </label>
             ))}
           </div>
-          <button type="button" className="admin-btn admin-btn-primary" disabled={busy || picked.length === 0} onClick={add}>
+          <button type="button" className="admin-btn admin-btn-primary" disabled={busy || picked.length === 0} onClick={add} style={{ width: 'auto' }}>
             {busy ? 'Adding…' : `Add ${picked.length || ''} stamp${picked.length === 1 ? '' : 's'}`}
           </button>
         </>
