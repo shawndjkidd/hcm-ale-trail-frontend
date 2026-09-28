@@ -11,7 +11,7 @@ import {
 import { useToast, useConfirm } from './AdminFeedback';
 import AddStampsCard from './AddStampsCard';
 
-const generateStaffEmail = (name) => name.toLowerCase().replace(/[^a-z0-9]/g, '') + '@aletrail.com';
+const generateStaffEmail = (name) => name.toLowerCase().replace(/[^a-z0-9]/g, '') + '@aletrail.app';
 const generatePassword = () => {
   const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$';
   return Array.from({ length: 10 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
@@ -531,17 +531,6 @@ export default function HQDashboard({ adminEmail = '' }) {
         }
       }
       if (result.ok) {
-        if (!editingQuest && questForm.hasVenueDashboard) {
-          await createBrewery(TRAIL_ID, {
-            name: questForm.titleEn,
-            address: questForm.address || '',
-            district: questForm.district || '',
-            pinCode: questForm.pin || '',
-            status: 'active',
-          });
-          const breweriesResult = await getTrailBreweries(TRAIL_ID);
-          if (breweriesResult.ok) setBreweries(breweriesResult.breweries || []);
-        }
         setShowQuestForm(false);
         setEditingQuest(null);
         toast.success(editingQuest ? 'Quest updated' : 'Quest created');
@@ -796,7 +785,6 @@ export default function HQDashboard({ adminEmail = '' }) {
                 <div className="admin-form-group"><label className="admin-form-label">Instagram URL</label><input type="text" className="admin-form-input" value={questForm.instagramUrl} onChange={(e) => setQuestForm(prev => ({...prev, instagramUrl: e.target.value}))} placeholder="https://instagram.com/..." /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Facebook URL</label><input type="text" className="admin-form-input" value={questForm.facebookUrl} onChange={(e) => setQuestForm(prev => ({...prev, facebookUrl: e.target.value}))} placeholder="https://facebook.com/..." /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Instagram Handle</label><input type="text" className="admin-form-input" value={questForm.instagramHandle} onChange={(e) => setQuestForm(prev => ({...prev, instagramHandle: e.target.value}))} placeholder="@yourvenue" /></div>
-                {!editingQuest && (<div className="admin-form-group"><label className="admin-form-label">Has venue dashboard?</label><div style={{ display: 'flex', gap: 8, marginTop: 4 }}><button type="button" className="admin-btn admin-btn-small" style={{ width: 'auto', background: questForm.hasVenueDashboard ? 'var(--admin-primary)' : 'var(--admin-border)', color: questForm.hasVenueDashboard ? '#fff' : 'var(--admin-text)' }} onClick={() => setQuestForm(prev => ({...prev, hasVenueDashboard: true}))}>Yes</button><button type="button" className="admin-btn admin-btn-small" style={{ width: 'auto', background: !questForm.hasVenueDashboard ? 'var(--admin-primary)' : 'var(--admin-border)', color: !questForm.hasVenueDashboard ? '#fff' : 'var(--admin-text)' }} onClick={() => setQuestForm(prev => ({...prev, hasVenueDashboard: false}))}>No</button></div>{questForm.hasVenueDashboard && <p style={{ fontSize: 12, color: 'var(--admin-text-muted)', marginTop: 6 }}>A brewery dashboard entry will be created for this venue using the title, address, district, and PIN above.</p>}</div>)}
                 <div className="admin-form-group"><label className="admin-form-label">How often can someone use it?</label><select className="admin-form-input" value={questForm.oneTime ? 'once' : 'repeat'} onChange={(e) => setQuestForm(prev => ({...prev, oneTime: e.target.value === 'once'}))}><option value="once">Once per person (disappears after it's used)</option><option value="repeat">Once per trail card (stays visible, marked claimed)</option></select></div>
                 <div className="admin-form-group"><label className="admin-form-label">Status</label><select className="admin-form-input" value={questForm.status} onChange={(e) => setQuestForm(prev => ({...prev, status: e.target.value}))}><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
                 <div style={{ display: 'flex', gap: 12, marginTop: 20 }}><button type="button" className="admin-btn admin-btn-primary" onClick={handleSaveQuest} disabled={savingQuest}>{savingQuest ? 'Saving...' : 'Save Quest'}</button><button type="button" className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={() => setShowQuestForm(false)}>Cancel</button></div>
@@ -1400,7 +1388,7 @@ export default function HQDashboard({ adminEmail = '' }) {
                         type="email"
                         value={saEmail}
                         onChange={e => setSaEmail(e.target.value)}
-                        placeholder="admin@aletrail.com"
+                        placeholder="admin@aletrail.app"
                         autoFocus
                         onKeyDown={e => e.key === 'Enter' && handleAddSuperAdmin()}
                       />
