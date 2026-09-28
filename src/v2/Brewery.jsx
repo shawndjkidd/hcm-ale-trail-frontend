@@ -130,14 +130,18 @@ export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events 
             {placesByDistance(brewery, here).map((p, i) => {
               const pst = openStatus(p);
               const href = directionsHref(p);
+              const nearest = here && i === 0 && p.km != null;
               return (
-                <div key={p.id} className="loc">
+                <div key={p.id} className={`loc${nearest ? ' is-nearest' : ''}`}>
                   <div className="info">
-                    <b>{p.main ? brewery.name : p.name}{here && i === 0 && p.km != null && <span className="tag nearest">{v.nearestTag}</span>}</b>
+                    <b>{p.main ? brewery.name : p.name}</b>
                     <span>{[p.address, p.km != null ? formatKm(p.km) : null].filter(Boolean).join(' · ')}</span>
                     <span className={pst.open ? 'open' : 'closed'}>{statusText(pst, v, language)}</span>
                   </div>
-                  {href && <a className="go" href={href} target="_blank" rel="noreferrer">{v.directions}</a>}
+                  <div className="side">
+                    {nearest && <span className="nearest">{v.nearestTag}</span>}
+                    {href && <a className="go" href={href} target="_blank" rel="noreferrer">{v.directions}</a>}
+                  </div>
                 </div>
               );
             })}

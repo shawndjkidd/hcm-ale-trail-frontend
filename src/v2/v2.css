@@ -896,3 +896,9 @@ body.night-mode .v2 .v2-evcard:not(.is-tonight) { background: var(--surface); co
 .v2 .v2-locations .tag.nearest { background: var(--ink); color: var(--yellow); font-size: .62rem; padding: 1px 6px; }
 .v2-locations .go { flex: none; background: var(--yellow); color: var(--ink); border: 2px solid var(--ink); padding: 7px 10px; font-weight: 800; font-size: .8rem; text-decoration: none; }
 body.night-mode .v2 .v2-locations .loc { background: var(--surface); color: var(--text); }
+
+/* Nearest location: bright green label above Directions, green outline on the card */
+.v2-locations .side { flex: none; display: flex; flex-direction: column; align-items: stretch; gap: 6px; }
+.v2-locations .side .go { text-align: center; }
+.v2-locations .nearest { display: block; text-align: center; background: #19D35E; color: #fff; border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); font-weight: 900; font-size: .72rem; letter-spacing: .12em; padding: 4px 8px; text-shadow: 0 1px 0 rgba(0,0,0,.25); }
+.v2 .v2-locations .loc.is-nearest { border-color: #19D35E; box-shadow: 4px 4px 0 #0F8A3C; }
