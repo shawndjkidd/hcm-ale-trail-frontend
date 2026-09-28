@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { track } from '../lib/track';
 import { TRAIL_ID } from '../config';
 import { useV, fmt, shortDate, weekdayName } from './i18n';
 import { Icon, Seg, Sheet, Glass } from './ui';
@@ -50,6 +51,7 @@ export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events 
   const [showHours, setShowHours] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [copied, setCopied] = useState(false);
+  useEffect(() => { track('venue_view', { venue_id: brewery.id }); }, [brewery.id]);
   const [openEvent, setOpenEvent] = useState(null);
   const isStamped = !!stampedAt;
   const handle = handleFrom(brewery.instagram_url);
@@ -140,7 +142,7 @@ export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events 
                   </div>
                   <div className={`side${nearest ? ' nearest-wrap' : ''}`}>
                     {nearest && <span className="nearest" aria-label={v.nearestTag}>{v.nearestTag}</span>}
-                    {href && <a className="go" href={href} target="_blank" rel="noreferrer">{v.directions}</a>}
+                    {href && <a className="go" href={href} target="_blank" rel="noreferrer" onClick={() => track('directions_tap', { venue_id: brewery.id, ...(p.main ? {} : { location_id: p.id }), source: 'locations' })}>{v.directions}</a>}
                   </div>
                 </div>
               );
@@ -155,7 +157,8 @@ export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events 
             {socials.map((s) => {
               const I = s.icon;
               return (
-                <a key={s.label} href={s.href} target="_blank" rel="noreferrer" style={{ background: s.bg, color: s.fg }}>
+                <a key={s.label} href={s.href} target="_blank" rel="noreferrer" style={{ background: s.bg, color: s.fg }}
+                  onClick={() => track(s.icon === Icon.pin ? 'directions_tap' : 'social_tap', { venue_id: brewery.id, kind: s.icon === Icon.pin ? 'maps' : s.label.toLowerCase(), source: 'venue' })}>
                   <I />
                   <span>{s.label}</span>
                 </a>

@@ -124,19 +124,21 @@ export default function Onboarding({ language, breweries, stamps, onDone, editin
   );
 }
 
-// ── One-tap questions after stamps 1–4 ──────────────────────────────────────
-const MICRO_ORDER = ['location', 'lifestyle', 'avatar', 'gender'];
+// ── One-tap questions after stamps 1–6 ──────────────────────────────────────
+const MICRO_ORDER = ['location', 'age', 'offers', 'lifestyle', 'avatar', 'gender'];
 
 export function nextMicroQuestion(stampCount) {
   const profile = JSON.parse(localStorage.getItem('hcm-onboarding-profile') || 'null') || {};
   const asked = JSON.parse(localStorage.getItem('hcm-micro-asked') || '[]');
   const answered = {
     location: !!(profile.neighborhood || profile.home_country),
+    age: !!profile.age_range,
+    offers: typeof profile.offers_opt_in === 'boolean',
     lifestyle: !!profile.lifestyle,
     avatar: !!profile.avatar,
     gender: !!profile.gender,
   };
-  const due = MICRO_ORDER.slice(0, Math.min(stampCount, 4));
+  const due = MICRO_ORDER.slice(0, Math.min(stampCount, MICRO_ORDER.length));
   return due.find((q) => !answered[q] && asked.filter((x) => x === q).length < 2) || null;
 }
 
@@ -144,6 +146,8 @@ function markAsked(q) {
   const asked = JSON.parse(localStorage.getItem('hcm-micro-asked') || '[]');
   localStorage.setItem('hcm-micro-asked', JSON.stringify([...asked, q]));
 }
+
+const AGE_RANGES = ['18-24', '25-34', '35-44', '45-54', '55+'];
 
 const LOCATIONS = [
   { value: 'd1', key: 'optD1D3' }, { value: 'd2', key: 'optD2' }, { value: 'd7', key: 'optDistrict7' },
@@ -181,6 +185,18 @@ export function MicroQuestion({ question, language, onClose }) {
             onClick={() => answer({ home_country: c, neighborhood: 'visitor' })}>{regionNames?.of(c) || c}</button>
         ))}
       </div>
+    );
+  } else if (question === 'age') {
+    title = v.qAge;
+    body = <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>{AGE_RANGES.map((a) => optionBtn(a.replace('-', '–'), () => answer({ age_range: a }), a))}</div>;
+  } else if (question === 'offers') {
+    title = v.qOffers;
+    body = (
+      <>
+        <p style={{ margin: '0 0 12px' }}>{v.qOffersNote}</p>
+        {optionBtn(v.qOffersYes, () => answer({ offers_opt_in: true }))}
+        {optionBtn(v.qOffersNo, () => answer({ offers_opt_in: false }))}
+      </>
     );
   } else if (question === 'lifestyle') {
     title = v.qDo;

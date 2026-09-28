@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useV, fmt, shortDate, weekdayName } from './i18n';
 import { TopBar, Pints, Icon, InstallBanner } from './ui';
 import SmplPint from './SmplPint';
+import { track, trackOnce } from '../lib/track';
 import {
   openStatus, formatClose, formatClock, prettyBoardTime, districtLabel, localized,
   distanceKm, formatKm, placeGradient, logoFor, photoFor, stencilFor, safeImageUrl, demoSplit, nearestKm, brandOpenStatus } from './util';
@@ -255,6 +256,20 @@ export default function Home({
   const running = !!timerStart && !timerEnd;
   const now = useNow(1000, running);
   const [order, setOrder] = useState('trail');
+
+  // Analytics: one app_open per session, and a venue_impression the first time each card is half on screen.
+  useEffect(() => { trackOnce('app_open', 'app_open', { lang: language }); }, []);
+  useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') return undefined;
+    const io = new IntersectionObserver((entries) => {
+      for (const en of entries) {
+        const id = en.isIntersecting && en.target.getAttribute('data-id');
+        if (id) { trackOnce(`imp:${id}`, 'venue_impression', { venue_id: id, source: 'home' }); io.unobserve(en.target); }
+      }
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.v2-bcard[data-id]').forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, [breweries, order]);
 
   const active = breweries.filter((b) => b.status !== 'inactive');
   const total = active.length || 8;

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { track, trackOnce } from '../lib/track';
 import { useV, fmt } from './i18n';
 import { getEcosystem, hideEcosystem, outboundUrl } from './ecosystem';
 import { visibleBottomShift } from './util';
@@ -285,7 +286,7 @@ const INSTALLED = 'hcm-app-installed';
 // home-screen app and Safari separate, so there the close button (3 days) is the only gate.
 if (typeof window !== 'undefined') {
   const mark = () => { try { localStorage.setItem(INSTALLED, '1'); } catch {} };
-  window.addEventListener('appinstalled', mark);
+  window.addEventListener('appinstalled', () => { mark(); track('app_installed', { source: 'prompt' }); });
   if (window.matchMedia?.('(display-mode: standalone)').matches || window.navigator?.standalone === true) mark();
 }
 
@@ -297,6 +298,7 @@ export function InstallBanner({ language, onInstall }) {
     try { if (localStorage.getItem(INSTALLED)) return true; } catch {}
     try { const t = Number(localStorage.getItem(INSTALL_SNOOZE) || 0); return Date.now() - t < 3 * 864e5; } catch { return false; }
   });
+  useEffect(() => { if (!hidden) trackOnce('install_banner', 'install_prompt_shown', { source: 'banner' }); }, [hidden]);
   if (hidden) return null;
   const icon = (typeof document !== 'undefined' && document.getElementById('app-touch-icon')?.getAttribute('href')) || '/icons/pint-180.png';
   const close = () => { try { localStorage.setItem(INSTALL_SNOOZE, String(Date.now())); } catch {} setHidden(true); };

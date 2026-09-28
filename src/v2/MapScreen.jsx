@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { track } from '../lib/track';
 import { MapContainer, TileLayer, Marker, useMap, AttributionControl } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -101,7 +102,7 @@ export default function MapScreen({ breweries, sideQuests = [], stamps, language
                 : <span className={`tag ${sel.st.open ? 'open' : 'closed-map'}`}>{statusText(sel.st, v, language)}</span>}
             </span>
             <span className="actions">
-              <a className="mbtn light" href={directions} target="_blank" rel="noreferrer">{v.directions}</a>
+              <a className="mbtn light" href={directions} target="_blank" rel="noreferrer" onClick={() => track('directions_tap', { venue_id: (sel.brewery || sel.item).id, ...(sel.brewery ? { location_id: sel.item.id } : {}), source: 'map' })}>{v.directions}</a>
               <button type="button" className="mbtn" onClick={() => onOpenBrewery(sel.brewery || sel.item)}>{v.view} →</button>
             </span>
           </span>

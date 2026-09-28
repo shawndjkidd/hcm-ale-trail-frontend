@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { useV, weekdayName } from './i18n';
+import { track } from '../lib/track';
 import { Sheet, Icon } from './ui';
 import { localized, districtLabel, safeHref } from './util';
 
@@ -16,6 +18,7 @@ export function calendarLink(ev, title) {
 // Full event details in a bottom sheet. `brewery` is optional (for directions / district).
 export default function EventSheet({ event: e, brewery, language, onClose, onOpenBrewery }) {
   const v = useV(language);
+  useEffect(() => { track('event_view', { event_id: e.id, ...(brewery?.id ? { venue_id: brewery.id } : {}) }); }, [e.id]);
   const title = localized(e.title, language);
   const desc = localized(e.description, language);
   const entry = e.entry ? localized(e.entry, language) : null;
@@ -53,7 +56,7 @@ export default function EventSheet({ event: e, brewery, language, onClose, onOpe
         )}
         <div className="actions">
           <a className="act yellow" href={calendarLink(e, title)} target="_blank" rel="noreferrer">{v.addToCalendar}</a>
-          {directions && <a className="act white" href={directions} target="_blank" rel="noreferrer"><Icon.pin />{v.directions}</a>}
+          {directions && <a className="act white" href={directions} target="_blank" rel="noreferrer" onClick={() => track('directions_tap', { venue_id: brewery.id, event_id: e.id, source: 'event' })}><Icon.pin />{v.directions}</a>}
         </div>
         {(safeHref(e.link) || onOpenBrewery) && (
           <div className="links">

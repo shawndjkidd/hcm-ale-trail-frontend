@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { track } from '../lib/track';
 import { getAccessToken } from '../lib/api';
 import { useV, fmt, shortDate } from './i18n';
 import { Icon } from './ui';
@@ -26,6 +27,7 @@ async function claimQuest(questId, pin) {
 export default function SideQuest({ quest, claimed, language, user, onBack, onClaimed, onRequireSignIn }) {
   const v = useV(language);
   const [step, setStep] = useState('view');
+  useEffect(() => { track('sidequest_view', { quest_id: quest.id }); }, [quest.id]);
   const title = localized(quest.title, language);
   const desc = localized(quest.description, language);
   const hero = safeImageUrl(quest.photo_url) ? `url("${safeImageUrl(quest.photo_url)}") center/cover` : placeGradient(`sq-${quest.id}`);
@@ -80,7 +82,7 @@ export default function SideQuest({ quest, claimed, language, user, onBack, onCl
             {links.map((l) => {
               const I = l.icon;
               return (
-                <a key={l.label} href={l.href} target="_blank" rel="noreferrer" style={{ background: l.bg, color: l.fg, borderColor: '#fff', boxShadow: '4px 4px 0 #fff' }}>
+                <a key={l.label} href={l.href} target="_blank" rel="noreferrer" onClick={() => track(l.icon === Icon.pin ? 'directions_tap' : 'social_tap', { quest_id: quest.id, kind: l.icon === Icon.pin ? 'maps' : String(l.label).toLowerCase(), source: 'sidequest' })} style={{ background: l.bg, color: l.fg, borderColor: '#fff', boxShadow: '4px 4px 0 #fff' }}>
                   <I /><span>{l.label}</span>
                 </a>
               );

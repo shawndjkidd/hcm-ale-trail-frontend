@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import translations from '../translations';
-import { changePassword, changeEmail, deleteAccount } from '../lib/api';
+import { changePassword, changeEmail, deleteAccount, saveOnboardingProfile } from '../lib/api';
 import { useV, fmt, shortDate } from './i18n';
 import { Sheet, Flags } from './ui';
 import { formatClock, personalityFor } from './util';
@@ -18,6 +18,18 @@ export default function Profile({
   const [msg, setMsg] = useState(null);
   const [busy, setBusy] = useState(false);
   const [confirmText, setConfirmText] = useState('');
+  const [offers, setOffers] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('hcm-onboarding-profile') || 'null')?.offers_opt_in === true; } catch { return false; }
+  });
+  const toggleOffers = () => {
+    const next = !offers;
+    setOffers(next);
+    try {
+      const cur = JSON.parse(localStorage.getItem('hcm-onboarding-profile') || 'null') || {};
+      localStorage.setItem('hcm-onboarding-profile', JSON.stringify({ ...cur, offers_opt_in: next }));
+    } catch {}
+    saveOnboardingProfile({ offers_opt_in: next }).catch(() => null);
+  };
 
   const personality = personalityFor(profile);
   const name = profile?.display_name || (user?.email || '').split('@')[0] || '—';
@@ -102,6 +114,12 @@ export default function Profile({
             <span className="k">{v.menuNight}</span>
             <button type="button" className="switch" role="switch" aria-checked={nightMode} onClick={toggleNightMode} aria-label={v.menuNight} />
           </div>
+          {user && (
+            <div className="li">
+              <span className="k">{v.offersSetting}</span>
+              <button type="button" className="switch" role="switch" aria-checked={offers} onClick={toggleOffers} aria-label={v.offersSetting} />
+            </div>
+          )}
           <button type="button" className="li" onClick={onEditTaste}>
             <span className="k">{v.yourTaste}</span>
             <span className="v">{(profile?.beer_styles || []).join(', ').toUpperCase() || '—'}</span><span>›</span>
