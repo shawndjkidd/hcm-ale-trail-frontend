@@ -68,26 +68,30 @@ export default function VenueChecklist({ breweryId, isHQ = false, photoUrl, hasH
         <h3 className="admin-card-title" style={{ margin: 0 }}>{t('Get your venue ready')}</h3>
         <span style={{ color: 'var(--admin-text-muted)', fontSize: 14 }}>{t('{done} of {total} done', { done: list.done, total: list.total })}</span>
       </div>
+      <div style={{ color: 'var(--admin-text-muted)', fontSize: 13, marginTop: 6 }}>{t('Check each item with the yellow button, then press Done.')}</div>
       <div style={{ height: 8, borderRadius: 4, background: 'var(--admin-border)', margin: '12px 0 6px', overflow: 'hidden' }}>
         <div style={{ height: '100%', width: `${(list.done / list.total) * 100}%`, background: 'var(--hq-good, #22C55E)', borderRadius: 4 }} />
       </div>
       {list.items.map((i) => (
         <div key={i.key} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid var(--admin-border)', opacity: i.done ? 0.62 : 1 }}>
           {i.done
-            ? <span aria-label="done" style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--hq-good, #22C55E)', color: '#fff', display: 'grid', placeItems: 'center', fontSize: 12, fontWeight: 800, flex: 'none' }}>✓</span>
-            : <span aria-hidden="true" style={{ width: 20, height: 20, borderRadius: '50%', border: '2px solid var(--admin-text-muted)', flex: 'none' }} />}
+            ? <span aria-label={t('Done')} style={{ width: 22, height: 22, borderRadius: '50%', background: 'var(--hq-good, #22C55E)', color: '#fff', display: 'grid', placeItems: 'center', fontSize: 12, fontWeight: 800, flex: 'none' }}>✓</span>
+            : <span aria-hidden="true" style={{ width: 22, height: 22, borderRadius: '50%', border: '2px solid var(--admin-text-muted)', flex: 'none' }} />}
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontWeight: 600, textDecoration: i.done ? 'line-through' : 'none' }}>{i.title}{i.optional ? <span style={{ color: 'var(--admin-text-muted)', fontWeight: 500 }}> · {t('optional')}</span> : null}</div>
             {!i.done && <div style={{ color: 'var(--admin-text-muted)', fontSize: 13, marginTop: 2 }}>{i.why}</div>}
           </div>
           {!i.done && (
-            <div style={{ display: 'flex', gap: 8, flex: 'none', alignItems: 'center' }}>
-              {i.ready && (isHQ
-                ? <span style={{ color: 'var(--admin-text-muted)', fontSize: 13 }}>{t('Waiting for the venue')}</span>
-                : <button type="button" className="admin-btn admin-btn-primary" style={{ width: 'auto' }} onClick={() => confirmItem(i.key)}>{i.tick}</button>)}
-              {i.action === 'removeDemo'
-                ? (facts.demoItems > 0 && <button type="button" className="admin-btn admin-btn-primary" style={{ width: 'auto' }} onClick={removeDemo} disabled={busy}>{busy ? t('Removing…') : i.cta}</button>)
-                : i.go && <button type="button" className={`admin-btn ${i.ready ? '' : 'admin-btn-primary'}`} style={{ width: 'auto', ...(i.ready ? { background: 'transparent', border: '1px solid var(--admin-border)', color: 'var(--admin-text)' } : {}) }} onClick={() => onGo(i.go)}>{i.cta}</button>}
+            <div style={{ display: 'flex', gap: 8, flex: 'none' }}>
+              {i.action === 'removeDemo' && facts.demoItems > 0
+                ? <button type="button" className="admin-btn admin-btn-primary" style={{ width: 'auto' }} onClick={removeDemo} disabled={busy}>{busy ? t('Removing…') : i.cta}</button>
+                : i.go && <button type="button" className="admin-btn admin-btn-primary" style={{ width: 'auto' }} onClick={() => onGo(i.go)}>{i.cta}</button>}
+              <button type="button" className="admin-btn admin-btn-success" disabled={isHQ}
+                title={isHQ ? t('Only the venue can tick this off') : undefined}
+                style={{ width: 'auto', ...(isHQ ? { opacity: 0.35, cursor: 'not-allowed' } : {}) }}
+                onClick={() => { if (i.ready) confirmItem(i.key); else toast.error(i.notReady); }}>
+                ✓ {t('Done')}
+              </button>
             </div>
           )}
         </div>
