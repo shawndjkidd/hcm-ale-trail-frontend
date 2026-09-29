@@ -3,6 +3,7 @@ import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent,
 import { useToast, useConfirm } from './AdminFeedback';
 import LocationsCard from './LocationsCard';
 import VenueDemoCard from './VenueDemoCard';
+import VenueChecklist from './VenueChecklist';
 
 const DAY_NAMES = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 const DAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -50,6 +51,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   const [passwordMessage, setPasswordMessage] = useState('');
 
   const [operatingHours, setOperatingHours] = useState(DEFAULT_HOURS);
+  const [hasHours, setHasHours] = useState(false);
   const [savingHours, setSavingHours] = useState(false);
   const [hoursMessage, setHoursMessage] = useState('');
 
@@ -159,6 +161,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       if (hours) {
         setOperatingHours({ ...DEFAULT_HOURS, ...hours });
       }
+      setHasHours(!!hours && typeof hours === 'object' && Object.keys(hours).length > 0);
       setPhotoUrl(dashResult.brewery?.photoUrl || dashResult.brewery?.photo_url || '');
       setSocialLinks({
         mapsUrl: dashResult.brewery?.maps_url || dashResult.brewery?.mapsUrl || '',
@@ -321,6 +324,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
     const result = await updateBreweryHours(breweryId, operatingHours);
     if (result.ok) {
       setHoursMessage('✓ Hours updated successfully');
+      setHasHours(true);
       setTimeout(() => setHoursMessage(''), 3000);
     } else {
       setHoursMessage(result.error || 'Failed to update hours');
@@ -497,6 +501,10 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   useEffect(() => {
     if (activeTab === 'team' && breweryId) loadStaff();
   }, [activeTab, breweryId]);
+  // Owners and managers: load the team on open so the checklist knows if bar staff are added.
+  useEffect(() => {
+    if (breweryId && canManage) loadStaff();
+  }, [breweryId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleInviteStaff = async () => {
     setInviteError('');
@@ -809,10 +817,16 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
         <button className={`admin-tab ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>Settings</button>
       </div>
 
+      {canManage && activeTab === 'overview' && (
+        <VenueChecklist breweryId={breweryId} photoUrl={photoUrl} hasHours={hasHours} socialLinks={socialLinks}
+          descriptionEn={descriptionEn} descriptionVn={descriptionVn} beers={beers} merch={brewMerch} events={events} staff={staff}
+          onGo={(tab) => { setActiveTab(tab); window.scrollTo({ top: 0 }); }} />
+      )}
       {canManage && <VenueDemoCard breweryId={breweryId} refreshKey={activeTab} onRemoved={() => { loadBeers(); getBreweryEvents(breweryId).then((r) => r?.ok && setEvents(r.events || [])); }} />}
 
       {activeTab === 'overview' && (
         <>
+
           <div className="admin-filters">
             <button className={`admin-quick-filter ${dateRange === '24h' ? 'active' : ''}`} onClick={() => setDateRange('24h')}>Last 24h</button>
             <button className={`admin-quick-filter ${dateRange === '7d' ? 'active' : ''}`} onClick={() => setDateRange('7d')}>Last 7 days</button>
