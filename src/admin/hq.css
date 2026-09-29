@@ -136,3 +136,26 @@
   .hq-g3, .hq-g21, .hq-g2 { grid-template-columns: 1fr; }
   .hq-main { padding: 18px 16px 50px; }
 }
+
+/* Classes the dashboards use that were never defined (the Restock form, stock badges
+   and some buttons showed unstyled). */
+.hq-theme .admin-input {
+  width: 100%; padding: 11px 14px; font-size: 15px; box-sizing: border-box;
+  border: 1px solid var(--admin-border); border-radius: 10px;
+  background: var(--admin-card-bg); color: var(--admin-text);
+}
+.hq-theme .admin-input:focus { outline: none; border-color: var(--admin-primary); }
+.hq-theme .admin-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--admin-text); }
+.hq-theme .admin-badge-error { background: rgba(220, 38, 38, 0.14); color: var(--hq-bad); }
+.hq-theme .admin-badge-success, .hq-theme .admin-badge.active { background: rgba(34, 197, 94, 0.14); color: var(--hq-good); }
+.hq-theme .admin-btn-success { background: var(--hq-good); color: #fff; }
+.hq-theme .admin-btn-success:hover { filter: brightness(1.08); }
+
+/* Round on/off switch */
+.hq-sw { width: 40px; height: 24px; border-radius: 12px; background: var(--admin-border); position: relative; border: 0; padding: 0; cursor: pointer; flex: none; transition: background .2s; }
+.hq-sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.35); transition: transform .2s; }
+.hq-sw[aria-checked="true"] { background: var(--hq-good); }
+.hq-sw[aria-checked="true"]::after { transform: translateX(16px); }
+.hq-sw:disabled { opacity: .45; cursor: not-allowed; }
+.hq-table.center td, .hq-table.center th { text-align: center; }
+.hq-table.center td:first-child, .hq-table.center th:first-child { text-align: left; }

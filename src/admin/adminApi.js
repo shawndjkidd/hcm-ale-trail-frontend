@@ -763,3 +763,27 @@ export async function pingVenueVisit(breweryId) {
     return await res.json();
   } catch (err) { return { ok: false, error: err.message }; }
 }
+
+// HQ only: set the exact count on hand (e.g. after counting). The change is kept in history.
+export async function setMerchandiseCount(breweryId, merchId, quantity) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/merchandise/${merchId}/stock`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify({ quantity }) });
+    return await res.json();
+  } catch (err) { return { ok: false, error: err.message }; }
+}
+
+// ==================== PLANS & ADD-ONS (HQ) ====================
+
+export async function getVenueFeatures(trailId) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/features`, { headers: authHeaders() });
+    return await res.json();
+  } catch (err) { return { ok: false, error: err.message }; }
+}
+
+export async function setVenueFeature(trailId, payload) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/features`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(payload) });
+    return await res.json();
+  } catch (err) { return { ok: false, error: err.message }; }
+}

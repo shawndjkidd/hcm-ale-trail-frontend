@@ -4,14 +4,17 @@ import {
   deleteEvent, updateEvent, createTrailEvent, getTrailBreweries, createBrewery, updateBrewery,
   deleteBrewery, getSideQuests, createSideQuest, updateSideQuest, deleteSideQuest,
   getTrailBeerRatings, getMergeSuggestions, mergeRatings, createBreweryStaff, getBreweryLogin,
-  getTrailMerchandise, createMerchandiseItem, updateMerchandiseItem, restockMerchandise,
+  getTrailMerchandise, createMerchandiseItem, updateMerchandiseItem, restockMerchandise, setMerchandiseCount,
   getTrailAnalytics, getSuperAdmins, addSuperAdmin, removeSuperAdmin,
   TRAIL_ID
 } from './adminApi';
 import { useToast, useConfirm } from './AdminFeedback';
 import AddStampsCard from './AddStampsCard';
 import HQHome from './HQHome';
+import { coordsFromMapsLink } from './mapsLink';
 import HQLaunch from './HQLaunch';
+import HQPlans from './HQPlans';
+import HQStampsBoard from './HQStampsBoard';
 
 const generateStaffEmail = (name) => name.toLowerCase().replace(/[^a-z0-9]/g, '') + '@aletrail.app';
 const generatePassword = () => {
@@ -22,6 +25,11 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line
 } from 'recharts';
+
+// Side quest hours: one opening and closing time, the same every day (the app's per-day format).
+const HOURS_DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+const everyDay = (open, close) => Object.fromEntries(HOURS_DAYS.map((d) => [d, { open, close }]));
+const firstHours = (h) => (h && typeof h === 'object' ? HOURS_DAYS.map((d) => h[d]).find((x) => x && !x.closed) : null);
 
 const CHART_COLORS = ['#F97316', '#60A5FA', '#8B919A', '#22C55E', '#E5243B', '#A78BFA'];
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -41,11 +49,12 @@ export default function HQDashboard({ adminEmail = '' }) {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [activeTab, setActiveTab] = useState('home');
+  const [board, setBoard] = useState('fastest');
   const [exporting, setExporting] = useState(false);
 
   const [showEventForm, setShowEventForm] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
-  const [eventForm, setEventForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '', category: 'event' });
+  const [eventForm, setEventForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '', category: 'event', status: 'active' });
   const [savingEvent, setSavingEvent] = useState(false);
 
   const [showBreweryForm, setShowBreweryForm] = useState(false);
@@ -56,7 +65,7 @@ export default function HQDashboard({ adminEmail = '' }) {
 
   const [showQuestForm, setShowQuestForm] = useState(false);
   const [editingQuest, setEditingQuest] = useState(null);
-  const [questForm, setQuestForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', reward: '', pin: '', address: '', district: '', mapsUrl: '', instagramUrl: '', facebookUrl: '', instagramHandle: '', hasVenueDashboard: false, status: 'active', oneTime: true });
+  const [questForm, setQuestForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', reward: '', pin: '', address: '', district: '', mapsUrl: '', instagramUrl: '', facebookUrl: '', instagramHandle: '', hasVenueDashboard: false, status: 'active', oneTime: true, kind: '', photoUrl: '', latitude: '', longitude: '', opens: '', closes: '', endsAt: '' });
   const [savingQuest, setSavingQuest] = useState(false);
 
   const [analytics, setAnalytics] = useState(null);
@@ -214,9 +223,12 @@ export default function HQDashboard({ adminEmail = '' }) {
 
   const handleRestockSubmit = async () => {
     const qty = Number(restockForm.quantity);
-    if (!qty || qty <= 0) return;
+    const setMode = restockForm.mode === 'set';
+    if (setMode ? !(Number.isInteger(qty) && qty >= 0) : !(qty > 0)) return;
     setRestocking(true);
-    const result = await restockMerchandise(restockForm.breweryId, restockForm.merchId, qty, restockForm.notes);
+    const result = setMode
+      ? await setMerchandiseCount(restockForm.breweryId, restockForm.merchId, qty)
+      : await restockMerchandise(restockForm.breweryId, restockForm.merchId, qty, restockForm.notes);
     if (result.ok) {
       // Refresh merch data
       const merchResult = await getTrailMerchandise(TRAIL_ID).catch(() => ({ ok: false }));
@@ -259,7 +271,7 @@ export default function HQDashboard({ adminEmail = '' }) {
       starts_at: new Date(eventForm.startsAt).toISOString(),
       ends_at: eventForm.endsAt ? new Date(eventForm.endsAt).toISOString() : null,
       link: eventForm.link || null,
-      status: 'active',
+      status: eventForm.status || 'active',
       category: eventForm.category || 'event',
       ...(eventForm.linkedTo === 'brewery' && eventForm.linkedId ? { brewery_id: eventForm.linkedId } : {}),
       ...(eventForm.linkedTo === 'side_quest' && eventForm.linkedId ? { side_quest_id: eventForm.linkedId } : {}),
@@ -268,7 +280,7 @@ export default function HQDashboard({ adminEmail = '' }) {
     if (result.ok) {
       setEvents([...events, result.event]);
       setShowEventForm(false);
-      setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '', category: 'event' });
+      setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '', category: 'event', status: 'active' });
       toast.success('Event created');
     } else {
       toast.error(result.error || 'Failed to create event');
@@ -293,9 +305,11 @@ export default function HQDashboard({ adminEmail = '' }) {
       startsAt: toLocal(event.startsAt),
       endsAt: toLocal(event.endsAt),
       link: event.link || '',
-      linkedTo: 'none',
-      linkedId: '',
+      // Keep the event's venue when editing (it used to reset to "None").
+      linkedTo: event.breweryId ? 'brewery' : 'none',
+      linkedId: event.breweryId || '',
       category: event.category || 'event',
+      status: event.status === 'hidden' ? 'hidden' : 'active',
     });
     setShowEventForm(true);
   };
@@ -314,13 +328,15 @@ export default function HQDashboard({ adminEmail = '' }) {
       ends_at: eventForm.endsAt ? new Date(eventForm.endsAt).toISOString() : null,
       link: eventForm.link || null,
       category: eventForm.category || 'event',
+      status: eventForm.status || 'active',
+      brewery_id: eventForm.linkedTo === 'brewery' && eventForm.linkedId ? eventForm.linkedId : null,
     };
     const result = await updateEvent(editingEvent.id, patch);
     if (result.ok) {
       setEvents(events.map(e => e.id === editingEvent.id ? result.event : e));
       setShowEventForm(false);
       setEditingEvent(null);
-      setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '', category: 'event' });
+      setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '', category: 'event', status: 'active' });
       toast.success('Event updated');
     } else {
       toast.error(result.error || 'Failed to update event');
@@ -330,7 +346,7 @@ export default function HQDashboard({ adminEmail = '' }) {
 
   const openCreateEvent = () => {
     setEditingEvent(null);
-    setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '', category: 'event' });
+    setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '', category: 'event', status: 'active' });
     setShowEventForm(true);
   };
 
@@ -487,11 +503,18 @@ export default function HQDashboard({ adminEmail = '' }) {
         instagramHandle: quest.instagram_handle || quest.instagramHandle || '',
         hasVenueDashboard: quest.hasVenueDashboard || false,
         status: quest.status || 'active',
-        oneTime: quest.one_time !== false
+        oneTime: quest.one_time !== false,
+        kind: quest.kind || '',
+        photoUrl: quest.photo_url || quest.photoUrl || '',
+        latitude: quest.latitude ?? '',
+        longitude: quest.longitude ?? '',
+        opens: firstHours(quest.operating_hours)?.open || '',
+        closes: firstHours(quest.operating_hours)?.close || '',
+        endsAt: quest.ends_at ? new Date(new Date(quest.ends_at).getTime() - new Date(quest.ends_at).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : '',
       });
     } else {
       setEditingQuest(null);
-      setQuestForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', reward: '', pin: '', address: '', district: '', mapsUrl: '', instagramUrl: '', facebookUrl: '', instagramHandle: '', hasVenueDashboard: false, status: 'active', oneTime: true });
+      setQuestForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', reward: '', pin: '', address: '', district: '', mapsUrl: '', instagramUrl: '', facebookUrl: '', instagramHandle: '', hasVenueDashboard: false, status: 'active', oneTime: true, kind: '', photoUrl: '', latitude: '', longitude: '', opens: '', closes: '', endsAt: '' });
     }
     setShowQuestForm(true);
   };
@@ -519,7 +542,13 @@ export default function HQDashboard({ adminEmail = '' }) {
         facebook_url: questForm.facebookUrl || null,
         instagram_handle: questForm.instagramHandle || null,
         status: questForm.status,
-        one_time: questForm.oneTime
+        one_time: questForm.oneTime,
+        kind: questForm.kind || null,
+        photo_url: questForm.photoUrl || null,
+        latitude: questForm.latitude === '' ? null : Number(questForm.latitude),
+        longitude: questForm.longitude === '' ? null : Number(questForm.longitude),
+        operating_hours: questForm.opens && questForm.closes ? everyDay(questForm.opens, questForm.closes) : null,
+        ends_at: questForm.endsAt ? new Date(questForm.endsAt).toISOString() : null,
       };
       let result;
       if (editingQuest) {
@@ -636,6 +665,7 @@ export default function HQDashboard({ adminEmail = '' }) {
           { grp: 'Manage' },
           { id: 'export', label: 'Reports & export' },
           { id: 'superadmins', label: 'HQ team', onOpen: () => { if (superAdmins.length === 0) loadSuperAdmins(); } },
+          { id: 'plans', label: 'Plans & add-ons' },
           { id: 'launch', label: 'Launch & settings' },
         ].map((item) => item.grp
           ? <div key={item.grp} className="grp">{item.grp}</div>
@@ -656,6 +686,7 @@ export default function HQDashboard({ adminEmail = '' }) {
         window.scrollTo({ top: 0 });
       }} />}
       {activeTab === 'launch' && <HQLaunch />}
+      {activeTab === 'plans' && <HQPlans />}
 
       {activeTab === 'overview' && (
         <>
@@ -778,6 +809,7 @@ export default function HQDashboard({ adminEmail = '' }) {
                 <div className="admin-form-group"><label className="admin-form-label">Link to venue</label><select className="admin-form-input" value={eventForm.linkedTo} onChange={(e) => setEventForm({...eventForm, linkedTo: e.target.value, linkedId: ''})}><option value="none">None (trail-wide)</option><option value="brewery">Brewery</option><option value="side_quest">Side Quest</option></select></div>
                 {eventForm.linkedTo === 'brewery' && (<div className="admin-form-group"><label className="admin-form-label">Select brewery</label><select className="admin-form-input" value={eventForm.linkedId} onChange={(e) => setEventForm({...eventForm, linkedId: e.target.value})}><option value="">— choose —</option>{breweries.map(b => (<option key={b.id} value={b.id}>{b.name}</option>))}</select></div>)}
                 {eventForm.linkedTo === 'side_quest' && (<div className="admin-form-group"><label className="admin-form-label">Select side quest</label><select className="admin-form-input" value={eventForm.linkedId} onChange={(e) => setEventForm({...eventForm, linkedId: e.target.value})}><option value="">— choose —</option>{sideQuests.map(q => (<option key={q.id} value={q.id}>{typeof q.title === 'string' ? q.title : (q.title?.en || 'Untitled')}</option>))}</select></div>)}
+                <div className="admin-form-group"><label className="admin-form-label">Show in the app?</label><select className="admin-form-input" value={eventForm.status || 'active'} onChange={(e) => setEventForm({...eventForm, status: e.target.value})}><option value="active">Live: guests can see it</option><option value="hidden">Hidden: saved, not shown</option></select></div>
                 <div style={{ display: 'flex', gap: 12, marginTop: 20 }}><button className="admin-btn admin-btn-primary" onClick={editingEvent ? handleUpdateEvent : handleCreateTrailEvent} disabled={savingEvent}>{savingEvent ? 'Saving...' : (editingEvent ? 'Update Event' : 'Create Event')}</button><button className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={() => { setShowEventForm(false); setEditingEvent(null); }}>Cancel</button></div>
               </div>
             </div>
@@ -805,7 +837,18 @@ export default function HQDashboard({ adminEmail = '' }) {
                 <div className="admin-form-group"><label className="admin-form-label">PIN Code (4 digits){editingQuest ? ' (leave blank to keep existing)' : ' *'}</label><input type="text" className="admin-form-input" value={questForm.pin} onChange={(e) => setQuestForm(prev => ({...prev, pin: e.target.value.replace(/\D/g, '').slice(0, 4)}))} placeholder="1234" maxLength="4" /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Address</label><input type="text" className="admin-form-input" value={questForm.address} onChange={(e) => setQuestForm(prev => ({...prev, address: e.target.value}))} placeholder="123 Beer Street" /></div>
                 <div className="admin-form-group"><label className="admin-form-label">District</label><input type="text" className="admin-form-input" value={questForm.district} onChange={(e) => setQuestForm(prev => ({...prev, district: e.target.value}))} placeholder="District 1" /></div>
-                <div className="admin-form-group"><label className="admin-form-label">Maps URL</label><input type="text" className="admin-form-input" value={questForm.mapsUrl} onChange={(e) => setQuestForm(prev => ({...prev, mapsUrl: e.target.value}))} placeholder="https://maps.google.com/..." /></div>
+                <div className="admin-form-group"><label className="admin-form-label">Maps URL</label><input type="text" className="admin-form-input" value={questForm.mapsUrl} onChange={(e) => { const url = e.target.value; const c = coordsFromMapsLink(url); setQuestForm(prev => ({...prev, mapsUrl: url, ...(c ? { latitude: c.latitude, longitude: c.longitude } : {})})); }} placeholder="https://maps.google.com/..." /></div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  <div className="admin-form-group"><label className="admin-form-label">Map pin: latitude</label><input type="text" inputMode="decimal" className="admin-form-input" value={questForm.latitude} onChange={(e) => setQuestForm(prev => ({...prev, latitude: e.target.value}))} placeholder="Filled from a full Maps link" /></div>
+                  <div className="admin-form-group"><label className="admin-form-label">Map pin: longitude</label><input type="text" inputMode="decimal" className="admin-form-input" value={questForm.longitude} onChange={(e) => setQuestForm(prev => ({...prev, longitude: e.target.value}))} placeholder="e.g. 106.70" /></div>
+                </div>
+                <div className="admin-form-group"><label className="admin-form-label">Type (shown on the card, e.g. Ruin bar, Pizza, One night)</label><input type="text" className="admin-form-input" maxLength={40} value={questForm.kind} onChange={(e) => setQuestForm(prev => ({...prev, kind: e.target.value}))} /></div>
+                <div className="admin-form-group"><label className="admin-form-label">Photo link (https://…)</label><input type="text" className="admin-form-input" value={questForm.photoUrl} onChange={(e) => setQuestForm(prev => ({...prev, photoUrl: e.target.value}))} placeholder="https://…/photo.jpg" /></div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.4fr', gap: 10 }}>
+                  <div className="admin-form-group"><label className="admin-form-label">Opens</label><input type="time" className="admin-form-input" value={questForm.opens} onChange={(e) => setQuestForm(prev => ({...prev, opens: e.target.value}))} /></div>
+                  <div className="admin-form-group"><label className="admin-form-label">Closes</label><input type="time" className="admin-form-input" value={questForm.closes} onChange={(e) => setQuestForm(prev => ({...prev, closes: e.target.value}))} /></div>
+                  <div className="admin-form-group"><label className="admin-form-label">Ends on (optional)</label><input type="datetime-local" className="admin-form-input" value={questForm.endsAt} onChange={(e) => setQuestForm(prev => ({...prev, endsAt: e.target.value}))} /></div>
+                </div>
                 <div className="admin-form-group"><label className="admin-form-label">Instagram URL</label><input type="text" className="admin-form-input" value={questForm.instagramUrl} onChange={(e) => setQuestForm(prev => ({...prev, instagramUrl: e.target.value}))} placeholder="https://instagram.com/..." /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Facebook URL</label><input type="text" className="admin-form-input" value={questForm.facebookUrl} onChange={(e) => setQuestForm(prev => ({...prev, facebookUrl: e.target.value}))} placeholder="https://facebook.com/..." /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Instagram Handle</label><input type="text" className="admin-form-input" value={questForm.instagramHandle} onChange={(e) => setQuestForm(prev => ({...prev, instagramHandle: e.target.value}))} placeholder="@yourvenue" /></div>
@@ -824,7 +867,13 @@ export default function HQDashboard({ adminEmail = '' }) {
 
       {activeTab === 'leaderboard' && (
         <>
-          <div className="admin-card"><h3 className="admin-card-title">Leaderboard (with Contact Info)</h3>{leaderboard.length === 0 ? (<div className="admin-empty">No completions yet</div>) : (<div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Rank</th><th>Name</th><th>Email</th><th>Time</th><th>Completed</th></tr></thead><tbody>{leaderboard.map((entry) => (<tr key={entry.participantId}><td><span className={`admin-rank ${entry.rank === 1 ? 'gold' : entry.rank === 2 ? 'silver' : entry.rank === 3 ? 'bronze' : 'default'}`}>{entry.rank}</span></td><td><strong>{entry.displayName || entry.name || '--'}</strong></td><td><a href={`mailto:${entry.email}`} style={{ color: 'var(--admin-primary)' }}>{entry.email}</a></td><td>{formatTime(entry.completionTimeMs)}</td><td style={{ color: 'var(--admin-text-muted)' }}>{new Date(entry.completedAt).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })}</td></tr>))}</tbody></table></div>)}</div>
+          <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+            {[['fastest', 'Fastest trail'], ['stamps', 'Most stamps ever']].map(([k, label]) => (
+              <button key={k} type="button" className={`hq-btn ${board === k ? 'y' : ''}`} onClick={() => setBoard(k)}>{label}</button>
+            ))}
+          </div>
+          {board === 'stamps' && <div className="admin-card"><h3 className="admin-card-title">Most stamps ever</h3><HQStampsBoard /></div>}
+          {board === 'fastest' && <div className="admin-card"><h3 className="admin-card-title">Fastest trail (with contact info)</h3>{leaderboard.length === 0 ? (<div className="admin-empty">No completions yet</div>) : (<div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Rank</th><th>Name</th><th>Email</th><th>Time</th><th>Completed</th></tr></thead><tbody>{leaderboard.map((entry) => (<tr key={entry.participantId}><td><span className={`admin-rank ${entry.rank === 1 ? 'gold' : entry.rank === 2 ? 'silver' : entry.rank === 3 ? 'bronze' : 'default'}`}>{entry.rank}</span></td><td><strong>{entry.displayName || entry.name || '--'}</strong></td><td><a href={`mailto:${entry.email}`} style={{ color: 'var(--admin-primary)' }}>{entry.email}</a></td><td>{formatTime(entry.completionTimeMs)}</td><td style={{ color: 'var(--admin-text-muted)' }}>{new Date(entry.completedAt).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })}</td></tr>))}</tbody></table></div>)}</div>}
           <div className="admin-card" style={{ marginTop: 24 }}>
             <h3 className="admin-card-title">Beer Ratings</h3>
             {beerRatings.length === 0 ? (
@@ -1041,24 +1090,30 @@ export default function HQDashboard({ adminEmail = '' }) {
           {showRestockModal && (
             <div className="admin-modal-overlay" onClick={() => setShowRestockModal(false)}>
               <div className="admin-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 400 }}>
-                <h3 className="admin-card-title">Restock</h3>
+                <h3 className="admin-card-title">Hat stock</h3>
                 <p style={{ color: 'var(--admin-text-muted)', fontSize: 13, marginBottom: 12 }}>
                   {merchandise.find(m => m.id === restockForm.merchId)?.name} → {breweries.find(b => b.id === restockForm.breweryId)?.name}
                 </p>
-                <div className="admin-form-group">
-                  <label className="admin-label">Quantity to Add</label>
-                  <input className="admin-input" type="number" min="1" value={restockForm.quantity}
-                    onChange={e => setRestockForm({ ...restockForm, quantity: e.target.value })} autoFocus />
+                <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+                  {[['add', 'Add a delivery'], ['set', 'Set exact count']].map(([m, label]) => (
+                    <button key={m} type="button" className={`hq-btn ${ (restockForm.mode || 'add') === m ? 'y' : ''}`} onClick={() => setRestockForm({ ...restockForm, mode: m, quantity: '' })}>{label}</button>
+                  ))}
                 </div>
                 <div className="admin-form-group">
+                  <label className="admin-label">{restockForm.mode === 'set' ? 'How many are there right now?' : 'How many arrived?'}</label>
+                  <input className="admin-input" type="number" min={restockForm.mode === 'set' ? 0 : 1} value={restockForm.quantity}
+                    onChange={e => setRestockForm({ ...restockForm, quantity: e.target.value })} autoFocus />
+                  {restockForm.mode === 'set' && <p style={{ color: 'var(--admin-text-muted)', fontSize: 12, margin: '6px 0 0' }}>Replaces the current number, e.g. after counting. The change is kept in the history.</p>}
+                </div>
+                {restockForm.mode !== 'set' && <div className="admin-form-group">
                   <label className="admin-label">Notes (optional)</label>
                   <input className="admin-input" value={restockForm.notes}
                     onChange={e => setRestockForm({ ...restockForm, notes: e.target.value })} placeholder="e.g. Delivery from supplier" />
-                </div>
+                </div>}
                 <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
                   <button className="admin-btn admin-btn-primary" style={{ width: 'auto' }} onClick={handleRestockSubmit}
-                    disabled={restocking || !restockForm.quantity || Number(restockForm.quantity) <= 0}>
-                    {restocking ? 'Restocking...' : 'Confirm Restock'}
+                    disabled={restocking || restockForm.quantity === '' || (restockForm.mode === 'set' ? Number(restockForm.quantity) < 0 : Number(restockForm.quantity) <= 0)}>
+                    {restocking ? 'Saving…' : restockForm.mode === 'set' ? 'Save count' : 'Add to stock'}
                   </button>
                   <button className="admin-btn admin-btn-secondary" style={{ width: 'auto' }} onClick={() => setShowRestockModal(false)}>Cancel</button>
                 </div>
