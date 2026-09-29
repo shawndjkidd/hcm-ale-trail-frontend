@@ -795,3 +795,19 @@ export async function setVenueFeature(trailId, payload) {
     return await res.json();
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
+
+// ==================== VENUE DEMO CONTENT ====================
+
+export async function getVenueDemo(breweryId) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/demo`, { headers: authHeaders() });
+    return await res.json();
+  } catch (err) { return { ok: false, error: netError(err) }; }
+}
+
+export async function removeVenueDemo(breweryId) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/demo`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ confirm: 'REMOVE' }) });
+    return await res.json();
+  } catch (err) { return { ok: false, error: netError(err) }; }
+}

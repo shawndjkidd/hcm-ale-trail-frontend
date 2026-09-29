@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, bulkUploadBeers, mergeRatings, updateAdminAccount, getBreweryMerchandise, restockMerchandise, getTrailAnalytics, getBreweryStaff, inviteBreweryStaff, updateBreweryStaffRole, removeBreweryStaff, pingVenueVisit, TRAIL_ID } from './adminApi';
 import { useToast, useConfirm } from './AdminFeedback';
 import LocationsCard from './LocationsCard';
+import VenueDemoCard from './VenueDemoCard';
 
 const DAY_NAMES = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 const DAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -807,6 +808,8 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
         )}
         <button className={`admin-tab ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>Settings</button>
       </div>
+
+      {canManage && <VenueDemoCard breweryId={breweryId} refreshKey={activeTab} onRemoved={() => { loadBeers(); getBreweryEvents(breweryId).then((r) => r?.ok && setEvents(r.events || [])); }} />}
 
       {activeTab === 'overview' && (
         <>
