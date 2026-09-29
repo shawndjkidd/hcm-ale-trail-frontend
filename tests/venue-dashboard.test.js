@@ -13,9 +13,12 @@ test('venue dashboard: Photo URL field saves photo_url (https only; blank clears
 
 test('venue dashboard: management tabs and settings are hidden from plain staff (API enforces it too)', () => {
   assert.match(src, /const canManage = staffRole !== 'staff';/);
-  for (const tab of ["'events'", "'beers'", "'stock'"]) {
+  for (const tab of ["'events'", "'beers'"]) {
     assert.match(src, new RegExp(`\\{canManage && <button className=\\{\`admin-tab \\$\\{activeTab === ${tab}`), tab);
   }
+  // Staff can see hat stock (they hand the hats out) but only owners/managers get Restock.
+  assert.match(src, /<button className=\{`admin-tab \$\{activeTab === 'stock'/, 'stock tab visible to everyone');
+  assert.match(src, /\{canManage && \(<button[\s\S]{0,200}?setShowBrewRestockModal\(true\)/, 'restock button is owner/manager only');
   assert.match(src, /\{canManage \? \(<div>/, 'left settings column (status, links, hours)');
   assert.match(src, /\{staffRole !== 'staff' && \(\s*<div className="admin-card">\s*<h3 className="admin-card-title">Check-in PIN Code/, 'PIN card');
 });
