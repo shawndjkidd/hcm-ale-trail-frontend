@@ -43,7 +43,7 @@ function BeerRow({ beer }) {
   );
 }
 
-export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events = [], language, onBack, onCheckIn, here }) {
+export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events = [], language, onBack, onCheckIn, here, requestLocation, locationDenied }) {
   const v = useV(language);
   const st = brandOpenStatus(brewery);
   const { beers, recent, loaded } = useBreweryBeers(brewery.id);
@@ -52,6 +52,9 @@ export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events 
   const [showMenu, setShowMenu] = useState(false);
   const [copied, setCopied] = useState(false);
   useEffect(() => { track('venue_view', { venue_id: brewery.id }); }, [brewery.id]);
+  // With more than one location, ask where the guest is so the nearest can be marked.
+  const multi = brewery.locations?.length > 0;
+  useEffect(() => { if (multi && !here) requestLocation?.(); }, [multi, brewery.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const [openEvent, setOpenEvent] = useState(null);
   const isStamped = !!stampedAt;
   const handle = handleFrom(brewery.instagram_url);
@@ -129,6 +132,11 @@ export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events 
           <div className="v2-locations">
             <h3>{fmt(v.locationsN, { n: brewery.locations.length + 1 })}</h3>
             <p className="note">{v.stampAnyLocation}</p>
+            {!here && (
+              locationDenied
+                ? <p className="note">{v.locationOffNearest}</p>
+                : <button type="button" className="link-btn" style={{ marginBottom: 8 }} onClick={() => requestLocation?.()}>{v.showNearest}</button>
+            )}
             {placesByDistance(brewery, here).map((p, i) => {
               const pst = openStatus(p);
               const href = directionsHref(p);

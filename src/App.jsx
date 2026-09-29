@@ -97,6 +97,7 @@ export default function App() {
   const [cardRound, setCardRound] = useState(() => parseInt(localStorage.getItem("hcm-card-round") || "1", 10));
   const [initialized, setInitialized] = useState(false);
   const [here, setHere] = useState(null);
+  const [locationDenied, setLocationDenied] = useState(false);
 
   // ── Navigation ────────────────────────────────────────────────────────────
   const [tab, setTab] = useState("home");
@@ -207,8 +208,8 @@ export default function App() {
   const requestLocation = useCallback(() => {
     if (here || !navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
-      (p) => setHere({ lat: p.coords.latitude, lng: p.coords.longitude }),
-      () => {},
+      (p) => { setLocationDenied(false); setHere({ lat: p.coords.latitude, lng: p.coords.longitude }); },
+      () => setLocationDenied(true),
       { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 },
     );
   }, [here]);
@@ -474,7 +475,7 @@ export default function App() {
     content = (
       <Brewery brewery={currentBrewery} stampedAt={stamps.includes(currentBrewery.id) ? stampDates[currentBrewery.id] || new Date().toISOString() : null}
         beerCountHere={beers.filter((b) => b.breweryId === currentBrewery.id).length} events={events} language={language}
-        here={here} onBack={closeScreen} onCheckIn={() => startCheckIn(currentBrewery)} />
+        here={here} requestLocation={requestLocation} locationDenied={locationDenied} onBack={closeScreen} onCheckIn={() => startCheckIn(currentBrewery)} />
     );
   } else if (screen?.type === "quest") {
     content = (
