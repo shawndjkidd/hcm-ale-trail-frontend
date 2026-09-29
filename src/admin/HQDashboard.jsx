@@ -48,7 +48,14 @@ export default function HQDashboard({ adminEmail = '' }) {
   const [dateRange, setDateRange] = useState('7d');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
-  const [activeTab, setActiveTab] = useState('home');
+  // Remember the open page for this browser tab, so a refresh (e.g. the new-version pop-up) reopens it.
+  const [activeTab, setActiveTab] = useState(() => { try { return sessionStorage.getItem('hcm-hq-tab') || 'home'; } catch { return 'home'; } });
+  useEffect(() => { try { sessionStorage.setItem('hcm-hq-tab', activeTab); } catch {} }, [activeTab]);
+  // Pages that load their data on first click need it when reopened after a refresh too.
+  useEffect(() => {
+    if (activeTab === 'analytics') loadAnalytics();
+    if (activeTab === 'superadmins') loadSuperAdmins();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [board, setBoard] = useState('fastest');
   const [exporting, setExporting] = useState(false);
 

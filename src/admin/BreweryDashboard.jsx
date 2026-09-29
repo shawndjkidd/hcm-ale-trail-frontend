@@ -25,7 +25,9 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [dateRange, setDateRange] = useState('7d');
-  const [activeTab, setActiveTab] = useState('overview');
+  // Remember the open tab for this browser tab, so a refresh (e.g. the new-version pop-up) reopens it.
+  const [activeTab, setActiveTab] = useState(() => { try { return sessionStorage.getItem('hcm-venue-tab') || 'overview'; } catch { return 'overview'; } });
+  useEffect(() => { try { sessionStorage.setItem('hcm-venue-tab', activeTab); } catch {} }, [activeTab]);
 
   // Audience analytics (free tier)
   const [audience, setAudience] = useState(null);
