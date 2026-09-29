@@ -8,13 +8,13 @@
   --admin-text: #16181B;
   --admin-text-muted: #5F646C;
   --admin-border: #E1E3E7;
-  --admin-primary: #EA580C;
-  --admin-primary-hover: #C2410C;
+  --admin-primary: #E09A12;
+  --admin-primary-hover: #C98A0E;
   --admin-success: #16A34A;
   --admin-success-light: #22C55E;
   --hq-panel2: #F0F1F3;
-  --hq-accent: #EA580C;
-  --hq-accent-ink: #FFFFFF;
+  --hq-accent: #E09A12;
+  --hq-accent-ink: #111111;
   --hq-good: #16A34A;
   --hq-warn: #D97706;
   --hq-bad: #DC2626;
@@ -27,14 +27,14 @@
   --admin-text: #F3F4F6;
   --admin-text-muted: #A4A8AF;
   --admin-border: #2A2D32;
-  --admin-primary: #F97316;
-  --admin-primary-hover: #FB8A3C;
+  --admin-primary: #F5A623;
+  --admin-primary-hover: #F7B84B;
   --admin-success: #22C55E;
   --admin-success-light: #4ADE80;
   --admin-shadow: none;
   --admin-shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.5);
   --hq-panel2: #1F2125;
-  --hq-accent: #F97316;
+  --hq-accent: #F5A623;
   --hq-accent-ink: #111111;
   --hq-good: #22C55E;
   --hq-warn: #FBBF24;
@@ -42,7 +42,7 @@
 }
 .hq-theme .admin-header { border-bottom: 1px solid var(--admin-border); box-shadow: none; }
 .hq-theme .admin-btn { border-radius: 9px; font-weight: 600; }
-/* Text on the orange accent: white in light mode, near-black in dark mode. */
+/* Text on the amber accent: near-black in both modes (reads best on amber). */
 .hq-theme .admin-btn-primary,
 .hq-theme .admin-quick-filter.active,
 .hq-theme .admin-you-badge,

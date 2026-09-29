@@ -31,7 +31,7 @@ const HOURS_DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'fri
 const everyDay = (open, close) => Object.fromEntries(HOURS_DAYS.map((d) => [d, { open, close }]));
 const firstHours = (h) => (h && typeof h === 'object' ? HOURS_DAYS.map((d) => h[d]).find((x) => x && !x.closed) : null);
 
-const CHART_COLORS = ['#F97316', '#60A5FA', '#8B919A', '#22C55E', '#E5243B', '#A78BFA'];
+const CHART_COLORS = ['#F5A623', '#60A5FA', '#8B919A', '#22C55E', '#E5243B', '#A78BFA'];
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export default function HQDashboard({ adminEmail = '' }) {
@@ -724,7 +724,7 @@ export default function HQDashboard({ adminEmail = '' }) {
 
           <div className="admin-grid-2">
             <div className="admin-card"><h3 className="admin-card-title">Check-ins by Brewery</h3><div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Rank</th><th>Brewery</th><th>Check-ins</th></tr></thead><tbody>{checkinsByBrewery.sort((a, b) => b.count - a.count).map((brewery, index) => (<tr key={brewery.breweryId}><td><span className={`admin-rank ${index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : 'default'}`}>{index + 1}</span></td><td>{brewery.breweryName}</td><td><strong>{brewery.count}</strong></td></tr>))}</tbody></table></div></div>
-            <div className="admin-card"><h3 className="admin-card-title">Daily Check-ins</h3><div className="admin-chart-container"><ResponsiveContainer width="100%" height="100%"><LineChart data={checkinsTrend}><CartesianGrid strokeDasharray="3 3" stroke="var(--admin-border)" /><XAxis dataKey="date" tick={{ fill: 'var(--admin-text-muted)', fontSize: 12 }} tickFormatter={(d) => new Date(d).toLocaleDateString('en', { month: 'short', day: 'numeric' })} /><YAxis tick={{ fill: 'var(--admin-text-muted)', fontSize: 12 }} /><Tooltip contentStyle={{ background: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)', borderRadius: 8 }} /><Line type="monotone" dataKey="count" stroke="#F97316" strokeWidth={2} dot={{ fill: '#F97316' }} /></LineChart></ResponsiveContainer></div></div>
+            <div className="admin-card"><h3 className="admin-card-title">Daily Check-ins</h3><div className="admin-chart-container"><ResponsiveContainer width="100%" height="100%"><LineChart data={checkinsTrend}><CartesianGrid strokeDasharray="3 3" stroke="var(--admin-border)" /><XAxis dataKey="date" tick={{ fill: 'var(--admin-text-muted)', fontSize: 12 }} tickFormatter={(d) => new Date(d).toLocaleDateString('en', { month: 'short', day: 'numeric' })} /><YAxis tick={{ fill: 'var(--admin-text-muted)', fontSize: 12 }} /><Tooltip contentStyle={{ background: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)', borderRadius: 8 }} /><Line type="monotone" dataKey="count" stroke="#F5A623" strokeWidth={2} dot={{ fill: '#F5A623' }} /></LineChart></ResponsiveContainer></div></div>
           </div>
 
           <div className="admin-grid-2">

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getHqSummary, TRAIL_ID } from './adminApi';
+import { buildChecklist } from './checklist';
 
 // HQ Home: how the trail is doing this week, what needs attention (each with a
 // button to the page that fixes it), every venue's readiness, and app traffic.
@@ -39,10 +40,6 @@ function usage(a) {
   return { cls: 'bad', text: 'Quiet' };
 }
 
-function Yes({ ok }) {
-  return <span className={`hq-st ${ok ? 'ok' : 'bad'}`}>{ok ? 'Yes' : 'Missing'}</span>;
-}
-
 export default function HQHome({ onGo }) {
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
@@ -73,7 +70,9 @@ export default function HQHome({ onGo }) {
   const noHats = bars.filter((v) => v.hats <= 0);
   const onDefault = [...bars, ...quests].filter((v) => v.codeIsDefault);
   const noBeers = bars.filter((v) => v.beers === 0);
-  const incomplete = [...bars, ...quests].filter((v) => !v.hasPhoto || !v.hasHours || !v.hasPin);
+  const listOf = (v) => (v.checklist ? buildChecklist(v.checklist) : null);
+  const unfinished = bars.filter((v) => listOf(v) && !listOf(v).complete);
+  const questGaps = quests.filter((v) => !v.hasPhoto || !v.hasHours || !v.hasPin);
   const demoTotal = Object.values(demo).reduce((a, b) => a + b, 0);
   const quiet = bars.filter((v) => ['Never used', 'Quiet'].includes(usage(v.activity).text));
   const toActivity = () => document.getElementById('hq-activity')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -82,7 +81,8 @@ export default function HQHome({ onGo }) {
     noHats.length && { level: 'bad', title: `${noHats.length} ${noHats.length === 1 ? 'venue has' : 'venues have'} 0 hats`, sub: `Guests can't claim there · ${names(noHats)}`, go: 'stock', cta: 'Restock' },
     onDefault.length && { level: 'bad', title: `${onDefault.length} still on code 1234`, sub: 'Anyone who guesses it can stamp', go: 'launch', cta: 'Set codes' },
     noBeers.length && { level: 'warn', title: `${noBeers.length} ${noBeers.length === 1 ? 'venue has' : 'venues have'} no beers listed`, sub: names(noBeers), go: 'breweries', cta: 'Open venues' },
-    incomplete.length && { level: 'warn', title: `${incomplete.length} missing a photo, hours or map pin`, sub: names(incomplete), go: 'breweries', cta: 'Open venues' },
+    unfinished.length && { level: 'warn', title: `${unfinished.length} ${unfinished.length === 1 ? "venue hasn't" : "venues haven't"} finished their checklist`, sub: names(unfinished), action: () => document.getElementById('hq-readiness')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), cta: 'See what\'s left' },
+    questGaps.length && { level: 'warn', title: `${questGaps.length} side ${questGaps.length === 1 ? 'quest is' : 'quests are'} missing a photo, hours or map pin`, sub: names(questGaps), go: 'sidequests', cta: 'Open side quests' },
     quiet.length && { level: 'warn', title: `${quiet.length} ${quiet.length === 1 ? "venue hasn't" : "venues haven't"} used their dashboard in a week`, sub: names(quiet), action: toActivity, cta: 'See activity' },
     demoTotal && { level: 'warn', title: 'Demo content is live', sub: `${demo.participants} people · ${demo.checkins} stamps · ${demo.beers} beers · ${demo.events} events · ${demo.sideQuests} side quests`, go: 'launch', cta: 'Review' },
   ].filter(Boolean);
@@ -132,33 +132,48 @@ export default function HQHome({ onGo }) {
       </div>
 
       <div className="hq-g hq-g21 hq-mt">
-        <div className="hq-card hq-tscroll">
-          <h3>Venue readiness <span className="more">Tap a venue name to open it</span></h3>
+        <div className="hq-card hq-tscroll" id="hq-readiness">
+          <h3>Venue readiness <span className="more">Same checklist each venue sees in their dashboard</span></h3>
           <table className="hq-table">
-            <thead><tr><th>Venue</th><th>Code</th><th className="num">Hats</th><th className="num">Beers</th><th>Photo</th><th>Hours</th><th>Map pin</th><th className="num">Stamps 7d</th><th className="num">Rating</th></tr></thead>
+            <thead><tr><th>Venue</th><th>Checklist</th><th>Still to do</th><th>Code</th><th className="num">Hats</th><th className="num">Stamps 7d</th><th className="num">Rating</th></tr></thead>
             <tbody>
-              {bars.map((v) => (
-                <tr key={v.id}>
-                  <td><button type="button" className="link-like" style={{ background: 'none', border: 0, padding: 0, color: 'inherit', font: 'inherit', fontWeight: 600, cursor: 'pointer' }} onClick={() => onGo('breweries')}>{v.name}</button>{v.locations > 1 && <small style={{ color: 'var(--admin-text-muted)' }}> · {v.locations} locations</small>}</td>
-                  <td><span className={`hq-st ${v.codeIsDefault ? 'warn' : 'ok'}`}>{v.codeIsDefault ? '1234' : 'Own code'}</span></td>
-                  <td className={`num ${v.hats <= 0 ? 'hq-down' : ''}`}>{v.hats}</td>
-                  <td className={`num ${v.beers === 0 ? 'hq-down' : ''}`}>{v.beers}</td>
-                  <td><Yes ok={v.hasPhoto} /></td>
-                  <td><Yes ok={v.hasHours} /></td>
-                  <td><Yes ok={v.hasPin} /></td>
-                  <td className="num">{v.stamps7d}</td>
-                  <td className="num">{v.rating ?? '–'}</td>
-                </tr>
-              ))}
-              {quests.map((v) => (
-                <tr key={v.id}>
-                  <td><b>{v.name}</b> <small style={{ color: 'var(--admin-text-muted)' }}>· side quest</small></td>
-                  <td><span className={`hq-st ${v.codeIsDefault ? 'warn' : 'ok'}`}>{v.codeIsDefault ? '1234' : 'Own code'}</span></td>
-                  <td className="num">–</td><td className="num">–</td>
-                  <td><Yes ok={v.hasPhoto} /></td><td><Yes ok={v.hasHours} /></td><td><Yes ok={v.hasPin} /></td>
-                  <td className="num">–</td><td className="num">–</td>
-                </tr>
-              ))}
+              {bars.map((v) => {
+                const list = listOf(v);
+                return (
+                  <tr key={v.id}>
+                    <td><button type="button" className="link-like" style={{ background: 'none', border: 0, padding: 0, color: 'inherit', font: 'inherit', fontWeight: 600, cursor: 'pointer' }} onClick={() => onGo('breweries')}>{v.name}</button>{v.locations > 1 && <small style={{ color: 'var(--admin-text-muted)' }}> · {v.locations} locations</small>}</td>
+                    <td>
+                      {list ? (
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ width: 56, height: 6, borderRadius: 3, background: 'var(--hq-panel2)', overflow: 'hidden', display: 'inline-block' }}>
+                            <span style={{ display: 'block', height: '100%', width: `${(list.done / list.total) * 100}%`, background: list.complete ? 'var(--hq-good)' : 'var(--hq-accent)' }} />
+                          </span>
+                          <span className={list.complete ? 'hq-up' : ''}>{list.complete ? 'Done' : `${list.done} of ${list.total}`}</span>
+                        </span>
+                      ) : '–'}
+                    </td>
+                    <td style={{ whiteSpace: 'normal', minWidth: 220, color: 'var(--admin-text-muted)', fontSize: 12.5 }}>
+                      {list ? (list.todo.filter((i) => !i.optional).map((i) => i.short).join(' · ') || 'Nothing') : '–'}
+                    </td>
+                    <td><span className={`hq-st ${v.codeIsDefault ? 'warn' : 'ok'}`}>{v.codeIsDefault ? '1234' : 'Own code'}</span></td>
+                    <td className={`num ${v.hats <= 0 ? 'hq-down' : ''}`}>{v.hats}</td>
+                    <td className="num">{v.stamps7d}</td>
+                    <td className="num">{v.rating ?? '–'}</td>
+                  </tr>
+                );
+              })}
+              {quests.map((v) => {
+                const gaps = [!v.hasPhoto && 'Photo', !v.hasHours && 'Hours', !v.hasPin && 'Map pin'].filter(Boolean);
+                return (
+                  <tr key={v.id}>
+                    <td><b>{v.name}</b> <small style={{ color: 'var(--admin-text-muted)' }}>· side quest</small></td>
+                    <td>{gaps.length ? `${3 - gaps.length} of 3` : <span className="hq-up">Done</span>}</td>
+                    <td style={{ whiteSpace: 'normal', color: 'var(--admin-text-muted)', fontSize: 12.5 }}>{gaps.join(' · ') || 'Nothing'}</td>
+                    <td><span className={`hq-st ${v.codeIsDefault ? 'warn' : 'ok'}`}>{v.codeIsDefault ? '1234' : 'Own code'}</span></td>
+                    <td className="num">–</td><td className="num">–</td><td className="num">–</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

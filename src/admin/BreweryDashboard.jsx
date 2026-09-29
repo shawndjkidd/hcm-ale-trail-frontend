@@ -820,9 +820,11 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       {canManage && activeTab === 'overview' && (
         <VenueChecklist breweryId={breweryId} photoUrl={photoUrl} hasHours={hasHours} socialLinks={socialLinks}
           descriptionEn={descriptionEn} descriptionVn={descriptionVn} beers={beers} merch={brewMerch} events={events} staff={staff}
-          onGo={(tab) => { setActiveTab(tab); window.scrollTo({ top: 0 }); }} />
+          onGo={(tab) => { setActiveTab(tab); window.scrollTo({ top: 0 }); }}
+          onDemoRemoved={() => { loadBeers(); getBreweryEvents(breweryId).then((r) => r?.ok && setEvents(r.events || [])); }} />
       )}
-      {canManage && <VenueDemoCard breweryId={breweryId} refreshKey={activeTab} onRemoved={() => { loadBeers(); getBreweryEvents(breweryId).then((r) => r?.ok && setEvents(r.events || [])); }} />}
+      {/* On Overview the checklist handles demo removal; the box shows on the other tabs. */}
+      {canManage && activeTab !== 'overview' && <VenueDemoCard breweryId={breweryId} refreshKey={activeTab} onRemoved={() => { loadBeers(); getBreweryEvents(breweryId).then((r) => r?.ok && setEvents(r.events || [])); }} />}
 
       {activeTab === 'overview' && (
         <>
