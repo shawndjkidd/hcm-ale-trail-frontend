@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, bulkUploadBeers, mergeRatings, updateAdminAccount, getBreweryMerchandise, restockMerchandise, getTrailAnalytics, getBreweryStaff, inviteBreweryStaff, updateBreweryStaffRole, removeBreweryStaff, pingVenueVisit, TRAIL_ID } from './adminApi';
+import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, bulkUploadBeers, mergeRatings, updateAdminAccount, getBreweryMerchandise, restockMerchandise, getTrailAnalytics, getBreweryStaff, inviteBreweryStaff, updateBreweryStaffRole, removeBreweryStaff, pingVenueVisit, fixLink, TRAIL_ID } from './adminApi';
 import { useToast, useConfirm } from './AdminFeedback';
 import LocationsCard from './LocationsCard';
 import VenueDemoCard from './VenueDemoCard';
@@ -276,10 +276,12 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   const handleSaveSocial = async () => {
     setSavingSocial(true);
     setSocialMessage('');
+    const fixed = { mapsUrl: fixLink(socialLinks.mapsUrl || ''), instagramUrl: fixLink(socialLinks.instagramUrl || ''), facebookUrl: fixLink(socialLinks.facebookUrl || '') };
+    setSocialLinks(fixed);
     const result = await updateBrewery(breweryId, {
-      maps_url: socialLinks.mapsUrl || null,
-      instagram_url: socialLinks.instagramUrl || null,
-      facebook_url: socialLinks.facebookUrl || null,
+      maps_url: fixed.mapsUrl || null,
+      instagram_url: fixed.instagramUrl || null,
+      facebook_url: fixed.facebookUrl || null,
     });
     if (result.ok) {
       setSocialMessage('✓ Social links updated');
@@ -291,11 +293,8 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   };
 
   const handleSavePhoto = async () => {
-    const value = photoUrl.trim();
-    if (value && !/^https:\/\//i.test(value)) {
-      setPhotoMessage('Photo link must start with https://');
-      return;
-    }
+    const value = fixLink(photoUrl.trim());
+    setPhotoUrl(value);
     setSavingPhoto(true);
     setPhotoMessage('');
     const result = await updateBrewery(breweryId, { photo_url: value || null });

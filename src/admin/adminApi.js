@@ -65,6 +65,26 @@ export async function apiFetch(url, opts = {}) {
   return res;
 }
 
+
+// Venues paste links like "instagram.com/bar" or "http://…"; the server only accepts
+// https:// links and used to refuse the whole save. Add https:// before sending.
+const LINK_KEYS = ['maps_url', 'mapsUrl', 'instagram_url', 'instagramUrl', 'facebook_url', 'facebookUrl', 'photo_url', 'photoUrl', 'logo_url', 'logoUrl', 'website_url', 'websiteUrl', 'link'];
+export function fixLink(v) {
+  if (typeof v !== 'string') return v;
+  const t = v.trim();
+  if (!t) return t;
+  if (/^https:\/\//i.test(t)) return t;
+  if (/^http:\/\//i.test(t)) return 'https://' + t.slice(7);
+  if (/^[a-z][a-z0-9+.-]*:/i.test(t)) return t; // other schemes: leave for the server to judge
+  return 'https://' + t.replace(/^\/+/, '');
+}
+export function fixLinks(obj) {
+  if (!obj || typeof obj !== 'object') return obj;
+  const out = { ...obj };
+  for (const k of LINK_KEYS) if (typeof out[k] === 'string') out[k] = fixLink(out[k]);
+  return out;
+}
+
 // ==================== AUTH ====================
 
 export async function getAdminMe() {
@@ -150,7 +170,7 @@ export async function createTrailEvent(trailId, eventData) {
     const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/events`, {
       method: 'POST',
       headers: authHeaders(),
-      body: JSON.stringify(eventData)
+      body: JSON.stringify(fixLinks(eventData))
     });
     return await readJson(res);
   } catch (err) {
@@ -172,7 +192,7 @@ export async function createBreweryEvent(breweryId, eventData) {
     const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/events`, {
       method: 'POST',
       headers: authHeaders(),
-      body: JSON.stringify(eventData)
+      body: JSON.stringify(fixLinks(eventData))
     });
     return await readJson(res);
   } catch (err) {
@@ -185,7 +205,7 @@ export async function updateEvent(eventId, patch) {
     const res = await apiFetch(`${API_BASE}/api/admin/events/${eventId}`, {
       method: 'PUT',
       headers: authHeaders(),
-      body: JSON.stringify(patch)
+      body: JSON.stringify(fixLinks(patch))
     });
     return await readJson(res);
   } catch (err) {
@@ -263,7 +283,7 @@ export async function createBrewery(trailId, breweryData) {
     const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/breweries`, {
       method: 'POST',
       headers: authHeaders(),
-      body: JSON.stringify(breweryData)
+      body: JSON.stringify(fixLinks(breweryData))
     });
     return await readJson(res);
   } catch (err) {
@@ -276,7 +296,7 @@ export async function updateBrewery(breweryId, breweryData) {
     const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}`, {
       method: 'PUT',
       headers: authHeaders(),
-      body: JSON.stringify(breweryData)
+      body: JSON.stringify(fixLinks(breweryData))
     });
     return await readJson(res);
   } catch (err) {
@@ -315,7 +335,7 @@ export async function createSideQuest(trailId, questData) {
     const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/side-quests`, {
       method: 'POST',
       headers: authHeaders(),
-      body: JSON.stringify(questData)
+      body: JSON.stringify(fixLinks(questData))
     });
     return await readJson(res);
   } catch (err) {
@@ -328,7 +348,7 @@ export async function updateSideQuest(questId, questData) {
     const res = await apiFetch(`${API_BASE}/api/admin/side-quests/${questId}`, {
       method: 'PUT',
       headers: authHeaders(),
-      body: JSON.stringify(questData)
+      body: JSON.stringify(fixLinks(questData))
     });
     return await readJson(res);
   } catch (err) {
@@ -751,13 +771,13 @@ export async function getBreweryLocations(breweryId) {
 }
 export async function addBreweryLocation(breweryId, location) {
   try {
-    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/locations`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(location) });
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/locations`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(fixLinks(location)) });
     return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 export async function updateBreweryLocation(breweryId, locationId, fields) {
   try {
-    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/locations/${locationId}`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(fields) });
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/locations/${locationId}`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(fixLinks(fields)) });
     return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
