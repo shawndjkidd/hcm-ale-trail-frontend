@@ -7,6 +7,7 @@ import AdminFeedbackProvider from './AdminFeedback';
 import AdminUpdateBar from './AdminUpdateBar';
 import './admin.css';
 import './hq.css';
+import { useAdminLang, setAdminLang } from './i18n';
 
 // Default export wraps the app in AdminFeedbackProvider so any descendant
 // component can call useToast() / useConfirm(). All real logic lives in
@@ -20,6 +21,7 @@ export default function AdminApp() {
 }
 
 function AdminAppInner() {
+  const adminLang = useAdminLang();
   const [loading, setLoading] = useState(true);
   const [adminUser, setAdminUser] = useState(null);
   const [theme, setTheme] = useState(() => {
@@ -205,6 +207,15 @@ function AdminAppInner() {
         </div>
 
         <div className="admin-header-right">
+          <div role="group" aria-label="Language" style={{ display: 'inline-flex', border: '1px solid var(--admin-border)', borderRadius: 9, padding: 2, gap: 2 }}>
+            {[['en', 'EN'], ['vi', 'VI']].map(([code, label]) => (
+              <button key={code} type="button" aria-pressed={adminLang === code} onClick={() => setAdminLang(code)}
+                style={{ border: 0, borderRadius: 7, padding: '5px 10px', fontWeight: 700, fontSize: 12, cursor: 'pointer',
+                  background: adminLang === code ? 'var(--admin-primary)' : 'transparent', color: adminLang === code ? '#111' : 'var(--admin-text-muted)' }}>
+                {label}
+              </button>
+            ))}
+          </div>
           <button className="admin-theme-toggle" onClick={toggleTheme}>
             {theme === 'light' ? '🌙' : '☀️'}
           </button>
