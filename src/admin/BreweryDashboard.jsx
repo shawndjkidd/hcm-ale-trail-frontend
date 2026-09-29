@@ -327,6 +327,10 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
 
   const handleToggleVenueStatus = async () => {
     const newStatus = venueStatus === 'temporarily_closed' ? 'active' : 'temporarily_closed';
+    const ok = await confirm(newStatus === 'temporarily_closed'
+      ? { title: 'Mark as temporarily closed?', message: 'Guests will see a closure notice in the app and your venue shows as closed until you mark it active again.', confirmLabel: 'Mark closed', danger: true }
+      : { title: 'Mark as open again?', message: 'Guests will see your normal opening hours again.', confirmLabel: 'Mark open' });
+    if (!ok) return;
     setSavingVenueStatus(true);
     setVenueStatusMessage('');
     const result = await updateBrewery(breweryId, { status: newStatus });
@@ -466,9 +470,13 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
     setMerchLoading(false);
   };
 
+  // Load stock as soon as the dashboard opens so a low-stock warning shows on the Stock tab straight away.
+  useEffect(() => {
+    if (breweryId) loadMerch();
+  }, [breweryId]);
   useEffect(() => {
     if (activeTab === 'stock' && breweryId) loadMerch();
-  }, [activeTab, breweryId]);
+  }, [activeTab]);
 
   const loadStaff = async () => {
     if (!breweryId) return;
@@ -505,6 +513,13 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   };
 
   const handleUpdateStaffRole = async (staffId, newRole) => {
+    const member = staff.find((m) => m.id === staffId);
+    const ok = await confirm({
+      title: 'Change this person\'s role?',
+      message: `${member?.email || 'This person'} will become ${newRole === 'owner' ? 'an owner' : `a ${newRole}`}. ${newRole === 'staff' ? 'Staff can check guests in and see stock, but can\'t edit the venue or see the code settings.' : 'Managers and owners can edit beers, events, hours and stock.'}`,
+      confirmLabel: 'Change role',
+    });
+    if (!ok) return;
     const result = await updateBreweryStaffRole(breweryId, staffId, newRole);
     if (result.ok) {
       setStaff(prev => prev.map(s => s.id === staffId ? { ...s, role: newRole } : s));
@@ -774,7 +789,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
         <button className={`admin-tab ${activeTab === 'competition' ? 'active' : ''}`} onClick={() => setActiveTab('competition')}>Trail Competition</button>
         {canManage && <button className={`admin-tab ${activeTab === 'events' ? 'active' : ''}`} onClick={() => setActiveTab('events')}>Events ({events.length})</button>}
         {canManage && <button className={`admin-tab ${activeTab === 'beers' ? 'active' : ''}`} onClick={() => setActiveTab('beers')}>Beer Menu</button>}
-        {canManage && <button className={`admin-tab ${activeTab === 'stock' ? 'active' : ''}`} onClick={() => setActiveTab('stock')}>Stock{brewMerch.some(m => m.lowStock) ? ' ⚠️' : ''}</button>}
+        <button className={`admin-tab ${activeTab === 'stock' ? 'active' : ''}`} onClick={() => setActiveTab('stock')}>Stock{brewMerch.some(m => m.lowStock) ? ' · low' : ''}</button>
         <button className={`admin-tab ${activeTab === 'audience' ? 'active' : ''}`} onClick={() => {
           setActiveTab('audience');
           if (!audience && !audienceLoading) {
@@ -954,7 +969,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                   <tr key={b.breweryId} style={isYou ? { background: 'var(--hq-panel2)' } : {}}>
                     <td>
                       <span className={`admin-rank ${index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : 'default'}`}>
-                        {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
+                        {index + 1}
                       </span>
                     </td>
                     <td><strong>{b.breweryName}</strong>{isYou && <span style={{ marginLeft: 8, color: 'var(--admin-primary)', fontSize: 12 }}>(You)</span>}</td>
@@ -964,9 +979,6 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
               })}
             </tbody></table></div>
           )}
-          <p style={{ color: 'var(--admin-text-muted)', fontSize: 12, marginTop: 16 }}>
-            💡 More stats coming soon: Hat Claims, Avg Rating, Top Beer per brewery
-          </p>
         </div>
       )}
 
@@ -992,7 +1004,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
             {events.length === 0 ? (<div className="admin-empty">No events yet</div>) : (
               <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Event</th><th>Category</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>
                 {events.map((event) => (
-                  <tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td><span className={`admin-badge ${event.category === 'new_release' ? 'success' : 'active'}`}>{event.category === 'new_release' ? '🍺 Release' : '🎉 Event'}</span></td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><span className={`admin-badge ${event.status === 'active' ? 'active' : 'inactive'}`}>{event.status}</span></td><td><div style={{ display: 'flex', gap: 6 }}><button className="admin-btn-small" style={{ background: 'var(--admin-primary)', color: '#fff' }} onClick={() => openEditEvent(event)}>Edit</button><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></div></td></tr>
+                  <tr key={event.id}><td><strong>{event.title?.en || event.title}</strong></td><td><span className={`admin-badge ${event.category === 'new_release' ? 'success' : 'active'}`}>{event.category === 'new_release' ? 'Release' : 'Event'}</span></td><td style={{ whiteSpace: 'nowrap' }}>{new Date(event.startsAt).toLocaleDateString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td><span className={`admin-badge ${event.status === 'active' ? 'active' : 'inactive'}`}>{event.status}</span></td><td><div style={{ display: 'flex', gap: 6 }}><button className="admin-btn-small" style={{ background: 'var(--admin-primary)', color: '#fff' }} onClick={() => openEditEvent(event)}>Edit</button><button className="admin-btn-small admin-btn-danger" onClick={() => handleDeleteEvent(event.id)}>Delete</button></div></td></tr>
                 ))}
               </tbody></table></div>
             )}
@@ -1036,7 +1048,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                 </p>
                 <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
                   <label className="admin-btn admin-btn-small" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)', cursor: 'pointer', margin: 0 }}>
-                    📄 Choose CSV File
+                    Choose CSV file
                     <input type="file" accept=".csv,.tsv,.txt" onChange={handleCsvFile} style={{ display: 'none' }} />
                   </label>
                   <span style={{ color: 'var(--admin-text-muted)', fontSize: 13, alignSelf: 'center' }}>or paste below</span>
@@ -1311,8 +1323,8 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
             <h3 className="admin-card-title">Venue Status</h3>
             <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>
               {venueStatus === 'temporarily_closed'
-                ? '🔴 This venue is currently marked as temporarily closed. Visitors will see a closure notice in the app.'
-                : '🟢 This venue is active and accepting check-ins.'}
+                ? 'This venue is currently marked as temporarily closed. Visitors will see a closure notice in the app.'
+                : 'This venue is active and accepting check-ins.'}
             </p>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
               <button
@@ -1544,10 +1556,10 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                         <div style={{ fontSize: 28, fontWeight: 700 }}>{item.pickupCount}</div>
                       </div>
                       <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'flex-end' }}>
-                        <button className="admin-btn admin-btn-primary" style={{ width: 'auto' }}
+                        {canManage && (<button className="admin-btn admin-btn-primary" style={{ width: 'auto' }}
                           onClick={() => { setBrewRestockForm({ merchId: item.id, quantity: '', notes: '' }); setShowBrewRestockModal(true); }}>
                           + Restock
-                        </button>
+                        </button>)}
                       </div>
                     </div>
 
@@ -1746,18 +1758,6 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                   </div>
                 </div>
               )}
-
-              {/* Upsell banner */}
-              <div style={{
-                border: '1px dashed rgba(255,255,255,0.2)', borderRadius: 12, padding: 24,
-                textAlign: 'center', color: 'var(--admin-text-muted)', marginTop: 8
-              }}>
-                <div style={{ fontSize: 18, marginBottom: 8 }}>Want deeper insights?</div>
-                <div style={{ fontSize: 13, maxWidth: 400, margin: '0 auto', lineHeight: 1.5 }}>
-                  Unlock full analytics: hourly heatmaps, engagement by segment, brewery comparisons, nudge candidates, and quarterly reports.
-                </div>
-                <div style={{ marginTop: 16, fontSize: 13, color: 'var(--admin-primary)' }}>Coming soon — contact trail admin for early access</div>
-              </div>
 
               {/* Refresh button */}
               <div style={{ marginTop: 16, textAlign: 'right' }}>

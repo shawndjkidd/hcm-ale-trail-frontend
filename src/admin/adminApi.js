@@ -1,4 +1,12 @@
 export const API_BASE = '';
+
+// "Failed to fetch" and friends mean the request never reached the server.
+export function netError(err) {
+  const m = String(err?.message || err || '');
+  return /failed to fetch|networkerror|load failed|network request failed/i.test(m)
+    ? "Can't reach the server. Check your internet connection and try again."
+    : m || 'Something went wrong. Please try again.';
+}
 export const TRAIL_ID = '89e5e2d6-090b-448a-8e53-6d05b731a921';
 
 function getToken() {
@@ -26,7 +34,7 @@ export async function getAdminMe() {
     const res = await fetch(`${API_BASE}/api/admin/me`, { headers: authHeaders() });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -39,7 +47,7 @@ export async function getTrailAnalytics(trailId, scope = 'trail', breweryId = nu
     const res = await fetch(url, { headers: authHeaders() });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -53,7 +61,7 @@ export async function getTrailOverview(trailId, from, to) {
     const res = await fetch(url, { headers: authHeaders() });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -62,7 +70,7 @@ export async function getAdminLeaderboard(trailId, limit = 50) {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/leaderboard?limit=${limit}`, { headers: authHeaders() });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -84,7 +92,7 @@ export async function exportParticipants(trailId, format = 'json', from, to) {
     }
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -95,7 +103,7 @@ export async function getTrailEvents(trailId) {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/events`, { headers: authHeaders() });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -108,7 +116,7 @@ export async function createTrailEvent(trailId, eventData) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -117,7 +125,7 @@ export async function getBreweryEvents(breweryId) {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/events`, { headers: authHeaders() });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -130,7 +138,7 @@ export async function createBreweryEvent(breweryId, eventData) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -143,7 +151,7 @@ export async function updateEvent(eventId, patch) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -155,7 +163,7 @@ export async function deleteEvent(eventId) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -171,7 +179,7 @@ export async function getBreweryDashboard(breweryId, from, to) {
     const res = await fetch(url, { headers: authHeaders() });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -184,7 +192,7 @@ export async function updateBreweryPin(breweryId, pin) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -197,7 +205,7 @@ export async function updateBreweryHours(breweryId, operatingHours) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -208,7 +216,7 @@ export async function getTrailBreweries(trailId) {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/breweries`, { headers: authHeaders() });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -221,7 +229,7 @@ export async function createBrewery(trailId, breweryData) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -234,7 +242,7 @@ export async function updateBrewery(breweryId, breweryData) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -249,7 +257,7 @@ export async function deleteBrewery(breweryId, hard = false) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -260,7 +268,7 @@ export async function getSideQuests(trailId) {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/side-quests`, { headers: authHeaders() });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -273,7 +281,7 @@ export async function createSideQuest(trailId, questData) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -286,7 +294,7 @@ export async function updateSideQuest(questId, questData) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -298,7 +306,7 @@ export async function deleteSideQuest(questId) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -309,7 +317,7 @@ export async function getBreweryBeers(breweryId) {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/beers`, { headers: authHeaders() });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -322,7 +330,7 @@ export async function createBreweryBeer(breweryId, beerData) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -335,7 +343,7 @@ export async function updateBreweryBeer(breweryId, beerId, beerData) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -348,7 +356,7 @@ export async function bulkUploadBeers(breweryId, beers) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -360,7 +368,7 @@ export async function deleteBreweryBeer(breweryId, beerId) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -373,7 +381,7 @@ export async function mergeRatings(breweryId, oldName, newName) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -382,7 +390,7 @@ export async function getMergeSuggestions(trailId) {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/merge-suggestions`, { headers: authHeaders() });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -393,7 +401,7 @@ export async function getTrailBeerRatings(trailId) {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/ratings`, { headers: authHeaders() });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -408,7 +416,7 @@ export async function createBreweryStaff(breweryId, email, password) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -417,7 +425,7 @@ export async function getBreweryLogin(breweryId) {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/login`, { headers: authHeaders() });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -432,7 +440,7 @@ export async function updateAdminAccount({ email, currentPassword, password }) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -443,7 +451,7 @@ export async function getTrailMerchandise(trailId) {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/merchandise`, { headers: authHeaders() });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -456,7 +464,7 @@ export async function createMerchandiseItem(trailId, itemData) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -469,7 +477,7 @@ export async function updateMerchandiseItem(trailId, merchId, itemData) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -481,7 +489,7 @@ export async function deleteMerchandiseItem(trailId, merchId) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -490,7 +498,7 @@ export async function getBreweryMerchandise(breweryId) {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/merchandise`, { headers: authHeaders() });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -503,7 +511,7 @@ export async function restockMerchandise(breweryId, merchId, quantity, notes) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -516,7 +524,7 @@ export async function recordMerchPickup(breweryId, merchId, participantId) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -527,7 +535,7 @@ export async function getSuperAdmins() {
     const res = await fetch(`${API_BASE}/api/admin/super-admins`, { headers: authHeaders() });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -540,7 +548,7 @@ export async function addSuperAdmin(email) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -552,7 +560,7 @@ export async function removeSuperAdmin(id) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -563,7 +571,7 @@ export async function getBreweryStaff(breweryId) {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/staff`, { headers: authHeaders() });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -576,7 +584,7 @@ export async function inviteBreweryStaff(breweryId, email, role) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -589,7 +597,7 @@ export async function updateBreweryStaffRole(breweryId, staffId, role) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -601,7 +609,7 @@ export async function removeBreweryStaff(breweryId, staffId) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -614,7 +622,7 @@ export async function changeAdminPassword(currentPassword, newPassword) {
     });
     return await res.json();
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -655,7 +663,7 @@ export async function adminLogin(email, password, rememberMe = true) {
     }
     return data;
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -689,7 +697,7 @@ export async function refreshAdminSession() {
     }
     return data;
   } catch (err) {
-    return { ok: false, error: err.message };
+    return { ok: false, error: netError(err) };
   }
 }
 
@@ -698,25 +706,25 @@ export async function getBreweryLocations(breweryId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/locations`, { headers: authHeaders() });
     return await res.json();
-  } catch (err) { return { ok: false, error: err.message }; }
+  } catch (err) { return { ok: false, error: netError(err) }; }
 }
 export async function addBreweryLocation(breweryId, location) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/locations`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(location) });
     return await res.json();
-  } catch (err) { return { ok: false, error: err.message }; }
+  } catch (err) { return { ok: false, error: netError(err) }; }
 }
 export async function updateBreweryLocation(breweryId, locationId, fields) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/locations/${locationId}`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(fields) });
     return await res.json();
-  } catch (err) { return { ok: false, error: err.message }; }
+  } catch (err) { return { ok: false, error: netError(err) }; }
 }
 export async function removeBreweryLocation(breweryId, locationId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/locations/${locationId}`, { method: 'DELETE', headers: authHeaders() });
     return await res.json();
-  } catch (err) { return { ok: false, error: err.message }; }
+  } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
 // ==================== HQ PAPER-CARD TRANSFER ====================
@@ -724,13 +732,13 @@ export async function hqLookupStamps(trailId, email) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/stamps?email=${encodeURIComponent(email)}`, { headers: authHeaders() });
     return await res.json();
-  } catch (err) { return { ok: false, error: err.message }; }
+  } catch (err) { return { ok: false, error: netError(err) }; }
 }
 export async function hqAddStamps(trailId, email, breweryIds) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/stamps`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ email, breweryIds }) });
     return await res.json();
-  } catch (err) { return { ok: false, error: err.message }; }
+  } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
 // ==================== HQ HOME & LAUNCH ====================
@@ -739,21 +747,21 @@ export async function getHqSummary(trailId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/hq`, { headers: authHeaders() });
     return await res.json();
-  } catch (err) { return { ok: false, error: err.message }; }
+  } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
 export async function hqRemoveDemo(trailId, confirm) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/hq/demo`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ confirm }) });
     return await res.json();
-  } catch (err) { return { ok: false, error: err.message }; }
+  } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
 export async function hqGenerateCodes(trailId, confirm) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/hq/codes`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ confirm }) });
     return await res.json();
-  } catch (err) { return { ok: false, error: err.message }; }
+  } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
 // Tells HQ a venue opened its dashboard. HQ viewing a venue is ignored by the server.
@@ -761,7 +769,7 @@ export async function pingVenueVisit(breweryId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/visit`, { method: 'POST', headers: authHeaders(), body: '{}' });
     return await res.json();
-  } catch (err) { return { ok: false, error: err.message }; }
+  } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
 // HQ only: set the exact count on hand (e.g. after counting). The change is kept in history.
@@ -769,7 +777,7 @@ export async function setMerchandiseCount(breweryId, merchId, quantity) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/merchandise/${merchId}/stock`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify({ quantity }) });
     return await res.json();
-  } catch (err) { return { ok: false, error: err.message }; }
+  } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
 // ==================== PLANS & ADD-ONS (HQ) ====================
@@ -778,12 +786,12 @@ export async function getVenueFeatures(trailId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/features`, { headers: authHeaders() });
     return await res.json();
-  } catch (err) { return { ok: false, error: err.message }; }
+  } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
 export async function setVenueFeature(trailId, payload) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/features`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(payload) });
     return await res.json();
-  } catch (err) { return { ok: false, error: err.message }; }
+  } catch (err) { return { ok: false, error: netError(err) }; }
 }
