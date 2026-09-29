@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getVenueDemo, removeVenueDemo } from './adminApi';
+import { getVenueDemo, removeVenueDemo, getChecklistConfirmed, confirmChecklistItem } from './adminApi';
 import { useToast, useConfirm } from './AdminFeedback';
 import { buildChecklist } from './checklist';
 
@@ -9,14 +9,23 @@ import { buildChecklist } from './checklist';
 
 const isDemoBeer = (b) => String(b.id || '').startsWith('de000000-') || /^\s*DEMO\s*·/i.test(b.name || '');
 
-export default function VenueChecklist({ breweryId, photoUrl, hasHours, socialLinks, descriptionEn, descriptionVn, beers, merch, events, staff, onGo, onDemoRemoved }) {
+export default function VenueChecklist({ breweryId, isHQ = false, photoUrl, hasHours, socialLinks, descriptionEn, descriptionVn, beers, merch, events, staff, onGo, onDemoRemoved }) {
   const [demo, setDemo] = useState(null);
   const [busy, setBusy] = useState(false);
   const toast = useToast();
   const confirm = useConfirm();
 
+  const [confirmed, setConfirmed] = useState([]);
   const loadDemo = () => getVenueDemo(breweryId).then((r) => { if (r?.ok) setDemo(r.demo); });
-  useEffect(() => { loadDemo(); }, [breweryId]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    loadDemo();
+    getChecklistConfirmed(breweryId).then((r) => { if (r?.ok) setConfirmed(r.confirmed || []); });
+  }, [breweryId]); // eslint-disable-line react-hooks/exhaustive-deps
+  const confirmItem = async (key) => {
+    setConfirmed((c) => [...new Set([...c, key])]);
+    const r = await confirmChecklistItem(breweryId, key);
+    if (!r?.ok) { setConfirmed((c) => c.filter((k) => k !== key)); toast.error(r?.error || 'Could not save'); }
+  };
 
   const realBeers = (beers || []).filter((b) => !isDemoBeer(b) && b.active !== false);
   const facts = {
@@ -32,6 +41,7 @@ export default function VenueChecklist({ breweryId, photoUrl, hasHours, socialLi
     demoItems: demo ? demo.beers + demo.events + demo.ratings : null,
     barStaff: (staff || []).filter((m) => m.role === 'staff' || m.role === 'manager').length,
     realEvents: (events || []).filter((e) => !String(e.id || '').startsWith('de000000-')).length,
+    confirmed,
   };
   const list = buildChecklist(facts);
   if (list.complete) return null;
@@ -59,16 +69,25 @@ export default function VenueChecklist({ breweryId, photoUrl, hasHours, socialLi
       <div style={{ height: 8, borderRadius: 4, background: 'var(--admin-border)', margin: '12px 0 6px', overflow: 'hidden' }}>
         <div style={{ height: '100%', width: `${(list.done / list.total) * 100}%`, background: 'var(--hq-good, #22C55E)', borderRadius: 4 }} />
       </div>
-      {list.todo.map((i) => (
-        <div key={i.key} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid var(--admin-border)' }}>
-          <span aria-hidden="true" style={{ width: 20, height: 20, borderRadius: '50%', border: '2px solid var(--admin-text-muted)', flex: 'none' }} />
+      {list.items.map((i) => (
+        <div key={i.key} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid var(--admin-border)', opacity: i.done ? 0.62 : 1 }}>
+          {i.done
+            ? <span aria-label="done" style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--hq-good, #22C55E)', color: '#fff', display: 'grid', placeItems: 'center', fontSize: 12, fontWeight: 800, flex: 'none' }}>✓</span>
+            : <span aria-hidden="true" style={{ width: 20, height: 20, borderRadius: '50%', border: '2px solid var(--admin-text-muted)', flex: 'none' }} />}
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontWeight: 600 }}>{i.title}{i.optional ? <span style={{ color: 'var(--admin-text-muted)', fontWeight: 500 }}> · optional</span> : null}</div>
-            <div style={{ color: 'var(--admin-text-muted)', fontSize: 13, marginTop: 2 }}>{i.why}</div>
+            <div style={{ fontWeight: 600, textDecoration: i.done ? 'line-through' : 'none' }}>{i.title}{i.optional ? <span style={{ color: 'var(--admin-text-muted)', fontWeight: 500 }}> · optional</span> : null}</div>
+            {!i.done && <div style={{ color: 'var(--admin-text-muted)', fontSize: 13, marginTop: 2 }}>{i.why}</div>}
           </div>
-          {i.action === 'removeDemo'
-            ? (facts.demoItems > 0 && <button type="button" className="admin-btn admin-btn-primary" style={{ width: 'auto', flex: 'none' }} onClick={removeDemo} disabled={busy}>{busy ? 'Removing…' : i.cta}</button>)
-            : i.go && <button type="button" className="admin-btn admin-btn-primary" style={{ width: 'auto', flex: 'none' }} onClick={() => onGo(i.go)}>{i.cta}</button>}
+          {!i.done && !i.blocked && (
+            <div style={{ display: 'flex', gap: 8, flex: 'none' }}>
+              {i.canConfirm && (isHQ
+                ? <span style={{ color: 'var(--admin-text-muted)', fontSize: 13, alignSelf: 'center' }}>Waiting for the venue</span>
+                : <button type="button" className="admin-btn admin-btn-primary" style={{ width: 'auto' }} onClick={() => confirmItem(i.key)}>Looks good</button>)}
+              {i.action === 'removeDemo'
+                ? (facts.demoItems > 0 && <button type="button" className="admin-btn admin-btn-primary" style={{ width: 'auto' }} onClick={removeDemo} disabled={busy}>{busy ? 'Removing…' : i.cta}</button>)
+                : i.go && <button type="button" className={`admin-btn ${i.canConfirm ? '' : 'admin-btn-primary'}`} style={{ width: 'auto', ...(i.canConfirm ? { background: 'transparent', border: '1px solid var(--admin-border)', color: 'var(--admin-text)' } : {}) }} onClick={() => onGo(i.go)}>{i.cta}</button>}
+            </div>
+          )}
         </div>
       ))}
     </div>

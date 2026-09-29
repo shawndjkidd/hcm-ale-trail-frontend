@@ -818,7 +818,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       </div>
 
       {canManage && activeTab === 'overview' && (
-        <VenueChecklist breweryId={breweryId} photoUrl={photoUrl} hasHours={hasHours} socialLinks={socialLinks}
+        <VenueChecklist breweryId={breweryId} isHQ={isHQ} photoUrl={photoUrl} hasHours={hasHours} socialLinks={socialLinks}
           descriptionEn={descriptionEn} descriptionVn={descriptionVn} beers={beers} merch={brewMerch} events={events} staff={staff}
           onGo={(tab) => { setActiveTab(tab); window.scrollTo({ top: 0 }); }}
           onDemoRemoved={() => { loadBeers(); getBreweryEvents(breweryId).then((r) => r?.ok && setEvents(r.events || [])); }} />

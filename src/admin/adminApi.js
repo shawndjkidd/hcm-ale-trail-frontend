@@ -811,3 +811,19 @@ export async function removeVenueDemo(breweryId) {
     return await res.json();
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
+
+// ==================== VENUE CHECKLIST CONFIRMATIONS ====================
+
+export async function getChecklistConfirmed(breweryId) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/checklist`, { headers: authHeaders() });
+    return await res.json();
+  } catch (err) { return { ok: false, error: netError(err) }; }
+}
+
+export async function confirmChecklistItem(breweryId, item) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/checklist`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ item }) });
+    return await res.json();
+  } catch (err) { return { ok: false, error: netError(err) }; }
+}
