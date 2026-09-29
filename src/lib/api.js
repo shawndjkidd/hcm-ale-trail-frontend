@@ -300,7 +300,7 @@ export function postResetCard(trailId = TRAIL_ID) {
 }
 
 export function disconnectUntappd() {
-  return request(`/user/untappd/disconnect`, { method: "POST" });
+  return request(`/untappd/disconnect`, { method: "POST" });
 }
 
 export function serverCheckin(payload) {
