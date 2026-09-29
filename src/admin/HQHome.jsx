@@ -28,11 +28,14 @@ function ago(iso) {
   if (days < 14) return `${days} days ago`;
   return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'Asia/Ho_Chi_Minh' });
 }
+// Engaged = saved a change in the last 7 days. Checking = opened the dashboard (or signed
+// in, which lands on it) in the last 7 days without changing anything. Quiet = used it
+// before, nothing in 7 days. Never used = no sign-in, visit or change at all.
 function usage(a) {
-  if (!a?.lastActive) return { cls: 'bad', text: 'Not yet' };
-  const days = (Date.now() - new Date(a.lastActive).getTime()) / DAY;
-  if (days <= 3) return { cls: 'ok', text: 'Active' };
-  if (days <= 7) return { cls: 'warn', text: 'Slowing' };
+  const within7 = (iso) => !!iso && Date.now() - new Date(iso).getTime() <= 7 * DAY;
+  if (!a || (!a.lastSignIn && !a.lastVisit && !a.lastAction)) return { cls: 'bad', text: 'Never used' };
+  if ((a.actions7d ?? 0) > 0 || within7(a.lastAction?.at)) return { cls: 'ok', text: 'Engaged' };
+  if (within7(a.lastVisit) || within7(a.lastSignIn)) return { cls: 'warn', text: 'Checking' };
   return { cls: 'bad', text: 'Quiet' };
 }
 
@@ -72,7 +75,7 @@ export default function HQHome({ onGo }) {
   const noBeers = bars.filter((v) => v.beers === 0);
   const incomplete = [...bars, ...quests].filter((v) => !v.hasPhoto || !v.hasHours || !v.hasPin);
   const demoTotal = Object.values(demo).reduce((a, b) => a + b, 0);
-  const quiet = bars.filter((v) => ['Not yet', 'Quiet'].includes(usage(v.activity).text));
+  const quiet = bars.filter((v) => ['Never used', 'Quiet'].includes(usage(v.activity).text));
   const toActivity = () => document.getElementById('hq-activity')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   const attention = [
@@ -197,7 +200,7 @@ export default function HQHome({ onGo }) {
             })}
           </tbody>
         </table>
-        <p className="hq-note">Dashboard visits and changes are recorded from 29 Sept. "Last signed in" goes back further.</p>
+        <p className="hq-note"><b>Engaged</b>: saved a change in the last 7 days. <b>Checking</b>: opened the dashboard in the last 7 days but changed nothing. <b>Quiet</b>: nothing in the last 7 days. <b>Never used</b>: has never signed in. Visits and changes are recorded from 29 Sept; "Last signed in" goes back further.</p>
       </div>
     </>
   );
