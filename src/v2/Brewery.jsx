@@ -266,7 +266,7 @@ export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events 
             const list = beers.filter((b) => beerLook(b.style, b.name).group === g);
             if (!list.length) return null;
             return (
-              <div key={g} className="v2-brewery" style={{ minHeight: 0, padding: 0, background: 'transparent' }}>
+              <div key={g} className="v2-brewery" style={{ minHeight: 0, padding: 0, background: 'transparent', color: 'inherit' }}>
                 <div className="eyebrow" style={{ color: 'var(--muted)', marginTop: 6 }}>{v[g]} · {list.length}</div>
                 <div className="beerlist">{list.map((b) => <BeerRow key={b.id} beer={b} />)}</div>
               </div>
