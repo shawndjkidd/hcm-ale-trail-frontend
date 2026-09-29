@@ -78,14 +78,14 @@ export default function VenueChecklist({ breweryId, isHQ = false, photoUrl, hasH
             <div style={{ fontWeight: 600, textDecoration: i.done ? 'line-through' : 'none' }}>{i.title}{i.optional ? <span style={{ color: 'var(--admin-text-muted)', fontWeight: 500 }}> · optional</span> : null}</div>
             {!i.done && <div style={{ color: 'var(--admin-text-muted)', fontSize: 13, marginTop: 2 }}>{i.why}</div>}
           </div>
-          {!i.done && !i.blocked && (
-            <div style={{ display: 'flex', gap: 8, flex: 'none' }}>
-              {i.canConfirm && (isHQ
-                ? <span style={{ color: 'var(--admin-text-muted)', fontSize: 13, alignSelf: 'center' }}>Waiting for the venue</span>
-                : <button type="button" className="admin-btn admin-btn-primary" style={{ width: 'auto' }} onClick={() => confirmItem(i.key)}>Looks good</button>)}
+          {!i.done && (
+            <div style={{ display: 'flex', gap: 8, flex: 'none', alignItems: 'center' }}>
+              {i.ready && (isHQ
+                ? <span style={{ color: 'var(--admin-text-muted)', fontSize: 13 }}>Waiting for the venue</span>
+                : <button type="button" className="admin-btn admin-btn-primary" style={{ width: 'auto' }} onClick={() => confirmItem(i.key)}>{i.tick}</button>)}
               {i.action === 'removeDemo'
                 ? (facts.demoItems > 0 && <button type="button" className="admin-btn admin-btn-primary" style={{ width: 'auto' }} onClick={removeDemo} disabled={busy}>{busy ? 'Removing…' : i.cta}</button>)
-                : i.go && <button type="button" className={`admin-btn ${i.canConfirm ? '' : 'admin-btn-primary'}`} style={{ width: 'auto', ...(i.canConfirm ? { background: 'transparent', border: '1px solid var(--admin-border)', color: 'var(--admin-text)' } : {}) }} onClick={() => onGo(i.go)}>{i.cta}</button>}
+                : i.go && <button type="button" className={`admin-btn ${i.ready ? '' : 'admin-btn-primary'}`} style={{ width: 'auto', ...(i.ready ? { background: 'transparent', border: '1px solid var(--admin-border)', color: 'var(--admin-text)' } : {}) }} onClick={() => onGo(i.go)}>{i.cta}</button>}
             </div>
           )}
         </div>
