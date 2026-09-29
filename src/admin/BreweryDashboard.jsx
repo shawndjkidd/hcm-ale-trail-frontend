@@ -237,24 +237,24 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       return;
     }
     if (newPassword !== confirmPassword) {
-      setPasswordMessage('New passwords do not match');
+      setPasswordMessage(t('New passwords do not match'));
       return;
     }
     if (newPassword.length < 8) {
-      setPasswordMessage('Password must be at least 8 characters');
+      setPasswordMessage(t('Password must be at least 8 characters'));
       return;
     }
     setSavingPassword(true);
     setPasswordMessage('');
     const result = await updateAdminAccount({ currentPassword, password: newPassword });
     if (result.ok) {
-      setPasswordMessage('✓ Password updated successfully');
+      setPasswordMessage('✓ ' + t('Password updated'));
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
       setTimeout(() => setPasswordMessage(''), 5000);
     } else {
-      setPasswordMessage(result.error || 'Failed to update password');
+      setPasswordMessage(t(result.error || 'Failed to update password'));
     }
     setSavingPassword(false);
   };

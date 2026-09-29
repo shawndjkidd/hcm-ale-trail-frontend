@@ -1,5 +1,14 @@
 export const API_BASE = '';
 
+// Reads a reply as JSON without throwing on an error page (Safari's res.json() error is
+// "The string did not match the expected pattern", which means nothing to a venue).
+export async function readJson(res) {
+  const text = await res.text().catch(() => '');
+  try { return JSON.parse(text); } catch {
+    return { ok: false, status: res.status, error: res.status === 404 ? 'This feature is not available yet. Please tell HQ.' : `Something went wrong (${res.status}). Please try again.` };
+  }
+}
+
 // "Failed to fetch" and friends mean the request never reached the server.
 export function netError(err) {
   const m = String(err?.message || err || '');
@@ -32,7 +41,7 @@ function authHeaders() {
 export async function getAdminMe() {
   try {
     const res = await fetch(`${API_BASE}/api/admin/me`, { headers: authHeaders() });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -45,7 +54,7 @@ export async function getTrailAnalytics(trailId, scope = 'trail', breweryId = nu
     let url = `${API_BASE}/api/admin/trails/${trailId}/analytics?scope=${scope}`;
     if (breweryId) url += `&bid=${breweryId}`;
     const res = await fetch(url, { headers: authHeaders() });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -59,7 +68,7 @@ export async function getTrailOverview(trailId, from, to) {
     if (to) params.append('to', to);
     if (params.toString()) url += `?${params.toString()}`;
     const res = await fetch(url, { headers: authHeaders() });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -68,7 +77,7 @@ export async function getTrailOverview(trailId, from, to) {
 export async function getAdminLeaderboard(trailId, limit = 50) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/leaderboard?limit=${limit}`, { headers: authHeaders() });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -90,7 +99,7 @@ export async function exportParticipants(trailId, format = 'json', from, to) {
       a.click();
       return { ok: true };
     }
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -101,7 +110,7 @@ export async function exportParticipants(trailId, format = 'json', from, to) {
 export async function getTrailEvents(trailId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/events`, { headers: authHeaders() });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -114,7 +123,7 @@ export async function createTrailEvent(trailId, eventData) {
       headers: authHeaders(),
       body: JSON.stringify(eventData)
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -123,7 +132,7 @@ export async function createTrailEvent(trailId, eventData) {
 export async function getBreweryEvents(breweryId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/events`, { headers: authHeaders() });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -136,7 +145,7 @@ export async function createBreweryEvent(breweryId, eventData) {
       headers: authHeaders(),
       body: JSON.stringify(eventData)
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -149,7 +158,7 @@ export async function updateEvent(eventId, patch) {
       headers: authHeaders(),
       body: JSON.stringify(patch)
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -161,7 +170,7 @@ export async function deleteEvent(eventId) {
       method: 'DELETE',
       headers: authHeaders()
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -177,7 +186,7 @@ export async function getBreweryDashboard(breweryId, from, to) {
     if (to) params.append('to', to);
     if (params.toString()) url += `?${params.toString()}`;
     const res = await fetch(url, { headers: authHeaders() });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -190,7 +199,7 @@ export async function updateBreweryPin(breweryId, pin) {
       headers: authHeaders(),
       body: JSON.stringify({ pin })
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -203,7 +212,7 @@ export async function updateBreweryHours(breweryId, operatingHours) {
       headers: authHeaders(),
       body: JSON.stringify({ operating_hours: operatingHours })
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -214,7 +223,7 @@ export async function updateBreweryHours(breweryId, operatingHours) {
 export async function getTrailBreweries(trailId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/breweries`, { headers: authHeaders() });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -227,7 +236,7 @@ export async function createBrewery(trailId, breweryData) {
       headers: authHeaders(),
       body: JSON.stringify(breweryData)
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -240,7 +249,7 @@ export async function updateBrewery(breweryId, breweryData) {
       headers: authHeaders(),
       body: JSON.stringify(breweryData)
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -255,7 +264,7 @@ export async function deleteBrewery(breweryId, hard = false) {
       method: 'DELETE',
       headers: authHeaders()
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -266,7 +275,7 @@ export async function deleteBrewery(breweryId, hard = false) {
 export async function getSideQuests(trailId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/side-quests`, { headers: authHeaders() });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -279,7 +288,7 @@ export async function createSideQuest(trailId, questData) {
       headers: authHeaders(),
       body: JSON.stringify(questData)
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -292,7 +301,7 @@ export async function updateSideQuest(questId, questData) {
       headers: authHeaders(),
       body: JSON.stringify(questData)
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -304,7 +313,7 @@ export async function deleteSideQuest(questId) {
       method: 'DELETE',
       headers: authHeaders()
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -315,7 +324,7 @@ export async function deleteSideQuest(questId) {
 export async function getBreweryBeers(breweryId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/beers`, { headers: authHeaders() });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -328,7 +337,7 @@ export async function createBreweryBeer(breweryId, beerData) {
       headers: authHeaders(),
       body: JSON.stringify(beerData)
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -341,7 +350,7 @@ export async function updateBreweryBeer(breweryId, beerId, beerData) {
       headers: authHeaders(),
       body: JSON.stringify(beerData)
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -354,7 +363,7 @@ export async function bulkUploadBeers(breweryId, beers) {
       headers: authHeaders(),
       body: JSON.stringify({ beers })
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -366,7 +375,7 @@ export async function deleteBreweryBeer(breweryId, beerId) {
       method: 'DELETE',
       headers: authHeaders()
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -379,7 +388,7 @@ export async function mergeRatings(breweryId, oldName, newName) {
       headers: authHeaders(),
       body: JSON.stringify({ oldName, newName })
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -388,7 +397,7 @@ export async function mergeRatings(breweryId, oldName, newName) {
 export async function getMergeSuggestions(trailId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/merge-suggestions`, { headers: authHeaders() });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -399,7 +408,7 @@ export async function getMergeSuggestions(trailId) {
 export async function getTrailBeerRatings(trailId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/ratings`, { headers: authHeaders() });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -414,7 +423,7 @@ export async function createBreweryStaff(breweryId, email, password) {
       headers: authHeaders(),
       body: JSON.stringify({ email, password })
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -423,7 +432,7 @@ export async function createBreweryStaff(breweryId, email, password) {
 export async function getBreweryLogin(breweryId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/login`, { headers: authHeaders() });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -431,14 +440,17 @@ export async function getBreweryLogin(breweryId) {
 
 // ==================== ACCOUNT SETTINGS ====================
 
+// Settings → Account. (The old /api/admin/account route never existed, so Safari showed
+// "The string did not match the expected pattern".) Password and email use the real routes.
 export async function updateAdminAccount({ email, currentPassword, password }) {
+  if (password) return changeAdminPassword(currentPassword, password);
   try {
-    const res = await fetch(`${API_BASE}/api/admin/account`, {
-      method: 'PUT',
+    const res = await fetch(`${API_BASE}/api/auth/change-email`, {
+      method: 'POST',
       headers: authHeaders(),
-      body: JSON.stringify({ email, currentPassword, password })
+      body: JSON.stringify({ email }),
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -449,7 +461,7 @@ export async function updateAdminAccount({ email, currentPassword, password }) {
 export async function getTrailMerchandise(trailId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/merchandise`, { headers: authHeaders() });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -462,7 +474,7 @@ export async function createMerchandiseItem(trailId, itemData) {
       headers: authHeaders(),
       body: JSON.stringify(itemData)
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -475,7 +487,7 @@ export async function updateMerchandiseItem(trailId, merchId, itemData) {
       headers: authHeaders(),
       body: JSON.stringify(itemData)
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -487,7 +499,7 @@ export async function deleteMerchandiseItem(trailId, merchId) {
       method: 'DELETE',
       headers: authHeaders()
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -496,7 +508,7 @@ export async function deleteMerchandiseItem(trailId, merchId) {
 export async function getBreweryMerchandise(breweryId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/merchandise`, { headers: authHeaders() });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -509,7 +521,7 @@ export async function restockMerchandise(breweryId, merchId, quantity, notes) {
       headers: authHeaders(),
       body: JSON.stringify({ quantity, notes })
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -522,7 +534,7 @@ export async function recordMerchPickup(breweryId, merchId, participantId) {
       headers: authHeaders(),
       body: JSON.stringify({ participant_id: participantId })
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -533,7 +545,7 @@ export async function recordMerchPickup(breweryId, merchId, participantId) {
 export async function getSuperAdmins() {
   try {
     const res = await fetch(`${API_BASE}/api/admin/super-admins`, { headers: authHeaders() });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -546,7 +558,7 @@ export async function addSuperAdmin(email) {
       headers: authHeaders(),
       body: JSON.stringify({ email }),
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -558,7 +570,7 @@ export async function removeSuperAdmin(id) {
       method: 'DELETE',
       headers: authHeaders(),
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -569,7 +581,7 @@ export async function removeSuperAdmin(id) {
 export async function getBreweryStaff(breweryId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/staff`, { headers: authHeaders() });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -582,7 +594,7 @@ export async function inviteBreweryStaff(breweryId, email, role) {
       headers: authHeaders(),
       body: JSON.stringify({ email, role }),
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -595,7 +607,7 @@ export async function updateBreweryStaffRole(breweryId, staffId, role) {
       headers: authHeaders(),
       body: JSON.stringify({ role }),
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -607,7 +619,7 @@ export async function removeBreweryStaff(breweryId, staffId) {
       method: 'DELETE',
       headers: authHeaders(),
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -620,7 +632,7 @@ export async function changeAdminPassword(currentPassword, newPassword) {
       headers: authHeaders(),
       body: JSON.stringify({ currentPassword, newPassword }),
     });
-    return await res.json();
+    return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
   }
@@ -650,7 +662,7 @@ export async function adminLogin(email, password, rememberMe = true) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
-    const data = await res.json();
+    const data = await readJson(res);
     if (data.ok && data.access_token) {
       // Clear both storages before writing to avoid stale cross-storage tokens
       SESSION_KEYS.forEach(k => { localStorage.removeItem(k); sessionStorage.removeItem(k); });
@@ -687,7 +699,7 @@ export async function refreshAdminSession() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refresh_token: refreshToken }),
     });
-    const data = await res.json();
+    const data = await readJson(res);
 
     if (data.ok && data.access_token) {
       const store = sessionStorage_();
@@ -705,25 +717,25 @@ export async function refreshAdminSession() {
 export async function getBreweryLocations(breweryId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/locations`, { headers: authHeaders() });
-    return await res.json();
+    return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 export async function addBreweryLocation(breweryId, location) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/locations`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(location) });
-    return await res.json();
+    return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 export async function updateBreweryLocation(breweryId, locationId, fields) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/locations/${locationId}`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(fields) });
-    return await res.json();
+    return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 export async function removeBreweryLocation(breweryId, locationId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/locations/${locationId}`, { method: 'DELETE', headers: authHeaders() });
-    return await res.json();
+    return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
@@ -731,13 +743,13 @@ export async function removeBreweryLocation(breweryId, locationId) {
 export async function hqLookupStamps(trailId, email) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/stamps?email=${encodeURIComponent(email)}`, { headers: authHeaders() });
-    return await res.json();
+    return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 export async function hqAddStamps(trailId, email, breweryIds) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/stamps`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ email, breweryIds }) });
-    return await res.json();
+    return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
@@ -746,21 +758,21 @@ export async function hqAddStamps(trailId, email, breweryIds) {
 export async function getHqSummary(trailId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/hq`, { headers: authHeaders() });
-    return await res.json();
+    return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
 export async function hqRemoveDemo(trailId, confirm) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/hq/demo`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ confirm }) });
-    return await res.json();
+    return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
 export async function hqGenerateCodes(trailId, confirm) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/hq/codes`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ confirm }) });
-    return await res.json();
+    return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
@@ -768,7 +780,7 @@ export async function hqGenerateCodes(trailId, confirm) {
 export async function pingVenueVisit(breweryId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/visit`, { method: 'POST', headers: authHeaders(), body: '{}' });
-    return await res.json();
+    return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
@@ -776,7 +788,7 @@ export async function pingVenueVisit(breweryId) {
 export async function setMerchandiseCount(breweryId, merchId, quantity) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/merchandise/${merchId}/stock`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify({ quantity }) });
-    return await res.json();
+    return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
@@ -785,14 +797,14 @@ export async function setMerchandiseCount(breweryId, merchId, quantity) {
 export async function getVenueFeatures(trailId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/features`, { headers: authHeaders() });
-    return await res.json();
+    return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
 export async function setVenueFeature(trailId, payload) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/features`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(payload) });
-    return await res.json();
+    return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
@@ -801,14 +813,14 @@ export async function setVenueFeature(trailId, payload) {
 export async function getVenueDemo(breweryId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/demo`, { headers: authHeaders() });
-    return await res.json();
+    return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
 export async function removeVenueDemo(breweryId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/demo`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ confirm: 'REMOVE' }) });
-    return await res.json();
+    return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
@@ -817,13 +829,13 @@ export async function removeVenueDemo(breweryId) {
 export async function getChecklistConfirmed(breweryId) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/checklist`, { headers: authHeaders() });
-    return await res.json();
+    return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
 export async function confirmChecklistItem(breweryId, item) {
   try {
     const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/checklist`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ item }) });
-    return await res.json();
+    return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
