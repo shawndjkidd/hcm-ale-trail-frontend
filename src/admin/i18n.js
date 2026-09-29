@@ -114,6 +114,10 @@ const VI = {
   'Could not save': 'Không lưu được',
 
   'Check it': 'Kiểm tra',
+  'Choose your own check-in code': 'Chọn mã check-in riêng',
+  "Every venue starts on 1234. Pick a 4-digit code only your staff know, so guests can't stamp themselves.": 'Mọi quán đều bắt đầu với mã 1234. Hãy chọn mã 4 số chỉ nhân viên biết, để khách không tự đóng dấu được.',
+  'Change code': 'Đổi mã',
+  'Change your code from 1234 first': 'Hãy đổi mã khác 1234 trước',
   'Tick off': 'Đánh dấu xong',
   'Check each item with the yellow button, then press Done.': 'Kiểm tra từng mục bằng nút vàng, rồi bấm Xong.',
   'Only the venue can tick this off': 'Chỉ quán mới đánh dấu được mục này',

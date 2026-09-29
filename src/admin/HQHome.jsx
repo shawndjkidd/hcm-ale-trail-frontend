@@ -70,7 +70,7 @@ export default function HQHome({ onGo }) {
   const noHats = bars.filter((v) => v.hats <= 0);
   const onDefault = [...bars, ...quests].filter((v) => v.codeIsDefault);
   const noBeers = bars.filter((v) => v.beers === 0);
-  const listOf = (v) => (v.checklist ? buildChecklist(v.checklist) : null);
+  const listOf = (v) => (v.checklist ? buildChecklist({ ...v.checklist, codeSet: !v.codeIsDefault }) : null);
   const unfinished = bars.filter((v) => listOf(v) && !listOf(v).complete);
   const questGaps = quests.filter((v) => !v.hasPhoto || !v.hasHours || !v.hasPin);
   const demoTotal = Object.values(demo).reduce((a, b) => a + b, 0);

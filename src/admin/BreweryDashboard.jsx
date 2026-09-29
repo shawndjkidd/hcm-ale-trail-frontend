@@ -38,6 +38,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   const [audienceLoading, setAudienceLoading] = useState(false);
 
   const [pinCode, setPinCode] = useState('');
+  const [savedPin, setSavedPin] = useState('');
   const [savingPin, setSavingPin] = useState(false);
   const [pinMessage, setPinMessage] = useState('');
 
@@ -159,6 +160,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
     if (dashResult.ok) {
       setData(dashResult);
       setPinCode(dashResult.brewery?.pinCode || dashResult.brewery?.pin_code || '');
+      setSavedPin(dashResult.brewery?.pinCode || dashResult.brewery?.pin_code || '');
       const hours = dashResult.brewery?.operatingHours || dashResult.brewery?.operating_hours;
       if (hours) {
         setOperatingHours({ ...DEFAULT_HOURS, ...hours });
@@ -202,6 +204,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
     setPinMessage('');
     const result = await updateBreweryPin(breweryId, pinCode);
     if (result.ok) {
+      setSavedPin(pinCode);
       setPinMessage('✓ PIN updated successfully');
       setTimeout(() => setPinMessage(''), 3000);
     } else {
@@ -821,7 +824,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
 
       {canManage && activeTab === 'overview' && (
         <VenueChecklist breweryId={breweryId} isHQ={isHQ} photoUrl={photoUrl} hasHours={hasHours} socialLinks={socialLinks}
-          descriptionEn={descriptionEn} descriptionVn={descriptionVn} beers={beers} merch={brewMerch} events={events} staff={staff}
+          descriptionEn={descriptionEn} descriptionVn={descriptionVn} savedPin={savedPin} beers={beers} merch={brewMerch} events={events} staff={staff}
           onGo={(tab) => { setActiveTab(tab); window.scrollTo({ top: 0 }); }}
           onDemoRemoved={() => { loadBeers(); getBreweryEvents(breweryId).then((r) => r?.ok && setEvents(r.events || [])); }} />
       )}

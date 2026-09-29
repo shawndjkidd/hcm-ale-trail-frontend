@@ -10,7 +10,7 @@ import { useT } from './i18n';
 
 const isDemoBeer = (b) => String(b.id || '').startsWith('de000000-') || /^\s*DEMO\s*·/i.test(b.name || '');
 
-export default function VenueChecklist({ breweryId, isHQ = false, photoUrl, hasHours, socialLinks, descriptionEn, descriptionVn, beers, merch, events, staff, onGo, onDemoRemoved }) {
+export default function VenueChecklist({ breweryId, isHQ = false, photoUrl, hasHours, socialLinks, descriptionEn, descriptionVn, savedPin, beers, merch, events, staff, onGo, onDemoRemoved }) {
   const [demo, setDemo] = useState(null);
   const [busy, setBusy] = useState(false);
   const toast = useToast();
@@ -43,6 +43,7 @@ export default function VenueChecklist({ breweryId, isHQ = false, photoUrl, hasH
     demoItems: demo ? demo.beers + demo.events + demo.ratings : null,
     barStaff: (staff || []).filter((m) => m.role === 'staff' || m.role === 'manager').length,
     realEvents: (events || []).filter((e) => !String(e.id || '').startsWith('de000000-')).length,
+    codeSet: !!savedPin && savedPin !== '1234',
     confirmed,
   };
   const list = buildChecklist(facts, t);
