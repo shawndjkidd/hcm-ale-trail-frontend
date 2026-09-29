@@ -36,11 +36,40 @@ function authHeaders() {
   };
 }
 
+
+// Every dashboard call goes through apiFetch: it renews the login before it expires, and if
+// a call is refused as expired (401) it renews once and retries, so saves don't silently
+// fail after an hour. If the login can't be renewed, the app is told to show the login
+// screen with a clear message instead of failing quietly.
+let refreshing = null;
+function renewOnce() {
+  if (!refreshing) refreshing = refreshAdminSession().finally(() => { setTimeout(() => { refreshing = null; }, 0); });
+  return refreshing;
+}
+export const SESSION_EXPIRED_MESSAGE = 'Your login expired. Please log in again.';
+function sessionExpired() {
+  try { window.dispatchEvent(new Event('hcm-admin-session-expired')); } catch {}
+}
+export async function apiFetch(url, opts = {}) {
+  const send = () => fetch(url, { ...opts, headers: { ...(opts.headers || {}), ...authHeaders() } });
+  if (getToken() && isAdminSessionExpired()) await renewOnce();
+  let res = await send();
+  if (res.status === 401 && getToken()) {
+    const renewed = await renewOnce();
+    if (renewed?.ok) res = await send();
+    else {
+      sessionExpired();
+      return new Response(JSON.stringify({ ok: false, status: 401, error: SESSION_EXPIRED_MESSAGE }), { status: 401, headers: { 'content-type': 'application/json' } });
+    }
+  }
+  return res;
+}
+
 // ==================== AUTH ====================
 
 export async function getAdminMe() {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/me`, { headers: authHeaders() });
+    const res = await apiFetch(`${API_BASE}/api/admin/me`, { headers: authHeaders() });
     return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
@@ -53,7 +82,7 @@ export async function getTrailAnalytics(trailId, scope = 'trail', breweryId = nu
   try {
     let url = `${API_BASE}/api/admin/trails/${trailId}/analytics?scope=${scope}`;
     if (breweryId) url += `&bid=${breweryId}`;
-    const res = await fetch(url, { headers: authHeaders() });
+    const res = await apiFetch(url, { headers: authHeaders() });
     return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
@@ -67,7 +96,7 @@ export async function getTrailOverview(trailId, from, to) {
     if (from) params.append('from', from);
     if (to) params.append('to', to);
     if (params.toString()) url += `?${params.toString()}`;
-    const res = await fetch(url, { headers: authHeaders() });
+    const res = await apiFetch(url, { headers: authHeaders() });
     return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
@@ -76,7 +105,7 @@ export async function getTrailOverview(trailId, from, to) {
 
 export async function getAdminLeaderboard(trailId, limit = 50) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/leaderboard?limit=${limit}`, { headers: authHeaders() });
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/leaderboard?limit=${limit}`, { headers: authHeaders() });
     return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
@@ -88,7 +117,7 @@ export async function exportParticipants(trailId, format = 'json', from, to) {
     let url = `${API_BASE}/api/admin/trails/${trailId}/participants/export?format=${format}`;
     if (from) url += `&from=${from}`;
     if (to) url += `&to=${to}`;
-    const res = await fetch(url, { headers: authHeaders() });
+    const res = await apiFetch(url, { headers: authHeaders() });
     if (format === 'csv') {
       const text = await res.text();
       const blob = new Blob([text], { type: 'text/csv' });
@@ -109,7 +138,7 @@ export async function exportParticipants(trailId, format = 'json', from, to) {
 
 export async function getTrailEvents(trailId) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/events`, { headers: authHeaders() });
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/events`, { headers: authHeaders() });
     return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
@@ -118,7 +147,7 @@ export async function getTrailEvents(trailId) {
 
 export async function createTrailEvent(trailId, eventData) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/events`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/events`, {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify(eventData)
@@ -131,7 +160,7 @@ export async function createTrailEvent(trailId, eventData) {
 
 export async function getBreweryEvents(breweryId) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/events`, { headers: authHeaders() });
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/events`, { headers: authHeaders() });
     return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
@@ -140,7 +169,7 @@ export async function getBreweryEvents(breweryId) {
 
 export async function createBreweryEvent(breweryId, eventData) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/events`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/events`, {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify(eventData)
@@ -153,7 +182,7 @@ export async function createBreweryEvent(breweryId, eventData) {
 
 export async function updateEvent(eventId, patch) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/events/${eventId}`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/events/${eventId}`, {
       method: 'PUT',
       headers: authHeaders(),
       body: JSON.stringify(patch)
@@ -166,7 +195,7 @@ export async function updateEvent(eventId, patch) {
 
 export async function deleteEvent(eventId) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/events/${eventId}`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/events/${eventId}`, {
       method: 'DELETE',
       headers: authHeaders()
     });
@@ -185,7 +214,7 @@ export async function getBreweryDashboard(breweryId, from, to) {
     if (from) params.append('from', from);
     if (to) params.append('to', to);
     if (params.toString()) url += `?${params.toString()}`;
-    const res = await fetch(url, { headers: authHeaders() });
+    const res = await apiFetch(url, { headers: authHeaders() });
     return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
@@ -194,7 +223,7 @@ export async function getBreweryDashboard(breweryId, from, to) {
 
 export async function updateBreweryPin(breweryId, pin) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/pin`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/pin`, {
       method: 'PUT',
       headers: authHeaders(),
       body: JSON.stringify({ pin })
@@ -207,7 +236,7 @@ export async function updateBreweryPin(breweryId, pin) {
 
 export async function updateBreweryHours(breweryId, operatingHours) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/hours`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/hours`, {
       method: 'PUT',
       headers: authHeaders(),
       body: JSON.stringify({ operating_hours: operatingHours })
@@ -222,7 +251,7 @@ export async function updateBreweryHours(breweryId, operatingHours) {
 
 export async function getTrailBreweries(trailId) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/breweries`, { headers: authHeaders() });
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/breweries`, { headers: authHeaders() });
     return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
@@ -231,7 +260,7 @@ export async function getTrailBreweries(trailId) {
 
 export async function createBrewery(trailId, breweryData) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/breweries`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/breweries`, {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify(breweryData)
@@ -244,7 +273,7 @@ export async function createBrewery(trailId, breweryData) {
 
 export async function updateBrewery(breweryId, breweryData) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}`, {
       method: 'PUT',
       headers: authHeaders(),
       body: JSON.stringify(breweryData)
@@ -260,7 +289,7 @@ export async function deleteBrewery(breweryId, hard = false) {
     const url = hard 
       ? `${API_BASE}/api/admin/breweries/${breweryId}?hard=1`
       : `${API_BASE}/api/admin/breweries/${breweryId}`;
-    const res = await fetch(url, {
+    const res = await apiFetch(url, {
       method: 'DELETE',
       headers: authHeaders()
     });
@@ -274,7 +303,7 @@ export async function deleteBrewery(breweryId, hard = false) {
 
 export async function getSideQuests(trailId) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/side-quests`, { headers: authHeaders() });
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/side-quests`, { headers: authHeaders() });
     return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
@@ -283,7 +312,7 @@ export async function getSideQuests(trailId) {
 
 export async function createSideQuest(trailId, questData) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/side-quests`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/side-quests`, {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify(questData)
@@ -296,7 +325,7 @@ export async function createSideQuest(trailId, questData) {
 
 export async function updateSideQuest(questId, questData) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/side-quests/${questId}`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/side-quests/${questId}`, {
       method: 'PUT',
       headers: authHeaders(),
       body: JSON.stringify(questData)
@@ -309,7 +338,7 @@ export async function updateSideQuest(questId, questData) {
 
 export async function deleteSideQuest(questId) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/side-quests/${questId}`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/side-quests/${questId}`, {
       method: 'DELETE',
       headers: authHeaders()
     });
@@ -323,7 +352,7 @@ export async function deleteSideQuest(questId) {
 
 export async function getBreweryBeers(breweryId) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/beers`, { headers: authHeaders() });
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/beers`, { headers: authHeaders() });
     return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
@@ -332,7 +361,7 @@ export async function getBreweryBeers(breweryId) {
 
 export async function createBreweryBeer(breweryId, beerData) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/beers`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/beers`, {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify(beerData)
@@ -345,7 +374,7 @@ export async function createBreweryBeer(breweryId, beerData) {
 
 export async function updateBreweryBeer(breweryId, beerId, beerData) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/beers/${beerId}`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/beers/${beerId}`, {
       method: 'PUT',
       headers: authHeaders(),
       body: JSON.stringify(beerData)
@@ -358,7 +387,7 @@ export async function updateBreweryBeer(breweryId, beerId, beerData) {
 
 export async function bulkUploadBeers(breweryId, beers) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/beers/bulk`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/beers/bulk`, {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify({ beers })
@@ -371,7 +400,7 @@ export async function bulkUploadBeers(breweryId, beers) {
 
 export async function deleteBreweryBeer(breweryId, beerId) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/beers/${beerId}`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/beers/${beerId}`, {
       method: 'DELETE',
       headers: authHeaders()
     });
@@ -383,7 +412,7 @@ export async function deleteBreweryBeer(breweryId, beerId) {
 
 export async function mergeRatings(breweryId, oldName, newName) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/merge-ratings`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/merge-ratings`, {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify({ oldName, newName })
@@ -396,7 +425,7 @@ export async function mergeRatings(breweryId, oldName, newName) {
 
 export async function getMergeSuggestions(trailId) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/merge-suggestions`, { headers: authHeaders() });
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/merge-suggestions`, { headers: authHeaders() });
     return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
@@ -407,7 +436,7 @@ export async function getMergeSuggestions(trailId) {
 
 export async function getTrailBeerRatings(trailId) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/ratings`, { headers: authHeaders() });
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/ratings`, { headers: authHeaders() });
     return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
@@ -418,7 +447,7 @@ export async function getTrailBeerRatings(trailId) {
 
 export async function createBreweryStaff(breweryId, email, password) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/create-login`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/create-login`, {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify({ email, password })
@@ -431,7 +460,7 @@ export async function createBreweryStaff(breweryId, email, password) {
 
 export async function getBreweryLogin(breweryId) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/login`, { headers: authHeaders() });
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/login`, { headers: authHeaders() });
     return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
@@ -445,7 +474,7 @@ export async function getBreweryLogin(breweryId) {
 export async function updateAdminAccount({ email, currentPassword, password }) {
   if (password) return changeAdminPassword(currentPassword, password);
   try {
-    const res = await fetch(`${API_BASE}/api/auth/change-email`, {
+    const res = await apiFetch(`${API_BASE}/api/auth/change-email`, {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify({ email }),
@@ -460,7 +489,7 @@ export async function updateAdminAccount({ email, currentPassword, password }) {
 
 export async function getTrailMerchandise(trailId) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/merchandise`, { headers: authHeaders() });
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/merchandise`, { headers: authHeaders() });
     return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
@@ -469,7 +498,7 @@ export async function getTrailMerchandise(trailId) {
 
 export async function createMerchandiseItem(trailId, itemData) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/merchandise`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/merchandise`, {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify(itemData)
@@ -482,7 +511,7 @@ export async function createMerchandiseItem(trailId, itemData) {
 
 export async function updateMerchandiseItem(trailId, merchId, itemData) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/merchandise/${merchId}`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/merchandise/${merchId}`, {
       method: 'PATCH',
       headers: authHeaders(),
       body: JSON.stringify(itemData)
@@ -495,7 +524,7 @@ export async function updateMerchandiseItem(trailId, merchId, itemData) {
 
 export async function deleteMerchandiseItem(trailId, merchId) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/merchandise/${merchId}`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/merchandise/${merchId}`, {
       method: 'DELETE',
       headers: authHeaders()
     });
@@ -507,7 +536,7 @@ export async function deleteMerchandiseItem(trailId, merchId) {
 
 export async function getBreweryMerchandise(breweryId) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/merchandise`, { headers: authHeaders() });
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/merchandise`, { headers: authHeaders() });
     return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
@@ -516,7 +545,7 @@ export async function getBreweryMerchandise(breweryId) {
 
 export async function restockMerchandise(breweryId, merchId, quantity, notes) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/merchandise/${merchId}/restock`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/merchandise/${merchId}/restock`, {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify({ quantity, notes })
@@ -529,7 +558,7 @@ export async function restockMerchandise(breweryId, merchId, quantity, notes) {
 
 export async function recordMerchPickup(breweryId, merchId, participantId) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/merchandise/${merchId}/pickup`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/merchandise/${merchId}/pickup`, {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify({ participant_id: participantId })
@@ -544,7 +573,7 @@ export async function recordMerchPickup(breweryId, merchId, participantId) {
 
 export async function getSuperAdmins() {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/super-admins`, { headers: authHeaders() });
+    const res = await apiFetch(`${API_BASE}/api/admin/super-admins`, { headers: authHeaders() });
     return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
@@ -553,7 +582,7 @@ export async function getSuperAdmins() {
 
 export async function addSuperAdmin(email) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/super-admins`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/super-admins`, {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify({ email }),
@@ -566,7 +595,7 @@ export async function addSuperAdmin(email) {
 
 export async function removeSuperAdmin(id) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/super-admins/${id}`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/super-admins/${id}`, {
       method: 'DELETE',
       headers: authHeaders(),
     });
@@ -580,7 +609,7 @@ export async function removeSuperAdmin(id) {
 
 export async function getBreweryStaff(breweryId) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/staff`, { headers: authHeaders() });
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/staff`, { headers: authHeaders() });
     return await readJson(res);
   } catch (err) {
     return { ok: false, error: netError(err) };
@@ -589,7 +618,7 @@ export async function getBreweryStaff(breweryId) {
 
 export async function inviteBreweryStaff(breweryId, email, role) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/staff`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/staff`, {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify({ email, role }),
@@ -602,7 +631,7 @@ export async function inviteBreweryStaff(breweryId, email, role) {
 
 export async function updateBreweryStaffRole(breweryId, staffId, role) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/staff/${staffId}`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/staff/${staffId}`, {
       method: 'PATCH',
       headers: authHeaders(),
       body: JSON.stringify({ role }),
@@ -615,7 +644,7 @@ export async function updateBreweryStaffRole(breweryId, staffId, role) {
 
 export async function removeBreweryStaff(breweryId, staffId) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/staff/${staffId}`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/staff/${staffId}`, {
       method: 'DELETE',
       headers: authHeaders(),
     });
@@ -627,7 +656,7 @@ export async function removeBreweryStaff(breweryId, staffId) {
 
 export async function changeAdminPassword(currentPassword, newPassword) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/auth/change-password`, {
+    const res = await apiFetch(`${API_BASE}/api/admin/auth/change-password`, {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify({ currentPassword, newPassword }),
@@ -716,25 +745,25 @@ export async function refreshAdminSession() {
 // ==================== LOCATIONS (extra taprooms) ====================
 export async function getBreweryLocations(breweryId) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/locations`, { headers: authHeaders() });
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/locations`, { headers: authHeaders() });
     return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 export async function addBreweryLocation(breweryId, location) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/locations`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(location) });
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/locations`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(location) });
     return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 export async function updateBreweryLocation(breweryId, locationId, fields) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/locations/${locationId}`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(fields) });
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/locations/${locationId}`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(fields) });
     return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 export async function removeBreweryLocation(breweryId, locationId) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/locations/${locationId}`, { method: 'DELETE', headers: authHeaders() });
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/locations/${locationId}`, { method: 'DELETE', headers: authHeaders() });
     return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
@@ -742,13 +771,13 @@ export async function removeBreweryLocation(breweryId, locationId) {
 // ==================== HQ PAPER-CARD TRANSFER ====================
 export async function hqLookupStamps(trailId, email) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/stamps?email=${encodeURIComponent(email)}`, { headers: authHeaders() });
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/stamps?email=${encodeURIComponent(email)}`, { headers: authHeaders() });
     return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 export async function hqAddStamps(trailId, email, breweryIds) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/stamps`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ email, breweryIds }) });
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/stamps`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ email, breweryIds }) });
     return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
@@ -757,21 +786,21 @@ export async function hqAddStamps(trailId, email, breweryIds) {
 
 export async function getHqSummary(trailId) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/hq`, { headers: authHeaders() });
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/hq`, { headers: authHeaders() });
     return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
 export async function hqRemoveDemo(trailId, confirm) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/hq/demo`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ confirm }) });
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/hq/demo`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ confirm }) });
     return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
 export async function hqGenerateCodes(trailId, confirm) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/hq/codes`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ confirm }) });
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/hq/codes`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ confirm }) });
     return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
@@ -779,7 +808,7 @@ export async function hqGenerateCodes(trailId, confirm) {
 // Tells HQ a venue opened its dashboard. HQ viewing a venue is ignored by the server.
 export async function pingVenueVisit(breweryId) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/visit`, { method: 'POST', headers: authHeaders(), body: '{}' });
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/visit`, { method: 'POST', headers: authHeaders(), body: '{}' });
     return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
@@ -787,7 +816,7 @@ export async function pingVenueVisit(breweryId) {
 // HQ only: set the exact count on hand (e.g. after counting). The change is kept in history.
 export async function setMerchandiseCount(breweryId, merchId, quantity) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/merchandise/${merchId}/stock`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify({ quantity }) });
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/merchandise/${merchId}/stock`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify({ quantity }) });
     return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
@@ -796,14 +825,14 @@ export async function setMerchandiseCount(breweryId, merchId, quantity) {
 
 export async function getVenueFeatures(trailId) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/features`, { headers: authHeaders() });
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/features`, { headers: authHeaders() });
     return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
 export async function setVenueFeature(trailId, payload) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/trails/${trailId}/features`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(payload) });
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/features`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(payload) });
     return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
@@ -812,14 +841,14 @@ export async function setVenueFeature(trailId, payload) {
 
 export async function getVenueDemo(breweryId) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/demo`, { headers: authHeaders() });
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/demo`, { headers: authHeaders() });
     return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
 export async function removeVenueDemo(breweryId) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/demo`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ confirm: 'REMOVE' }) });
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/demo`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ confirm: 'REMOVE' }) });
     return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
@@ -828,14 +857,14 @@ export async function removeVenueDemo(breweryId) {
 
 export async function getChecklistConfirmed(breweryId) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/checklist`, { headers: authHeaders() });
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/checklist`, { headers: authHeaders() });
     return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
 export async function confirmChecklistItem(breweryId, item) {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/checklist`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ item }) });
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/checklist`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ item }) });
     return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }

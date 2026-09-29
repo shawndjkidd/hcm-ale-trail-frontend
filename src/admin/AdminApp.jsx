@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { getAdminMe, adminLogout, changeAdminPassword, refreshAdminSession, isAdminSessionExpired } from './adminApi';
+import { getAdminMe, adminLogout, changeAdminPassword, refreshAdminSession, isAdminSessionExpired, SESSION_EXPIRED_MESSAGE } from './adminApi';
 import AdminLogin from './AdminLogin';
 import HQDashboard from './HQDashboard';
 import BreweryDashboard from './BreweryDashboard';
@@ -97,6 +97,28 @@ function AdminAppInner() {
     checkAuth();
   }, []);
 
+  // A login that can no longer be renewed: back to the login screen with a clear message
+  // (instead of the dashboard looking logged in while nothing saves).
+  const [sessionNotice, setSessionNotice] = useState('');
+  useEffect(() => {
+    const expired = () => { adminLogout(); setAdminUser(null); setSessionNotice(SESSION_EXPIRED_MESSAGE); };
+    window.addEventListener('hcm-admin-session-expired', expired);
+    return () => window.removeEventListener('hcm-admin-session-expired', expired);
+  }, []);
+  // Phones pause timers while locked or in the background, so also renew when the tab
+  // comes back on screen.
+  useEffect(() => {
+    if (!adminUser) return undefined;
+    const onVisible = async () => {
+      if (document.visibilityState !== 'visible' || !isAdminSessionExpired()) return;
+      const refreshed = await refreshAdminSession();
+      if (!refreshed.ok) { adminLogout(); setAdminUser(null); setSessionNotice(SESSION_EXPIRED_MESSAGE); }
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', onVisible);
+    return () => { document.removeEventListener('visibilitychange', onVisible); window.removeEventListener('focus', onVisible); };
+  }, [adminUser]);
+
   // Proactively refresh the token every 45 minutes while logged in
   useEffect(() => {
     if (!adminUser) return;
@@ -166,7 +188,7 @@ function AdminAppInner() {
     return (
       <div className="admin-app hq-theme">
         <AdminUpdateBar />
-        <AdminLogin onLoginSuccess={checkAuth} />
+        <AdminLogin onLoginSuccess={() => { setSessionNotice(''); checkAuth(); }} notice={sessionNotice} />
       </div>
     );
   }

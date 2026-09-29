@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { adminLogin } from './adminApi';
 
-export default function AdminLogin({ onLoginSuccess }) {
+export default function AdminLogin({ onLoginSuccess, notice = '' }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
@@ -41,6 +41,7 @@ export default function AdminLogin({ onLoginSuccess }) {
 
         <h1 className="admin-login-title">Admin Dashboard</h1>
         <p className="admin-login-subtitle">Sign in to manage the trail</p>
+        {notice && <div role="alert" style={{ margin: '0 0 16px', padding: '10px 12px', borderRadius: 10, border: '1px solid var(--admin-primary)', fontWeight: 600, fontSize: 14 }}>{notice}</div>}
 
         <form onSubmit={handleSubmit}>
           {error && <div className="admin-error">{error}</div>}
