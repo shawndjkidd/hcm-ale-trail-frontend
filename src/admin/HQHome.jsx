@@ -13,6 +13,29 @@ const trendClass = (now, prev) => (now > prev ? 'hq-up' : now < prev ? 'hq-down'
 const timeOf = (iso) => { try { return new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' }); } catch { return ''; } };
 const names = (list) => (list.length <= 3 ? list.map((v) => v.name).join(', ') : `${list.slice(0, 2).map((v) => v.name).join(', ')} and ${list.length - 2} more`);
 
+const AREA = {
+  beers: 'Beers', events: 'Events', hours: 'Opening hours', merchandise: 'Hats & stock', locations: 'Locations',
+  pin: 'Check-in code', staff: 'Team', details: 'Venue details', 'merge-ratings': 'Merged ratings', photo: 'Photo',
+};
+const DAY = 86400000;
+function ago(iso) {
+  if (!iso) return 'Never';
+  const t = new Date(iso).getTime();
+  const days = Math.floor((Date.now() - t) / DAY);
+  const time = new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' });
+  if (days <= 0 && new Date(t).toDateString() === new Date().toDateString()) return `Today ${time}`;
+  if (days <= 1) return `Yesterday ${time}`;
+  if (days < 14) return `${days} days ago`;
+  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'Asia/Ho_Chi_Minh' });
+}
+function usage(a) {
+  if (!a?.lastActive) return { cls: 'bad', text: 'Not yet' };
+  const days = (Date.now() - new Date(a.lastActive).getTime()) / DAY;
+  if (days <= 3) return { cls: 'ok', text: 'Active' };
+  if (days <= 7) return { cls: 'warn', text: 'Slowing' };
+  return { cls: 'bad', text: 'Quiet' };
+}
+
 function Yes({ ok }) {
   return <span className={`hq-st ${ok ? 'ok' : 'bad'}`}>{ok ? 'Yes' : 'Missing'}</span>;
 }
@@ -49,12 +72,15 @@ export default function HQHome({ onGo }) {
   const noBeers = bars.filter((v) => v.beers === 0);
   const incomplete = [...bars, ...quests].filter((v) => !v.hasPhoto || !v.hasHours || !v.hasPin);
   const demoTotal = Object.values(demo).reduce((a, b) => a + b, 0);
+  const quiet = bars.filter((v) => ['Not yet', 'Quiet'].includes(usage(v.activity).text));
+  const toActivity = () => document.getElementById('hq-activity')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   const attention = [
     noHats.length && { level: 'bad', title: `${noHats.length} ${noHats.length === 1 ? 'venue has' : 'venues have'} 0 hats`, sub: `Guests can't claim there · ${names(noHats)}`, go: 'stock', cta: 'Restock' },
     onDefault.length && { level: 'bad', title: `${onDefault.length} still on code 1234`, sub: 'Anyone who guesses it can stamp', go: 'launch', cta: 'Set codes' },
     noBeers.length && { level: 'warn', title: `${noBeers.length} ${noBeers.length === 1 ? 'venue has' : 'venues have'} no beers listed`, sub: names(noBeers), go: 'breweries', cta: 'Open venues' },
     incomplete.length && { level: 'warn', title: `${incomplete.length} missing a photo, hours or map pin`, sub: names(incomplete), go: 'breweries', cta: 'Open venues' },
+    quiet.length && { level: 'warn', title: `${quiet.length} ${quiet.length === 1 ? "venue hasn't" : "venues haven't"} used their dashboard in a week`, sub: names(quiet), action: toActivity, cta: 'See activity' },
     demoTotal && { level: 'warn', title: 'Demo content is live', sub: `${demo.participants} people · ${demo.checkins} stamps · ${demo.beers} beers · ${demo.events} events · ${demo.sideQuests} side quests`, go: 'launch', cta: 'Review' },
   ].filter(Boolean);
 
@@ -83,7 +109,7 @@ export default function HQHome({ onGo }) {
             <div className="hq-li" key={a.title}>
               <span className={`hq-st ${a.level}`} />
               <div className="t"><b>{a.title}</b><small>{a.sub}</small></div>
-              <button type="button" className={`hq-btn ${a.level === 'bad' ? 'y' : ''}`} onClick={() => onGo(a.go)}>{a.cta}</button>
+              <button type="button" className={`hq-btn ${a.level === 'bad' ? 'y' : ''}`} onClick={() => (a.action ? a.action() : onGo(a.go))}>{a.cta}</button>
             </div>
           ))}
         </div>
@@ -147,6 +173,31 @@ export default function HQHome({ onGo }) {
             </div>
           ))}
         </div>
+      </div>
+
+      <div className="hq-card hq-mt hq-tscroll" id="hq-activity">
+        <h3>Venue activity <span className="more">Their own team only · HQ views aren't counted</span></h3>
+        <table className="hq-table">
+          <thead><tr><th>Venue</th><th>Status</th><th>Last signed in</th><th>Last opened dashboard</th><th>Last change</th><th className="num">Days used (7d)</th><th className="num">Changes (7d)</th></tr></thead>
+          <tbody>
+            {bars.map((v) => {
+              const a = v.activity || {};
+              const u = usage(a);
+              return (
+                <tr key={v.id}>
+                  <td><b>{v.name}</b></td>
+                  <td><span className={`hq-st ${u.cls}`}>{u.text}</span></td>
+                  <td>{ago(a.lastSignIn)}</td>
+                  <td>{ago(a.lastVisit)}</td>
+                  <td>{a.lastAction ? `${AREA[a.lastAction.kind] || a.lastAction.kind} · ${ago(a.lastAction.at)}` : 'Nothing yet'}</td>
+                  <td className="num">{a.visitDays7d ?? 0}</td>
+                  <td className="num">{a.actions7d ?? 0}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        <p className="hq-note">Dashboard visits and changes are recorded from 29 Sept. "Last signed in" goes back further.</p>
       </div>
     </>
   );

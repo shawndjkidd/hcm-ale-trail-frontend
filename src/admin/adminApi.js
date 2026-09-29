@@ -755,3 +755,11 @@ export async function hqGenerateCodes(trailId, confirm) {
     return await res.json();
   } catch (err) { return { ok: false, error: err.message }; }
 }
+
+// Tells HQ a venue opened its dashboard. HQ viewing a venue is ignored by the server.
+export async function pingVenueVisit(breweryId) {
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/breweries/${breweryId}/visit`, { method: 'POST', headers: authHeaders(), body: '{}' });
+    return await res.json();
+  } catch (err) { return { ok: false, error: err.message }; }
+}

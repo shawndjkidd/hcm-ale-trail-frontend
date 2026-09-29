@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, bulkUploadBeers, mergeRatings, updateAdminAccount, getBreweryMerchandise, restockMerchandise, getTrailAnalytics, getBreweryStaff, inviteBreweryStaff, updateBreweryStaffRole, removeBreweryStaff, TRAIL_ID } from './adminApi';
+import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, bulkUploadBeers, mergeRatings, updateAdminAccount, getBreweryMerchandise, restockMerchandise, getTrailAnalytics, getBreweryStaff, inviteBreweryStaff, updateBreweryStaffRole, removeBreweryStaff, pingVenueVisit, TRAIL_ID } from './adminApi';
 import { useToast, useConfirm } from './AdminFeedback';
 import LocationsCard from './LocationsCard';
 
@@ -108,6 +108,21 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   const [brewRestocking, setBrewRestocking] = useState(false);
 
   const breweryId = propBreweryId || selectedBreweryId;
+
+  // Let HQ see the venue actually uses its dashboard: one visit on open, then again
+  // when they come back to the tab after 30 minutes or more. HQ's own views aren't counted.
+  useEffect(() => {
+    if (!breweryId || isHQ) return undefined;
+    let last = 0;
+    const ping = () => {
+      if (document.visibilityState !== 'visible' || Date.now() - last < 30 * 60 * 1000) return;
+      last = Date.now();
+      pingVenueVisit(breweryId);
+    };
+    ping();
+    document.addEventListener('visibilitychange', ping);
+    return () => document.removeEventListener('visibilitychange', ping);
+  }, [breweryId, isHQ]);
 
   useEffect(() => {
     if (isHQ) {
