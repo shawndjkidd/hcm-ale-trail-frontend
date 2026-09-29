@@ -342,6 +342,36 @@ export default function App() {
   // Screens open at the top
   useEffect(() => { try { window.scrollTo(0, 0); } catch {} }, [tab, screen]);
 
+  // A forced update reload keeps the guest where they were: the screen comes back from the
+  // address; this restores the scroll position, the My Card sub-tab and an open guide.
+  const saveForReload = () => {
+    try {
+      sessionStorage.setItem("hcm-restore", JSON.stringify({
+        path: window.location.pathname, y: window.scrollY, cardTab, guide: showGuide, at: Date.now(),
+      }));
+    } catch {}
+  };
+  useEffect(() => {
+    if (!initialized) return undefined;
+    let saved = null;
+    try { saved = JSON.parse(sessionStorage.getItem("hcm-restore") || "null"); } catch {}
+    const forget = () => { try { sessionStorage.removeItem("hcm-restore"); } catch {} };
+    if (!saved || Date.now() - saved.at > 5 * 60 * 1000 || saved.path !== window.location.pathname) { forget(); return undefined; }
+    if (saved.cardTab) setCardTab(saved.cardTab);
+    if (saved.guide) setShowGuide(true);
+    let tries = 0;
+    const timer = setInterval(() => {
+      tries += 1;
+      const room = document.documentElement.scrollHeight - window.innerHeight;
+      if (room >= saved.y || tries > 30) {
+        window.scrollTo(0, Math.min(saved.y, Math.max(room, 0)));
+        clearInterval(timer);
+        forget();
+      }
+    }, 100);
+    return () => clearInterval(timer);
+  }, [initialized]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // ── Actions ───────────────────────────────────────────────────────────────
   const confirmAge = () => {
     localStorage.setItem("hcm-age-confirmed-at", new Date().toISOString());
@@ -612,7 +642,7 @@ export default function App() {
         <UntappdOnboarding language={language} onDismiss={() => { localStorage.setItem("hcm-untappd-onboarding-dismissed", "true"); setUntappdOnboardingDismissed(true); }} />
       )}
 
-      <UpdatePrompt language={language} paused={!!checkIn} />
+      <UpdatePrompt language={language} paused={!!checkIn} onBeforeReload={saveForReload} />
       <Toast text={toast} />
     </div>
   );

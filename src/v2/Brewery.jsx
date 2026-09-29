@@ -49,7 +49,7 @@ export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events 
   const { beers, recent, loaded } = useBreweryBeers(brewery.id);
   const [sort, setSort] = useState('popular');
   const [showHours, setShowHours] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
+  const [showAll, setShowAll] = useState(false);
   const [copied, setCopied] = useState(false);
   useEffect(() => { track('venue_view', { venue_id: brewery.id }); }, [brewery.id]);
   // With more than one location, ask where the guest is so the nearest can be marked.
@@ -203,11 +203,11 @@ export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events 
                 options={[{ value: 'popular', label: v.popular }, { value: 'new', label: v.newest }, { value: 'style', label: v.byStyle }]} />
             )}
             <div className="beerlist card" style={{ marginTop: 8 }}>
-              {sorted.slice(0, 5).map((b) => <BeerRow key={b.id} beer={b} />)}
+              {(showAll ? sorted : sorted.slice(0, 5)).map((b) => <BeerRow key={b.id} beer={b} />)}
             </div>
             {beers.length > 5 && (
-              <button type="button" className="btn plain block" style={{ marginTop: 10, fontSize: '1rem', boxShadow: 'none' }} onClick={() => setShowMenu(true)}>
-                {fmt(v.seeAllBeers, { n: beers.length })} →
+              <button type="button" className="btn plain block" style={{ marginTop: 10, fontSize: '1rem', boxShadow: 'none' }} aria-expanded={showAll} onClick={() => setShowAll((x) => !x)}>
+                {showAll ? `${v.showFewer} ↑` : `${fmt(v.seeAllBeers, { n: beers.length })} ↓`}
               </button>
             )}
           </section>
@@ -255,25 +255,6 @@ export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events 
 
       {openEvent && <EventSheet event={openEvent} brewery={brewery} language={language} onClose={() => setOpenEvent(null)} />}
 
-      {showMenu && (
-        <Sheet onClose={() => setShowMenu(false)} label={v.fullMenu}>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <h2 className="display" style={{ fontSize: '1.6rem', color: 'var(--red)' }}>{v.fullMenu}</h2>
-            <span style={{ flex: 1 }} />
-            <button type="button" className="round-btn" onClick={() => setShowMenu(false)} aria-label={v.close}>✕</button>
-          </div>
-          {STYLE_GROUPS.map((g) => {
-            const list = beers.filter((b) => beerLook(b.style, b.name).group === g);
-            if (!list.length) return null;
-            return (
-              <div key={g} className="v2-brewery" style={{ minHeight: 0, padding: 0, background: 'transparent', color: 'inherit' }}>
-                <div className="eyebrow" style={{ color: 'var(--muted)', marginTop: 6 }}>{v[g]} · {list.length}</div>
-                <div className="beerlist">{list.map((b) => <BeerRow key={b.id} beer={b} />)}</div>
-              </div>
-            );
-          })}
-        </Sheet>
-      )}
     </div>
   );
 }

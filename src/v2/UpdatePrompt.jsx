@@ -7,7 +7,7 @@ import { LOGO_WHITE } from './ui';
 const CURRENT = typeof __BUILD_ID__ !== 'undefined' ? __BUILD_ID__ : 'dev';
 const CHECK_EVERY_MS = 60 * 1000;
 
-export default function UpdatePrompt({ language, paused }) {
+export default function UpdatePrompt({ language, paused, onBeforeReload }) {
   const v = useV(language);
   const [ready, setReady] = useState(false);
 
@@ -39,7 +39,7 @@ export default function UpdatePrompt({ language, paused }) {
         <img src={LOGO_WHITE} alt="Ho Chi Minh Ale Trail" style={{ width: '62%', maxWidth: 280 }} />
         <h1 className="display" style={{ fontSize: '2.8rem', color: 'var(--yellow)', textShadow: '3px 3px 0 var(--ink)' }}>{v.updateTitle}</h1>
         <p style={{ fontSize: '1.05rem', maxWidth: '34ch' }}>{v.updateBody}</p>
-        <button type="button" className="btn block" onClick={() => window.location.reload()}>{v.updateBtn}</button>
+        <button type="button" className="btn block" onClick={() => { onBeforeReload?.(); window.location.reload(); }}>{v.updateBtn}</button>
       </div>
     </div>
   );
