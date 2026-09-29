@@ -137,6 +137,7 @@ async function request(path, { method = "GET", body, headers } = {}, _retry = fa
       return request(path, { method, body, headers }, true);
     } else {
       clearTokens();
+      try { window.dispatchEvent(new Event("hcm-auth-expired")); } catch {}
       return { ok: false, error: "Unauthorized", status: 401 };
     }
   }

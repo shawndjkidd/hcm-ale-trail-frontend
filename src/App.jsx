@@ -76,6 +76,13 @@ export default function App() {
     document.documentElement.lang = { en: "en", vn: "vi", kr: "ko", jp: "ja" }[language] || "en";
   }, [language]);
   const v = useV(language);
+  // A login that can't be refreshed any more: sign the guest out cleanly so the next
+  // check-in asks them to sign in, instead of failing with "Please sign in again".
+  useEffect(() => {
+    const expired = () => { try { localStorage.removeItem("hcm-user"); } catch {} setUser(null); };
+    window.addEventListener("hcm-auth-expired", expired);
+    return () => window.removeEventListener("hcm-auth-expired", expired);
+  }, []);
 
   // ── Trail + user state ────────────────────────────────────────────────────
   const [breweries, setBreweries] = useState([]);
@@ -128,13 +135,19 @@ export default function App() {
   const flash = useCallback((text) => { setToast(text); setTimeout(() => setToast(""), 2200); }, []);
 
   // ── Loaders ───────────────────────────────────────────────────────────────
+  const [loadFailed, setLoadFailed] = useState(false);
   const loadBreweries = async () => {
-    const r = await getBreweries(TRAIL_ID);
-    if (r?.ok && Array.isArray(r.breweries)) {
-      const list = r.breweries.map(normalizeBrewery);
-      setBreweries(list);
-      return list;
-    }
+    try {
+      const r = await getBreweries(TRAIL_ID);
+      if (r?.ok && Array.isArray(r.breweries)) {
+        const list = r.breweries.map(normalizeBrewery);
+        setBreweries(list);
+        setLoadFailed(false);
+        return list;
+      }
+    } catch {}
+    // Never leave the app stuck on a spinner: show a retry bar instead.
+    setLoadFailed(true);
     return [];
   };
 
@@ -562,6 +575,12 @@ export default function App() {
   return (
     <div className="v2 app" data-lang={language}>
       <EcosystemReturn language={language} />
+      {loadFailed && breweries.length === 0 && (
+        <div role="alert" style={{ margin: '12px 16px', padding: '12px 14px', background: 'var(--ink, #111)', color: '#fff', border: '3px solid var(--yellow, #FFD100)', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{ flex: 1, fontWeight: 700 }}>{v.loadFailed}</span>
+          <button type="button" className="btn" style={{ padding: '8px 14px', fontSize: '.9rem' }} onClick={() => loadBreweries()}>{v.retry}</button>
+        </div>
+      )}
       {content}
       {showTabs && <TabBar current={screen ? null : tab} onChange={goTab} language={language} />}
 
@@ -635,14 +654,14 @@ export default function App() {
 
       {showAuth && (
         <SignIn language={language} initialMode={showAuth.mode || "signup"} reason={showAuth.reason} onSuccess={onAuthSuccess}
-          onClose={() => { setShowAuth(false); setAfterAuth(null); }} />
+          onClose={() => { setShowAuth(false); setAfterAuth(null); try { sessionStorage.removeItem("hcm-pending-checkin"); } catch {} }} />
       )}
 
       {showUntappd && (
         <UntappdOnboarding language={language} onDismiss={() => { localStorage.setItem("hcm-untappd-onboarding-dismissed", "true"); setUntappdOnboardingDismissed(true); }} />
       )}
 
-      <UpdatePrompt language={language} paused={!!checkIn} onBeforeReload={saveForReload} />
+      <UpdatePrompt language={language} paused={!!checkIn || hatClaimOpen || !!showAuth || showOnboarding || !!micro || screen?.type === "quest"} onBeforeReload={saveForReload} />
       <Toast text={toast} />
     </div>
   );

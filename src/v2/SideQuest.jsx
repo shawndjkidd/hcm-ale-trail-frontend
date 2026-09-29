@@ -20,7 +20,7 @@ async function claimQuest(questId, pin) {
     const data = await res.json().catch(() => ({}));
     return { ...data, status: res.status, ok: !!data.ok };
   } catch {
-    return { ok: false };
+    return { ok: false, status: 0 };
   }
 }
 
@@ -40,7 +40,7 @@ export default function SideQuest({ quest, claimed, language, user, onBack, onCl
         onSubmit={async (pin) => {
           const res = await claimQuest(quest.id, pin);
           if (res.ok) { onClaimed?.(quest.id); setStep('done'); }
-          if (res.alreadyClaimed) { onClaimed?.(quest.id); return { ok: false, error: v.alreadyUsed }; }
+          if (res.alreadyClaimed) { onClaimed?.(quest.id); return { ok: false, message: v.alreadyUsed }; }
           return res;
         }} />
     );

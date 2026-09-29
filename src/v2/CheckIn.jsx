@@ -203,10 +203,19 @@ export function StaffPin({ language, title, lines, onSubmit, onBack }) {
   const submit = async (pin) => {
     if (busy) return;
     setBusy(true); setErr('');
-    const res = await onSubmit(pin);
+    // A dropped connection used to leave this screen stuck on "Checking…". Retrying is
+    // safe: the server answers "already stamped" if the first try got through.
+    let res;
+    try { res = await onSubmit(pin); } catch { res = { ok: false, status: 0 }; }
     setBusy(false);
     if (res?.ok) return;
-    const msg = res?.status === 429 ? v.tooMany : res?.status === 401 ? v.sessionGone : v.wrongPin;
+    if (res?.status === 401) window.dispatchEvent(new Event('hcm-auth-expired'));
+    const msg = res?.message ? res.message
+      : res?.status === 0 ? v.noConnection
+      : res?.status === 429 ? v.tooMany
+      : res?.status === 401 ? v.sessionGone
+      : res?.status === 403 ? v.cantStampHere
+      : v.wrongPin;
     setErr(msg); setShake(true); haptic([30, 40, 30]);
     setDigits(['', '', '', '']);
     setTimeout(() => { setShake(false); refs[0].current?.focus(); }, 450);
@@ -281,9 +290,12 @@ export default function CheckInFlow({ brewery, isStamped, stampCount, total, lan
 
   const saveBeerOnly = async () => {
     setBusy(true);
-    const res = await postRating(TRAIL_ID, brewery.id, {
-      beer_name: beer.name, rating, notes: review.trim() || null, brewery_beer_id: beer.brewery_beer_id || null,
-    });
+    let res;
+    try {
+      res = await postRating(TRAIL_ID, brewery.id, {
+        beer_name: beer.name, rating, notes: review.trim() || null, brewery_beer_id: beer.brewery_beer_id || null,
+      });
+    } catch { res = { ok: false, error: v.noConnection }; }
     setBusy(false);
     if (res?.ok !== false) { onBeerSaved?.(); onToast?.(v.beerSaved); finish(); }
     else onToast?.(res?.error || v.sessionGone);

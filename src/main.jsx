@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
+import ErrorBoundary from './v2/ErrorBoundary.jsx'
 // Admin loads on demand so customers never download the dashboard code
 const AdminApp = lazy(() => import('./admin/AdminApp.jsx'))
 import ResetPassword from './components/ResetPassword.jsx'
@@ -31,6 +32,6 @@ if (!isAdminRoute) captureEcosystem(window, import.meta.env.DEV ? { localhost: '
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    {isAdminRoute ? <Suspense fallback={null}><AdminApp /></Suspense> : isResetPassword ? <ResetPassword /> : <App />}
+    {isAdminRoute ? <Suspense fallback={null}><AdminApp /></Suspense> : isResetPassword ? <ResetPassword /> : <ErrorBoundary><App /></ErrorBoundary>}
   </React.StrictMode>,
 )
