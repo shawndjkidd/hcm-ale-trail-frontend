@@ -904,8 +904,8 @@ export function driveToImage(url) {
 }
 
 // Shrinks a photo on the device before upload (max 1600px wide, JPEG), so uploads are
-// quick on mobile data and the guest app stays fast.
-export async function shrinkPhoto(file, maxW = 1600) {
+// quick on mobile data and the guest app stays fast. Logos use PNG to keep transparency.
+export async function shrinkPhoto(file, maxW = 1600, type = 'image/jpeg') {
   const img = await new Promise((resolve, reject) => {
     const el = new Image();
     el.onload = () => resolve(el);
@@ -918,7 +918,7 @@ export async function shrinkPhoto(file, maxW = 1600) {
   canvas.height = Math.round(img.naturalHeight * scale);
   canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
   URL.revokeObjectURL(img.src);
-  return await new Promise((resolve) => canvas.toBlob((b) => resolve(b), 'image/jpeg', 0.82));
+  return await new Promise((resolve) => canvas.toBlob((b) => resolve(b), type, 0.82));
 }
 
 export async function uploadVenuePhoto(breweryId, file) {
@@ -926,6 +926,17 @@ export async function uploadVenuePhoto(breweryId, file) {
     const blob = await shrinkPhoto(file);
     const form = new FormData();
     form.append('file', new File([blob], 'photo.jpg', { type: 'image/jpeg' }));
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/photo`, { method: 'POST', body: form });
+    return await readJson(res);
+  } catch (err) { return { ok: false, error: err?.message || netError(err) }; }
+}
+
+export async function uploadVenueLogo(breweryId, file) {
+  try {
+    const blob = await shrinkPhoto(file, 600, 'image/png');
+    const form = new FormData();
+    form.append('file', new File([blob], 'logo.png', { type: 'image/png' }));
+    form.append('kind', 'logo');
     const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/photo`, { method: 'POST', body: form });
     return await readJson(res);
   } catch (err) { return { ok: false, error: err?.message || netError(err) }; }

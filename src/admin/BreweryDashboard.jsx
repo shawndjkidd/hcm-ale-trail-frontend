@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, bulkUploadBeers, mergeRatings, updateAdminAccount, getBreweryMerchandise, restockMerchandise, getTrailAnalytics, getBreweryStaff, inviteBreweryStaff, updateBreweryStaffRole, removeBreweryStaff, pingVenueVisit, fixLink, driveToImage, uploadVenuePhoto, TRAIL_ID } from './adminApi';
+import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, bulkUploadBeers, mergeRatings, updateAdminAccount, getBreweryMerchandise, restockMerchandise, getTrailAnalytics, getBreweryStaff, inviteBreweryStaff, updateBreweryStaffRole, removeBreweryStaff, pingVenueVisit, fixLink, driveToImage, uploadVenuePhoto, uploadVenueLogo, TRAIL_ID } from './adminApi';
+import { logoFor } from '../v2/util';
 import { useToast, useConfirm } from './AdminFeedback';
 import LocationsCard from './LocationsCard';
 import VenueDemoCard from './VenueDemoCard';
@@ -69,6 +70,9 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   const [showPhotoLink, setShowPhotoLink] = useState(false);
   const [savingPhoto, setSavingPhoto] = useState(false);
   const [photoMessage, setPhotoMessage] = useState('');
+  const [logoUrl, setLogoUrl] = useState('');
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [logoMessage, setLogoMessage] = useState('');
   // Owners, managers, brewery admins and HQ manage the venue; plain staff don't
   // (the API enforces this; hiding the controls just avoids dead ends).
   const canManage = staffRole !== 'staff';
@@ -174,6 +178,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       }
       setHasHours(!!hours && typeof hours === 'object' && Object.keys(hours).length > 0);
       setPhotoUrl(dashResult.brewery?.photoUrl || dashResult.brewery?.photo_url || '');
+      setLogoUrl(dashResult.brewery?.logoUrl || dashResult.brewery?.logo_url || '');
       setVenueAddress(dashResult.brewery?.address || '');
       setVenueDistrict(dashResult.brewery?.district || '');
       setSocialLinks({
@@ -1456,6 +1461,36 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
 
           {/* Right column: Check-in PIN Code, Venue Description */}
           <div>
+          {canManage && (
+          <div className="admin-card">
+            <h3 className="admin-card-title">{t('Venue logo')}</h3>
+            <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>{t('Shown on the map, your venue page and stamps. A square logo works best.')}</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+              <div style={{ width: 84, height: 84, borderRadius: '50%', background: '#fff', border: '1px solid var(--admin-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
+                {logoFor({ name: brewery?.name, logo_url: logoUrl })
+                  ? <img src={logoFor({ name: brewery?.name, logo_url: logoUrl })} alt="" style={{ width: '82%', height: '82%', objectFit: 'contain' }} />
+                  : <span style={{ color: '#888', fontSize: 12 }}>{t('No logo')}</span>}
+              </div>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+                <label className="admin-btn admin-btn-primary settings-btn" style={{ width: 'auto', cursor: uploadingLogo ? 'wait' : 'pointer', display: 'inline-flex', alignItems: 'center' }}>
+                  {uploadingLogo ? t('Uploading…') : t('Upload logo')}
+                  <input type="file" accept="image/*" style={{ display: 'none' }} disabled={uploadingLogo}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      e.target.value = '';
+                      if (!file) return;
+                      setUploadingLogo(true); setLogoMessage('');
+                      const r = await uploadVenueLogo(breweryId, file);
+                      setUploadingLogo(false);
+                      if (r?.ok) { setLogoUrl(r.logoUrl); setLogoMessage('✓ ' + t('Logo updated')); setTimeout(() => setLogoMessage(''), 4000); }
+                      else setLogoMessage(t(r?.error || 'Upload failed. Please try again.'));
+                    }} />
+                </label>
+                {logoMessage && <span style={{ fontSize: 13, color: logoMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{logoMessage}</span>}
+              </div>
+            </div>
+          </div>
+          )}
           {canManage && (
           <div className="admin-card">
             <h3 className="admin-card-title">{t('Venue Photo')}</h3>
