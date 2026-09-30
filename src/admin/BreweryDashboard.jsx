@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, bulkUploadBeers, mergeRatings, updateAdminAccount, getBreweryMerchandise, restockMerchandise, getTrailAnalytics, getBreweryStaff, inviteBreweryStaff, updateBreweryStaffRole, removeBreweryStaff, pingVenueVisit, fixLink, TRAIL_ID } from './adminApi';
+import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, bulkUploadBeers, mergeRatings, updateAdminAccount, getBreweryMerchandise, restockMerchandise, getTrailAnalytics, getBreweryStaff, inviteBreweryStaff, updateBreweryStaffRole, removeBreweryStaff, pingVenueVisit, fixLink, driveToImage, uploadVenuePhoto, TRAIL_ID } from './adminApi';
 import { useToast, useConfirm } from './AdminFeedback';
 import LocationsCard from './LocationsCard';
 import VenueDemoCard from './VenueDemoCard';
@@ -60,6 +60,13 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
 
   const [socialLinks, setSocialLinks] = useState({ mapsUrl: '', instagramUrl: '', facebookUrl: '' });
   const [photoUrl, setPhotoUrl] = useState('');
+  const [photoBroken, setPhotoBroken] = useState(false);
+  const [venueAddress, setVenueAddress] = useState('');
+  const [venueDistrict, setVenueDistrict] = useState('');
+  const [savingAddress, setSavingAddress] = useState(false);
+  const [addressMessage, setAddressMessage] = useState('');
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [showPhotoLink, setShowPhotoLink] = useState(false);
   const [savingPhoto, setSavingPhoto] = useState(false);
   const [photoMessage, setPhotoMessage] = useState('');
   // Owners, managers, brewery admins and HQ manage the venue; plain staff don't
@@ -167,6 +174,8 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       }
       setHasHours(!!hours && typeof hours === 'object' && Object.keys(hours).length > 0);
       setPhotoUrl(dashResult.brewery?.photoUrl || dashResult.brewery?.photo_url || '');
+      setVenueAddress(dashResult.brewery?.address || '');
+      setVenueDistrict(dashResult.brewery?.district || '');
       setSocialLinks({
         mapsUrl: dashResult.brewery?.maps_url || dashResult.brewery?.mapsUrl || '',
         instagramUrl: dashResult.brewery?.instagram_url || dashResult.brewery?.instagramUrl || '',
@@ -293,7 +302,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   };
 
   const handleSavePhoto = async () => {
-    const value = fixLink(photoUrl.trim());
+    const value = driveToImage(fixLink(photoUrl.trim()));
     setPhotoUrl(value);
     setSavingPhoto(true);
     setPhotoMessage('');
@@ -305,6 +314,14 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       setPhotoMessage(result.error || 'Failed to update');
     }
     setSavingPhoto(false);
+  };
+
+  const handleSaveAddress = async () => {
+    setSavingAddress(true); setAddressMessage('');
+    const result = await updateBrewery(breweryId, { address: venueAddress.trim(), district: venueDistrict.trim() });
+    setSavingAddress(false);
+    if (result.ok) { setAddressMessage('✓ ' + t('Address updated')); setTimeout(() => setAddressMessage(''), 3000); }
+    else setAddressMessage(t(result.error || 'Failed to update'));
   };
 
   const handleSaveDescription = async () => {
@@ -1442,19 +1459,59 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
           {canManage && (
           <div className="admin-card">
             <h3 className="admin-card-title">{t('Venue Photo')}</h3>
-            <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>Paste a link to a photo of your venue (starts with https://). Shown at the top of your venue page. Leave empty to remove it.</p>
-            <div className="admin-form-group">
-              <label className="admin-form-label" htmlFor="venue-photo-url">{t('Photo URL')}</label>
-              <input id="venue-photo-url" type="url" className="admin-form-input" value={photoUrl} onChange={(e) => setPhotoUrl(e.target.value)} placeholder="https://..." />
-            </div>
+            <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>{t('The big picture at the top of your venue page. Upload one from your phone or computer.')}</p>
             {photoUrl.trim().startsWith('https://') && (
-              <img src={photoUrl.trim()} alt="Venue photo preview" style={{ width: '100%', maxHeight: 180, objectFit: 'cover', borderRadius: 6, marginBottom: 10 }} />
+              photoBroken
+                ? <div style={{ padding: 14, marginBottom: 10, borderRadius: 8, border: '1px solid var(--admin-danger)', fontSize: 14 }}>{t("This link can't be shown as a photo. Use Upload photo instead.")}</div>
+                : <img src={photoUrl.trim()} alt="" onError={() => setPhotoBroken(true)} onLoad={() => setPhotoBroken(false)} style={{ width: '100%', maxHeight: 180, objectFit: 'cover', borderRadius: 6, marginBottom: 10 }} />
             )}
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <button className="admin-btn admin-btn-primary settings-btn" onClick={handleSavePhoto} disabled={savingPhoto}>
-                {savingPhoto ? 'Saving...' : 'Save Photo'}
-              </button>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+              <label className="admin-btn admin-btn-primary settings-btn" style={{ width: 'auto', cursor: uploadingPhoto ? 'wait' : 'pointer', display: 'inline-flex', alignItems: 'center' }}>
+                {uploadingPhoto ? t('Uploading…') : t('Upload photo')}
+                <input type="file" accept="image/*" style={{ display: 'none' }} disabled={uploadingPhoto}
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    e.target.value = '';
+                    if (!file) return;
+                    setUploadingPhoto(true); setPhotoMessage('');
+                    const r = await uploadVenuePhoto(breweryId, file);
+                    setUploadingPhoto(false);
+                    if (r?.ok) { setPhotoUrl(r.photoUrl); setPhotoBroken(false); setPhotoMessage('✓ ' + t('Photo updated')); setTimeout(() => setPhotoMessage(''), 4000); }
+                    else setPhotoMessage(t(r?.error || 'Upload failed. Please try again.'));
+                  }} />
+              </label>
+              <button type="button" className="admin-btn" style={{ width: 'auto', background: 'transparent', border: '1px solid var(--admin-border)', color: 'var(--admin-text)' }} onClick={() => setShowPhotoLink((x) => !x)}>{t('or paste a link')}</button>
               {photoMessage && <span style={{ fontSize: 13, color: photoMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{photoMessage}</span>}
+            </div>
+            {showPhotoLink && (
+              <div style={{ marginTop: 12 }}>
+                <div className="admin-form-group">
+                  <label className="admin-form-label" htmlFor="venue-photo-url">{t('Photo URL')}</label>
+                  <input id="venue-photo-url" type="text" inputMode="url" className="admin-form-input" value={photoUrl} onChange={(e) => { setPhotoUrl(e.target.value); setPhotoBroken(false); }} placeholder="https://..." />
+                </div>
+                <button className="admin-btn admin-btn-primary settings-btn" onClick={handleSavePhoto} disabled={savingPhoto}>
+                  {savingPhoto ? t('Saving…') : t('Save link')}
+                </button>
+              </div>
+            )}
+          </div>
+          )}
+          {canManage && (
+          <div className="admin-card">
+            <h3 className="admin-card-title">{t('Venue address')}</h3>
+            <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>{t('Shown on your venue page. To change your venue name, message HQ.')}</p>
+            <div className="admin-form-group">
+              <label className="admin-form-label" htmlFor="venue-address">{t('Address')}</label>
+              <input id="venue-address" type="text" className="admin-form-input" value={venueAddress} onChange={(e) => setVenueAddress(e.target.value)} placeholder="201B Nam Ky Khoi Nghia" />
+            </div>
+            <div className="admin-form-group">
+              <label className="admin-form-label" htmlFor="venue-district">{t('District')}</label>
+              <input id="venue-district" type="text" className="admin-form-input" value={venueDistrict} onChange={(e) => setVenueDistrict(e.target.value)} placeholder="District 3" />
+            </div>
+            <p style={{ color: 'var(--admin-text-muted)', fontSize: 13, margin: '0 0 12px' }}>{t('If you moved, also update your Google Maps link so Directions go to the right place.')}</p>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <button className="admin-btn admin-btn-primary settings-btn" onClick={handleSaveAddress} disabled={savingAddress}>{savingAddress ? t('Saving…') : t('Save address')}</button>
+              {addressMessage && <span style={{ fontSize: 13, color: addressMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{addressMessage}</span>}
             </div>
           </div>
           )}

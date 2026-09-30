@@ -7,7 +7,7 @@ const src = readFileSync(new URL('../src/admin/BreweryDashboard.jsx', import.met
 test('venue dashboard: Photo URL field saves photo_url (https only; blank clears)', () => {
   assert.match(src, /<label[^>]*htmlFor="venue-photo-url"[^>]*>(?:Photo URL|\{t\('Photo URL'\)\})<\/label>/);
   assert.match(src, /updateBrewery\(breweryId, \{ photo_url: value \|\| null \}\)/);
-  assert.match(src, /const value = fixLink\(photoUrl\.trim\(\)\)/, 'pasted links get https:// added instead of being refused');
+  assert.match(src, /const value = driveToImage\(fixLink\(photoUrl\.trim\(\)\)\)/, 'pasted links get https:// added (and Drive links turned into images) instead of being refused');
   assert.match(src, /setPhotoUrl\(dashResult\.brewery\?\.photoUrl/);
 });
 

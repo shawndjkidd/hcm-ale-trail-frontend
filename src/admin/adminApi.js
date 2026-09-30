@@ -51,7 +51,12 @@ function sessionExpired() {
   try { window.dispatchEvent(new Event('hcm-admin-session-expired')); } catch {}
 }
 export async function apiFetch(url, opts = {}) {
-  const send = () => fetch(url, { ...opts, headers: { ...(opts.headers || {}), ...authHeaders() } });
+  const send = () => {
+    const headers = { ...(opts.headers || {}), ...authHeaders() };
+    // Files (FormData) set their own content type; a JSON one would break the upload.
+    if (typeof FormData !== 'undefined' && opts.body instanceof FormData) delete headers['Content-Type'];
+    return fetch(url, { ...opts, headers });
+  };
   if (getToken() && isAdminSessionExpired()) await renewOnce();
   let res = await send();
   if (res.status === 401 && getToken()) {
@@ -887,4 +892,41 @@ export async function confirmChecklistItem(breweryId, item) {
     const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/checklist`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ item }) });
     return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
+}
+
+// ==================== VENUE PHOTO ====================
+
+// Google Drive share links open Drive's viewer, not the image. Turn them into an image link
+// (works when the file is shared as "Anyone with the link").
+export function driveToImage(url) {
+  const m = String(url || '').match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=)([\w-]{10,})/);
+  return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w1600` : url;
+}
+
+// Shrinks a photo on the device before upload (max 1600px wide, JPEG), so uploads are
+// quick on mobile data and the guest app stays fast.
+export async function shrinkPhoto(file, maxW = 1600) {
+  const img = await new Promise((resolve, reject) => {
+    const el = new Image();
+    el.onload = () => resolve(el);
+    el.onerror = () => reject(new Error('That file could not be opened as a photo'));
+    el.src = URL.createObjectURL(file);
+  });
+  const scale = Math.min(1, maxW / img.naturalWidth);
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(img.naturalWidth * scale);
+  canvas.height = Math.round(img.naturalHeight * scale);
+  canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+  URL.revokeObjectURL(img.src);
+  return await new Promise((resolve) => canvas.toBlob((b) => resolve(b), 'image/jpeg', 0.82));
+}
+
+export async function uploadVenuePhoto(breweryId, file) {
+  try {
+    const blob = await shrinkPhoto(file);
+    const form = new FormData();
+    form.append('file', new File([blob], 'photo.jpg', { type: 'image/jpeg' }));
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/photo`, { method: 'POST', body: form });
+    return await readJson(res);
+  } catch (err) { return { ok: false, error: err?.message || netError(err) }; }
 }
