@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { callAiChat } from '../components/AiChat';
 import { useV, fmt } from './i18n';
-import { openStatus, formatClose } from './util';
+import { openStatus, formatClose, fairOrder } from './util';
 
 const LANG_MAP = { en: 'en', vn: 'vi', kr: 'ko', jp: 'ja' };
 
@@ -28,7 +28,7 @@ export default function Ask({ user, name, breweries, stamps, hatClaimed, languag
     if (count === 0) parts.push(v.greetStart);
     else if (count >= total) { parts.push(v.greetDone); return { text: parts.join(' '), brewery: null }; }
     else parts.push(fmt(v.greetProgress, { n: count }));
-    const todo = breweries.filter((b) => !stamps.includes(b.id)).sort((a, b) => (a.display_order ?? 99) - (b.display_order ?? 99));
+    const todo = fairOrder(breweries.filter((b) => !stamps.includes(b.id)), user?.id);
     const openOne = todo.find((b) => openStatus(b).open);
     if (openOne) {
       parts.push(fmt(v.greetOpen, { place: openOne.name, t: formatClose(openStatus(openOne).closesAt, v) }));
@@ -37,7 +37,7 @@ export default function Ask({ user, name, breweries, stamps, hatClaimed, languag
     const next = todo.map((b) => ({ b, st: openStatus(b) })).find((x) => x.st.opensAt);
     if (next) parts.push(fmt(v.greetNoneOpen, { place: next.b.name, t: next.st.opensAt }));
     return { text: parts.join(' '), brewery: next?.b || null };
-  }, [breweries, stamps, name, v]);
+  }, [breweries, stamps, name, v, user?.id]);
 
   useEffect(() => { endRef.current?.scrollIntoView({ block: 'end' }); }, [msgs, busy]);
 

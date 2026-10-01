@@ -72,6 +72,21 @@ export function openStatus(brewery) {
   return { unknown: true };
 }
 
+// Fair turn-taking for "start here" suggestions: every venue gets the spotlight, not just the
+// first in the list. Order is shuffled per person per day (stable, so it doesn't flicker).
+function deviceSeed() {
+  try {
+    let id = localStorage.getItem('hcm-fair-seed');
+    if (!id) { id = Math.random().toString(36).slice(2); localStorage.setItem('hcm-fair-seed', id); }
+    return id;
+  } catch { return 'x'; }
+}
+export function fairOrder(list, seed) {
+  const key = `${seed || deviceSeed()}|${new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10)}`;
+  const hash = (s) => { let h = 2166136261; for (const c of s) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
+  return [...list].map((b) => ({ b, h: hash(`${key}|${b.id}`) })).sort((a, b) => a.h - b.h).map((x) => x.b);
+}
+
 export function formatClose(hhmm, t) {
   if (hhmm === '00:00' || hhmm === '24:00') return t.midnight;
   return hhmm;

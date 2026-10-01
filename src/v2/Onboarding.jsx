@@ -3,7 +3,7 @@ import translations from '../translations';
 import { saveOnboardingProfile } from '../lib/api';
 import { useV } from './i18n';
 import { Sheet } from './ui';
-import { personalityFor, openStatus, beerLook } from './util';
+import { personalityFor, openStatus, beerLook, fairOrder } from './util';
 
 const STYLES = [
   { value: 'lager', key: 'styleLager', style: 'lager' },
@@ -97,7 +97,7 @@ export default function Onboarding({ language, breweries, stamps, onDone, editin
   }
 
   const p = personalityFor({ beer_styles: styles, era }) || { key: 'pWild', color: '#E0A040', style: '' };
-  const candidates = [...breweries].filter((b) => !stamps.includes(b.id)).sort((a, b) => (a.display_order ?? 99) - (b.display_order ?? 99));
+  const candidates = fairOrder(breweries.filter((b) => !stamps.includes(b.id)));
   const firstStop = candidates.find((b) => openStatus(b).open) || candidates[0] || null;
   const look = p.style ? beerLook(p.style) : { color: '#E0A040' };
 

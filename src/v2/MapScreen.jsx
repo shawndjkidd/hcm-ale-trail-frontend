@@ -29,6 +29,28 @@ function FitAll({ points }) {
   return null;
 }
 
+// Street tiles come from OpenStreetMap; if they fail or stall on a guest's network (blocked,
+// throttled or slow), switch to Esri's street map so the map never stays blank.
+const TILES = {
+  osm: { url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' },
+  esri: { url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', attribution: 'Tiles &copy; Esri' },
+};
+function Tiles() {
+  const [src, setSrc] = useState('osm');
+  const [loaded, setLoaded] = useState(false);
+  const [errors, setErrors] = useState(0);
+  useEffect(() => {
+    if (src !== 'osm' || loaded) return undefined;
+    const t = setTimeout(() => setSrc('esri'), 6000);
+    return () => clearTimeout(t);
+  }, [src, loaded]);
+  useEffect(() => { if (src === 'osm' && errors >= 3) setSrc('esri'); }, [errors, src]);
+  return (
+    <TileLayer key={src} url={TILES[src].url} attribution={TILES[src].attribution}
+      eventHandlers={{ tileload: () => setLoaded(true), tileerror: () => setErrors((n) => n + 1) }} />
+  );
+}
+
 export default function MapScreen({ breweries, sideQuests = [], stamps, language, here, requestLocation, onOpenBrewery, onOpenQuest }) {
   const v = useV(language);
   const [openOnly, setOpenOnly] = useState(false);
@@ -66,7 +88,7 @@ export default function MapScreen({ breweries, sideQuests = [], stamps, language
     <div className="v2-map">
       <MapContainer center={[10.778, 106.695]} zoom={14} minZoom={12} maxZoom={18} zoomControl={false} attributionControl={false} style={{ height: '100%' }}>
         <AttributionControl position="topright" prefix={false} />
-        <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' />
+        <Tiles />
         <FitAll points={points} />
         {visible.map((x) => (
           <Marker key={x.item.id} position={[x.item.latitude, x.item.longitude]}

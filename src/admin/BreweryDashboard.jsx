@@ -1551,7 +1551,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
           </div>
           )}
 
-          {canManage && <LocationsCard breweryId={breweryId} breweryName={brewery?.name} />}
+          {canManage && <LocationsCard breweryId={breweryId} breweryName={brewery?.name} mainHours={operatingHours} />}
 
           {/* Venue codes: owners, managers, brewery admins and HQ only (plain staff can't see or change them) */}
           {staffRole !== 'staff' && (
