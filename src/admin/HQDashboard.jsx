@@ -15,6 +15,7 @@ import { coordsFromMapsLink } from './mapsLink';
 import HQLaunch from './HQLaunch';
 import HQPlans from './HQPlans';
 import HQStampsBoard from './HQStampsBoard';
+import HQSignups from './HQSignups';
 
 const generateStaffEmail = (name) => name.toLowerCase().replace(/[^a-z0-9]/g, '') + '@aletrail.app';
 const generatePassword = () => {
@@ -665,6 +666,7 @@ export default function HQDashboard({ adminEmail = '' }) {
           { id: 'sidequests', label: 'Side quests', ct: sideQuests.length },
           { id: 'stock', label: 'Hats & merch', dot: merchandise.some(m => m.lowStockBreweries?.length > 0) },
           { id: 'addstamps', label: 'Add stamps' },
+          { id: 'signups', label: 'Sign-ups' },
           { grp: 'Understand' },
           { id: 'overview', label: 'Trail performance' },
           { id: 'analytics', label: 'Audience & insights', onOpen: () => { if (!analytics) loadAnalytics(); } },
@@ -1356,6 +1358,7 @@ export default function HQDashboard({ adminEmail = '' }) {
       )}
 
       {activeTab === 'addstamps' && <AddStampsCard trailId={TRAIL_ID} />}
+      {activeTab === 'signups' && <HQSignups />}
 
       {activeTab === 'superadmins' && (
         <>

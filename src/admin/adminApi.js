@@ -941,3 +941,26 @@ export async function uploadVenueLogo(breweryId, file) {
     return await readJson(res);
   } catch (err) { return { ok: false, error: err?.message || netError(err) }; }
 }
+
+// ==================== HQ SIGN-UPS ====================
+
+export async function hqGetSignups(trailId) {
+  try {
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/hq/signups`, { headers: authHeaders() });
+    return await readJson(res);
+  } catch (err) { return { ok: false, error: netError(err) }; }
+}
+
+export async function hqMarkSignup(trailId, participantId, mark) {
+  try {
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/hq/signups`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ participantId, mark }) });
+    return await readJson(res);
+  } catch (err) { return { ok: false, error: netError(err) }; }
+}
+
+export async function hqDeleteTesterRatings(trailId, participantId) {
+  try {
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/hq/signups/delete-ratings`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ participantId, confirm: 'DELETE' }) });
+    return await readJson(res);
+  } catch (err) { return { ok: false, error: netError(err) }; }
+}
