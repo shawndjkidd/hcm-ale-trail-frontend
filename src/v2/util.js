@@ -256,8 +256,12 @@ export const logoFor = (b) => safeImageUrl(b?.logo_url) || localLogo(b);
 
 // Short all-caps label for stamps ("7 Bridges Brewing Co." -> "7 BRIDGES").
 export function stampLabel(name = '') {
+  name = String(name || '').normalize('NFC');
   const clean = name.replace(/\b(Brewing|Brewery|Beers|Co)\b\.?/gi, '').replace(/\s+/g, ' ').trim() || name;
-  return (clean.length > 18 ? `${clean.slice(0, 17).trim()}.` : clean).toUpperCase();
+  if (clean.length <= 18) return clean.toUpperCase();
+  // Long names (often Vietnamese brands) are cut at a word break, not mid-word.
+  const cut = clean.slice(0, 18).lastIndexOf(' ');
+  return (cut >= 6 ? clean.slice(0, cut) : `${clean.slice(0, 17).trim()}.`).toUpperCase();
 }
 
 // Beer personality from the onboarding answers (beer_styles + era).

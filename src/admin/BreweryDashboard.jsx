@@ -325,7 +325,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
 
   const handleSaveAddress = async () => {
     setSavingAddress(true); setAddressMessage('');
-    const name = venueName.replace(/\s+/g, ' ').trim();
+    const name = venueName.normalize('NFC').replace(/\s+/g, ' ').trim();
     if (name.length < 2) { setSavingAddress(false); setAddressMessage(t('Venue name is too short')); return; }
     const result = await updateBrewery(breweryId, { name, address: venueAddress.trim(), district: venueDistrict.trim() });
     setSavingAddress(false);
@@ -1545,7 +1545,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
             <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>{t('Shown on your venue page, the map and stamps. Use whatever name your guests know you by.')}</p>
             <div className="admin-form-group">
               <label className="admin-form-label" htmlFor="venue-name">{t('Venue name')}</label>
-              <input id="venue-name" type="text" className="admin-form-input" maxLength={60} value={venueName} onChange={(e) => setVenueName(e.target.value)} placeholder="Belgo" />
+              <input id="venue-name" type="text" className="admin-form-input" maxLength={80} value={venueName} onChange={(e) => setVenueName(e.target.value)} placeholder="Bia Thủ Công Sài Gòn" />
             </div>
             <div className="admin-form-group">
               <label className="admin-form-label" htmlFor="venue-address">{t('Address')}</label>

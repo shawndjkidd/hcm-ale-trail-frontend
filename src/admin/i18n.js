@@ -139,7 +139,7 @@ const VI = {
   'Save': 'Lưu',
   'Saved': 'Đã lưu',
   'Venue name is too short': 'Tên quán quá ngắn',
-  'Venue name is too long (60 characters max)': 'Tên quán quá dài (tối đa 60 ký tự)',
+  'Venue name is too long (80 characters max)': 'Tên quán quá dài (tối đa 80 ký tự)',
   'Shown on your venue page. To change your venue name, message HQ.': 'Hiện trên trang quán. Muốn đổi tên quán, hãy nhắn HQ.',
   'Address': 'Địa chỉ',
   'District': 'Quận',
