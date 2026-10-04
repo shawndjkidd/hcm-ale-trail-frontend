@@ -62,6 +62,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   const [socialLinks, setSocialLinks] = useState({ mapsUrl: '', instagramUrl: '', facebookUrl: '' });
   const [photoUrl, setPhotoUrl] = useState('');
   const [photoBroken, setPhotoBroken] = useState(false);
+  const [venueName, setVenueName] = useState('');
   const [venueAddress, setVenueAddress] = useState('');
   const [venueDistrict, setVenueDistrict] = useState('');
   const [savingAddress, setSavingAddress] = useState(false);
@@ -179,6 +180,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       setHasHours(!!hours && typeof hours === 'object' && Object.keys(hours).length > 0);
       setPhotoUrl(dashResult.brewery?.photoUrl || dashResult.brewery?.photo_url || '');
       setLogoUrl(dashResult.brewery?.logoUrl || dashResult.brewery?.logo_url || '');
+      setVenueName(dashResult.brewery?.name || '');
       setVenueAddress(dashResult.brewery?.address || '');
       setVenueDistrict(dashResult.brewery?.district || '');
       setSocialLinks({
@@ -323,9 +325,15 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
 
   const handleSaveAddress = async () => {
     setSavingAddress(true); setAddressMessage('');
-    const result = await updateBrewery(breweryId, { address: venueAddress.trim(), district: venueDistrict.trim() });
+    const name = venueName.replace(/\s+/g, ' ').trim();
+    if (name.length < 2) { setSavingAddress(false); setAddressMessage(t('Venue name is too short')); return; }
+    const result = await updateBrewery(breweryId, { name, address: venueAddress.trim(), district: venueDistrict.trim() });
     setSavingAddress(false);
-    if (result.ok) { setAddressMessage('✓ ' + t('Address updated')); setTimeout(() => setAddressMessage(''), 3000); }
+    if (result.ok) {
+      setVenueName(name);
+      setData((d) => (d ? { ...d, brewery: { ...d.brewery, name } } : d));
+      setAddressMessage('✓ ' + t('Saved')); setTimeout(() => setAddressMessage(''), 3000);
+    }
     else setAddressMessage(t(result.error || 'Failed to update'));
   };
 
@@ -1533,8 +1541,12 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
           )}
           {canManage && (
           <div className="admin-card">
-            <h3 className="admin-card-title">{t('Venue address')}</h3>
-            <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>{t('Shown on your venue page. To change your venue name, message HQ.')}</p>
+            <h3 className="admin-card-title">{t('Venue name & address')}</h3>
+            <p style={{ color: 'var(--admin-text-muted)', marginBottom: 12 }}>{t('Shown on your venue page, the map and stamps. Use whatever name your guests know you by.')}</p>
+            <div className="admin-form-group">
+              <label className="admin-form-label" htmlFor="venue-name">{t('Venue name')}</label>
+              <input id="venue-name" type="text" className="admin-form-input" maxLength={60} value={venueName} onChange={(e) => setVenueName(e.target.value)} placeholder="Belgo" />
+            </div>
             <div className="admin-form-group">
               <label className="admin-form-label" htmlFor="venue-address">{t('Address')}</label>
               <input id="venue-address" type="text" className="admin-form-input" value={venueAddress} onChange={(e) => setVenueAddress(e.target.value)} placeholder="201B Nam Ky Khoi Nghia" />
@@ -1545,7 +1557,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
             </div>
             <p style={{ color: 'var(--admin-text-muted)', fontSize: 13, margin: '0 0 12px' }}>{t('If you moved, also update your Google Maps link so Directions go to the right place.')}</p>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <button className="admin-btn admin-btn-primary settings-btn" onClick={handleSaveAddress} disabled={savingAddress}>{savingAddress ? t('Saving…') : t('Save address')}</button>
+              <button className="admin-btn admin-btn-primary settings-btn" onClick={handleSaveAddress} disabled={savingAddress}>{savingAddress ? t('Saving…') : t('Save')}</button>
               {addressMessage && <span style={{ fontSize: 13, color: addressMessage.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-danger)' }}>{addressMessage}</span>}
             </div>
           </div>

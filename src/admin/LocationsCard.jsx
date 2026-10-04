@@ -50,12 +50,63 @@ function LocationHours({ breweryId, loc, mainHours, onSaved }) {
   );
 }
 
+// Edit one location's name, address and map pin. The name is whatever the venue wants
+// guests to see, e.g. "Belgo Thao Dien" or "Riverside taproom".
+function LocationEdit({ breweryId, loc, onSaved, onCancel }) {
+  const [f, setF] = useState({
+    name: loc.name || '', address: loc.address || '', district: loc.district || '', maps_url: loc.maps_url || '',
+    latitude: loc.latitude ?? '', longitude: loc.longitude ?? '',
+  });
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState('');
+  const set = (k) => (e) => {
+    const value = e.target.value;
+    setF((x) => {
+      const next = { ...x, [k]: value };
+      if (k === 'maps_url') { const c = coordsFromMapsLink(value); if (c) Object.assign(next, c); }
+      return next;
+    });
+  };
+  const save = async () => {
+    setMsg('');
+    if (!f.name.trim()) { setMsg('Give the location a name'); return; }
+    setBusy(true);
+    const patch = {
+      name: f.name.trim(), address: f.address, district: f.district, maps_url: f.maps_url,
+      latitude: f.latitude === '' ? null : f.latitude, longitude: f.longitude === '' ? null : f.longitude,
+    };
+    const r = await updateBreweryLocation(breweryId, loc.id, patch);
+    setBusy(false);
+    if (!r.ok) { setMsg(r.error || 'Could not save'); return; }
+    onSaved(r.location || { ...loc, ...patch });
+  };
+  return (
+    <div style={{ padding: '10px 10px 12px', borderTop: '1px dashed var(--admin-border)', display: 'grid', gap: 8 }}>
+      <label className="admin-form-label" htmlFor={`loc-name-${loc.id}`} style={{ margin: 0 }}>Location name (shown to guests)</label>
+      <input id={`loc-name-${loc.id}`} className="admin-form-input" maxLength={80} value={f.name} onChange={set('name')} placeholder="e.g. Thao Dien taproom" />
+      <input className="admin-form-input" placeholder="Street address" value={f.address} onChange={set('address')} />
+      <input className="admin-form-input" placeholder="District, e.g. Binh Thanh" value={f.district} onChange={set('district')} />
+      <input className="admin-form-input" placeholder="Google Maps link (https://…)" value={f.maps_url} onChange={set('maps_url')} />
+      <div style={{ display: 'flex', gap: 8 }}>
+        <input className="admin-form-input" placeholder="Latitude" value={f.latitude} onChange={set('latitude')} inputMode="decimal" />
+        <input className="admin-form-input" placeholder="Longitude" value={f.longitude} onChange={set('longitude')} inputMode="decimal" />
+      </div>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <button type="button" className="admin-btn admin-btn-primary settings-btn" onClick={save} disabled={busy} style={{ width: 'auto', flex: 'none' }}>{busy ? 'Saving…' : 'Save location'}</button>
+        <button type="button" className="admin-btn" onClick={onCancel} style={{ width: 'auto', flex: 'none', background: 'transparent', border: '1px solid var(--admin-border)', color: 'var(--admin-text)' }}>Cancel</button>
+        {msg && <span style={{ fontSize: 13, color: 'var(--admin-danger)' }}>{msg}</span>}
+      </div>
+    </div>
+  );
+}
+
 const EMPTY = { name: '', address: '', district: '', maps_url: '', latitude: '', longitude: '' };
 
 // A venue's extra locations. Every location counts for the same stamp.
 export default function LocationsCard({ breweryId, breweryName, mainHours }) {
   const [list, setList] = useState(null);
   const [hoursOpen, setHoursOpen] = useState(null);
+  const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
@@ -136,12 +187,20 @@ export default function LocationsCard({ breweryId, breweryName, mainHours }) {
                 <input type="checkbox" role="switch" checked={l.status === 'active'} onChange={() => toggle(l)} style={{ width: 18, height: 18 }} />
                 {l.status === 'active' ? 'Showing' : 'Hidden'}
               </label>
-              <button type="button" className="admin-btn" onClick={() => setHoursOpen((x) => (x === l.id ? null : l.id))} aria-expanded={hoursOpen === l.id}
+              <button type="button" className="admin-btn" onClick={() => { setEditing((x) => (x === l.id ? null : l.id)); setHoursOpen(null); }} aria-expanded={editing === l.id}
+                style={{ width: 'auto', flex: 'none', background: 'transparent', border: '1px solid var(--admin-border)', color: 'var(--admin-text)' }}>
+                Edit
+              </button>
+              <button type="button" className="admin-btn" onClick={() => { setHoursOpen((x) => (x === l.id ? null : l.id)); setEditing(null); }} aria-expanded={hoursOpen === l.id}
                 style={{ width: 'auto', flex: 'none', background: 'transparent', border: '1px solid var(--admin-border)', color: 'var(--admin-text)' }}>
                 {l.operating_hours ? 'Own hours' : 'Hours'} {hoursOpen === l.id ? '▴' : '▾'}
               </button>
               <button type="button" className="admin-btn admin-btn-danger" onClick={() => remove(l)} style={{ width: 'auto', flex: 'none' }}>Remove</button>
             </div>
+            {editing === l.id && (
+              <LocationEdit breweryId={breweryId} loc={l} onCancel={() => setEditing(null)}
+                onSaved={(saved) => { setList((xs) => xs.map((x) => (x.id === l.id ? { ...x, ...saved } : x))); setEditing(null); setMsg(`✓ ${saved.name || l.name} saved`); }} />
+            )}
             {hoursOpen === l.id && (
               <LocationHours breweryId={breweryId} loc={l} mainHours={mainHours}
                 onSaved={(h) => setList((xs) => xs.map((x) => (x.id === l.id ? { ...x, operating_hours: h } : x)))} />

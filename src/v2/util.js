@@ -205,6 +205,19 @@ const LOCAL_LOGOS = {
   '7 Bridges Brewing Co.': '/logos/7bridges.png',
   'Belgo Saigon': '/logos/belgo.png',
 };
+// Venues can rename themselves, so bundled logos are found by venue id first (map pins
+// for extra locations use "venueId:locationId"), with the original name as a fallback.
+const LOGO_BY_ID = {
+  '8c3dc4f3-e100-4d63-be0e-ee8b65da8fee': '/logos/biacraft.png',
+  '3f80a715-b664-423d-a04d-3d22fcdeb339': '/logos/hod.png',
+  '6b29d3f2-6b0e-4404-af89-40d7bc7482c5': '/logos/deme.png',
+  'c1fb805f-4010-4e8c-85cf-634f6a681308': '/logos/steersman.png',
+  'f094c3fc-e07d-4678-919a-923a6b80502a': '/logos/eastwest.png',
+  '1ba7a599-f91c-425d-98e7-275dd0efbb06': '/logos/rooster.png',
+  'd098db66-258b-445e-ad92-c0e769b427c1': '/logos/7bridges.png',
+  '64393821-1783-4892-8b18-019898d170ce': '/logos/belgo.png',
+};
+const localLogo = (b) => LOGO_BY_ID[String(b?.id || '').split(':')[0]] || LOCAL_LOGOS[b?.name] || null;
 // Stand-in venue photos for PREVIEW BUILDS ONLY (Google Maps / venue-site images whose
 // rights we don't hold). They live in public/preview/, which the production build
 // deletes (vite.config.js), and are only referenced when DEMO_MODE is on. Production
@@ -236,10 +249,10 @@ export function safeImageUrl(url) {
 
 // One-colour cut-out of the brewery logo, used as a faint stencil on the card
 export const stencilFor = (b) => {
-  const local = LOCAL_LOGOS[b?.name];
+  const local = localLogo(b);
   return local ? local.replace('/logos/', '/logos/stencil/') : null;
 };
-export const logoFor = (b) => safeImageUrl(b?.logo_url) || LOCAL_LOGOS[b?.name] || null;
+export const logoFor = (b) => safeImageUrl(b?.logo_url) || localLogo(b);
 
 // Short all-caps label for stamps ("7 Bridges Brewing Co." -> "7 BRIDGES").
 export function stampLabel(name = '') {
