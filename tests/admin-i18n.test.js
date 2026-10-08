@@ -8,7 +8,7 @@ const keys = new Set();
 for (const m of dict.matchAll(/'((?:[^'\\]|\\.)+)'\s*:/g)) keys.add(m[1].replace(/\\'/g, "'"));
 for (const m of dict.matchAll(/"([^"]+)"\s*:/g)) keys.add(m[1]);
 
-for (const file of ['BreweryDashboard.jsx', 'VenueChecklist.jsx', 'VenueDemoCard.jsx', 'checklist.js']) {
+for (const file of ['BreweryDashboard.jsx', 'VenueChecklist.jsx', 'VenueDemoCard.jsx', 'checklist.js', 'PromoteTab.jsx']) {
   test(`admin i18n: every t() phrase in ${file} has Vietnamese`, () => {
     const src = readFileSync(new URL(`../src/admin/${file}`, import.meta.url), 'utf8');
     const used = new Set();

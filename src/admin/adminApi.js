@@ -964,3 +964,19 @@ export async function hqDeleteTesterRatings(trailId, participantId) {
     return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
+
+// ==================== QR CODES & AD LINKS ====================
+
+export async function getVenueQrStats(breweryId) {
+  try {
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/qr`, { headers: authHeaders() });
+    return await readJson(res);
+  } catch (err) { return { ok: false, error: netError(err) }; }
+}
+
+export async function getHqQrStats(trailId) {
+  try {
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/hq/qr`, { headers: authHeaders() });
+    return await readJson(res);
+  } catch (err) { return { ok: false, error: netError(err) }; }
+}

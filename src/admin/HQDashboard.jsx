@@ -16,6 +16,7 @@ import HQLaunch from './HQLaunch';
 import HQPlans from './HQPlans';
 import HQStampsBoard from './HQStampsBoard';
 import HQSignups from './HQSignups';
+import HQOnboarding from './HQOnboarding';
 
 const generateStaffEmail = (name) => name.toLowerCase().replace(/[^a-z0-9]/g, '') + '@aletrail.app';
 const generatePassword = () => {
@@ -669,6 +670,7 @@ export default function HQDashboard({ adminEmail = '' }) {
           { id: 'signups', label: 'Sign-ups' },
           { grp: 'Understand' },
           { id: 'overview', label: 'Trail performance' },
+          { id: 'onboarding', label: 'QR & onboarding' },
           { id: 'analytics', label: 'Audience & insights', onOpen: () => { if (!analytics) loadAnalytics(); } },
           { id: 'leaderboard', label: 'Leaderboard & ratings' },
           { grp: 'Manage' },
@@ -1359,6 +1361,7 @@ export default function HQDashboard({ adminEmail = '' }) {
 
       {activeTab === 'addstamps' && <AddStampsCard trailId={TRAIL_ID} />}
       {activeTab === 'signups' && <HQSignups />}
+      {activeTab === 'onboarding' && <HQOnboarding />}
 
       {activeTab === 'superadmins' && (
         <>

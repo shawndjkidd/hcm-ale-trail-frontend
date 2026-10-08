@@ -32,6 +32,7 @@ import {
 } from "./lib/api";
 
 import "./styles/App.css";
+import { captureReferral, linkReferral } from './lib/referral';
 
 const TAB_PATHS = { home: "/", map: "/map", card: "/card", ask: "/ask" };
 
@@ -263,8 +264,12 @@ export default function App() {
   };
 
   // ── Boot ──────────────────────────────────────────────────────────────────
+  // Credit the venue QR code or ad link that brought this phone in, once it signs in.
+  useEffect(() => { linkReferral(user?.id); }, [user?.id]);
+
   useEffect(() => {
     const init = async () => {
+      captureReferral();
       const urlParams = new URLSearchParams(window.location.search);
       const hash = window.location.hash;
 

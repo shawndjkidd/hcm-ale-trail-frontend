@@ -5,6 +5,7 @@ import { useToast, useConfirm } from './AdminFeedback';
 import LocationsCard from './LocationsCard';
 import VenueDemoCard from './VenueDemoCard';
 import VenueChecklist from './VenueChecklist';
+import PromoteTab from './PromoteTab';
 import { useT } from './i18n';
 
 const DAY_NAMES = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -848,6 +849,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
         {(staffRole === 'owner' || staffRole === 'manager') && (
           <button className={`admin-tab ${activeTab === 'team' ? 'active' : ''}`} onClick={() => setActiveTab('team')}>{t('Team')}</button>
         )}
+        <button className={`admin-tab ${activeTab === 'promote' ? 'active' : ''}`} onClick={() => setActiveTab('promote')}>{t('Promote')}</button>
         <button className={`admin-tab ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>{t('Settings')}</button>
       </div>
 
@@ -1369,6 +1371,8 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
           )}
         </>
       )}
+
+      {activeTab === 'promote' && <PromoteTab brewery={{ ...brewery, logo_url: brewery.logoUrl || brewery.logo_url || null }} />}
 
       {activeTab === 'settings' && (
         <div className="admin-settings-grid">
