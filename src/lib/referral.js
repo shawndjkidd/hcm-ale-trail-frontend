@@ -4,7 +4,7 @@
 import { track } from './track';
 
 const KEY = 'hcm-ref';
-const SOURCES = ['tent', 'poster', 'sticker', 'story', 'facebook', 'instagram', 'link'];
+const SOURCES = ['tent', 'poster', 'sticker', 'story', 'qr', 'facebook', 'instagram', 'link'];
 
 export function captureReferral() {
   try {

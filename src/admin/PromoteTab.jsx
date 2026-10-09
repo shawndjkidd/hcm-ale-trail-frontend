@@ -70,7 +70,14 @@ function Pint({ id }) {
   );
 }
 
-const Head = () => <h1 className="big">8 breweries.<br />8 stamps.<br />1 free hat.</h1>;
+// The black drop shadow is a real copy of the text behind the yellow: Safari drops
+// CSS text-shadow from downloads.
+const Head = () => (
+  <>
+    <div className="big sh" aria-hidden="true">8 breweries.<br />8 stamps.<br />1 free hat.</div>
+    <h1 className="big">8 breweries.<br />8 stamps.<br />1 free hat.</h1>
+  </>
+);
 const Seal = () => <div className="seal"><div><b>Free<br />hat</b><small>8 stamps</small></div></div>;
 const Venue = ({ logo, label, name }) => (
   <div className="venue">{logo && <img src={logo} alt="" />}<div style={{ minWidth: 0 }}><small>{label}</small><span>{name}</span></div></div>
@@ -78,7 +85,7 @@ const Venue = ({ logo, label, name }) => (
 // Passport-style serial from the venue id, e.g. "No. 6439".
 const serialOf = (id) => `No. ${String(parseInt(venueRef(id).slice(0, 6), 16) % 10000).padStart(4, '0')}`;
 
-function Tent({ qr, name, logo, id }) {
+function Tent({ qrSvg, name, logo, id }) {
   return (
     <div className="pr-art pr-tent">
       <div className="rays" /><Stencils w={400} h={600} size={80} />
@@ -87,7 +94,7 @@ function Tent({ qr, name, logo, id }) {
       <i className="sparkle s1" /><i className="sparkle s2" />
       <Seal /><Head />
       <div className="ticket"><div className="in">
-        <div className="qr"><img src={qr} alt="" /></div>
+        <div className="qr" dangerouslySetInnerHTML={{ __html: qrSvg }} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="anton scan">Scan to<br />start</div>
           <div className="vn">Quét để bắt đầu · No download</div>
@@ -99,7 +106,7 @@ function Tent({ qr, name, logo, id }) {
     </div>
   );
 }
-function Poster({ qr, name, logo, id }) {
+function Poster({ qrSvg, name, logo, id }) {
   return (
     <div className="pr-art pr-poster">
       <div className="rays" /><Stencils w={630} h={891} size={120} />
@@ -110,7 +117,7 @@ function Poster({ qr, name, logo, id }) {
       <p className="lede">Buy a beer at each bar, <b>get your stamp</b>, collect all eight and the hat is yours.</p>
       <Seal />
       <div className="ticket"><div className="in">
-        <div className="qr"><img src={qr} alt="" /></div>
+        <div className="qr" dangerouslySetInnerHTML={{ __html: qrSvg }} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="anton scan">Scan to<br />start</div>
           <div className="vn">Quét để bắt đầu · No download needed</div>
@@ -122,7 +129,7 @@ function Poster({ qr, name, logo, id }) {
     </div>
   );
 }
-function Story({ qr, name, logo }) {
+function Story({ qrSvg, name, logo }) {
   return (
     <div className="pr-art pr-story">
       <div className="rays" /><Stencils w={1080} h={1920} size={200} />
@@ -131,7 +138,7 @@ function Story({ qr, name, logo }) {
       <i className="sparkle s1" /><i className="sparkle s2" /><i className="sparkle s3" />
       <Seal /><Head />
       <div className="ticket"><div className="in">
-        <div className="qr"><img src={qr} alt="" /></div>
+        <div className="qr" dangerouslySetInnerHTML={{ __html: qrSvg }} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="anton scan">Scan to<br />start</div>
           <div className="vn">Quét để bắt đầu · No download</div>
@@ -145,21 +152,32 @@ function Story({ qr, name, logo }) {
     </div>
   );
 }
+// Round sticker in the same style: sunburst inside a yellow ring, curved title and call to action.
+const RAYS = Array.from({ length: 24 }, (_, i) => {
+  const a0 = (i * 15 * Math.PI) / 180, a1 = ((i * 15 + 7.5) * Math.PI) / 180;
+  return `M150 150 L${150 + 200 * Math.cos(a0)} ${150 + 200 * Math.sin(a0)} L${150 + 200 * Math.cos(a1)} ${150 + 200 * Math.sin(a1)} Z`;
+}).join(' ');
 function Sticker({ qr }) {
   return (
     <svg className="pr-sticker" viewBox="0 0 300 300" width="300" height="300" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <path id="prArcTop" d="M 50,150 A 100,100 0 0 1 250,150" />
-        <path id="prArcBot" d="M 36,150 A 114,114 0 0 0 264,150" />
+        <clipPath id="prStickerClip"><circle cx="150" cy="150" r="133" /></clipPath>
+        <path id="prArcTop" d="M 52,150 A 98,98 0 0 1 248,150" />
+        <path id="prArcBot" d="M 38,150 A 112,112 0 0 0 262,150" />
       </defs>
-      <circle cx="150" cy="150" r="148" fill="#111" />
-      <circle cx="150" cy="150" r="142" fill="#FFD100" />
-      <circle cx="150" cy="150" r="133" fill="#C8102E" />
-      <text fontFamily="Anton, Impact, sans-serif" fontSize="22" fill="#FFD100" letterSpacing="1.6" textAnchor="middle"><textPath href="#prArcTop" startOffset="50%">HO CHI MINH ALE TRAIL</textPath></text>
-      <text fontFamily="Anton, Impact, sans-serif" fontSize="17" fill="#fff" letterSpacing="1.4" textAnchor="middle" dominantBaseline="hanging"><textPath href="#prArcBot" startOffset="50%">SCAN TO START · QUÉT ĐỂ BẮT ĐẦU</textPath></text>
-      <rect x="95" y="95" width="110" height="110" fill="#fff" stroke="#111" strokeWidth="4" />
-      <image href={qr} x="103" y="103" width="94" height="94" />
-      <g fill="#FFD100"><circle cx="45" cy="150" r="3.5" /><circle cx="255" cy="150" r="3.5" /></g>
+      <circle cx="150" cy="150" r="149" fill="#111" />
+      <circle cx="150" cy="150" r="143" fill="#FFD100" />
+      <g clipPath="url(#prStickerClip)">
+        <rect width="300" height="300" fill="#C8102E" />
+        <path d={RAYS} fill="#B30D29" />
+      </g>
+      <circle cx="150" cy="150" r="133" fill="none" stroke="#111" strokeWidth="3" />
+      <text fontFamily="Anton, Impact, sans-serif" fontSize="23" fill="#FFD100" letterSpacing="1.6" textAnchor="middle" stroke="#111" strokeWidth="3" paintOrder="stroke"><textPath href="#prArcTop" startOffset="50%">HO CHI MINH ALE TRAIL</textPath></text>
+      <text fontFamily="Anton, Impact, sans-serif" fontSize="17" fill="#fff" letterSpacing="1.4" textAnchor="middle" dominantBaseline="hanging" stroke="#111" strokeWidth="3" paintOrder="stroke"><textPath href="#prArcBot" startOffset="50%">SCAN TO START · QUÉT ĐỂ BẮT ĐẦU</textPath></text>
+      <rect x="93" y="93" width="114" height="114" fill="#fff" stroke="#FFD100" strokeWidth="6" />
+      <rect x="90" y="90" width="120" height="120" fill="none" stroke="#111" strokeWidth="2" />
+      <image href={qr} x="102" y="102" width="96" height="96" />
+      <g fill="#FFD100" stroke="#111" strokeWidth="1.5"><path d="M44 142 l3 6 6 2 -6 2 -3 6 -3 -6 -6 -2 6 -2z" /><path d="M256 142 l3 6 6 2 -6 2 -3 6 -3 -6 -6 -2 6 -2z" /></g>
     </svg>
   );
 }
@@ -168,7 +186,7 @@ function Sticker({ qr }) {
 const DESIGNS = [
   { key: 'tent', title: 'Table tent', spec: 'Tall, 10 × 15 cm per side. Print two and stand them back to back.', w: 400, h: 600, ratio: 3, preview: 0.55, C: Tent },
   { key: 'poster', title: 'Poster', spec: 'A4, scales up to A3 for print shops.', w: 630, h: 891, ratio: 4, preview: 0.4, C: Poster },
-  { key: 'sticker', title: 'Sticker', spec: '80 mm round, for windows, menus and the till.', w: 300, h: 300, ratio: 3.15, preview: 0.9, C: Sticker },
+  { key: 'sticker', title: 'Sticker', spec: '80 mm round, for windows, menus and the till.', w: 300, h: 300, ratio: 3.15, preview: 0.66, C: Sticker },
   { key: 'story', title: 'Instagram / Facebook story', spec: 'Exactly 1080 × 1920 px. Dashed lines show where Instagram puts its own buttons; they are not in the download.', w: 1080, h: 1920, ratio: 1, preview: 0.18, C: Story },
 ];
 
@@ -194,7 +212,7 @@ const COPY = {
     { en: 'Free hat for 8 stamps Start tonight', vi: 'Đủ 8 dấu nhận mũ miễn phí Bắt đầu tối nay' },
   ],
 };
-const SOURCE_LABEL = { tent: 'Table tent', poster: 'Poster', sticker: 'Sticker', story: 'Story', facebook: 'Facebook', instagram: 'Instagram', link: 'Plain link' };
+const SOURCE_LABEL = { tent: 'Table tent', poster: 'Poster', sticker: 'Sticker', story: 'Story', qr: 'QR code only', facebook: 'Facebook', instagram: 'Instagram', link: 'Plain link' };
 
 export default function PromoteTab({ brewery }) {
   const t = useT();
@@ -205,6 +223,8 @@ export default function PromoteTab({ brewery }) {
   const [stats, setStats] = useState(null);
   const [spotText, setSpotText] = useState('');
   const [spot, setSpot] = useState('');
+  const [spotName, setSpotName] = useState(''); // as the venue typed it, accents and all
+  const [plain, setPlain] = useState(null); // { png, svg, link } for venues' own designs
   const refs = useRef({});
   const name = brewery?.name || 'our bar';
   const logo = logoFor(brewery);
@@ -212,8 +232,19 @@ export default function PromoteTab({ brewery }) {
   useEffect(() => {
     if (!brewery?.id) return;
     let live = true;
-    Promise.all(DESIGNS.map(async (d) => [d.key, await QRCode.toDataURL(trackedLink(brewery.id, spot ? `c-${spot}` : d.key), { margin: 0, width: 600, errorCorrectionLevel: 'M', color: { dark: '#111111', light: '#ffffff' } })]))
-      .then((pairs) => { if (live) setQrs(Object.fromEntries(pairs)); });
+    // Each design gets its code as vector SVG (drawn straight into the design: Safari leaves
+    // embedded pictures out of downloads) and as a PNG (the round sticker draws it as an image).
+    const qrOpts = { margin: 0, errorCorrectionLevel: 'M', color: { dark: '#111111', light: '#ffffff' } };
+    Promise.all(DESIGNS.map(async (d) => {
+      const link = trackedLink(brewery.id, spot ? `c-${spot}` : d.key);
+      const [png, svg] = await Promise.all([QRCode.toDataURL(link, { ...qrOpts, width: 600 }), QRCode.toString(link, { ...qrOpts, type: 'svg' })]);
+      return [d.key, { png, svg }];
+    })).then((pairs) => { if (live) setQrs(Object.fromEntries(pairs)); });
+    // The plain code: big PNG with a quiet zone, plus SVG for designers.
+    const link = trackedLink(brewery.id, spot ? `c-${spot}` : 'qr');
+    const opts = { margin: 2, errorCorrectionLevel: 'M', color: { dark: '#111111', light: '#ffffff' } };
+    Promise.all([QRCode.toDataURL(link, { ...opts, width: 1200 }), QRCode.toString(link, { ...opts, type: 'svg' })])
+      .then(([png, svg]) => { if (live) setPlain({ png, svg, link }); });
     return () => { live = false; };
   }, [brewery?.id, spot]);
   useEffect(() => {
@@ -231,7 +262,16 @@ export default function PromoteTab({ brewery }) {
     node.classList.add('pr-exporting');
     try {
       const fontEmbedCSS = await printFontCss();
-      return await toPng(node, { width: d.w, height: d.h, pixelRatio: d.ratio, cacheBust: true, fontEmbedCSS, style: { transform: 'none' } });
+      // If a logo can't be fetched (an outside link), leave it blank rather than failing the download.
+      const imagePlaceholder = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+      const opts = { width: d.w, height: d.h, cacheBust: true, fontEmbedCSS, imagePlaceholder, style: { transform: 'none' } };
+      // Every picture inside (QR code, logos) must be loaded before drawing.
+      await Promise.all([...node.querySelectorAll('img')].map((im) => (im.complete && im.naturalWidth ? null : im.decode().catch(() => {}))));
+      // Safari (all iPhones, many Macs) paints the first draw before inner images are ready,
+      // which dropped the QR code from downloads. Throwaway small draws warm it up first.
+      const safari = /^((?!chrome|chromium|crios|android|edg|fxios).)*safari/i.test(navigator.userAgent) || /iP(hone|ad|od)/.test(navigator.userAgent);
+      for (let i = 0; i < (safari ? 3 : 1); i++) await toPng(node, { ...opts, pixelRatio: 0.25 });
+      return await toPng(node, { ...opts, pixelRatio: d.ratio });
     } finally { node.classList.remove('pr-exporting'); }
   };
   const download = async (d) => {
@@ -285,15 +325,34 @@ export default function PromoteTab({ brewery }) {
       <div className="admin-card">
         <h3 className="admin-card-title">{t('Where will you put it?')}</h3>
         <p style={{ color: 'var(--admin-text-muted)', margin: '0 0 12px' }}>{t('Optional. Name the spot, like "front window" or "Grab ad", and every design below gets a new code just for it. Your results then show each spot separately.')}</p>
-        <form style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }} onSubmit={(e) => { e.preventDefault(); const slug = spotSlug(spotText); setSpot(slug); flash(slug ? '✓ ' + t('New codes made for') + ` "${spotText.trim()}"` : t('Using the standard codes')); }}>
+        <form style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }} onSubmit={(e) => { e.preventDefault(); const slug = spotSlug(spotText); setSpot(slug); setSpotName(slug ? spotText.trim() : ''); flash(slug ? '✓ ' + t('New codes made for') + ` "${spotText.trim()}"` : t('Using the standard codes')); }}>
           <input className="admin-form-input" style={{ maxWidth: 320 }} maxLength={40} value={spotText} onChange={(e) => setSpotText(e.target.value)} placeholder={t('e.g. Front window')} aria-label={t('Where will you put it?')} />
           <button type="submit" className="admin-btn admin-btn-primary settings-btn" style={{ width: 'auto' }}>{t('Make codes')}</button>
-          {spot && <button type="button" className="admin-btn" style={{ width: 'auto' }} onClick={() => { setSpot(''); setSpotText(''); }}>{t('Back to standard codes')}</button>}
+          {spot && <button type="button" className="admin-btn" style={{ width: 'auto' }} onClick={() => { setSpot(''); setSpotText(''); setSpotName(''); }}>{t('Back to standard codes')}</button>}
         </form>
-        {spot && <p style={{ fontSize: 13, margin: '10px 0 0' }}>{t('Codes below are for:')} <b>{spotLabel(`c-${spot}`)}</b></p>}
+        {spot && <p style={{ fontSize: 13, margin: '10px 0 0' }}>{t('Codes below are for:')} <b>{spotName || spotLabel(`c-${spot}`)}</b></p>}
       </div>
 
       <div className="pr-grid">
+        <div className="pr-card">
+          <h4>{t('QR code only')}</h4>
+          <p className="pr-spec">{t('For your own designs, menus and social posts. PNG for most uses, SVG for designers and print shops (stays sharp at any size).')}</p>
+          <div className="pr-preview" style={{ background: '#fff', border: '1px solid var(--admin-border)' }}>
+            {plain ? <img src={plain.png} alt={t('Your QR code')} style={{ width: 180, height: 180, display: 'block' }} /> : null}
+          </div>
+          {plain && <p className="pr-spec" style={{ wordBreak: 'break-all' }}>{plain.link}</p>}
+          <div className="pr-actions">
+            <button type="button" className="admin-btn admin-btn-primary settings-btn" style={{ width: 'auto' }} disabled={!plain}
+              onClick={() => { const a = document.createElement('a'); a.href = plain.png; a.download = `ale-trail-qr${spot ? `-${spot}` : ''}-${venueRef(brewery.id)}.png`; a.click(); flash('✓ ' + t('Downloaded')); }}>
+              {t('Download PNG')}
+            </button>
+            <button type="button" className="admin-btn" style={{ width: 'auto' }} disabled={!plain}
+              onClick={() => { const url = URL.createObjectURL(new Blob([plain.svg], { type: 'image/svg+xml' })); const a = document.createElement('a'); a.href = url; a.download = `ale-trail-qr${spot ? `-${spot}` : ''}-${venueRef(brewery.id)}.svg`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 2000); flash('✓ ' + t('Downloaded')); }}>
+              {t('Download SVG')}
+            </button>
+            <button type="button" className="admin-btn" style={{ width: 'auto' }} disabled={!plain} onClick={() => copyText(plain.link, t('Link'))}>{t('Copy link')}</button>
+          </div>
+        </div>
         {DESIGNS.map((d) => {
           const C = d.C;
           const qr = qrs[d.key];
@@ -305,7 +364,7 @@ export default function PromoteTab({ brewery }) {
                 <div className="pr-frame" style={{ width: d.w * d.preview, height: d.h * d.preview }}>
                   <div className="pr-scale" style={{ transform: `scale(${d.preview})` }}>
                     <div ref={(el) => { refs.current[d.key] = el; }} style={{ width: d.w, height: d.h }}>
-                      {qr ? <C qr={qr} name={name} logo={logo} id={brewery.id} /> : null}
+                      {qr ? <C qr={qr.png} qrSvg={qr.svg} name={name} logo={logo} id={brewery.id} /> : null}
                     </div>
                   </div>
                 </div>
