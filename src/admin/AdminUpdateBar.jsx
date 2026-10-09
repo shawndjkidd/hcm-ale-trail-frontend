@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useT } from './i18n';
 
 // When a newer version of the dashboard is live, blocks the screen until the person
 // refreshes (same as the customer app), so nobody keeps working on an old version.
@@ -6,6 +7,7 @@ const CURRENT = typeof __BUILD_ID__ !== 'undefined' ? __BUILD_ID__ : 'dev';
 const CHECK_EVERY_MS = 60 * 1000;
 
 export default function AdminUpdateBar() {
+  const t = useT();
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -49,11 +51,11 @@ export default function AdminUpdateBar() {
             <path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5" />
           </svg>
         </div>
-        <h2 id="admin-update-title" style={{ fontSize: 18, fontWeight: 700, margin: '0 0 6px' }}>A new version is ready</h2>
-        <p style={{ color: '#A4A8AF', margin: '0 0 18px', fontSize: 14, lineHeight: 1.5 }}>We've updated the dashboard. Refresh to keep going. Anything you've already saved is safe.</p>
+        <h2 id="admin-update-title" style={{ fontSize: 18, fontWeight: 700, margin: '0 0 6px' }}>{t('A new version is ready')}</h2>
+        <p style={{ color: '#A4A8AF', margin: '0 0 18px', fontSize: 14, lineHeight: 1.5 }}>{t("We've updated the dashboard. Refresh to keep going. Anything you've already saved is safe.")}</p>
         <button type="button" autoFocus onClick={() => window.location.reload()} style={{
           width: '100%', background: '#F5A623', color: '#111', border: 0, borderRadius: 10, padding: 12, fontWeight: 700, fontSize: 15, cursor: 'pointer',
-        }}>Refresh now</button>
+        }}>{t('Refresh now')}</button>
       </div>
     </div>
   );
