@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { getAdminMe, adminLogout, changeAdminPassword, refreshAdminSession, isAdminSessionExpired, SESSION_EXPIRED_MESSAGE } from './adminApi';
+import { getAdminMe, adminLogout, changeAdminPassword, refreshAdminSession, isAdminSessionExpired, SESSION_EXPIRED_MESSAGE, adminPasskeysAvailable, adminAddPasskey } from './adminApi';
 import AdminLogin from './AdminLogin';
 import HQDashboard from './HQDashboard';
 import BreweryDashboard from './BreweryDashboard';
@@ -32,6 +32,20 @@ function AdminAppInner() {
   // Profile dropdown
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileMenuRef = useRef(null);
+
+  // Passkeys (Face ID / Touch ID / phone): offered once they're switched on in Supabase
+  const [passkeysOn, setPasskeysOn] = useState(false);
+  const [passkeyMsg, setPasskeyMsg] = useState('');
+  useEffect(() => { adminPasskeysAvailable().then(setPasskeysOn); }, []);
+  const addPasskey = async () => {
+    setShowProfileMenu(false);
+    setPasskeyMsg('Follow the prompt from your phone or computer…');
+    const r = await adminAddPasskey();
+    if (r.ok) setPasskeyMsg('✓ Passkey added. Next time, tap "Sign in with a passkey" on the sign-in screen.');
+    else if (/abort|cancel|not ?allowed/i.test(`${r.code || ''} ${r.error || ''}`)) setPasskeyMsg('');
+    else setPasskeyMsg(r.error || 'Could not add a passkey');
+    setTimeout(() => setPasskeyMsg(''), 8000);
+  };
 
   // Change password modal
   const [showChangePwd, setShowChangePwd] = useState(false);
@@ -261,6 +275,11 @@ function AdminAppInner() {
                 >
                   Change Password
                 </button>
+                {passkeysOn && (
+                  <button className="admin-profile-menu-item" onClick={addPasskey}>
+                    Set up a passkey (Face ID / Touch ID)
+                  </button>
+                )}
                 <div className="admin-profile-menu-divider" />
                 <button
                   className="admin-profile-menu-item admin-profile-menu-item--danger"
@@ -273,6 +292,9 @@ function AdminAppInner() {
           </div>
         </div>
       </header>
+      {passkeyMsg && (
+        <div role="status" style={{ margin: '12px auto 0', maxWidth: 1100, padding: '10px 14px', borderRadius: 10, border: `1px solid ${passkeyMsg.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-border)'}`, fontSize: 14 }}>{passkeyMsg}</div>
+      )}
 
       {isBreweryUser && (
         <BreweryDashboard

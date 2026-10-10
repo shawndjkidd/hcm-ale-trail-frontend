@@ -20,8 +20,10 @@ export default function ResetPassword() {
 
   useEffect(() => {
     if (!success) return;
+    let back = "/";
+    try { back = localStorage.getItem("hcm-reset-return") || "/"; localStorage.removeItem("hcm-reset-return"); } catch {}
     const timer = setTimeout(() => {
-      window.location.replace("/");
+      window.location.replace(back === "/admin" ? "/admin" : "/");
     }, 3000);
     return () => clearTimeout(timer);
   }, [success]);
@@ -79,7 +81,7 @@ export default function ResetPassword() {
               Password updated! You can now sign in.
             </p>
             <p style={{ textAlign: "center", fontSize: "0.875rem", opacity: 0.7 }}>
-              Redirecting you home in 3 seconds…
+              Taking you back to sign in…
             </p>
           </>
         ) : (

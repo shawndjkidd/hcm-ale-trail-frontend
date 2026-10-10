@@ -980,3 +980,88 @@ export async function getHqQrStats(trailId) {
     return await readJson(res);
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
+
+// ==================== FORGOT PASSWORD & PASSKEYS ====================
+
+// Sends a password-reset email. After setting a new password the reset page brings them
+// back to the dashboard (it checks this flag).
+export async function adminForgotPassword(email) {
+  try {
+    try { localStorage.setItem('hcm-reset-return', '/admin'); } catch {}
+    const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }),
+    });
+    return await readJson(res);
+  } catch (err) { return { ok: false, error: netError(err) }; }
+}
+
+function storeAdminSession(session, rememberMe = true) {
+  SESSION_KEYS.forEach((k) => { localStorage.removeItem(k); sessionStorage.removeItem(k); });
+  const store = rememberMe ? localStorage : sessionStorage;
+  store.setItem('hcm-admin-token', session.access_token);
+  store.setItem('hcm-admin-refresh', session.refresh_token || '');
+  store.setItem('hcm-admin-expires', String(session.expires_at || ''));
+  if (rememberMe) store.setItem('hcm-admin-remember', '1');
+}
+
+// Passkeys (Face ID / Touch ID / phone) work once they're switched on in Supabase Auth.
+// The dashboard asks Supabase at runtime, so the buttons appear as soon as that's done.
+let passkeyCheck = null;
+export function adminPasskeysAvailable() {
+  if (typeof window === 'undefined' || !window.PublicKeyCredential) return Promise.resolve(false);
+  if (!passkeyCheck) {
+    passkeyCheck = (async () => {
+      try {
+        const url = import.meta.env.VITE_SUPABASE_URL, key = import.meta.env.VITE_SUPABASE_ANON_KEY;
+        const res = await fetch(`${url}/auth/v1/settings`, { headers: { apikey: key } });
+        const s = await res.json();
+        return !!s?.passkeys_enabled;
+      } catch { return false; }
+    })();
+  }
+  return passkeyCheck;
+}
+
+// The Supabase client keeps one session per browser (shared with the guest app), so we
+// borrow it for the passkey ceremony and put back whatever was there before.
+async function withSupabaseSession(fn) {
+  const { supabase } = await import('../lib/supabase');
+  const prev = (await supabase.auth.getSession()).data?.session || null;
+  try { return await fn(supabase); }
+  finally {
+    try {
+      if (prev) await supabase.auth.setSession({ access_token: prev.access_token, refresh_token: prev.refresh_token });
+      else await supabase.auth.signOut({ scope: 'local' });
+    } catch {}
+  }
+}
+
+export async function adminPasskeySignIn(rememberMe = true) {
+  try {
+    return await withSupabaseSession(async (supabase) => {
+      const { data, error } = await supabase.auth.signInWithPasskey();
+      if (error || !data?.session) return { ok: false, error: error?.message || 'Passkey sign-in failed', code: error?.code };
+      storeAdminSession(data.session, rememberMe);
+      return { ok: true };
+    });
+  } catch (err) { return { ok: false, error: err?.message || 'Passkey sign-in failed' }; }
+}
+
+// Adds a passkey to the signed-in dashboard account (Face ID, Touch ID, or a phone).
+export async function adminAddPasskey() {
+  try {
+    const access_token = localStorage.getItem('hcm-admin-token') || sessionStorage.getItem('hcm-admin-token');
+    const refresh_token = localStorage.getItem('hcm-admin-refresh') || sessionStorage.getItem('hcm-admin-refresh');
+    if (!access_token || !refresh_token) return { ok: false, error: 'Please sign in again first' };
+    return await withSupabaseSession(async (supabase) => {
+      const { error: se } = await supabase.auth.setSession({ access_token, refresh_token });
+      if (se) return { ok: false, error: se.message };
+      // setSession may rotate the refresh token; keep the dashboard's copy current.
+      const cur = (await supabase.auth.getSession()).data?.session;
+      if (cur) storeAdminSession(cur, localStorage.getItem('hcm-admin-remember') === '1');
+      const { error } = await supabase.auth.registerPasskey();
+      if (error) return { ok: false, error: error.message, code: error.code };
+      return { ok: true };
+    });
+  } catch (err) { return { ok: false, error: err?.message || 'Could not add a passkey' }; }
+}
