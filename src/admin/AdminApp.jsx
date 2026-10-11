@@ -73,6 +73,7 @@ function AdminAppInner() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, [showProfileMenu]);
 
+  const [sessionNotice, setSessionNotice] = useState('');
   const checkAuth = async () => {
     setLoading(true);
 
@@ -89,6 +90,12 @@ function AdminAppInner() {
     const result = await getAdminMe();
     if (result.ok && result.isAdmin) {
       setAdminUser(result);
+    } else if (result.isAdmin === false) {
+      // Signed in fine, but this account has no dashboard access: say so instead of
+      // silently showing the sign-in screen again.
+      adminLogout();
+      setAdminUser(null);
+      setSessionNotice('That account signed in, but it doesn\'t have dashboard access yet. Ask HQ to add your email under HQ team (or to your venue team), or sign in with the email you use for the dashboard.');
     } else if (result.status === 401 || !result.ok) {
       // Token may have just expired between the expiry check and the request — try one refresh
       const refreshed = await refreshAdminSession();
@@ -113,7 +120,6 @@ function AdminAppInner() {
 
   // A login that can no longer be renewed: back to the login screen with a clear message
   // (instead of the dashboard looking logged in while nothing saves).
-  const [sessionNotice, setSessionNotice] = useState('');
   useEffect(() => {
     const expired = () => { adminLogout(); setAdminUser(null); setSessionNotice(SESSION_EXPIRED_MESSAGE); };
     window.addEventListener('hcm-admin-session-expired', expired);
