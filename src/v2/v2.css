@@ -870,7 +870,7 @@ body.night-mode .v2 .v2-evcard:not(.is-tonight) { background: var(--surface); co
 .v2-neon .sub { display: block; text-align: center; font-weight: 800; letter-spacing: .18em; font-size: .72rem; color: var(--yellow); text-shadow: 0 0 8px rgba(255,209,0,.8); margin: 8px 0 14px; }
 .v2-neon .ev { display: flex; gap: 12px; align-items: center; border-top: 2px dashed rgba(255,255,255,.25); padding-top: 12px; }
 .v2-neon .ev img { width: 58px; height: 58px; flex: none; border-radius: 50%; background: #fff; border: 3px solid var(--yellow); object-fit: contain; padding: 4px; box-shadow: 0 0 14px rgba(255,209,0,.6); }
-.v2-neon .ev img.poster { border-radius: 10px; object-fit: cover; object-position: top; padding: 0; background: #000; }
+.v2-neon .ev img.poster { border-radius: 10px; object-fit: cover; object-position: center; padding: 0; background: #000; }
 .v2-neon .ev b { display: block; font-family: var(--display); font-weight: 400; font-size: 1.5rem; line-height: 1.05; text-transform: uppercase; }
 .v2-neon .ev span > span { font-size: .85rem; opacity: .8; font-weight: 700; }
 .v2-neon .time { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; background: var(--yellow); color: var(--ink); padding: 8px 12px; font-weight: 800; font-size: .8rem; letter-spacing: .08em; }
