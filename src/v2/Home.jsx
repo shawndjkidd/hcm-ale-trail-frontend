@@ -129,7 +129,7 @@ function EventCard({ ev, brewery, language, onOpen }) {
   const stencil = brewery ? stencilFor(brewery) : null;
   const isNew = ev.category === 'new_release';
   // Event photo: the venue's photo, else a placeholder beer shot, so every card shows a picture.
-  const img = safeImageUrl(ev.photo_url) || (brewery && photoFor(brewery)) || (isNew ? EVENT_PLACEHOLDER.new : EVENT_PLACEHOLDER.event);
+  const img = safeImageUrl(ev.photoUrl) || safeImageUrl(ev.photo_url) || (brewery && photoFor(brewery)) || (isNew ? EVENT_PLACEHOLDER.new : EVENT_PLACEHOLDER.event);
   return (
     <button type="button" className={`v2-evcard${tonight ? ' is-tonight' : ''}`} onClick={() => onOpen(ev)}>
       <span className={`top${img ? ' has-photo' : ''}`} style={{ background: img ? `url("${img}") center/cover` : placeGradient(ev.breweryId || ev.id) }}>
@@ -161,7 +161,7 @@ function TonightNeon({ events, breweries, language, here, onOpen }) {
   const ev = events[0];
   const b = (breweries || []).find((x) => x.id === ev.breweryId);
   const start = new Date(ev.startsAt).getTime();
-  const end = ev.endsAt ? new Date(ev.endsAt).getTime() : start + 4 * 3600e3;
+  const end = eventEndMs(ev);
   const ms = start - now;
   const on = ms <= 0 && now < end;
   const h = Math.floor(ms / 3600e3), m = Math.floor((ms % 3600e3) / 60e3), sec = Math.floor((ms % 60e3) / 1e3);
@@ -169,7 +169,9 @@ function TonightNeon({ events, breweries, language, here, onOpen }) {
   const hm = (t) => new Date(t).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' });
   const title = demoSplit(localized(ev.title, language));
   const logo = b ? logoFor(b) : null;
-  const km = here && b?.latitude != null ? distanceKm(here, { lat: b.latitude, lng: b.longitude }) : null;
+  const poster = !logo ? safeImageUrl(ev.photoUrl) : null;
+  const pin = b?.latitude != null ? { lat: b.latitude, lng: b.longitude } : ev.venueLat != null ? { lat: ev.venueLat, lng: ev.venueLng } : null;
+  const km = here && pin ? distanceKm(here, pin) : null;
   return (
     <button type="button" className="v2-neon" onClick={() => onOpen(ev)}>
       {title.demo && <span className="tag demo">DEMO</span>}
@@ -177,6 +179,7 @@ function TonightNeon({ events, breweries, language, here, onOpen }) {
       <span className="sub">{shortDate(ev.startsAt, language).toUpperCase()} · {hm(start)}{events.length > 1 ? ` · ${fmt(v.moreTonight, { n: events.length - 1 })}` : ''}</span>
       <span className="ev">
         {logo && <img src={logo} alt="" />}
+        {poster && <img className="poster" src={poster} alt="" />}
         <span>
           <b>{title.text}</b>
           <span>{[ev.breweryName, b && districtLabel(b.district, language), km != null && formatKm(km)].filter(Boolean).join(' · ')}</span>
@@ -184,7 +187,7 @@ function TonightNeon({ events, breweries, language, here, onOpen }) {
       </span>
       <span className="time">
         <span>{on ? v.onNow : v.startsIn}</span>
-        <big>{on ? `${v.tillTime} ${hm(end)}` : `${h}h ${pad(m)}m ${pad(sec)}s`}</big>
+        <big>{on ? (ev.endsAt ? `${v.tillTime} ${hm(end)}` : `${hm(start)}+`) : `${h}h ${pad(m)}m ${pad(sec)}s`}</big>
       </span>
     </button>
   );
@@ -242,6 +245,13 @@ function eventWhen(ev, language, v) {
   return { top: dow.toUpperCase(), bottom: shortDate(ev.startsAt, language).toUpperCase(), tonight: false };
 }
 
+// When an event is over. No end time means it runs until midnight Saigon time on its day.
+export function eventEndMs(ev) {
+  if (ev.endsAt) return new Date(ev.endsAt).getTime();
+  const day = new Date(ev.startsAt).toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
+  return new Date(`${day}T00:00:00+07:00`).getTime() + 86400e3;
+}
+
 export function isTonight(ev) {
   const key = (x) => new Date(x).toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
   return key(ev.startsAt) === key(Date.now());
@@ -289,7 +299,7 @@ export default function Home({
       });
   }, [active, order, here, stamps]);
 
-  const upcoming = (events || []).filter((e) => new Date(e.endsAt || e.startsAt) >= new Date());
+  const upcoming = (events || []).filter((e) => eventEndMs(e) >= Date.now());
   const tonight = upcoming.filter(isTonight);
   const topEntry = boardTop?.[0];
 

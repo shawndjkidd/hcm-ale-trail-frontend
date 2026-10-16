@@ -3,7 +3,7 @@ import { track } from '../lib/track';
 import { TRAIL_ID } from '../config';
 import { useV, fmt, shortDate, weekdayName } from './i18n';
 import { Icon, Seg, Sheet, Glass } from './ui';
-import { statusText } from './Home';
+import { statusText, eventEndMs } from './Home';
 import EventSheet from './EventSheet';
 import { DEMO_MODE, demoBeers } from './demo';
 import { openStatus, localized, districtLabel, beerLook, placeGradient, logoFor, photoFor, STYLE_GROUPS, safeHref, placesByDistance, directionsHref, formatKm, brandOpenStatus } from './util';
@@ -72,7 +72,7 @@ export default function Brewery({ brewery, stampedAt, beerCountHere = 0, events 
 
   const myEvents = events
     .filter((e) => (e.breweryId && e.breweryId === brewery.id) || (e.breweryName && e.breweryName === brewery.name))
-    .filter((e) => new Date(e.endsAt || e.startsAt) >= new Date())
+    .filter((e) => eventEndMs(e) >= Date.now())
     .sort((a, b) => new Date(a.startsAt) - new Date(b.startsAt));
 
   const copyHandle = async () => {

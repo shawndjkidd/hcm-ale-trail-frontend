@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useV, shortDate } from './i18n';
 import { Seg } from './ui';
-import { isTonight } from './Home';
-import { localized, logoFor, safeHref } from './util';
+import { isTonight, eventEndMs } from './Home';
+import { localized, logoFor, safeHref, safeImageUrl } from './util';
 import EventSheet, { calendarLink } from './EventSheet';
 
 export default function Events({ events, breweries, language, onBack, onOpenBrewery }) {
@@ -13,7 +13,7 @@ export default function Events({ events, breweries, language, onBack, onOpenBrew
   const weekEnd = now + 7 * 24 * 3600 * 1000;
 
   const upcoming = (events || [])
-    .filter((e) => new Date(e.endsAt || e.startsAt).getTime() >= now)
+    .filter((e) => eventEndMs(e) >= now)
     .filter((e) => filter === 'all' || (filter === 'new' ? e.category === 'new_release' : e.category !== 'new_release'))
     .sort((a, b) => new Date(a.startsAt) - new Date(b.startsAt));
 
@@ -48,7 +48,7 @@ export default function Events({ events, breweries, language, onBack, onOpenBrew
             const b = breweryOf(e);
             const title = localized(e.title, language);
             const time = new Date(e.startsAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' });
-            const logo = b ? logoFor(b) : null;
+            const logo = b ? logoFor(b) : safeImageUrl(e.photoUrl);
             return (
               <div key={e.id} className={`v2-evrow${g.key === 'tonight' ? ' is-tonight' : ''}`} style={{ flexDirection: 'column', alignItems: 'stretch' }}>
                 <button type="button" onClick={() => setOpenEvent(e)} style={{ display: 'flex', gap: 10, alignItems: 'center', background: 'none', border: 0, padding: 0, textAlign: 'left', color: 'inherit' }}>
