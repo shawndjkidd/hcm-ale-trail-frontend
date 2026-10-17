@@ -129,10 +129,12 @@ function EventCard({ ev, brewery, language, onOpen }) {
   const stencil = brewery ? stencilFor(brewery) : null;
   const isNew = ev.category === 'new_release';
   // Event photo: the venue's photo, else a placeholder beer shot, so every card shows a picture.
-  const img = safeImageUrl(ev.photoUrl) || safeImageUrl(ev.photo_url) || (brewery && photoFor(brewery)) || (isNew ? EVENT_PLACEHOLDER.new : EVENT_PLACEHOLDER.event);
+  const poster = safeImageUrl(ev.photoUrl) || safeImageUrl(ev.photo_url);
+  const img = poster || (brewery && photoFor(brewery)) || (isNew ? EVENT_PLACEHOLDER.new : EVENT_PLACEHOLDER.event);
+  const pos = (poster && focusPos(ev.photoFocus)) || 'center';
   return (
     <button type="button" className={`v2-evcard${tonight ? ' is-tonight' : ''}`} onClick={() => onOpen(ev)}>
-      <span className={`top${img ? ' has-photo' : ''}`} style={{ background: img ? `url("${img}") center/cover` : placeGradient(ev.breweryId || ev.id) }}>
+      <span className={`top${img ? ' has-photo' : ''}`} style={{ background: img ? `url("${img}") ${pos}/cover` : placeGradient(ev.breweryId || ev.id) }}>
         {!img && stencil && <span className="stencil" style={{ backgroundImage: `url("${stencil}")` }} />}
         <span className="date">
           {tonight
@@ -179,7 +181,7 @@ function TonightNeon({ events, breweries, language, here, onOpen }) {
       <span className="sub">{shortDate(ev.startsAt, language).toUpperCase()} · {hm(start)}{events.length > 1 ? ` · ${fmt(v.moreTonight, { n: events.length - 1 })}` : ''}</span>
       <span className="ev">
         {logo && <img src={logo} alt="" />}
-        {poster && <img className="poster" src={poster} alt="" />}
+        {poster && <img className="poster" src={poster} alt="" style={{ objectPosition: focusPos(ev.photoFocus) || 'center' }} />}
         <span>
           <b>{title.text}</b>
           <span>{[ev.breweryName, b && districtLabel(b.district, language), km != null && formatKm(km)].filter(Boolean).join(' · ')}</span>
@@ -251,6 +253,9 @@ export function eventEndMs(ev) {
   const day = new Date(ev.startsAt).toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
   return new Date(`${day}T00:00:00+07:00`).getTime() + 86400e3;
 }
+
+// The poster crop spot chosen in the dashboard ("70% 50%"); anything else is ignored.
+export const focusPos = (v) => (typeof v === 'string' && /^\d{1,3}% \d{1,3}%$/.test(v) ? v : null);
 
 export function isTonight(ev) {
   const key = (x) => new Date(x).toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });

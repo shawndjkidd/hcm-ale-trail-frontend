@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useV, shortDate } from './i18n';
 import { Seg } from './ui';
-import { isTonight, eventEndMs } from './Home';
+import { isTonight, eventEndMs, focusPos } from './Home';
 import { localized, logoFor, safeHref, safeImageUrl } from './util';
 import EventSheet, { calendarLink } from './EventSheet';
 
@@ -52,7 +52,7 @@ export default function Events({ events, breweries, language, onBack, onOpenBrew
             return (
               <div key={e.id} className={`v2-evrow${g.key === 'tonight' ? ' is-tonight' : ''}`} style={{ flexDirection: 'column', alignItems: 'stretch' }}>
                 <button type="button" onClick={() => setOpenEvent(e)} style={{ display: 'flex', gap: 10, alignItems: 'center', background: 'none', border: 0, padding: 0, textAlign: 'left', color: 'inherit' }}>
-                  <span className="logo">{logo ? <img src={logo} alt="" /> : (e.breweryName || 'A')[0]}</span>
+                  <span className="logo">{logo ? <img src={logo} alt="" style={!b ? { objectFit: 'cover', objectPosition: focusPos(e.photoFocus) || 'center' } : undefined} /> : (e.breweryName || 'A')[0]}</span>
                   <span className="what">
                     <span style={{ fontSize: '.7rem', fontWeight: 800, letterSpacing: '.04em' }}>
                       {g.key === 'tonight' ? time : `${shortDate(e.startsAt, language).toUpperCase()} · ${time}`} · {(e.breweryName || 'HCM Ale Trail').toUpperCase()}

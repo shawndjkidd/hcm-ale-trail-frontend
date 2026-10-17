@@ -19,6 +19,72 @@ function saigonParts(iso) {
   };
 }
 const toIso = (date, time) => new Date(`${date}T${time}:00+07:00`).toISOString();
+// "70% 50%" <-> { x: 70, y: 50 }: the part of the poster the app keeps when it crops it.
+const parseFocus = (v) => {
+  const m = typeof v === 'string' && v.match(/^(\d+(?:\.\d+)?)% (\d+(?:\.\d+)?)%$/);
+  return m ? { x: Number(m[1]), y: Number(m[2]) } : { x: 50, y: 50 };
+};
+const clamp = (n) => Math.max(0, Math.min(100, n));
+
+// The poster shown whole inside the 16:9 box, with a square you drag along its long side
+// to choose the crop. Landscape posters slide left/right, tall ones up/down.
+function FocusPicker({ src, focus, onFocus, showSquare, label }) {
+  const box = useRef(null);
+  const [nat, setNat] = useState(null);
+  const [size, setSize] = useState({ w: 0, h: 0 });
+  const drag = useRef(null);
+  useEffect(() => {
+    const el = box.current; if (!el) return undefined;
+    const ro = new ResizeObserver(() => setSize({ w: el.clientWidth, h: el.clientHeight }));
+    ro.observe(el); setSize({ w: el.clientWidth, h: el.clientHeight });
+    return () => ro.disconnect();
+  }, []);
+  useEffect(() => { setNat(null); }, [src]);
+  let sq = null;
+  if (nat && size.w) {
+    const r = nat.w / nat.h;
+    const dw = r >= size.w / size.h ? size.w : size.h * r;
+    const dh = r >= size.w / size.h ? size.w / r : size.h;
+    const left0 = (size.w - dw) / 2; const top0 = (size.h - dh) / 2;
+    const side = Math.min(dw, dh);
+    const wide = dw > dh;
+    sq = { side, wide, room: wide ? dw - side : dh - side,
+      left: left0 + (wide ? (dw - side) * focus.x / 100 : 0),
+      top: top0 + (wide ? 0 : (dh - side) * focus.y / 100) };
+  }
+  const down = (e) => { if (!sq) return; e.preventDefault(); e.currentTarget.setPointerCapture(e.pointerId); drag.current = { x: e.clientX, y: e.clientY, f: { ...focus } }; };
+  const move = (e) => {
+    const d = drag.current; if (!d || !sq || sq.room <= 0) return;
+    if (sq.wide) onFocus({ x: clamp(d.f.x + (e.clientX - d.x) / sq.room * 100), y: 50 });
+    else onFocus({ x: 50, y: clamp(d.f.y + (e.clientY - d.y) / sq.room * 100) });
+  };
+  const key = (e) => {
+    if (!sq) return;
+    const step = e.shiftKey ? 10 : 2;
+    const dir = { ArrowLeft: -1, ArrowUp: -1, ArrowRight: 1, ArrowDown: 1 }[e.key];
+    if (!dir) return; e.preventDefault();
+    onFocus(sq.wide ? { x: clamp(focus.x + dir * step), y: 50 } : { x: 50, y: clamp(focus.y + dir * step) });
+  };
+  return (
+    <div ref={box} className="eved-focus">
+      <img src={src} alt="" onLoad={(e) => setNat({ w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight })} />
+      {showSquare && sq && (
+        <div className="eved-square" role="slider" tabIndex={0} aria-label={label} aria-valuemin={0} aria-valuemax={100}
+          aria-valuenow={Math.round(sq.wide ? focus.x : focus.y)}
+          style={{ left: sq.left, top: sq.top, width: sq.side, height: sq.side }}
+          onPointerDown={down} onPointerMove={move} onPointerUp={() => { drag.current = null; }} onPointerCancel={() => { drag.current = null; }} onKeyDown={key}>
+          <span className="tag">TONIGHT SIGN</span>
+          {sq.room > 0 && (
+            <span className="grip">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ transform: sq.wide ? 'none' : 'rotate(90deg)' }}><path d="m8 7-5 5 5 5" /><path d="m16 7 5 5-5 5" /></svg>
+              {label}
+            </span>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function Seg({ value, onChange, options, full }) {
   return (
@@ -66,6 +132,7 @@ export default function EventEditor({ mode, event, venue, breweries = [], onClos
   const [descLang, setDescLang] = useState('en');
   const [poster, setPoster] = useState(() => emptyPoster(event?.photoUrl || null));
   const [showSafe, setShowSafe] = useState(false);
+  const [focus, setFocus] = useState(() => parseFocus(event?.photoFocus));
   const [dragging, setDragging] = useState(false);
   const [pv, setPv] = useState('card');
   const [saving, setSaving] = useState(false);
@@ -85,7 +152,7 @@ export default function EventEditor({ mode, event, venue, breweries = [], onClos
   const pickFile = (file) => {
     if (!file) return;
     if (!/^image\/(jpeg|png|webp)$/.test(file.type)) { setError(t('Poster must be a JPG, PNG or WebP image')); return; }
-    setError(''); setPoster((p) => ({ ...p, file, removed: false }));
+    setError(''); setPoster((p) => ({ ...p, file, removed: false })); setFocus({ x: 50, y: 50 });
   };
 
   // Who/where for the preview.
@@ -94,6 +161,7 @@ export default function EventEditor({ mode, event, venue, breweries = [], onClos
   const fallbackImg = atBrewery ? photoFor(atBrewery) : null;
   const previewImg = posterSrc || fallbackImg;
   const thumb = posterSrc || (atBrewery ? logoFor(atBrewery) : null);
+  const focusCss = `${Math.round(focus.x)}% ${Math.round(focus.y)}%`;
   const previewTitle = (nameLang === 'vn' && f.titleVn) || f.titleEn || t('Event name');
   const d = f.date ? new Date(`${f.date}T12:00:00+07:00`) : null;
   const dow = d ? d.toLocaleDateString('en-GB', { weekday: 'short', timeZone: TZ }).toUpperCase() : 'DAY';
@@ -118,6 +186,7 @@ export default function EventEditor({ mode, event, venue, breweries = [], onClos
       link: f.link.trim() || null,
       category: f.category,
       status: f.show ? 'active' : 'hidden',
+      image_focus: posterSrc ? focusCss : null,
       ...(isHq ? (f.where === 'brewery'
         ? { brewery_id: f.breweryId }
         : { brewery_id: null, venue_name: f.venueName, venue_address: f.venueAddress, venue_maps_url: f.mapsUrl }) : {}),
@@ -150,7 +219,7 @@ export default function EventEditor({ mode, event, venue, breweries = [], onClos
             <section className="eved-card">
               <div className="eved-labrow">
                 <h3>{t('Poster')}</h3>
-                {posterSrc && <Toggle on={showSafe} onChange={setShowSafe}>{t('Show what the Tonight sign keeps')}</Toggle>}
+                {posterSrc && <Toggle on={showSafe} onChange={setShowSafe}>{t('Choose what the Tonight sign shows')}</Toggle>}
               </div>
               <div
                 className={`eved-drop${dragging ? ' drag' : ''}${showSafe && posterSrc ? ' safe-on' : ''}${posterSrc ? ' has' : ''}`}
@@ -160,10 +229,7 @@ export default function EventEditor({ mode, event, venue, breweries = [], onClos
                 onClick={() => !posterSrc && fileRef.current?.click()}
               >
                 {posterSrc ? (
-                  <>
-                    <img src={posterSrc} alt="" />
-                    <div className="safe"><span>{t('TONIGHT SIGN')}</span></div>
-                  </>
+                  <FocusPicker src={posterSrc} focus={focus} onFocus={setFocus} showSquare={showSafe} label={t('Drag to choose')} />
                 ) : (
                   <div className="empty">
                     <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="9" cy="10" r="2" /><path d="m21 16-5-5-9 9" /></svg>
@@ -178,6 +244,12 @@ export default function EventEditor({ mode, event, venue, breweries = [], onClos
                 {posterSrc && <button type="button" className="eved-btn ghost" onClick={() => { setShowSafe(false); setPoster((p) => ({ ...p, file: null, removed: true })); }}>{t('Remove')}</button>}
                 <div className="eved-spec"><span>1600 × 900 px</span><span>{t('Landscape 16:9')}</span><span>{t('JPG or PNG')}</span><span>{t('Words in the middle')}</span></div>
               </div>
+              {posterSrc && showSafe && (
+                <div className="eved-focusrow">
+                  <span>{t('Drag the yellow square to the best part of the poster. The Tonight sign and the event card both use that spot.')}</span>
+                  <button type="button" onClick={() => setFocus({ x: 50, y: 50 })}>{t('Reset to centre')}</button>
+                </div>
+              )}
               <p className="eved-hint">{posterSrc ? t('The event card trims the edges. Tall posters still work and show in full when a guest opens the event.') : t('No poster: the app shows the venue photo instead.')}</p>
             </section>
 
@@ -255,7 +327,7 @@ export default function EventEditor({ mode, event, venue, breweries = [], onClos
                   <div className="zone">
                     <div className="eb">{t('COMING UP')}</div><div className="zh">{t("What's on")}</div>
                     <div className="evc">
-                      <div className="top" style={previewImg ? { backgroundImage: `url("${previewImg}")` } : undefined}>
+                      <div className="top" style={previewImg ? { backgroundImage: `url("${previewImg}")`, backgroundPosition: posterSrc ? focusCss : 'center' } : undefined}>
                         <div className="date"><span className="sm">{dow}</span><span className="big">{day}</span><span className="sm">{mon} · {f.start || '--:--'}</span></div>
                       </div>
                       <div className="bd"><span className={`cat${f.category === 'new_release' ? ' new' : ''}`}>{f.category === 'new_release' ? t('NEW BEER') : t('EVENT')}</span><div className="ttl">{previewTitle}</div><div className="ven">{placeName}</div></div>
@@ -266,7 +338,7 @@ export default function EventEditor({ mode, event, venue, breweries = [], onClos
                     <div className="sign">{t('TONIGHT')}</div>
                     <div className="when">{day} {mon} · {f.start || '--:--'}</div>
                     <div className="ev">
-                      <div className="th" style={thumb ? { backgroundImage: `url("${thumb}")` } : undefined} />
+                      <div className="th" style={thumb ? { backgroundImage: `url("${thumb}")`, backgroundPosition: posterSrc ? focusCss : 'center' } : undefined} />
                       <div><b>{previewTitle}</b><small>{placeName}</small></div>
                     </div>
                     <div className="bar"><span>{t('STARTS IN')}</span><big>3h 12m</big></div>
