@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import {
   getTrailOverview, getTrailEvents, getAdminLeaderboard, exportParticipants,
-  deleteEvent, updateEvent, createTrailEvent, getTrailBreweries, createBrewery, updateBrewery,
+  deleteEvent, getTrailBreweries, createBrewery, updateBrewery,
   deleteBrewery, getSideQuests, createSideQuest, updateSideQuest, deleteSideQuest,
   getTrailBeerRatings, getMergeSuggestions, mergeRatings, createBreweryStaff, getBreweryLogin,
   getTrailMerchandise, createMerchandiseItem, updateMerchandiseItem, restockMerchandise, setMerchandiseCount,
   getTrailAnalytics, getSuperAdmins, addSuperAdmin, removeSuperAdmin,
-  saveEventPoster, TRAIL_ID
+  TRAIL_ID
 } from './adminApi';
-import EventPosterField, { emptyPoster } from './EventPosterField';
+import EventEditor from './EventEditor';
 import { useToast, useConfirm } from './AdminFeedback';
 import AddStampsCard from './AddStampsCard';
 import HQHome from './HQHome';
@@ -64,9 +64,6 @@ export default function HQDashboard({ adminEmail = '' }) {
 
   const [showEventForm, setShowEventForm] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
-  const [eventPoster, setEventPoster] = useState(emptyPoster());
-  const [eventForm, setEventForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '', category: 'event', status: 'active' });
-  const [savingEvent, setSavingEvent] = useState(false);
 
   const [showBreweryForm, setShowBreweryForm] = useState(false);
   const [editingBrewery, setEditingBrewery] = useState(null);
@@ -270,103 +267,14 @@ export default function HQDashboard({ adminEmail = '' }) {
     }
   };
 
-  const handleCreateTrailEvent = async () => {
-    if (!eventForm.titleEn || !eventForm.startsAt) {
-      toast.error('Title (English) and Start Date/Time are required');
-      return;
-    }
-    setSavingEvent(true);
-    const eventData = {
-      title: { en: eventForm.titleEn, vn: eventForm.titleVn || eventForm.titleEn },
-      description: eventForm.descriptionEn ? { en: eventForm.descriptionEn, vn: eventForm.descriptionVn || eventForm.descriptionEn } : null,
-      starts_at: new Date(eventForm.startsAt).toISOString(),
-      ends_at: eventForm.endsAt ? new Date(eventForm.endsAt).toISOString() : null,
-      link: eventForm.link || null,
-      status: eventForm.status || 'active',
-      category: eventForm.category || 'event',
-      ...(eventForm.linkedTo === 'brewery' && eventForm.linkedId ? { brewery_id: eventForm.linkedId } : {}),
-      ...(eventForm.linkedTo === 'side_quest' && eventForm.linkedId ? { side_quest_id: eventForm.linkedId } : {}),
-    };
-    const result = await createTrailEvent(TRAIL_ID, eventData);
-    if (result.ok) {
-      let ev = result.event;
-      const pr = await saveEventPoster(ev.id, eventPoster);
-      if (pr.ok) ev = { ...ev, photoUrl: pr.photoUrl }; else toast.error(`Event saved, but the image did not upload: ${pr.error}`);
-      setEvents([...events, ev]);
-      setShowEventForm(false);
-      setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '', category: 'event', status: 'active' });
-      toast.success('Event created');
-    } else {
-      toast.error(result.error || 'Failed to create event');
-    }
-    setSavingEvent(false);
-  };
-
-  const openEditEvent = (event) => {
-    const title = event.title || {};
-    const desc = event.description || {};
-    const toLocal = (iso) => {
-      if (!iso) return '';
-      const d = new Date(iso);
-      return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-    };
-    setEditingEvent(event);
-    setEventPoster(emptyPoster(event.photoUrl || null));
-    setEventForm({
-      titleEn: title.en || (typeof event.title === 'string' ? event.title : ''),
-      titleVn: title.vn || '',
-      descriptionEn: desc.en || (typeof event.description === 'string' ? event.description : ''),
-      descriptionVn: desc.vn || '',
-      startsAt: toLocal(event.startsAt),
-      endsAt: toLocal(event.endsAt),
-      link: event.link || '',
-      // Keep the event's venue when editing (it used to reset to "None").
-      linkedTo: event.breweryId ? 'brewery' : 'none',
-      linkedId: event.breweryId || '',
-      category: event.category || 'event',
-      status: event.status === 'hidden' ? 'hidden' : 'active',
-    });
-    setShowEventForm(true);
-  };
-
-  const handleUpdateEvent = async () => {
-    if (!editingEvent) return;
-    if (!eventForm.titleEn || !eventForm.startsAt) {
-      toast.error('Title (English) and Start Date/Time are required');
-      return;
-    }
-    setSavingEvent(true);
-    const patch = {
-      title: { en: eventForm.titleEn, vn: eventForm.titleVn || eventForm.titleEn },
-      description: eventForm.descriptionEn ? { en: eventForm.descriptionEn, vn: eventForm.descriptionVn || eventForm.descriptionEn } : null,
-      starts_at: new Date(eventForm.startsAt).toISOString(),
-      ends_at: eventForm.endsAt ? new Date(eventForm.endsAt).toISOString() : null,
-      link: eventForm.link || null,
-      category: eventForm.category || 'event',
-      status: eventForm.status || 'active',
-      brewery_id: eventForm.linkedTo === 'brewery' && eventForm.linkedId ? eventForm.linkedId : null,
-    };
-    const result = await updateEvent(editingEvent.id, patch);
-    if (result.ok) {
-      let ev = result.event;
-      const pr = await saveEventPoster(ev.id, eventPoster);
-      if (pr.ok) ev = { ...ev, photoUrl: pr.photoUrl }; else toast.error(`Event saved, but the image did not upload: ${pr.error}`);
-      setEvents(events.map(e => e.id === editingEvent.id ? ev : e));
-      setShowEventForm(false);
-      setEditingEvent(null);
-      setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '', category: 'event', status: 'active' });
-      toast.success('Event updated');
-    } else {
-      toast.error(result.error || 'Failed to update event');
-    }
-    setSavingEvent(false);
-  };
-
-  const openCreateEvent = () => {
-    setEditingEvent(null);
-    setEventPoster(emptyPoster());
-    setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '', category: 'event', status: 'active' });
-    setShowEventForm(true);
+  const openCreateEvent = () => { setEditingEvent(null); setShowEventForm(true); };
+  const openEditEvent = (event) => { setEditingEvent(event); setShowEventForm(true); };
+  const closeEventEditor = () => { setShowEventForm(false); setEditingEvent(null); };
+  const handleEventSaved = (ev, { isNew, posterError }) => {
+    setEvents(isNew ? [...events, ev] : events.map((e) => (e.id === ev.id ? ev : e)));
+    closeEventEditor();
+    toast.success(isNew ? 'Event created' : 'Event updated');
+    if (posterError) toast.error(`Event saved, but the image did not upload: ${posterError}`);
   };
 
   const openBreweryForm = async (brewery = null) => {
@@ -770,7 +678,6 @@ export default function HQDashboard({ adminEmail = '' }) {
                 <div className="admin-form-group"><label className="admin-form-label">Instagram URL</label><input type="text" className="admin-form-input" value={breweryForm.instagramUrl} onChange={(e) => setBreweryForm(prev => ({...prev, instagramUrl: e.target.value}))} placeholder="https://instagram.com/..." /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Facebook URL</label><input type="text" className="admin-form-input" value={breweryForm.facebookUrl} onChange={(e) => setBreweryForm(prev => ({...prev, facebookUrl: e.target.value}))} placeholder="https://facebook.com/..." /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Description (English)</label><textarea className="admin-form-input" value={breweryForm.descriptionEn} onChange={(e) => setBreweryForm(prev => ({...prev, descriptionEn: e.target.value}))} rows={3} placeholder="Describe this brewery..." /></div>
-                <EventPosterField value={eventPoster} onChange={setEventPoster} />
                 <div className="admin-form-group"><label className="admin-form-label">Description (Vietnamese)</label><textarea className="admin-form-input" value={breweryForm.descriptionVn} onChange={(e) => setBreweryForm(prev => ({...prev, descriptionVn: e.target.value}))} rows={3} /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Status</label><select className="admin-form-input" value={breweryForm.status} onChange={(e) => setBreweryForm(prev => ({...prev, status: e.target.value}))}><option value="active">Active</option><option value="temporarily_closed">Temporarily Closed</option><option value="inactive">Inactive</option></select></div>
                 <div style={{ borderTop: '1px solid var(--admin-border)', marginTop: 20, paddingTop: 16 }}>
@@ -818,23 +725,7 @@ export default function HQDashboard({ adminEmail = '' }) {
       {activeTab === 'events' && (
         <>
           {showEventForm && (
-            <div className="admin-modal-overlay" onClick={() => setShowEventForm(false)}>
-              <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
-                <h3 style={{ marginBottom: 20 }}>{editingEvent ? 'Edit Event' : 'Create Trail Event'}</h3>
-                <div className="admin-form-group"><label className="admin-form-label">Title (English) *</label><input type="text" className="admin-form-input" value={eventForm.titleEn} onChange={(e) => setEventForm({...eventForm, titleEn: e.target.value})} placeholder="Ale Trail Kickoff Party" /></div>
-                <div className="admin-form-group"><label className="admin-form-label">Title (Vietnamese)</label><input type="text" className="admin-form-input" value={eventForm.titleVn} onChange={(e) => setEventForm({...eventForm, titleVn: e.target.value})} /></div>
-                <div className="admin-form-group"><label className="admin-form-label">Description (English)</label><textarea className="admin-form-input" value={eventForm.descriptionEn} onChange={(e) => setEventForm({...eventForm, descriptionEn: e.target.value})} rows={2} /></div>
-                <div className="admin-form-group"><label className="admin-form-label">Start Date/Time *</label><input type="datetime-local" className="admin-form-input" value={eventForm.startsAt} onChange={(e) => setEventForm({...eventForm, startsAt: e.target.value})} /></div>
-                <div className="admin-form-group"><label className="admin-form-label">End Date/Time</label><input type="datetime-local" className="admin-form-input" value={eventForm.endsAt} onChange={(e) => setEventForm({...eventForm, endsAt: e.target.value})} /></div>
-                <div className="admin-form-group"><label className="admin-form-label">Link (optional)</label><input type="url" className="admin-form-input" value={eventForm.link} onChange={(e) => setEventForm({...eventForm, link: e.target.value})} /></div>
-                <div className="admin-form-group"><label className="admin-form-label">Category</label><select className="admin-form-input" value={eventForm.category} onChange={(e) => setEventForm({...eventForm, category: e.target.value})}><option value="event">Event</option><option value="new_release">New Release</option></select></div>
-                <div className="admin-form-group"><label className="admin-form-label">Link to venue</label><select className="admin-form-input" value={eventForm.linkedTo} onChange={(e) => setEventForm({...eventForm, linkedTo: e.target.value, linkedId: ''})}><option value="none">None (trail-wide)</option><option value="brewery">Brewery</option><option value="side_quest">Side Quest</option></select></div>
-                {eventForm.linkedTo === 'brewery' && (<div className="admin-form-group"><label className="admin-form-label">Select brewery</label><select className="admin-form-input" value={eventForm.linkedId} onChange={(e) => setEventForm({...eventForm, linkedId: e.target.value})}><option value="">— choose —</option>{breweries.map(b => (<option key={b.id} value={b.id}>{b.name}</option>))}</select></div>)}
-                {eventForm.linkedTo === 'side_quest' && (<div className="admin-form-group"><label className="admin-form-label">Select side quest</label><select className="admin-form-input" value={eventForm.linkedId} onChange={(e) => setEventForm({...eventForm, linkedId: e.target.value})}><option value="">— choose —</option>{sideQuests.map(q => (<option key={q.id} value={q.id}>{typeof q.title === 'string' ? q.title : (q.title?.en || 'Untitled')}</option>))}</select></div>)}
-                <div className="admin-form-group"><label className="admin-form-label">Show in the app?</label><select className="admin-form-input" value={eventForm.status || 'active'} onChange={(e) => setEventForm({...eventForm, status: e.target.value})}><option value="active">Live: guests can see it</option><option value="hidden">Hidden: saved, not shown</option></select></div>
-                <div style={{ display: 'flex', gap: 12, marginTop: 20 }}><button className="admin-btn admin-btn-primary" onClick={editingEvent ? handleUpdateEvent : handleCreateTrailEvent} disabled={savingEvent}>{savingEvent ? 'Saving...' : (editingEvent ? 'Update Event' : 'Create Event')}</button><button className="admin-btn" style={{ background: 'var(--admin-border)', color: 'var(--admin-text)' }} onClick={() => { setShowEventForm(false); setEditingEvent(null); }}>Cancel</button></div>
-              </div>
-            </div>
+            <EventEditor mode="hq" event={editingEvent} breweries={breweries} onClose={closeEventEditor} onSaved={handleEventSaved} />
           )}
           <div className="admin-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}><h3 className="admin-card-title" style={{ marginBottom: 0 }}>Trail-Wide Events ({trailEvents.length})</h3><button className="admin-btn admin-btn-primary admin-btn-small" onClick={openCreateEvent}>+ Create Event</button></div>

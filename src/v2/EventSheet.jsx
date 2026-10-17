@@ -30,7 +30,7 @@ export default function EventSheet({ event: e, brewery, language, onClose, onOpe
   const where = [e.breweryName || brewery?.name, brewery?.district ? districtLabel(brewery.district, language) : null].filter(Boolean).join(' · ');
   // Events away from a trail brewery (e.g. a finishers party) carry their own address and pin.
   const directions = brewery ? (safeHref(brewery.maps_url) || (brewery.latitude != null ? `https://www.google.com/maps/dir/?api=1&destination=${brewery.latitude},${brewery.longitude}` : null))
-    : e.venueLat != null ? `https://www.google.com/maps/dir/?api=1&destination=${e.venueLat},${e.venueLng}` : null;
+    : safeHref(e.venueMapsUrl) || (e.venueLat != null ? `https://www.google.com/maps/dir/?api=1&destination=${e.venueLat},${e.venueLng}` : null);
   const poster = safeImageUrl(e.photoUrl);
 
   return (
