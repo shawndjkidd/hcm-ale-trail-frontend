@@ -942,6 +942,25 @@ export async function uploadVenueLogo(breweryId, file) {
   } catch (err) { return { ok: false, error: err?.message || netError(err) }; }
 }
 
+// Event poster: uploads a newly picked image, or removes the old one, after the event is
+// saved. Returns { ok, photoUrl } (photoUrl unchanged when there was nothing to do).
+export async function saveEventPoster(eventId, poster) {
+  try {
+    if (poster?.file) {
+      const blob = await shrinkPhoto(poster.file);
+      const form = new FormData();
+      form.append('file', new File([blob], 'poster.jpg', { type: 'image/jpeg' }));
+      const res = await apiFetch(`${API_BASE}/api/admin/events/${eventId}/poster`, { method: 'POST', body: form });
+      return await readJson(res);
+    }
+    if (poster?.removed && poster.url) {
+      const res = await apiFetch(`${API_BASE}/api/admin/events/${eventId}/poster`, { method: 'DELETE', headers: authHeaders() });
+      return await readJson(res);
+    }
+    return { ok: true, photoUrl: poster?.removed ? null : poster?.url ?? null };
+  } catch (err) { return { ok: false, error: err?.message || netError(err) }; }
+}
+
 // ==================== HQ SIGN-UPS ====================
 
 export async function hqGetSignups(trailId) {

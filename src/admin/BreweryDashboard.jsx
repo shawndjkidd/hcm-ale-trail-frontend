@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, bulkUploadBeers, mergeRatings, updateAdminAccount, getBreweryMerchandise, restockMerchandise, getTrailAnalytics, getBreweryStaff, inviteBreweryStaff, updateBreweryStaffRole, removeBreweryStaff, pingVenueVisit, fixLink, driveToImage, uploadVenuePhoto, uploadVenueLogo, TRAIL_ID } from './adminApi';
+import { getBreweryDashboard, getBreweryEvents, createBreweryEvent, deleteEvent, updateEvent, updateBreweryPin, updateBreweryHours, updateBrewery, getTrailBreweries, getBreweryBeers, createBreweryBeer, updateBreweryBeer, deleteBreweryBeer, bulkUploadBeers, mergeRatings, updateAdminAccount, getBreweryMerchandise, restockMerchandise, getTrailAnalytics, getBreweryStaff, inviteBreweryStaff, updateBreweryStaffRole, removeBreweryStaff, pingVenueVisit, fixLink, driveToImage, uploadVenuePhoto, uploadVenueLogo, saveEventPoster, TRAIL_ID } from './adminApi';
+import EventPosterField, { emptyPoster } from './EventPosterField';
 import { logoFor } from '../v2/util';
 import { useToast, useConfirm } from './AdminFeedback';
 import LocationsCard from './LocationsCard';
@@ -94,6 +95,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   const [eventForm, setEventForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', category: 'event' });
   const [savingEvent, setSavingEvent] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
+  const [eventPoster, setEventPoster] = useState(emptyPoster());
 
   const [mergeTargets, setMergeTargets] = useState({}); // key: ratingName -> targetName
   const [mergingKey, setMergingKey] = useState(null);
@@ -421,7 +423,10 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
     };
     const result = await createBreweryEvent(breweryId, eventData);
     if (result.ok) {
-      setEvents([...events, result.event]);
+      let ev = result.event;
+      const pr = await saveEventPoster(ev.id, eventPoster);
+      if (pr.ok) ev = { ...ev, photoUrl: pr.photoUrl }; else toast.error(t('Event saved, but the image did not upload: {error}', { error: pr.error }));
+      setEvents([...events, ev]);
       setShowEventForm(false);
       setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', category: 'event' });
       toast.success(t('Event created'));
@@ -433,12 +438,14 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
 
   const openCreateEvent = () => {
     setEditingEvent(null);
+    setEventPoster(emptyPoster());
     setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', category: 'event' });
     setShowEventForm(true);
   };
 
   const openEditEvent = (event) => {
     setEditingEvent(event);
+    setEventPoster(emptyPoster(event.photoUrl || null));
     const titleObj = event.title || {};
     const descObj = event.description || {};
     // Convert ISO datetime to local datetime-local format
@@ -478,7 +485,10 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
     };
     const result = await updateEvent(editingEvent.id, patch);
     if (result.ok) {
-      setEvents(events.map(e => e.id === editingEvent.id ? result.event : e));
+      let ev = result.event;
+      const pr = await saveEventPoster(ev.id, eventPoster);
+      if (pr.ok) ev = { ...ev, photoUrl: pr.photoUrl }; else toast.error(t('Event saved, but the image did not upload: {error}', { error: pr.error }));
+      setEvents(events.map(e => e.id === editingEvent.id ? ev : e));
       setShowEventForm(false);
       setEditingEvent(null);
       setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', category: 'event' });
@@ -1048,6 +1058,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
                 <div className="admin-form-group"><label className="admin-form-label">{t('Title (English) *')}</label><input type="text" className="admin-form-input" value={eventForm.titleEn} onChange={(e) => setEventForm({...eventForm, titleEn: e.target.value})} /></div>
                 <div className="admin-form-group"><label className="admin-form-label">{t('Title (Vietnamese)')}</label><input type="text" className="admin-form-input" value={eventForm.titleVn} onChange={(e) => setEventForm({...eventForm, titleVn: e.target.value})} /></div>
                 <div className="admin-form-group"><label className="admin-form-label">{t('Description')}</label><textarea className="admin-form-input" value={eventForm.descriptionEn} onChange={(e) => setEventForm({...eventForm, descriptionEn: e.target.value})} rows={2} /></div>
+                <EventPosterField value={eventPoster} onChange={setEventPoster} />
                 <div className="admin-form-group"><label className="admin-form-label">{t('Start Date/Time *')}</label><input type="datetime-local" className="admin-form-input" value={eventForm.startsAt} onChange={(e) => setEventForm({...eventForm, startsAt: e.target.value})} /></div>
                 <div className="admin-form-group"><label className="admin-form-label">{t('End Date/Time')}</label><input type="datetime-local" className="admin-form-input" value={eventForm.endsAt} onChange={(e) => setEventForm({...eventForm, endsAt: e.target.value})} /></div>
                 <div className="admin-form-group"><label className="admin-form-label">{t('Link')}</label><input type="url" className="admin-form-input" value={eventForm.link} onChange={(e) => setEventForm({...eventForm, link: e.target.value})} /></div>

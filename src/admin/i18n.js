@@ -313,6 +313,16 @@ const VI = {
   'Event deleted': 'Đã xoá sự kiện',
   'Title (English) and Start Date/Time are required': 'Cần có tên sự kiện (tiếng Anh) và thời gian bắt đầu',
   'Cancel': 'Huỷ',
+  'Poster or picture': 'Poster hoặc hình ảnh',
+  'Best size: 1600 × 900 px, landscape (16:9). JPG or PNG.': 'Kích thước đẹp nhất: 1600 × 900 px, ảnh ngang (16:9). JPG hoặc PNG.',
+  'Keep words and logos near the middle: the app card trims the edges, and the Tonight sign shows a square from the centre. Tall posters work too, and show in full when someone opens the event.': 'Đặt chữ và logo ở gần giữa: thẻ sự kiện trong app sẽ cắt bớt các cạnh, và bảng Tối nay chỉ hiện một ô vuông ở chính giữa. Poster dọc vẫn dùng được và sẽ hiện đầy đủ khi khách mở sự kiện.',
+  'Event card in the app': 'Thẻ sự kiện trong app',
+  'Tonight sign': 'Bảng Tối nay',
+  'Upload image': 'Tải ảnh lên',
+  'Change image': 'Đổi ảnh',
+  'Remove image': 'Xoá ảnh',
+  'No image: the app shows your venue photo instead.': 'Chưa có ảnh: app sẽ dùng ảnh quán của bạn.',
+  'Event saved, but the image did not upload: {error}': 'Đã lưu sự kiện, nhưng chưa tải được ảnh: {error}',
 
   // Beer menu
   '+ Add Beer': '+ Thêm bia',

@@ -6,8 +6,9 @@ import {
   getTrailBeerRatings, getMergeSuggestions, mergeRatings, createBreweryStaff, getBreweryLogin,
   getTrailMerchandise, createMerchandiseItem, updateMerchandiseItem, restockMerchandise, setMerchandiseCount,
   getTrailAnalytics, getSuperAdmins, addSuperAdmin, removeSuperAdmin,
-  TRAIL_ID
+  saveEventPoster, TRAIL_ID
 } from './adminApi';
+import EventPosterField, { emptyPoster } from './EventPosterField';
 import { useToast, useConfirm } from './AdminFeedback';
 import AddStampsCard from './AddStampsCard';
 import HQHome from './HQHome';
@@ -63,6 +64,7 @@ export default function HQDashboard({ adminEmail = '' }) {
 
   const [showEventForm, setShowEventForm] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
+  const [eventPoster, setEventPoster] = useState(emptyPoster());
   const [eventForm, setEventForm] = useState({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '', category: 'event', status: 'active' });
   const [savingEvent, setSavingEvent] = useState(false);
 
@@ -287,7 +289,10 @@ export default function HQDashboard({ adminEmail = '' }) {
     };
     const result = await createTrailEvent(TRAIL_ID, eventData);
     if (result.ok) {
-      setEvents([...events, result.event]);
+      let ev = result.event;
+      const pr = await saveEventPoster(ev.id, eventPoster);
+      if (pr.ok) ev = { ...ev, photoUrl: pr.photoUrl }; else toast.error(`Event saved, but the image did not upload: ${pr.error}`);
+      setEvents([...events, ev]);
       setShowEventForm(false);
       setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '', category: 'event', status: 'active' });
       toast.success('Event created');
@@ -306,6 +311,7 @@ export default function HQDashboard({ adminEmail = '' }) {
       return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
     };
     setEditingEvent(event);
+    setEventPoster(emptyPoster(event.photoUrl || null));
     setEventForm({
       titleEn: title.en || (typeof event.title === 'string' ? event.title : ''),
       titleVn: title.vn || '',
@@ -342,7 +348,10 @@ export default function HQDashboard({ adminEmail = '' }) {
     };
     const result = await updateEvent(editingEvent.id, patch);
     if (result.ok) {
-      setEvents(events.map(e => e.id === editingEvent.id ? result.event : e));
+      let ev = result.event;
+      const pr = await saveEventPoster(ev.id, eventPoster);
+      if (pr.ok) ev = { ...ev, photoUrl: pr.photoUrl }; else toast.error(`Event saved, but the image did not upload: ${pr.error}`);
+      setEvents(events.map(e => e.id === editingEvent.id ? ev : e));
       setShowEventForm(false);
       setEditingEvent(null);
       setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '', category: 'event', status: 'active' });
@@ -355,6 +364,7 @@ export default function HQDashboard({ adminEmail = '' }) {
 
   const openCreateEvent = () => {
     setEditingEvent(null);
+    setEventPoster(emptyPoster());
     setEventForm({ titleEn: '', titleVn: '', descriptionEn: '', descriptionVn: '', startsAt: '', endsAt: '', link: '', linkedTo: 'none', linkedId: '', category: 'event', status: 'active' });
     setShowEventForm(true);
   };
@@ -760,6 +770,7 @@ export default function HQDashboard({ adminEmail = '' }) {
                 <div className="admin-form-group"><label className="admin-form-label">Instagram URL</label><input type="text" className="admin-form-input" value={breweryForm.instagramUrl} onChange={(e) => setBreweryForm(prev => ({...prev, instagramUrl: e.target.value}))} placeholder="https://instagram.com/..." /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Facebook URL</label><input type="text" className="admin-form-input" value={breweryForm.facebookUrl} onChange={(e) => setBreweryForm(prev => ({...prev, facebookUrl: e.target.value}))} placeholder="https://facebook.com/..." /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Description (English)</label><textarea className="admin-form-input" value={breweryForm.descriptionEn} onChange={(e) => setBreweryForm(prev => ({...prev, descriptionEn: e.target.value}))} rows={3} placeholder="Describe this brewery..." /></div>
+                <EventPosterField value={eventPoster} onChange={setEventPoster} />
                 <div className="admin-form-group"><label className="admin-form-label">Description (Vietnamese)</label><textarea className="admin-form-input" value={breweryForm.descriptionVn} onChange={(e) => setBreweryForm(prev => ({...prev, descriptionVn: e.target.value}))} rows={3} /></div>
                 <div className="admin-form-group"><label className="admin-form-label">Status</label><select className="admin-form-input" value={breweryForm.status} onChange={(e) => setBreweryForm(prev => ({...prev, status: e.target.value}))}><option value="active">Active</option><option value="temporarily_closed">Temporarily Closed</option><option value="inactive">Inactive</option></select></div>
                 <div style={{ borderTop: '1px solid var(--admin-border)', marginTop: 20, paddingTop: 16 }}>
