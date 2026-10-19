@@ -5,6 +5,9 @@ import ErrorBoundary from './v2/ErrorBoundary.jsx'
 // Admin loads on demand so customers never download the dashboard code
 const AdminApp = lazy(() => import('./admin/AdminApp.jsx'))
 import ResetPassword from './components/ResetPassword.jsx'
+import { venueTokenFromPath } from './venue/route.js'
+// Venue owner pages load on demand too (private read-only link per venue, no login)
+const VenueOwnerPage = lazy(() => import('./venue/VenueOwnerPage.jsx'))
 import './styles/App.css'
 import { captureEcosystem } from './v2/ecosystem'
 
@@ -24,14 +27,15 @@ try {
 // Simple routing: /admin → AdminApp, /reset-password → ResetPassword, everything else → App
 const isAdminRoute = window.location.pathname.startsWith('/admin')
 const isResetPassword = window.location.pathname === '/reset-password'
+const venueToken = venueTokenFromPath(window.location.pathname)
 
 // Made SMPL ecosystem handoff (?from=&return=&lang=): capture it now, before Welcome,
 // sign-in or the Google redirect can lose the query string. Local dev may also return
 // to localhost; production only trusts the approved hosts in ecosystem.js.
-if (!isAdminRoute) captureEcosystem(window, import.meta.env.DEV ? { localhost: 'Local test' } : {})
+if (!isAdminRoute && !venueToken) captureEcosystem(window, import.meta.env.DEV ? { localhost: 'Local test' } : {})
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    {isAdminRoute ? <Suspense fallback={null}><AdminApp /></Suspense> : isResetPassword ? <ResetPassword /> : <ErrorBoundary><App /></ErrorBoundary>}
+    {isAdminRoute ? <Suspense fallback={null}><AdminApp /></Suspense> : venueToken ? <Suspense fallback={null}><VenueOwnerPage token={venueToken} /></Suspense> : isResetPassword ? <ResetPassword /> : <ErrorBoundary><App /></ErrorBoundary>}
   </React.StrictMode>,
 )

@@ -1,0 +1,35 @@
+/* Venue owner page (/venue/<token>). Takes its colours from .hq-theme (venue dashboard);
+   mobile-first single column that widens a little on bigger screens. */
+.vo-page { min-height: 100vh; }
+.vo-wrap { max-width: 640px; margin: 0 auto; padding: 20px 16px 40px; }
+.vo-head { margin-bottom: 20px; }
+.vo-eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--admin-primary); margin-bottom: 6px; }
+.vo-title { font-size: 26px; font-weight: 700; line-height: 1.2; margin: 0 0 6px; }
+.vo-muted { color: var(--admin-text-muted); font-size: 13px; line-height: 1.5; }
+.vo-vi { display: block; font-size: 12px; font-weight: 400; color: var(--admin-text-muted); margin-top: 2px; }
+.vo-label { margin-bottom: 6px; }
+.vo-label span:first-child { color: var(--admin-text); font-weight: 500; }
+.vo-section { font-size: 15px; font-weight: 600; margin: 0 0 10px; }
+.vo-section-flat { margin: 0; }
+.vo-grid3, .vo-grid2 { display: grid; gap: 10px; margin-bottom: 16px; }
+.vo-grid3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.vo-grid2 { grid-template-columns: 1fr; }
+.vo-stat { padding: 14px; border: 1px solid var(--admin-border); }
+.vo-stat .admin-kpi-value { font-size: 28px; }
+.vo-highlight { display: flex; gap: 12px; align-items: center; padding: 14px 16px; margin-bottom: 18px; border-radius: 12px;
+  background: color-mix(in srgb, var(--admin-primary) 14%, var(--admin-card-bg)); border: 1px solid color-mix(in srgb, var(--admin-primary) 40%, transparent); }
+.vo-highlight-icon { font-size: 24px; }
+.vo-highlight-en { font-weight: 600; }
+.vo-update { padding: 16px; border: 1px solid var(--admin-border); }
+.vo-update-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+.vo-update-text { white-space: pre-wrap; word-break: break-word; font-family: inherit; font-size: 14px; line-height: 1.55; margin: 0;
+  padding: 12px; border-radius: 10px; background: var(--hq-panel2); color: var(--admin-text); user-select: text; }
+.vo-foot { margin-top: 8px; }
+.vo-message { text-align: center; margin-top: 40px; }
+.vo-message .vo-vi { margin-bottom: 12px; }
+@media (max-width: 360px) {
+  .vo-grid3 { grid-template-columns: 1fr; }
+}
+@media (min-width: 560px) {
+  .vo-grid2 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
