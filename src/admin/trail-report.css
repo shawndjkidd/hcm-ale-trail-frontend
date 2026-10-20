@@ -1,0 +1,82 @@
+/* HQ trail report: the A4 infographic (drawn off screen and saved as a PDF) and its
+   control on HQ Home. Fonts are the self-hosted print copies (see printFonts.js). */
+.trp-ctl { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.trp-seg { display: inline-flex; background: var(--admin-bg); border: 1px solid var(--admin-border); border-radius: 10px; padding: 3px; gap: 3px; }
+.trp-seg button { border: 0; background: transparent; color: var(--admin-text-muted); font: 600 13px Inter, -apple-system, sans-serif; padding: 7px 12px; border-radius: 7px; cursor: pointer; white-space: nowrap; }
+.trp-seg button.on { background: var(--admin-card-bg); color: var(--admin-text); box-shadow: 0 1px 2px rgba(0,0,0,.25); }
+.trp-dl { height: 38px; padding: 0 15px; border-radius: 10px; border: 1px solid #f5a623; background: #f5a623; color: #1a1206; font: 800 14px Inter, -apple-system, sans-serif; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; white-space: nowrap; }
+.trp-dl:disabled { opacity: .7; cursor: wait; }
+.trp-msg { font-size: 13px; color: var(--admin-danger); font-weight: 600; }
+.trp-msg.ok { color: var(--admin-success); }
+
+.trp { --red: #C8102E; --yellow: #FFD100; --jade: #007A37; --ink: #111; --muted: #5b5f66; --line: #e7e2d6; --paper: #fffbf0;
+  position: relative; overflow: hidden; background: var(--paper); color: var(--ink); font-family: 'Be Vietnam Pro', sans-serif; box-sizing: border-box; }
+.trp *, .trp *::before, .trp *::after { box-sizing: border-box; }
+.trp-band { background: var(--red); color: #fff; padding: 18px 30px 16px; display: flex; align-items: center; gap: 18px; position: relative; }
+.trp-band::after { content: ""; position: absolute; left: 0; right: 0; bottom: -8px; height: 8px; background: repeating-linear-gradient(90deg, var(--yellow) 0 22px, var(--ink) 22px 30px); }
+.trp-band img { width: 132px; height: auto; display: block; }
+.trp-band .t { flex: 1; }
+.trp-band .eb { font: 800 10.5px 'Be Vietnam Pro', sans-serif; letter-spacing: .18em; color: var(--yellow); }
+.trp-band h1 { margin: 2px 0 0; font: 400 36px/1 Anton, Impact, sans-serif; text-transform: uppercase; color: #fff; }
+.trp-band .per { text-align: right; font-weight: 700; font-size: 12px; }
+.trp-band .per b { display: block; font: 400 24px/1 Anton, Impact, sans-serif; color: var(--yellow); text-transform: uppercase; margin: 2px 0; }
+.trp-body { padding: 22px 30px 0; display: grid; gap: 13px; }
+.trp-sec { border: 2px solid var(--ink); background: #fff; position: relative; padding: 22px 14px 12px; }
+.trp-sec.red { background: #fdf0f2; } .trp-sec.yel { background: #fff8d6; } .trp-sec.jade { background: #eef7f1; }
+.trp .tab { position: absolute; top: -11px; left: 12px; display: flex; align-items: center; gap: 7px; background: var(--ink); color: #fff; padding: 3px 10px 3px 4px; font: 400 14px/1 Anton, Impact, sans-serif; letter-spacing: .03em; text-transform: uppercase; }
+.trp .tab .n { width: 17px; height: 17px; display: grid; place-items: center; font: 800 10px 'Be Vietnam Pro', sans-serif; color: var(--ink); }
+.trp .tab .n.y { background: var(--yellow); } .trp .tab .n.r { background: var(--red); color: #fff; } .trp .tab .n.g { background: var(--jade); color: #fff; }
+.trp .tab small { font: 600 10px 'Be Vietnam Pro', sans-serif; text-transform: none; letter-spacing: 0; color: #cfcfcf; margin-left: 4px; }
+.trp .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+.trp .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.trp .k { display: flex; gap: 10px; align-items: center; }
+.trp .ic { width: 42px; height: 42px; flex: none; display: grid; place-items: center; border: 2px solid var(--ink); background: var(--yellow); }
+.trp .ic.jade { background: var(--jade); } .trp .ic.red { background: var(--red); }
+.trp .ic svg { width: 22px; height: 22px; }
+.trp .k .v { font: 400 34px/1 Anton, Impact, sans-serif; }
+.trp .k .l { font-size: 11px; font-weight: 700; color: var(--muted); line-height: 1.25; }
+.trp .funnel { display: flex; align-items: stretch; margin-top: 2px; }
+.trp .step { flex: 1; text-align: center; padding: 9px 4px 8px 14px; color: #fff; clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%); }
+.trp .step:first-child { clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%); padding-left: 4px; }
+.trp .step b { display: block; font: 400 26px/1 Anton, Impact, sans-serif; }
+.trp .step span { font: 700 10px/1.2 'Be Vietnam Pro', sans-serif; }
+.trp .f1 { background: #3b3f46; } .trp .f2 { background: #1f2a44; } .trp .f3 { background: var(--red); } .trp .f4 { background: #a10d26; } .trp .f5 { background: var(--jade); } .trp .f6 { background: #005a29; }
+.trp .fnote { font-size: 11px; color: var(--muted); font-weight: 600; margin-top: 7px; }
+.trp .bub { display: flex; align-items: flex-end; gap: 8px; justify-content: space-around; height: 112px; padding-top: 4px; }
+.trp .bb { text-align: center; font-size: 10.5px; font-weight: 700; line-height: 1.15; max-width: 80px; }
+.trp .bb i { display: grid; place-items: center; margin: 0 auto 5px; border-radius: 50%; background: var(--red); color: #fff; font-family: Anton, Impact, sans-serif; font-style: normal; border: 2px solid var(--ink); }
+.trp .callout { margin-top: 8px; background: var(--ink); color: #fff; font-size: 11px; font-weight: 700; padding: 6px 9px; }
+.trp .empty { align-self: center; color: var(--muted); font-size: 12px; font-weight: 600; padding: 10px 0; }
+.trp .days { display: flex; align-items: flex-end; gap: 6px; height: 86px; }
+.trp .day { flex: 1; text-align: center; font: 800 9.5px 'Be Vietnam Pro', sans-serif; color: var(--muted); }
+.trp .day div { background: #2b2f36; margin-bottom: 3px; }
+.trp .day.top div { background: var(--jade); }
+.trp .day em { display: block; font-style: normal; color: var(--ink); font-size: 10px; margin-bottom: 2px; }
+.trp .minifacts { display: flex; gap: 8px; margin-top: 8px; }
+.trp .mf { flex: 1; background: #fff; border: 1.5px solid var(--ink); padding: 5px 8px; font-size: 10.5px; font-weight: 700; color: var(--muted); line-height: 1.2; }
+.trp .mf b { display: block; font: 400 18px/1.05 Anton, Impact, sans-serif; color: var(--ink); }
+.trp table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.trp th { text-align: left; font: 800 9px 'Be Vietnam Pro', sans-serif; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 0 5px 5px; border-bottom: 2px solid var(--ink); }
+.trp td { padding: 4px 5px; border-bottom: 1px solid var(--line); font-weight: 700; }
+.trp td.n, .trp th.n { text-align: right; font-variant-numeric: tabular-nums; }
+.trp .rank { display: inline-grid; place-items: center; width: 18px; height: 18px; background: var(--ink); color: var(--yellow); font: 800 10px 'Be Vietnam Pro', sans-serif; margin-right: 7px; }
+.trp .bar { display: inline-block; height: 10px; background: var(--red); vertical-align: middle; margin-right: 6px; }
+.trp .start { display: inline-block; min-width: 22px; padding: 0 5px; background: var(--yellow); border: 1.5px solid var(--ink); font-weight: 800; text-align: center; }
+.trp .zero { color: #a3a6ab; }
+.trp .stars { color: var(--red); }
+.trp .beer { display: flex; align-items: center; gap: 9px; padding: 4px 0; border-bottom: 1px dashed var(--line); font-size: 11.5px; }
+.trp .beer:last-child { border-bottom: 0; }
+.trp .beer b { display: block; font-weight: 800; line-height: 1.2; }
+.trp .beer small { color: var(--muted); font-weight: 600; font-size: 10.5px; }
+.trp .beer .st { margin-left: auto; font: 800 12px 'Be Vietnam Pro', sans-serif; white-space: nowrap; }
+.trp .beer .st i { color: var(--red); font-style: normal; }
+.trp .pint { width: 16px; height: 20px; flex: none; }
+.trp .ev { display: flex; gap: 9px; align-items: center; padding: 4px 0; border-bottom: 1px dashed var(--line); }
+.trp .ev:last-child { border-bottom: 0; }
+.trp .ev .d { background: var(--red); color: var(--yellow); text-align: center; font-weight: 800; line-height: 1; padding: 4px 6px; border: 2px solid var(--ink); flex: none; width: 40px; }
+.trp .ev .d b { display: block; font-size: 16px; } .trp .ev .d span { font-size: 8.5px; letter-spacing: .06em; }
+.trp .ev strong { display: block; font-size: 11.5px; line-height: 1.2; }
+.trp .ev small { font-size: 10.5px; color: var(--muted); font-weight: 600; }
+.trp-foot { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 12px; padding: 9px 30px; border-top: 2px solid var(--ink); font-size: 10.5px; color: var(--muted); font-weight: 600; background: var(--paper); }
+.trp-foot .sp { flex: 1; }
+.trp-foot .smpl { font: 800 14px 'Be Vietnam Pro', sans-serif; color: var(--ink); }

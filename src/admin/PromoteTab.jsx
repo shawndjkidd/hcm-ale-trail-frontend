@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import QRCode from 'qrcode';
 import { toPng } from 'html-to-image';
+import { printFontCss } from './printFonts';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { getVenueQrStats } from './adminApi';
 import { logoFor } from '../v2/util';
@@ -12,24 +13,6 @@ import './promote.css';
 // link (?v=<venue ref>&s=<format>) so HQ and the venue can see which one brings guests in.
 
 const APP_URL = 'https://hcm.thealetrail.app';
-// Downloads must carry their fonts inside the image. Google's font stylesheet can't be
-// read by the page, so we use our own copies and inline them once as data URLs.
-let fontCssPromise = null;
-function printFontCss() {
-  if (!fontCssPromise) {
-    fontCssPromise = (async () => {
-      const css = await (await fetch('/fonts/print/print-fonts.css')).text();
-      const urls = [...new Set([...css.matchAll(/url\((\/fonts\/print\/[^)]+)\)/g)].map((m) => m[1]))];
-      const pairs = await Promise.all(urls.map(async (u) => {
-        const blob = await (await fetch(u)).blob();
-        const data = await new Promise((res) => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(blob); });
-        return [u, data];
-      }));
-      return pairs.reduce((out, [u, data]) => out.split(u).join(data), css);
-    })().catch((e) => { fontCssPromise = null; throw e; });
-  }
-  return fontCssPromise;
-}
 const LOGO_WHITE = '/brand/logo-white.png';
 export const venueRef = (id) => String(id || '').replace(/-/g, '').slice(0, 8);
 export const trackedLink = (id, source) => `${APP_URL}/?v=${venueRef(id)}&s=${source}`;

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getHqSummary, TRAIL_ID } from './adminApi';
 import { buildChecklist } from './checklist';
+import TrailReportButton from './TrailReport';
 
 // HQ Home: how the trail is doing this week, what needs attention (each with a
 // button to the page that fixes it), every venue's readiness, and app traffic.
@@ -95,6 +96,10 @@ export default function HQHome({ onGo }) {
         <div><h2>Trail overview</h2><p>Last 7 days compared with the 7 days before · demo data left out</p></div>
         <div className="sp" />
         <button type="button" className="hq-btn" onClick={load} disabled={loading}>{loading ? 'Refreshing…' : 'Refresh'}</button>
+      </div>
+      <div className="hq-card" style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+        <div style={{ flex: 1, minWidth: 220 }}><h3 style={{ margin: 0 }}>Trail report</h3><p className="hq-note" style={{ margin: '2px 0 0' }}>A one-page PDF to share with the team and the venues. Guests only.</p></div>
+        <TrailReportButton />
       </div>
 
       <div className="hq-g hq-g4">

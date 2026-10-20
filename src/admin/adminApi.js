@@ -961,6 +961,14 @@ export async function saveEventPoster(eventId, poster) {
   } catch (err) { return { ok: false, error: err?.message || netError(err) }; }
 }
 
+// HQ trail report numbers for the one-page PDF. period: '7d' | '30d' | 'all'.
+export async function getTrailReport(trailId, period) {
+  try {
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/hq/report?period=${encodeURIComponent(period)}`, { headers: authHeaders() });
+    return await readJson(res);
+  } catch (err) { return { ok: false, error: netError(err) }; }
+}
+
 // ==================== HQ SIGN-UPS ====================
 
 export async function hqGetSignups(trailId) {
