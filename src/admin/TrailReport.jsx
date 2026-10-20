@@ -9,7 +9,6 @@ import './trail-report.css';
 // the team and the venues. Numbers come from the backend (guests only).
 
 const TZ = 'Asia/Ho_Chi_Minh';
-const PERIODS = [{ value: '7d', label: 'Last 7 days' }, { value: '30d', label: 'Last 30 days' }, { value: 'all', label: 'Since launch' }];
 const W = 794; const H = 1123; // A4 at 96 dpi
 
 const dayMonth = (iso, opts = {}) => new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: TZ, ...opts });
@@ -29,13 +28,26 @@ function rangeLabel(from, to) {
 }
 const hours = (h) => (h < 1 ? 'Under 1 hour' : h < 24 ? `About ${Math.round(h)} hour${Math.round(h) === 1 ? '' : 's'}` : `About ${Math.round(h / 24 * 10) / 10} days`);
 
+const NUMBERS = [
+  ['New guests', (r) => r.glance.newGuests],
+  ['Stamps collected', (r) => r.glance.stamps],
+  ['Guests with a stamp', (r) => r.glance.stampers],
+  ['Finished all {N}', (r) => r.glance.finishers],
+  ['Hats collected', (r) => r.glance.hats],
+  ['Beer ratings', (r) => r.glance.ratings],
+  ['Opened the app', (r) => r.journey.visitors],
+  ['Taps on Directions', (r) => r.traffic.directions],
+];
+
 const Pint = () => (
   <svg className="pint" viewBox="0 0 16 20" aria-hidden="true"><path d="M2 2h12l-1.5 16h-9z" fill="#FFD100" stroke="#111" strokeWidth="1.5" /><path d="M2 2h12v3H2z" fill="#fff" stroke="#111" strokeWidth="1.5" /></svg>
 );
 
-export function ReportSheet({ data, theme = 'light' }) {
+// periods: { '7d', '30d', all } reports. The numbers section shows all three side by side;
+// everything below it is since launch.
+export function ReportSheet({ periods, theme = 'light' }) {
+  const data = periods.all;
   const g = data.glance; const j = data.journey;
-  const label = PERIODS.find((p) => p.value === data.period)?.label || '';
   const maxStamps = Math.max(1, ...data.venues.map((v) => v.stamps));
   const maxDay = Math.max(1, ...data.days.map((d) => d.stamps));
   const starts = data.starts.slice(0, 5);
@@ -51,21 +63,27 @@ export function ReportSheet({ data, theme = 'light' }) {
       <div className="trp-band">
         <img src="/brand/logo-white.png" alt="" />
         <div className="t"><div className="eb">TRAIL REPORT</div><h1>How the trail is going</h1></div>
-        <div className="per">{label}<b>{rangeLabel(data.from, data.to)}</b>Made {made}</div>
+        <div className="per">Since launch<b>{rangeLabel(data.from, data.to)}</b>Made {made}</div>
       </div>
       <div className="trp-body">
         <section className="trp-sec">
-          <div className="tab"><span className="n y">1</span>At a glance</div>
-          <div className="kpis">
-            <div className="k"><span className="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.2"><circle cx="12" cy="8" r="4" /><path d="M4 21c1-4 4-6 8-6s7 2 8 6" /></svg></span><div><div className="v">{g.newGuests}</div><div className="l">new guests<br />signed up</div></div></div>
-            <div className="k"><span className="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.2"><circle cx="12" cy="12" r="8" /><path d="m8.5 12 2.5 2.5 4.5-5" /></svg></span><div><div className="v">{g.stamps}</div><div className="l">stamps collected<br />by {g.stampers} guest{g.stampers === 1 ? '' : 's'}</div></div></div>
-            <div className="k"><span className="ic jade"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2"><path d="M4 15c0-5 3.5-8 8-8s8 3 8 8" /><path d="M2 15h20v2H2z" /><path d="M12 7V4" /></svg></span><div><div className="v">{g.finishers}</div><div className="l">finished all {data.venues.length}<br />{g.hats} hat{g.hats === 1 ? '' : 's'} collected</div></div></div>
-            <div className="k"><span className="ic red"><svg viewBox="0 0 24 24" fill="#fff" stroke="#fff" strokeWidth="1.5" strokeLinejoin="round"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" /></svg></span><div><div className="v">{g.avgRating ?? '—'}</div><div className="l">average rating<br />from {g.ratings} review{g.ratings === 1 ? '' : 's'}</div></div></div>
+          <div className="tab"><span className="n y">1</span>The numbers<small>last 7 days · last 30 days · since launch</small></div>
+          <div className="nums">
+            {NUMBERS.map(([label, get]) => (
+              <div key={label} className="nc">
+                <div className="nl">{label.replace('{N}', data.venues.length)}</div>
+                <div className="nv">
+                  {[['7d', '7 days'], ['30d', '30 days'], ['all', 'Since launch']].map(([k, l]) => (
+                    <div key={k} className={k === 'all' ? 'all' : ''}><b>{get(periods[k])}</b><span>{l}</span></div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 
         <section className="trp-sec red">
-          <div className="tab"><span className="n r">2</span>The guest journey<small>how far people get</small></div>
+          <div className="tab"><span className="n r">2</span>The guest journey<small>since launch</small></div>
           <div className="funnel">
             {[[j.visitors, 'opened the app', 'f1'], [j.signups, 'signed up', 'f2'], [j.stamped, 'got a stamp', 'f3'], [j.threePlus, '3 or more stamps', 'f4'], [j.finished, `finished all ${data.venues.length}`, 'f5'], [j.hats, 'collected a hat', 'f6']].map(([n, l, c]) => (
               <div key={l} className={`step ${c}`}><b>{n}</b><span>{l}</span></div>
@@ -78,21 +96,21 @@ export function ReportSheet({ data, theme = 'light' }) {
 
         <div className="row2">
           <section className="trp-sec yel">
-            <div className="tab"><span className="n y">3</span>Where guests start<small>first stamp</small></div>
+            <div className="tab"><span className="n y">3</span>Where guests start<small>first stamp · since launch</small></div>
             <div className="bub">
               {starts.length ? starts.map((s) => {
-                const size = Math.round(36 + 38 * Math.sqrt(s.count / maxStart));
+                const size = Math.round(32 + 32 * Math.sqrt(s.count / maxStart));
                 return <div key={s.id} className="bb"><i style={{ width: size, height: size, fontSize: Math.round(size * 0.38) }}>{s.count}</i>{shortVenue(s.name)}</div>;
               }) : <div className="empty">No first stamps in this period yet.</div>}
             </div>
             <div className="callout">{startNote}</div>
           </section>
           <section className="trp-sec jade">
-            <div className="tab"><span className="n g">4</span>When people drink<small>stamps by day</small></div>
+            <div className="tab"><span className="n g">4</span>When people drink<small>since launch</small></div>
             <div className="days">
               {data.days.map((d) => {
                 const top = data.topDays.days.includes(d.day) && d.stamps > 0;
-                return <div key={d.day} className={`day${top ? ' top' : ''}`}><em>{d.stamps}</em><div style={{ height: Math.max(2, Math.round((d.stamps / maxDay) * 58)) }} />{d.day}</div>;
+                return <div key={d.day} className={`day${top ? ' top' : ''}`}><em>{d.stamps}</em><div style={{ height: Math.max(2, Math.round((d.stamps / maxDay) * 46)) }} />{d.day}</div>;
               })}
             </div>
             <div className="minifacts">
@@ -104,7 +122,7 @@ export function ReportSheet({ data, theme = 'light' }) {
         </div>
 
         <section className="trp-sec">
-          <div className="tab"><span className="n r">5</span>The venues<small>ranked by stamps</small></div>
+          <div className="tab"><span className="n r">5</span>The venues<small>ranked by stamps · since launch</small></div>
           <table>
             <thead><tr><th>Venue</th><th className="n">Started here</th><th>Stamps</th><th className="n">Page views</th><th className="n">Directions</th><th className="n">Rating</th></tr></thead>
             <tbody>
@@ -151,13 +169,14 @@ export function ReportSheet({ data, theme = 'light' }) {
 }
 
 // Draws the sheet off screen, turns it into an image and saves a one-page A4 PDF.
-export async function downloadTrailReport(data) {
+export async function downloadTrailReport(periods) {
+  const data = periods.all;
   const host = document.createElement('div');
   host.style.cssText = `position:fixed;left:-${W * 2}px;top:0;width:${W}px;height:${H}px;pointer-events:none;`;
   document.body.appendChild(host);
   const root = createRoot(host);
   try {
-    root.render(<ReportSheet data={data} theme="dark" />);
+    root.render(<ReportSheet periods={periods} theme="dark" />);
     await new Promise((r) => setTimeout(r, 60));
     const node = host.firstElementChild;
     await Promise.all([...node.querySelectorAll('img')].map((im) => (im.complete && im.naturalWidth ? null : im.decode().catch(() => {}))));
@@ -171,8 +190,7 @@ export async function downloadTrailReport(data) {
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
     pdf.addImage(png, 'PNG', 0, 0, 210, 297, undefined, 'FAST');
     const day = new Date(data.generatedAt).toLocaleDateString('en-CA', { timeZone: TZ });
-    const slug = { '7d': 'last-7-days', '30d': 'last-30-days', all: 'since-launch' }[data.period] || data.period;
-    pdf.save(`ale-trail-report-${slug}-${day}.pdf`);
+    pdf.save(`ale-trail-report-${day}.pdf`);
   } finally {
     root.unmount();
     host.remove();
@@ -181,24 +199,21 @@ export async function downloadTrailReport(data) {
 
 // The control on HQ Home: period switch + download button.
 export default function TrailReportButton() {
-  const [period, setPeriod] = useState('7d');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
   const run = async () => {
     setBusy(true); setMsg('');
     try {
-      const r = await getTrailReport(TRAIL_ID, period);
-      if (!r?.ok) throw new Error(/authori[sz]|token|expired|401/i.test(r?.error || '') ? 'Please sign in again, then try once more.' : (r?.error || 'Could not load the numbers'));
-      await downloadTrailReport(r);
+      const rs = await Promise.all(['7d', '30d', 'all'].map((p) => getTrailReport(TRAIL_ID, p)));
+      const bad = rs.find((r) => !r?.ok);
+      if (bad) throw new Error(/authori[sz]|token|expired|401/i.test(bad?.error || '') ? 'Please sign in again, then try once more.' : (bad?.error || 'Could not load the numbers'));
+      await downloadTrailReport({ '7d': rs[0], '30d': rs[1], all: rs[2] });
       setMsg('✓ Downloaded'); setTimeout(() => setMsg(''), 3000);
     } catch (e) { setMsg(e?.message || 'Could not make the PDF. Please try again.'); }
     setBusy(false);
   };
   return (
     <div className="trp-ctl">
-      <div className="trp-seg" role="tablist" aria-label="Report period">
-        {PERIODS.map((p) => <button key={p.value} type="button" role="tab" aria-selected={period === p.value} className={period === p.value ? 'on' : ''} onClick={() => setPeriod(p.value)}>{p.label}</button>)}
-      </div>
       <button type="button" className="trp-dl" onClick={run} disabled={busy}>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M12 4v11" /><path d="m7 10 5 5 5-5" /><path d="M5 20h14" /></svg>
         {busy ? 'Making the PDF…' : 'Download report (PDF)'}
