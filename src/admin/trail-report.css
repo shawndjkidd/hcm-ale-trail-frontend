@@ -80,3 +80,32 @@
 .trp-foot { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 12px; padding: 9px 30px; border-top: 2px solid var(--ink); font-size: 10.5px; color: var(--muted); font-weight: 600; background: var(--paper); }
 .trp-foot .sp { flex: 1; }
 .trp-foot .smpl { font: 800 14px 'Be Vietnam Pro', sans-serif; color: var(--ink); }
+
+/* Dark version: gunmetal page, brand red header, yellow for the things to look at. */
+.trp.dark { --ink: #f2f3f5; --muted: #a3a8b0; --line: #2c2f35; --paper: #121417; color: #f2f3f5; }
+.trp.dark .trp-band::after { background: repeating-linear-gradient(90deg, var(--yellow) 0 22px, #0b0c0e 22px 30px); }
+.trp.dark .trp-sec { background: #1b1d21; border-color: #33363d; }
+.trp.dark .trp-sec.red { background: linear-gradient(180deg, rgba(200,16,46,.20), rgba(200,16,46,.08)); border-color: rgba(200,16,46,.55); }
+.trp.dark .trp-sec.yel { background: linear-gradient(180deg, rgba(255,209,0,.12), rgba(255,209,0,.04)); border-color: rgba(255,209,0,.45); }
+.trp.dark .trp-sec.jade { background: linear-gradient(180deg, rgba(0,160,72,.20), rgba(0,122,55,.07)); border-color: rgba(0,160,72,.55); }
+.trp.dark .tab { background: #f2f3f5; color: #111; }
+.trp.dark .tab small { color: #50545b; }
+.trp.dark .ic { border-color: #0b0c0e; }
+.trp.dark .k .v { color: #fff; }
+.trp.dark .rank { background: var(--yellow); color: #111; }
+.trp.dark .bar { background: var(--yellow); }
+.trp.dark .start { background: var(--yellow); color: #111; border-color: var(--yellow); }
+.trp.dark .zero { color: #5d6168; }
+.trp.dark .stars, .trp.dark .beer .st i { color: var(--yellow); }
+.trp.dark th { border-bottom-color: #f2f3f5; }
+.trp.dark .bb i { border-color: #0b0c0e; box-shadow: 0 0 0 3px rgba(200,16,46,.25); }
+.trp.dark .callout { background: var(--yellow); color: #111; }
+.trp.dark .day div { background: #3a3e46; }
+.trp.dark .day.top div { background: var(--yellow); }
+.trp.dark .day em { color: #fff; }
+.trp.dark .mf { background: #121417; border-color: #3a3e46; }
+.trp.dark .mf b { color: #fff; }
+.trp.dark .f1 { background: #3a3e46; } .trp.dark .f2 { background: #273452; }
+.trp.dark .ev .d { border-color: #0b0c0e; }
+.trp.dark .trp-foot { border-top-color: #33363d; background: #0d0e10; }
+.trp.dark .trp-foot .smpl { color: #fff; }

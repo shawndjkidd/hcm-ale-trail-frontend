@@ -33,7 +33,7 @@ const Pint = () => (
   <svg className="pint" viewBox="0 0 16 20" aria-hidden="true"><path d="M2 2h12l-1.5 16h-9z" fill="#FFD100" stroke="#111" strokeWidth="1.5" /><path d="M2 2h12v3H2z" fill="#fff" stroke="#111" strokeWidth="1.5" /></svg>
 );
 
-export function ReportSheet({ data }) {
+export function ReportSheet({ data, theme = 'light' }) {
   const g = data.glance; const j = data.journey;
   const label = PERIODS.find((p) => p.value === data.period)?.label || '';
   const maxStamps = Math.max(1, ...data.venues.map((v) => v.stamps));
@@ -47,7 +47,7 @@ export function ReportSheet({ data }) {
     : 'No first stamps in this period yet.';
 
   return (
-    <div className="trp" style={{ width: W, height: H }}>
+    <div className={`trp${theme === 'dark' ? ' dark' : ''}`} style={{ width: W, height: H }}>
       <div className="trp-band">
         <img src="/brand/logo-white.png" alt="" />
         <div className="t"><div className="eb">TRAIL REPORT</div><h1>How the trail is going</h1></div>
@@ -157,7 +157,7 @@ export async function downloadTrailReport(data) {
   document.body.appendChild(host);
   const root = createRoot(host);
   try {
-    root.render(<ReportSheet data={data} />);
+    root.render(<ReportSheet data={data} theme="dark" />);
     await new Promise((r) => setTimeout(r, 60));
     const node = host.firstElementChild;
     await Promise.all([...node.querySelectorAll('img')].map((im) => (im.complete && im.naturalWidth ? null : im.decode().catch(() => {}))));
