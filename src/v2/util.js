@@ -288,3 +288,12 @@ export function visibleBottomShift(win = typeof window !== 'undefined' ? window 
   return Math.abs(shift) > 1 ? shift : 0;
 }
 
+
+// Each event's own link: /event/<english-name>-<first 8 of its id>. The name is for people;
+// the app and the link preview look the event up by the id part.
+export function eventPath(ev) {
+  const title = (ev?.title && (ev.title.en || ev.title.vn)) || (typeof ev?.title === 'string' ? ev.title : 'event');
+  const name = String(title).normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[đĐ]/g, 'd').toLowerCase()
+    .replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60).replace(/-+$/g, '') || 'event';
+  return `/event/${name}-${String(ev?.id || '').slice(0, 8)}`;
+}

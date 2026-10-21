@@ -23,7 +23,7 @@ import { Celebrate, HatClaim, shareCard } from "./v2/Celebrate";
 import { TabBar, MenuDrawer, Toast, InstallPrompt, isStandalone, EcosystemReturn } from "./v2/ui";
 import { passkeySupported, listPasskeys, addPasskey } from "./v2/passkey";
 import { useV, fmt } from "./v2/i18n";
-import { openStatus, formatClose } from "./v2/util";
+import { openStatus, formatClose, eventPath } from "./v2/util";
 import "./v2/v2.css";
 import { DEMO_MODE, demoEvents, DEMO_SIDE_QUESTS } from "./v2/demo";
 import UpdatePrompt from "./v2/UpdatePrompt";
@@ -272,6 +272,12 @@ export default function App() {
       setScreen({ type: "profile" });
     } else if (a === "events") {
       setScreen({ type: "events" });
+    } else if (a === "event" && b) {
+      // An event's own link: open the app on Home with that event on top.
+      setScreen(null); setTab("home");
+      fetch(`/api/events/${encodeURIComponent(b)}`).then((r) => r.json())
+        .then((d) => { if (d?.ok && d.event) setEventSheet(d.event); else goHomeClean(); })
+        .catch(() => goHomeClean());
     } else if (a === "collabfest") {
       setScreen({ type: "fest" });
     } else if (a && ["map", "card", "ask"].includes(a)) {
@@ -587,7 +593,7 @@ export default function App() {
         fest={fest.open && fest.beers?.length ? fest : null} festTonight={!!festEvent && isTonight(festEvent)} onOpenFest={openFest}
         onOpenEvents={(ev) => {
           // An event opens its details first; the sheet links on to the brewery
-          if (ev) setEventSheet(ev);
+          if (ev) { setEventSheet(ev); if (ev.id && !String(ev.id).startsWith("demo")) push(eventPath(ev)); }
           else { setScreen({ type: "events" }); push("/events"); }
         }}
         onOpenGuide={() => setShowGuide(true)} onOpenBoard={() => { setCardTab("ranking"); goTab("card"); }}
@@ -621,7 +627,8 @@ export default function App() {
 
       {festPopup && <FestPopup fest={fest} language={language} onStart={() => { closeFestPopup(); openFest(); }} onClose={closeFestPopup} />}
       {eventSheet && (
-        <EventSheet event={eventSheet} language={language} onClose={() => setEventSheet(null)} onOpenBrewery={openBrewery}
+        <EventSheet event={eventSheet} language={language} onOpenBrewery={openBrewery}
+          onClose={() => { setEventSheet(null); if (pathParts()[0] === "event") push(TAB_PATHS[tab] || "/"); }}
           onOpenFest={eventSheet.festList === FEST && fest.beers?.length ? openFest : null}
           brewery={breweries.find((b) => b.id === eventSheet.breweryId || b.name === eventSheet.breweryName)} />
       )}
