@@ -322,3 +322,14 @@ export function storeLoginTokens(data) {
 export function deleteAccount() {
   return request(`/users/me`, { method: "DELETE" });
 }
+
+// ── Festival beer lists (Collab Fest) ────────────────────────────────────────
+export function getFestBeers(fest) {
+  return request(`/fests/${fest}/beers`);
+}
+export function getMyFest(trailId, fest) {
+  return request(`/trails/${trailId}/fests/${fest}/me`);
+}
+export function saveFestTasting(trailId, fest, body) {
+  return request(`/trails/${trailId}/fests/${fest}/me`, { method: "PUT", body });
+}

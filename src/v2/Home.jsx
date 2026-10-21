@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useV, fmt, shortDate, weekdayName } from './i18n';
 import { TopBar, Pints, Icon, InstallBanner } from './ui';
 import SmplPint from './SmplPint';
+import { FestCard } from './FestHome';
+import './fest.css';
 import { track, trackOnce } from '../lib/track';
 import {
   openStatus, formatClose, formatClock, prettyBoardTime, districtLabel, localized,
@@ -265,7 +267,7 @@ export function isTonight(ev) {
 export default function Home({
   breweries, stamps, stampDates, timerStart, timerEnd, events, sideQuests, questClaims, boardTop, user, hatClaimed, cardRound,
   language, setLanguage, nightMode, toggleNightMode, onMenu, onOpenBrewery, onOpenQuest, onOpenEvents, onOpenGuide,
-  onOpenBoard, milestone, onDismissMilestone, here, requestLocation, onClaimHat, onInstall,
+  onOpenBoard, milestone, onDismissMilestone, here, requestLocation, onClaimHat, onInstall, fest, festTonight, onOpenFest,
 }) {
   const v = useV(language);
   const running = !!timerStart && !timerEnd;
@@ -383,16 +385,17 @@ export default function Home({
       </div>
       </section>
 
-      {sideQuests?.length > 0 && (
+      {(sideQuests?.length > 0 || fest) && (
         <section className="v2-sqzone" aria-label={v.sideQuests}>
           <div className="zhead">
             <span className="eyebrow">{v.sqEyebrow}</span>
             <h2>{v.sideQuests}</h2>
-            <p>{v.sqExplain}</p>
+            {sideQuests?.length > 0 && <p>{v.sqExplain}</p>}
             <span className="tag bonus">{v.bonusNote}</span>
           </div>
           <div style={{ display: 'grid', gap: 16 }}>
-            {sideQuests.map((q) => <SideQuestCard key={q.id} quest={q} language={language} onOpen={onOpenQuest} claimed={questClaims?.includes(q.id)} />)}
+            {fest && <FestCard fest={fest} language={language} tonight={festTonight} onOpen={onOpenFest} />}
+            {(sideQuests || []).map((q) => <SideQuestCard key={q.id} quest={q} language={language} onOpen={onOpenQuest} claimed={questClaims?.includes(q.id)} />)}
           </div>
         </section>
       )}

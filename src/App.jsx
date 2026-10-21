@@ -10,6 +10,10 @@ import SideQuest from "./v2/SideQuest";
 import MapScreen from "./v2/MapScreen";
 import MyCard from "./v2/MyCard";
 import Events from "./v2/Events";
+import FestList from "./v2/FestList";
+import { FestPopup } from "./v2/FestHome";
+import { useFest, FEST } from "./v2/fest";
+import { isTonight } from "./v2/Home";
 import EventSheet from "./v2/EventSheet";
 import Profile from "./v2/Profile";
 import Ask from "./v2/Ask";
@@ -92,12 +96,14 @@ export default function App() {
   const [beers, setBeers] = useState([]);
   const [events, setEvents] = useState([]);
   const [eventSheet, setEventSheet] = useState(null);
+  const [festPopup, setFestPopup] = useState(false);
   const [sideQuests, setSideQuests] = useState([]);
   const [questClaims, setQuestClaims] = useState(() => readJSON("hcm-sidequest-checkins", []));
   // One-time offers disappear once used; repeatable ones stay and show as claimed
   const visibleQuests = sideQuests.filter((q) => !(q.one_time !== false && questClaims.includes(q.id)));
   const [boardTop, setBoardTop] = useState([]);
   const [user, setUser] = useState(() => readJSON("hcm-user", null));
+  const fest = useFest(user);
   const [userMe, setUserMe] = useState(null);
   const [timerStart, setTimerStart] = useState(null);
   const [timerEnd, setTimerEnd] = useState(null);
@@ -121,6 +127,15 @@ export default function App() {
   const [showAuth, setShowAuth] = useState(false);
   const [afterAuth, setAfterAuth] = useState(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  // Collab Fest beer list (a side quest anyone can tick off themselves) and its event.
+  const festEvent = events.find((e) => e.festList === FEST) || null;
+  useEffect(() => {
+    // Once per phone, on the day of the fest, on the home screen.
+    if (festPopup || screen || !ageConfirmed || (!user && !welcomeDone) || showOnboarding || !festEvent || !isTonight(festEvent) || !fest.beers?.length) return;
+    try { if (localStorage.getItem(`hcm-fest-popup-${FEST}`)) return; } catch { return; }
+    setFestPopup(true);
+  }, [festEvent, fest.beers, screen, ageConfirmed, welcomeDone, user, showOnboarding]);
+  const closeFestPopup = () => { setFestPopup(false); try { localStorage.setItem(`hcm-fest-popup-${FEST}`, "1"); } catch {} };
   const [editTaste, setEditTaste] = useState(false);
   const [micro, setMicro] = useState(null);
   const [milestone, setMilestone] = useState(null);
@@ -234,6 +249,7 @@ export default function App() {
   const openBrewery = (b) => { setScreen({ type: "brewery", id: b.id }); push(`/brewery/${b.id}`); };
   const openQuest = (q) => { setScreen({ type: "quest", quest: q }); push(`/side-quest/${q.id}`); };
   const closeScreen = () => { setScreen(null); push(TAB_PATHS[tab] || "/"); };
+  const openFest = () => { setEventSheet(null); setFestPopup(false); setScreen({ type: "fest" }); push("/collabfest"); window.scrollTo?.(0, 0); };
 
   // Unknown or stale links (a removed venue, a typo) land on the Trail with a clean address
   const goHomeClean = () => {
@@ -256,6 +272,8 @@ export default function App() {
       setScreen({ type: "profile" });
     } else if (a === "events") {
       setScreen({ type: "events" });
+    } else if (a === "collabfest") {
+      setScreen({ type: "fest" });
     } else if (a && ["map", "card", "ask"].includes(a)) {
       setScreen(null); setTab(a);
     } else {
@@ -531,6 +549,8 @@ export default function App() {
         onRequireSignIn={() => requireSignIn()}
         onClaimed={(id) => { const next = [...new Set([...questClaims, id])]; setQuestClaims(next); localStorage.setItem("hcm-sidequest-checkins", JSON.stringify(next)); }} />
     );
+  } else if (screen?.type === "fest") {
+    content = <FestList fest={fest} language={language} user={user} userName={profile?.display_name} onBack={closeScreen} onSignIn={() => requireSignIn()} />;
   } else if (screen?.type === "events") {
     content = <Events events={events} breweries={breweries} language={language} onBack={closeScreen} onOpenBrewery={openBrewery} />;
   } else if (screen?.type === "profile" && user) {
@@ -564,6 +584,7 @@ export default function App() {
         setLanguage={setLanguage} nightMode={nightMode} toggleNightMode={toggleNightMode} onMenu={() => setMenuOpen(true)}
         onInstall={() => setInstallPrompt(true)}
         onOpenBrewery={openBrewery} onOpenQuest={openQuest}
+        fest={fest.open && fest.beers?.length ? fest : null} festTonight={!!festEvent && isTonight(festEvent)} onOpenFest={openFest}
         onOpenEvents={(ev) => {
           // An event opens its details first; the sheet links on to the brewery
           if (ev) setEventSheet(ev);
@@ -598,8 +619,10 @@ export default function App() {
           onLogout={handleLogout} />
       )}
 
+      {festPopup && <FestPopup fest={fest} language={language} onStart={() => { closeFestPopup(); openFest(); }} onClose={closeFestPopup} />}
       {eventSheet && (
         <EventSheet event={eventSheet} language={language} onClose={() => setEventSheet(null)} onOpenBrewery={openBrewery}
+          onOpenFest={eventSheet.festList === FEST && fest.beers?.length ? openFest : null}
           brewery={breweries.find((b) => b.id === eventSheet.breweryId || b.name === eventSheet.breweryName)} />
       )}
 

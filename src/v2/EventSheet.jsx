@@ -3,6 +3,7 @@ import { useV, weekdayName } from './i18n';
 import { track } from '../lib/track';
 import { Sheet, Icon } from './ui';
 import { localized, districtLabel, safeHref, safeImageUrl } from './util';
+import { festT } from './FestList';
 
 const TZ = 'Asia/Ho_Chi_Minh';
 const clock = (iso) => new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: TZ });
@@ -16,7 +17,7 @@ export function calendarLink(ev, title) {
 }
 
 // Full event details in a bottom sheet. `brewery` is optional (for directions / district).
-export default function EventSheet({ event: e, brewery, language, onClose, onOpenBrewery }) {
+export default function EventSheet({ event: e, brewery, language, onClose, onOpenBrewery, onOpenFest }) {
   const v = useV(language);
   useEffect(() => { track('event_view', { event_id: e.id, ...(brewery?.id ? { venue_id: brewery.id } : {}) }); }, [e.id]);
   const title = localized(e.title, language);
@@ -57,6 +58,11 @@ export default function EventSheet({ event: e, brewery, language, onClose, onOpe
             <div className="eyebrow">{v.evGood}</div>
             <ul>{highlights.map((h) => <li key={h}>{h}</li>)}</ul>
           </div>
+        )}
+        {onOpenFest && (
+          <button type="button" className="act yellow ev-fest" onClick={onOpenFest}>
+            <span>{festT(language).openList}</span>
+          </button>
         )}
         <div className="actions">
           <a className="act yellow" href={calendarLink(e, title)} target="_blank" rel="noreferrer">{v.addToCalendar}</a>
