@@ -7,6 +7,10 @@ import { TRAIL_ID } from '../config';
 // sign in (then moved to the account). Just for fun: nobody checks it.
 
 export const FEST = 'collabfest-2026';
+// The one night it happens (Saigon): Sat 31 Oct, 4pm to midnight. Ticking off unlocks at the start.
+export const FEST_STARTS = '2026-10-31T09:00:00Z';
+export const FEST_POSTER = '/events/collabfest-halloween.jpg';
+export const festLive = (now = Date.now()) => now >= Date.parse(FEST_STARTS);
 const LOCAL = `hcm-fest-${FEST}`;
 
 const readLocal = () => { try { return JSON.parse(localStorage.getItem(LOCAL) || '{}') || {}; } catch { return {}; } };

@@ -7,7 +7,10 @@ export function isDemoHost(hostname) {
   return h === 'localhost' || h === '127.0.0.1' || /^hcm-ale-trail-frontend-[a-z0-9-]+\.vercel\.app$/.test(h);
 }
 
-export const DEMO_MODE = typeof window !== 'undefined' && isDemoHost(window.location.hostname);
+// Demo content (sample events, side quests, beers, stand-in photos) is switched off
+// everywhere, previews included, so what we look at is what guests see. Flip back to
+// `typeof window !== 'undefined' && isDemoHost(window.location.hostname)` to bring it back.
+export const DEMO_MODE = false;
 
 // ISO time for a Saigon wall-clock time, `dayOffset` days from today.
 function saigonAt(dayOffset, hh, mm = 0) {

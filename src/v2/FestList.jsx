@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { toPng } from 'html-to-image';
 import { Sheet } from './ui';
-import { artAt, beerBy, beerColour } from './fest';
+import { artAt, beerBy, beerColour, festLive, FEST_POSTER } from './fest';
 import { track } from '../lib/track';
 import { printFontCss, dataUrlToBlob } from '../admin/printFonts';
 import './fest.css';
@@ -13,7 +13,8 @@ import './fest.css';
 
 const T = {
   en: {
-    eyebrow: 'COLLAB FEST', title: 'My tasting flight', openList: 'Open the Collab Fest beer list', tried: 'TRIED', avg: 'AVG {n} / 5', nothing: 'NOTHING YET',
+    lockTitle: 'One day only', lockBody: 'Sat 31 Oct, 4pm to midnight at BigBamBoo. Have a look at the beers now; ticking off and rating opens on the night.', locked: 'Opens Sat 31 Oct at 4pm',
+    eyebrow: 'HALLOWEEN COLLAB FEST', title: 'My tasting flight', openList: 'Open the Collab Fest beer list', tried: 'TRIED', avg: 'AVG {n} / 5', nothing: 'NOTHING YET',
     fest: 'Fest order', strong: 'Strongest', light: 'Lightest',
     hint: 'Tap the pints to rate a beer. Rating it ticks it off.', back: 'Back',
     local: 'Saved on this phone. Sign in to keep your list on your account.', signIn: 'Sign in',
@@ -28,7 +29,8 @@ const T = {
     shareText: 'I tried {n} of {t} collab beers at Halloween Collab Fest. hcm.thealetrail.app',
   },
   vn: {
-    eyebrow: 'COLLAB FEST', title: 'Khay bia của tôi', openList: 'Mở danh sách bia Collab Fest', tried: 'ĐÃ THỬ', avg: 'TB {n} / 5', nothing: 'CHƯA CÓ',
+    lockTitle: 'Chỉ một ngày', lockBody: 'Thứ Bảy 31/10, 16:00 đến nửa đêm tại BigBamBoo. Xem trước các loại bia; đánh dấu và chấm điểm mở vào đêm diễn ra.', locked: 'Mở lúc 16:00 thứ Bảy 31/10',
+    eyebrow: 'HALLOWEEN COLLAB FEST', title: 'Khay bia của tôi', openList: 'Mở danh sách bia Collab Fest', tried: 'ĐÃ THỬ', avg: 'TB {n} / 5', nothing: 'CHƯA CÓ',
     fest: 'Thứ tự', strong: 'Mạnh nhất', light: 'Nhẹ nhất',
     hint: 'Chạm vào ly để chấm điểm. Chấm điểm là đã thử.', back: 'Quay lại',
     local: 'Đang lưu trên điện thoại này. Đăng nhập để lưu vào tài khoản.', signIn: 'Đăng nhập',
@@ -56,7 +58,7 @@ function Pint({ on, size = 16 }) {
   );
 }
 
-function RateSheet({ beer, index, total, tasting, t, onClose, onSave }) {
+function RateSheet({ beer, index, total, tasting, t, live, onClose, onSave }) {
   const [rating, setRating] = useState(tasting?.rating || 0);
   const [tags, setTags] = useState(new Set(tasting?.tags || []));
   const [busy, setBusy] = useState(false);
@@ -86,6 +88,8 @@ function RateSheet({ beer, index, total, tasting, t, onClose, onSave }) {
           </div>
           <button type="button" className="fl-x" onClick={onClose} aria-label={t.close}>✕</button>
         </div>
+        {!live && <div className="fl-locknote">{t.locked}</div>}
+        {live && <>
         <div className="fl-label">{t.how}</div>
         <div className="fl-bigpints" role="group" aria-label={fill(t.rateBeer, { name: beer.name })}>
           {[1, 2, 3, 4, 5].map((n) => (
@@ -106,6 +110,7 @@ function RateSheet({ beer, index, total, tasting, t, onClose, onSave }) {
           <button type="button" className="fl-btn dark" onClick={() => done(true)} disabled={busy}>{tasting ? t.save : t.tickIt}</button>
         </div>
         {tasting && <button type="button" className="fl-untick" onClick={() => done(false)} disabled={busy}>{t.untick}</button>}
+        </>}
       </div>
     </Sheet>
   );
@@ -200,6 +205,7 @@ export default function FestList({ fest, language, user, userName, onBack, onSig
   const [open, setOpen] = useState(null); // beer key
   const [night, setNight] = useState(false);
   const [msg, setMsg] = useState('');
+  const live = festLive();
   useEffect(() => { track('fest_open', { source: 'collabfest-2026' }); }, []);
 
   const list = useMemo(() => {
@@ -219,6 +225,7 @@ export default function FestList({ fest, language, user, userName, onBack, onSig
     return ok;
   };
   const ratePint = (b, n) => {
+    if (!live) { setMsg(t.locked); setTimeout(() => setMsg(''), 2500); return; }
     const cur = tastings[b.key];
     if (cur?.rating === n) doSave(b.key, { tried: false });
     else doSave(b.key, { tried: true, rating: n, tags: cur?.tags || [] });
@@ -227,6 +234,13 @@ export default function FestList({ fest, language, user, userName, onBack, onSig
 
   return (
     <div className="fl-screen">
+      <div className="fl-poster"><img src={FEST_POSTER} alt="" /></div>
+      {!live && (
+        <div className="fl-lock" role="note">
+          <b>{t.lockTitle}</b>
+          <span>{t.lockBody}</span>
+        </div>
+      )}
       <div className="fl-head">
         <div className="fl-head-row">
           <button type="button" className="fl-back" onClick={onBack} aria-label={t.back}>‹</button>
@@ -266,7 +280,7 @@ export default function FestList({ fest, language, user, userName, onBack, onSig
                   <span className="meta">{[b.style, b.abv != null ? `${b.abv}%` : null].filter(Boolean).join(' · ')}</span>
                 </span>
               </button>
-              <div className="fl-pints" role="group" aria-label={fill(t.rateBeer, { name: b.name })}>
+              <div className={`fl-pints${live ? '' : ' locked'}`} role="group" aria-label={fill(t.rateBeer, { name: b.name })}>
                 {[1, 2, 3, 4, 5].map((n) => (
                   <button key={n} type="button" className={n <= r ? 'on' : ''} aria-label={fill(t.rate, { n })} aria-pressed={n <= r} onClick={() => ratePint(b, n)}>
                     <Pint on={n <= r} />
@@ -276,14 +290,14 @@ export default function FestList({ fest, language, user, userName, onBack, onSig
             </div>
           );
         })}
-        {beers && <p className="fl-hint">{t.hint}</p>}
+        {beers && <p className="fl-hint">{live ? t.hint : t.locked}</p>}
         {triedKeys.length > 0 && (
           <div className="fl-nightbar"><button type="button" className="fl-btn gold" onClick={() => setNight(true)}>{t.nightBtn}</button></div>
         )}
       </div>
 
       {openBeer && (
-        <RateSheet beer={openBeer} index={beers.indexOf(openBeer)} total={beers.length} tasting={tastings[openBeer.key]} t={t}
+        <RateSheet beer={openBeer} index={beers.indexOf(openBeer)} total={beers.length} tasting={tastings[openBeer.key]} t={t} live={live}
           onClose={() => setOpen(null)} onSave={doSave} />
       )}
       {night && <NightCard beers={beers} tastings={tastings} t={t} name={userName} onClose={() => setNight(false)} />}

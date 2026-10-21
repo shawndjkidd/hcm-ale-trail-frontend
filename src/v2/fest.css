@@ -124,3 +124,21 @@
 .fl-pop .acts { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
 .fl-pop .later { background: transparent; border: 2px solid #3d5a4a; color: #d8ccb0; padding: 12px; font-weight: 700; font-size: 14px; cursor: pointer; }
 .v2-evsheet .ev-fest { width: 100%; cursor: pointer; font-family: inherit; }
+
+/* Halloween branding + one day only */
+.fl-card.hw { background: #1a120c; border-color: #f3e7c9; }
+.fl-card.hw .poster { display: block; width: 100%; height: auto; border-bottom: 3px solid #111; }
+.fl-card .oneday { background: #FFD100; color: #111; padding: 10px 14px 9px; border-bottom: 3px solid #111; text-align: center; }
+.fl-card .oneday b { display: block; font-family: var(--display, Anton, Impact, sans-serif); font-weight: 400; font-size: 38px; line-height: 1; letter-spacing: .02em; color: #C8102E; text-shadow: 2px 2px 0 #111; }
+.fl-card .oneday span { display: block; font-weight: 800; font-size: 11.5px; letter-spacing: .08em; margin-top: 3px; }
+.fl-card.hw .in { padding-top: 12px; }
+.fl-card.hw .fl-eb { color: #f0763a; }
+.fl-card.hw h3 span { color: #f0a12a; }
+.fl-card.hw .foot { background: #2a1a10; border-top-color: #4a2e1c; }
+.fl-card.hw .go { background: #f0763a; }
+.fl-poster img { display: block; width: 100%; height: auto; }
+.fl-lock { background: #FFD100; color: #111; padding: 12px 16px; border-bottom: 3px solid #111; }
+.fl-lock b { display: block; font-family: var(--display, Anton, Impact, sans-serif); font-weight: 400; font-size: 32px; line-height: 1; color: #C8102E; text-transform: uppercase; text-shadow: 2px 2px 0 #111; }
+.fl-lock span { display: block; font-weight: 700; font-size: 13px; line-height: 1.4; margin-top: 4px; }
+.fl-pints.locked button { opacity: .35; }
+.fl-locknote { margin-top: 16px; background: #FFD100; border: 2px solid #1d2a20; padding: 12px; text-align: center; font-family: var(--display, Anton, Impact, sans-serif); font-size: 20px; text-transform: uppercase; color: #C8102E; }
