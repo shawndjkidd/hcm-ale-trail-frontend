@@ -14,7 +14,7 @@ import './fest.css';
 const T = {
   en: {
     lockTitle: 'One day only', lockBody: 'Sat 31 Oct, 4pm to midnight at BigBamBoo. Have a look at the beers now; ticking off and rating opens on the night.', locked: 'Opens Sat 31 Oct at 4pm',
-    eyebrow: 'HALLOWEEN COLLAB FEST', title: 'My tasting flight', openList: 'Open the Collab Fest beer list', tried: 'TRIED', avg: 'AVG {n} / 5', nothing: 'NOTHING YET',
+    eyebrow: 'HALLOWEEN PARTY SIDE QUEST', title: 'My tasting flight', openList: 'Open the Halloween Party Side Quest', tried: 'TRIED', avg: 'AVG {n} / 5', nothing: 'NOTHING YET',
     fest: 'Fest order', strong: 'Strongest', light: 'Lightest',
     hint: 'Tap the pints to rate a beer. Rating it ticks it off.', back: 'Back',
     local: 'Saved on this phone. Sign in to keep your list on your account.', signIn: 'Sign in',
@@ -30,7 +30,7 @@ const T = {
   },
   vn: {
     lockTitle: 'Chỉ một ngày', lockBody: 'Thứ Bảy 31/10, 16:00 đến nửa đêm tại BigBamBoo. Xem trước các loại bia; đánh dấu và chấm điểm mở vào đêm diễn ra.', locked: 'Mở lúc 16:00 thứ Bảy 31/10',
-    eyebrow: 'HALLOWEEN COLLAB FEST', title: 'Khay bia của tôi', openList: 'Mở danh sách bia Collab Fest', tried: 'ĐÃ THỬ', avg: 'TB {n} / 5', nothing: 'CHƯA CÓ',
+    eyebrow: 'NHIỆM VỤ PHỤ TIỆC HALLOWEEN', title: 'Khay bia của tôi', openList: 'Mở Nhiệm vụ phụ Tiệc Halloween', tried: 'ĐÃ THỬ', avg: 'TB {n} / 5', nothing: 'CHƯA CÓ',
     fest: 'Thứ tự', strong: 'Mạnh nhất', light: 'Nhẹ nhất',
     hint: 'Chạm vào ly để chấm điểm. Chấm điểm là đã thử.', back: 'Quay lại',
     local: 'Đang lưu trên điện thoại này. Đăng nhập để lưu vào tài khoản.', signIn: 'Đăng nhập',

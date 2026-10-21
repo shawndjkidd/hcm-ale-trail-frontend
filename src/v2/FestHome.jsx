@@ -8,7 +8,7 @@ const H = {
   en: {
     oneDay: 'ONE DAY ONLY', when: 'SAT 31 OCT · 4PM – MIDNIGHT · BIGBAMBOO', tonightOnly: 'TONIGHT ONLY · 4PM – MIDNIGHT · BIGBAMBOO',
     blurbSoon: '{n} collab beers, poured for one night only. Look through them now; tick them off and rate them on the night.', collabsLabel: 'COLLAB BEERS', preview: 'See the beers',
-    eyebrow: 'SIDE QUEST · JUST FOR FUN', title: 'Collab Fest', title2: 'beer list', tonight: 'TONIGHT',
+    eyebrow: 'COLLAB BEER LIST · JUST FOR FUN', title: 'Halloween Party', title2: 'side quest', tonight: 'TONIGHT',
     blurb: '{n} collab beers at BigBamBoo. Tick off each one you try and rate it.', triedLabel: "YOU'VE TRIED", open: 'Open my list',
     popEb: 'TONIGHT AT BIGBAMBOO', popA: 'How many of the', popB: '{n} collabs', popC: 'can you try?',
     popBody: "Tick off every collab beer you have tonight and give it a rating. No staff, no codes. It's your own list, just for fun.",
@@ -17,7 +17,7 @@ const H = {
   vn: {
     oneDay: 'CHỈ MỘT NGÀY', when: 'T7 31/10 · 16:00 – NỬA ĐÊM · BIGBAMBOO', tonightOnly: 'CHỈ TỐI NAY · 16:00 – NỬA ĐÊM · BIGBAMBOO',
     blurbSoon: '{n} bia collab, chỉ rót trong một đêm. Xem trước ngay bây giờ; đánh dấu và chấm điểm vào đêm diễn ra.', collabsLabel: 'BIA COLLAB', preview: 'Xem các loại bia',
-    eyebrow: 'NHIỆM VỤ PHỤ · CHO VUI', title: 'Collab Fest', title2: 'danh sách bia', tonight: 'TỐI NAY',
+    eyebrow: 'DANH SÁCH BIA COLLAB · CHO VUI', title: 'Tiệc Halloween', title2: 'nhiệm vụ phụ', tonight: 'TỐI NAY',
     blurb: '{n} bia collab tại BigBamBoo. Đánh dấu và chấm điểm mỗi loại bạn thử.', triedLabel: 'BẠN ĐÃ THỬ', open: 'Mở danh sách',
     popEb: 'TỐI NAY TẠI BIGBAMBOO', popA: 'Bạn thử được', popB: 'bao nhiêu trong {n}', popC: 'bia collab?',
     popBody: 'Đánh dấu mỗi loại bia collab bạn uống tối nay và chấm điểm. Không cần nhân viên, không cần mã. Danh sách của riêng bạn, cho vui.',
