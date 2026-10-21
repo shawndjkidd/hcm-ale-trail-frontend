@@ -4,7 +4,7 @@ import { toPng } from 'html-to-image';
 import { Sheet } from './ui';
 import { artAt, beerBy, beerColour } from './fest';
 import { track } from '../lib/track';
-import { printFontCss } from '../admin/printFonts';
+import { printFontCss, dataUrlToBlob } from '../admin/printFonts';
 import './fest.css';
 
 // Collab Fest beer list, "tasting flight" style: tap the pints to rate a beer (rating it
@@ -168,7 +168,7 @@ function NightCard({ beers, tastings, t, name, onClose }) {
     setBusy(kind); setMsg('');
     try {
       const url = await makeNightCard({ beers, tastings, t, name });
-      const file = new File([await (await fetch(url)).blob()], 'collab-fest-night.png', { type: 'image/png' });
+      const file = new File([dataUrlToBlob(url)], 'collab-fest-night.png', { type: 'image/png' });
       track('fest_share', { source: 'collabfest-2026', kind });
       if (kind === 'share' && navigator.canShare?.({ files: [file] })) {
         await navigator.share({ files: [file], text: fill(t.shareText, { n: count, t: beers.length }) });

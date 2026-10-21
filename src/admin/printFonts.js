@@ -16,3 +16,13 @@ export function printFontCss() {
   }
   return fontCssPromise;
 }
+
+// A data: URL as a Blob, without fetch() (the site's security policy blocks fetching data: URLs).
+export function dataUrlToBlob(url) {
+  const [head, body] = url.split(',');
+  const type = (head.match(/data:([^;]+)/) || [])[1] || 'application/octet-stream';
+  const bin = atob(body);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Blob([bytes], { type });
+}

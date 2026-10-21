@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import QRCode from 'qrcode';
 import { toPng } from 'html-to-image';
-import { printFontCss } from './printFonts';
+import { printFontCss, dataUrlToBlob } from './printFonts';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { getVenueQrStats } from './adminApi';
 import { logoFor } from '../v2/util';
@@ -270,7 +270,7 @@ export default function PromoteTab({ brewery }) {
     setBusy(d.key + ':sh');
     try {
       const url = await render(d);
-      const blob = await (await fetch(url)).blob();
+      const blob = dataUrlToBlob(url);
       const file = new File([blob], fileName(d), { type: 'image/png' });
       const text = fill(COPY.story[0].en, d.key);
       if (navigator.canShare?.({ files: [file] })) await navigator.share({ files: [file], text });
