@@ -154,6 +154,8 @@ const LOCATIONS = [
   { value: 'binh_thanh', key: 'optBinhThanh' }, { value: 'other_hcmc', key: 'optOtherHcmc' },
 ];
 const COUNTRIES = ['US', 'GB', 'AU', 'KR', 'JP', 'FR', 'DE', 'CA', 'NL', 'SG', 'TH', 'NZ', 'IE', 'SE', 'DK', 'IN', 'CN', 'TW', 'PH', 'MY', 'ID', 'BR', 'IT', 'ES', 'BE'];
+// Every country, for guests whose country isn't in the short list above.
+const ALL_COUNTRIES = 'AD AE AF AG AI AL AM AO AR AS AT AU AW AZ BA BB BD BE BF BG BH BI BJ BM BN BO BR BS BT BW BY BZ CA CD CF CG CH CI CK CL CM CN CO CR CU CV CW CY CZ DE DJ DK DM DO DZ EC EE EG ER ES ET FI FJ FM FO FR GA GB GD GE GH GI GL GM GN GQ GR GT GU GW GY HK HN HR HT HU ID IE IL IM IN IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MG MH MK ML MM MN MO MP MR MT MU MV MW MX MY MZ NA NC NE NG NI NL NO NP NR NZ OM PA PE PF PG PH PK PL PR PS PT PW PY QA RO RS RU RW SA SB SC SD SE SG SI SK SL SM SN SO SR SS ST SV SY SZ TD TG TH TJ TL TM TN TO TR TT TV TW TZ UA UG US UY UZ VC VE VG VI VN VU WS XK YE ZA ZM ZW'.split(' ');
 const LIFESTYLES = ['backpacker', 'digital_nomad', 'suit', 'teacher_ngo', 'student', 'just_vibing'];
 const LIFESTYLE_KEYS = { backpacker: 'optBackpacker', digital_nomad: 'optDigitalNomad', suit: 'optSuit', teacher_ngo: 'optTeacherNgo', student: 'optStudent', just_vibing: 'optJustVibing' };
 const AVATARS = [{ value: 'glass', key: 'optGlass' }, { value: 'pint', key: 'optPint' }, { value: 'growler', key: 'optGrowler' }, { value: 'tower', key: 'optTower' }];
@@ -162,6 +164,7 @@ export function MicroQuestion({ question, language, onClose }) {
   const v = useV(language);
   const t = translations[language] || translations.en;
   const [mode, setMode] = useState(null);
+  const [search, setSearch] = useState('');
   const regionNames = (() => { try { return new Intl.DisplayNames([language === 'vn' ? 'vi' : language === 'kr' ? 'ko' : language === 'jp' ? 'ja' : 'en'], { type: 'region' }); } catch { return null; } })();
 
   const answer = async (patch) => { markAsked(question); await saveProfile(patch); onClose(); };
@@ -178,13 +181,28 @@ export function MicroQuestion({ question, language, onClose }) {
       <>{optionBtn(v.qFromLocal, () => setMode('local'))}{optionBtn(v.qFromVisit, () => setMode('visit'))}</>
     ) : mode === 'local' ? (
       LOCATIONS.map((l) => optionBtn(t[l.key] || l.value, () => answer({ neighborhood: l.value, home_country: 'VN' }), l.value))
+    ) : mode === 'search' ? (
+      <>
+        <input type="search" autoFocus value={search} onChange={(e) => setSearch(e.target.value)} placeholder={v.countrySearch} aria-label={v.countrySearch}
+          style={{ width: '100%', boxSizing: 'border-box', border: '2px solid var(--ink)', borderRadius: 0, background: '#fff', color: '#111', padding: 12, fontSize: 16, fontFamily: 'var(--body)' }} />
+        <div style={{ display: 'grid', gap: 8, maxHeight: '34vh', overflowY: 'auto' }}>
+          {ALL_COUNTRIES.map((c) => ({ c, name: regionNames?.of(c) || c }))
+            .filter(({ c, name }) => { const q = search.trim().toLowerCase(); return !q || name.toLowerCase().includes(q) || c.toLowerCase() === q; })
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map(({ c, name }) => optionBtn(name, () => answer({ home_country: c, neighborhood: 'visitor' }), c))}
+        </div>
+        <button type="button" className="link-btn" onClick={() => { setSearch(''); setMode('visit'); }}>{v.backToList}</button>
+      </>
     ) : (
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, maxHeight: '45vh', overflowY: 'auto' }}>
-        {COUNTRIES.map((c) => (
-          <button key={c} type="button" className="sq-btn" style={{ color: 'var(--text)', borderColor: 'var(--ink)', textAlign: 'left', padding: '10px' }}
-            onClick={() => answer({ home_country: c, neighborhood: 'visitor' })}>{regionNames?.of(c) || c}</button>
-        ))}
-      </div>
+      <>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, maxHeight: '45vh', overflowY: 'auto' }}>
+          {COUNTRIES.map((c) => (
+            <button key={c} type="button" className="sq-btn" style={{ color: 'var(--text)', borderColor: 'var(--ink)', textAlign: 'left', padding: '10px' }}
+              onClick={() => answer({ home_country: c, neighborhood: 'visitor' })}>{regionNames?.of(c) || c}</button>
+          ))}
+        </div>
+        <button type="button" className="btn block" style={{ fontSize: '1rem', fontFamily: 'var(--body)', textTransform: 'none', fontWeight: 700 }} onClick={() => setMode('search')}>{v.countryMissing}</button>
+      </>
     );
   } else if (question === 'age') {
     title = v.qAge;
