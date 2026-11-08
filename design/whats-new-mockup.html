@@ -1,0 +1,126 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>What's new mockup</title>
+<style>
+:root{--bg:#0E0F11;--card:#16181B;--p2:#1F2125;--text:#F3F4F6;--muted:#A4A8AF;--border:#2A2D32;--acc:#F5A623;--ink:#111}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 Inter,system-ui,-apple-system,sans-serif}
+button{font:inherit;cursor:pointer}
+.ctl{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:50;display:flex;gap:6px;background:#000c;border:1px solid var(--border);border-radius:10px;padding:6px;flex-wrap:wrap;justify-content:center;max-width:calc(100vw - 24px)}
+.ctl button{background:var(--p2);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:6px 10px;font-size:12px}.ctl button.on{background:var(--acc);color:var(--ink);border-color:var(--acc)}
+.frame{margin:0 auto;height:100vh;display:flex;flex-direction:column;overflow:hidden;position:relative;background:var(--bg)}
+.frame.phone{width:390px;height:780px;margin:20px auto;border:8px solid #000;border-radius:34px}
+header{height:56px;display:flex;align-items:center;gap:14px;padding:0 18px;border-bottom:1px solid var(--border);background:var(--card);flex:none}
+.logo{font-weight:700}.qf{background:none;border:1px solid var(--border);color:var(--muted);border-radius:9px;padding:6px 10px;font-size:13px}.qf.on{background:var(--acc);color:var(--ink);border-color:var(--acc)}
+.sp{flex:1}.prof{color:var(--muted);font-size:13px}
+.shell{flex:1;display:grid;grid-template-columns:216px 1fr;min-height:0}
+nav{border-right:1px solid var(--border);background:var(--card);padding:14px 10px;overflow:auto}
+nav .grp{font-size:10.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;padding:14px 10px 6px}
+nav button{display:flex;width:100%;background:none;border:0;color:var(--muted);padding:9px 10px;border-radius:8px;text-align:left;font-size:13.5px;gap:8px;align-items:center}
+nav button.on{background:var(--p2);color:var(--text);font-weight:600}
+.badge{margin-left:auto;background:var(--acc);color:var(--ink);border-radius:4px;font-size:11px;font-weight:700;padding:1px 6px}
+main{overflow:auto;padding:24px 28px}
+h1{font-size:22px;margin:0 0 4px}.m{color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px}
+.card b{display:block;font-size:24px}.btnp{background:var(--acc);color:var(--ink);border:0;border-radius:9px;padding:9px 14px;font-weight:700}
+.btn{background:var(--p2);color:var(--text);border:1px solid var(--border);border-radius:9px;padding:9px 14px;font-weight:600}
+.linkbtn{background:none;border:0;color:var(--acc);font-weight:600;padding:0}
+.row{display:flex;gap:10px;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-top:10px}
+/* phone layout */
+.phone .shell{grid-template-columns:1fr;grid-template-rows:auto 1fr}.phone nav{display:flex;overflow-x:auto;border-right:0;border-bottom:1px solid var(--border);padding:8px;gap:4px}
+.phone nav .grp{display:none}.phone nav button{width:auto;white-space:nowrap}.phone .qfs,.phone .prof{display:none}.phone main{padding:16px}.phone .cards{grid-template-columns:1fr 1fr}
+.phone header{padding:0 12px}.menu{background:none;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px;font-size:13px;display:none}.phone .menu{display:inline-block}
+.dd{position:absolute;right:12px;top:52px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:6px;width:220px;z-index:5;display:none}
+.dd.open{display:block}.dd button{display:flex;width:100%;background:none;border:0;color:var(--text);text-align:left;padding:10px;border-radius:8px;align-items:center}
+/* update notice */
+.notice{position:absolute;right:18px;top:68px;width:300px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:0 20px 50px #0008;z-index:20}
+.phone .notice{left:12px;right:12px;width:auto;top:auto;bottom:16px}
+.notice b{display:block;margin-bottom:2px}.notice .acts{display:flex;gap:8px;margin-top:12px;justify-content:flex-end}
+/* box */
+.scrim{position:absolute;inset:0;background:rgba(10,11,13,.72);display:grid;place-items:center;padding:16px;z-index:30}
+.box{width:min(460px,100%);max-height:calc(100% - 32px);overflow:auto;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;box-shadow:0 30px 60px #0009;display:flex;flex-direction:column;gap:14px}
+.box h2{margin:2px 0 0;font-size:20px;display:flex;align-items:center;gap:8px}
+.count{background:var(--acc);color:var(--ink);border-radius:5px;font-size:13px;padding:1px 8px}
+ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+li{display:grid;grid-template-columns:26px 1fr;gap:10px}.num{width:26px;height:26px;border-radius:6px;background:var(--p2);display:grid;place-items:center;font-weight:700;font-size:13px}
+li b{display:block}li .linkbtn{grid-column:2;justify-self:start;font-size:13px}
+.acts{display:flex;gap:8px;justify-content:flex-end}
+/* tour */
+.tour{position:absolute;inset:0;z-index:40}
+.dim{position:absolute;inset:0;background:rgba(10,11,13,.72);transition:opacity .2s}
+.spot{position:absolute;border:2px solid var(--acc);border-radius:10px;box-shadow:0 0 0 9999px rgba(10,11,13,.72);transition:opacity .2s;pointer-events:none}
+.bubble{position:absolute;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:0 20px 50px #000a;display:flex;flex-direction:column;gap:8px;transition:opacity .2s}
+.glide .spot,.glide .bubble{transition:left .4s ease,top .4s ease,width .4s ease,height .4s ease,opacity .2s}
+.dots{display:flex;gap:4px}.dots i{width:6px;height:6px;border-radius:2px;background:var(--border)}.dots i.on{background:var(--acc)}
+.brow{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px}
+/* page */
+.rel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-top:14px}.rel.new{border-color:var(--acc)}
+.rel h2{font-size:15px;margin:0 0 10px;display:flex;gap:8px;align-items:center}.tag{background:var(--acc);color:var(--ink);border-radius:4px;font-size:11px;padding:1px 6px}
+.rel ul{margin:0 0 10px;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px}.rel li{display:block}
+</style></head><body>
+<div class="frame" id="f">
+  <header><span class="logo">Ho Chi Minh Ale Trail Admin</span>
+    <span class="qfs"><button class="qf on">HQ Overview</button> <button class="qf">Brewery View</button></span>
+    <span class="sp"></span><span class="prof">shawn@… · Super Admin</span>
+    <button class="menu" data-tour="phone-menu" onclick="dd.classList.toggle('open')">Menu</button>
+    <div class="dd" id="dd"><button onclick="go('whatsnew');dd.classList.remove('open')" data-tour="wn-link-phone">What's new <span class="badge">3</span></button><button>Change password</button><button>Logout</button></div>
+  </header>
+  <div class="shell">
+    <nav id="nav"></nav>
+    <main id="main"></main>
+  </div>
+  <div id="layer"></div>
+</div>
+<div class="ctl" id="ctl"></div>
+<script>
+const NOTES=[
+ {title:"What's new: see what changed after each update",body:"After every update, a box like this tells you what changed. You can find every past update any time under What's new in the menu.",tour:{target:'wn-link'}},
+ {title:"Posters on events",body:"Events can now have a poster. Add one when you create or edit an event, and pick the part shown on the Tonight sign.",tour:{steps:[
+   {title:"Open What's On",body:"Your events live here.",nav:'events',target:'tab-events'},
+   {title:"Edit an event",body:"Press Edit on any event.",target:'edit-ev',click:true},
+   {title:"Add the poster",body:"Drop a poster here. A tall picture works best (1080 × 1350).",target:'poster',missing:"Open an event to see the poster box."}]}},
+ {title:"A one-page trail report",body:"Download a one-page summary of the trail: last 7 days, last 30 days and since launch.",tour:{nav:'export',target:'report-btn'}}];
+const TABS=[{g:'Operate'},{id:'home',l:'Home'},{id:'events',l:"What's On"},{id:'breweries',l:'Venues'},{g:'Manage'},{id:'export',l:'Reports & export'},{id:'whatsnew',l:"What's new",wn:1}];
+let view='home',seen=false,phone=false,editing=false;
+const $=s=>document.querySelector(s),layer=$('#layer'),dd=$('#dd'),f=$('#f');
+function renderNav(){$('#nav').innerHTML=TABS.map(t=>t.g?`<div class="grp">${t.g}</div>`:`<button class="${view===t.id?'on':''}" ${t.wn?'data-tour="wn-link"':t.id==='events'?'data-tour="tab-events"':''} onclick="go('${t.id}')">${t.l}${t.wn&&!seen?'<span class="badge">3</span>':''}</button>`).join('')}
+function renderMain(){const m=$('#main');
+ if(view==='home')m.innerHTML=`<h1>Home</h1><span class="m">How the trail is doing today</span><div class="cards"><div class="card"><span class="m">Guests</span><b>212</b></div><div class="card"><span class="m">Stamps this week</span><b>148</b></div><div class="card"><span class="m">Hats given</span><b>19</b></div></div>`;
+ if(view==='events')m.innerHTML=editing?`<h1>Edit event</h1><span class="m">Halloween Collab Fest</span><div class="card" style="margin-top:16px;height:200px;display:grid;place-items:center;border-style:dashed" data-tour="poster"><span class="m">Drop a poster here, or choose a file</span></div>`:`<h1>What's On</h1><span class="m">Events on the trail</span><div class="row"><div><b>Halloween Collab Fest</b><div class="m">Sat 31 Oct · BigBamBoo</div></div><button class="btn" data-tour="edit-ev" onclick="editing=true;renderMain()">Edit</button></div><div class="row"><div><b>Finishers Party</b><div class="m">Fri 30 Oct · Quán Ụt Ụt</div></div><button class="btn">Edit</button></div>`;
+ if(view==='breweries')m.innerHTML=`<h1>Venues</h1><span class="m">8 venues on the trail</span>`;
+ if(view==='export')m.innerHTML=`<h1>Reports & export</h1><span class="m">Download the trail's numbers</span><div class="row"><div><b>One-page trail report</b><div class="m">7 days, 30 days and since launch</div></div><button class="btnp" data-tour="report-btn">Download report</button></div>`;
+ if(view==='whatsnew')m.innerHTML=`<h1>What's new</h1><span class="m">Every update to the dashboard, newest first</span>
+  <section class="rel new"><h2>8 Nov · 3 updates <span class="tag">New</span></h2><ul>${NOTES.map(n=>`<li><b>${n.title}</b><span class="m">${n.body}</span></li>`).join('')}</ul><span class="m">Plus 2 small fixes.</span><br><br><button class="linkbtn" onclick="tour(NOTES)">Take the tour</button></section>
+  <section class="rel"><h2>31 Oct · 1 update</h2><ul><li><b>Guests can pick any country</b><span class="m">If a guest's country isn't on the short list, they can now search every country.</span></li></ul><button class="linkbtn" onclick="tour([{title:'Guests can pick any country',body:'This was an app change, so there is nothing to point at here.'}])">Take the tour again</button></section>`}
+function go(v){view=v;editing=false;renderNav();renderMain()}
+function notice(){layer.innerHTML=`<div class="notice" role="status"><b>New version: 3 updates</b><span class="m">Refresh to see what's new. Anything you've saved is safe.</span><div class="acts"><button class="btnp" onclick="box()">Refresh</button></div></div>`}
+function box(){layer.innerHTML=`<div class="scrim"><div class="box" role="dialog"><div><span class="m">Updated 8 Nov</span><h2>What's new <span class="count">3</span></h2></div>
+ <ol>${NOTES.map((n,i)=>`<li><span class="num">${i+1}</span><div><b>${n.title}</b><span class="m">${n.body}</span></div>${n.tour.steps?`<button class="linkbtn" onclick="seen=true;tour([NOTES[${i}]])">Show me how · ${n.tour.steps.length} steps</button>`:''}</li>`).join('')}</ol>
+ <span class="m">Plus 2 small fixes.</span><div class="acts"><button class="btn" onclick="seen=true;layer.innerHTML='';renderNav()">Close</button><button class="btnp" onclick="seen=true;tour(NOTES)">Take the tour</button></div></div></div>`}
+function stopsOf(items){return items.flatMap(x=>x.tour&&x.tour.steps?x.tour.steps:[{title:x.title,body:x.body,nav:x.tour&&x.tour.nav,target:x.tour&&x.tour.target}])}
+let T=null;
+function tour(items){renderNav();T={stops:stopsOf(items),i:0,prev:null};layer.innerHTML=`<div class="tour" id="tour"><div class="dim" id="dim"></div><div class="spot" id="spot" style="opacity:0"></div><div class="bubble" id="bub" style="opacity:0"></div></div>`;show()}
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+async function settle(el){let last='',calm=0;while(calm<4){await new Promise(r=>requestAnimationFrame(r));const r=el.getBoundingClientRect(),k=[r.left,r.top,r.width,r.height].map(Math.round).join();calm=k===last?calm+1:0;last=k}return el.getBoundingClientRect()}
+async function show(){const s=T.stops[T.i],before=T.prev;T.prev=s;const same=!!before&&!s.nav&&!before.click;
+ const tourEl=$('#tour'),spot=$('#spot'),bub=$('#bub'),dim=$('#dim');tourEl.classList.toggle('glide',same);
+ if(!same){bub.style.opacity=0;spot.style.opacity=0;dim.style.opacity=1;await wait(200)}
+ if(s.nav)go(s.nav);
+ let target=s.target;if(target==='wn-link'&&phone){target='phone-menu'}
+ let el=null;const t0=Date.now();while(target&&Date.now()-t0<2000){const x=document.querySelector(`[data-tour="${target}"]`);if(x&&x.getBoundingClientRect().width>0){el=x;break}await wait(80)}
+ const fr=f.getBoundingClientRect();last=T.i===T.stops.length-1;
+ bub.innerHTML=`<b>${s.title}</b><span class="m">${!el&&s.missing?s.missing:(phone&&target==='phone-menu'?"Tap Menu, then What's new, to see every past update.":s.body)}</span>${T.stops.length>1?`<div class="brow"><span class="dots">${T.stops.map((_,k)=>`<i class="${k===T.i?'on':''}"></i>`).join('')}</span><span>${T.i+1} of ${T.stops.length}</span></div>`:''}<div class="acts">${!last?'<button class="btn" onclick="end()">Skip tour</button>':''}${T.i>0&&!T.stops[T.i-1].click?'<button class="btn" onclick="T.i--;show()">Back</button>':''}<button class="btnp" onclick="next()">${last?'Done':'Next'}</button></div>`;
+ const w=Math.min(320,f.clientWidth-32),bh=bub.offsetHeight,vw=f.clientWidth,vh=f.clientHeight;let pos;
+ if(el){el.scrollIntoView({block:'nearest',behavior:same?'smooth':'instant'});const r0=await settle(el),ox=fr.left+f.clientLeft,oy=fr.top+f.clientTop,r={left:r0.left-ox,top:r0.top-oy,right:r0.right-ox,bottom:r0.bottom-oy,width:r0.width,height:r0.height},p=6;
+  Object.assign(spot.style,{left:r.left-p+'px',top:r.top-p+'px',width:r.width+2*p+'px',height:r.height+2*p+'px'});
+  const left=Math.max(16,Math.min(r.left,vw-w-16));
+  pos=r.bottom+p+12+bh<vh?{left,top:r.bottom+p+12}:r.top-p-12-bh>0?{left,top:r.top-p-12-bh}:r.right+p+12+w<vw?{left:r.right+p+12,top:Math.max(16,Math.min(r.top,vh-bh-16))}:{left,top:vh-bh-16};
+  spot.style.opacity=1;dim.style.opacity=0}else{pos={left:(vw-w)/2,top:(vh-bh)/2};spot.style.opacity=0;dim.style.opacity=1}
+ Object.assign(bub.style,{left:pos.left+'px',top:pos.top+'px',width:w+'px',opacity:1})}
+let last=false;
+function next(){const s=T.stops[T.i];if(s.click){const x=document.querySelector(`[data-tour="${s.target}"]`);x&&x.click()}if(T.i===T.stops.length-1)end();else{T.i++;show()}}
+function end(){layer.innerHTML='';T=null}
+addEventListener('keydown',e=>{if(e.key==='Escape'){end();}});
+const STATES=[['1. Update notice',()=>{seen=false;go('home');notice()}],["2. What's new box",()=>{seen=false;go('home');box()}],['3. Tour',()=>{go('home');tour(NOTES)}],['4. Show me how',()=>{go('home');tour([NOTES[1]])}],["5. What's new page",()=>{end();go('whatsnew')}],['Phone',null]];
+function ctl(){$('#ctl').innerHTML=STATES.map((s,i)=>`<button class="${s[0]==='Phone'&&phone?'on':''}" onclick="pick(${i})">${s[0]}</button>`).join('')}
+function pick(i){if(STATES[i][0]==='Phone'){phone=!phone;f.classList.toggle('phone',phone);ctl();return}STATES[i][1]()}
+ctl();go('home');notice();
+</script></body></html>

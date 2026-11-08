@@ -35,6 +35,12 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   // Remember the open tab for this browser tab, so a refresh (e.g. the new-version pop-up) reopens it.
   const [activeTab, setActiveTab] = useState(() => { try { return sessionStorage.getItem('hcm-venue-tab') || 'overview'; } catch { return 'overview'; } });
   useEffect(() => { try { sessionStorage.setItem('hcm-venue-tab', activeTab); } catch {} }, [activeTab]);
+  // The What's new tour opens a tab by name.
+  useEffect(() => {
+    const onNav = (e) => { if (e.detail?.tab) setActiveTab(e.detail.tab); };
+    window.addEventListener('admin-nav', onNav);
+    return () => window.removeEventListener('admin-nav', onNav);
+  }, []);
 
   // Audience analytics (free tier)
   const [audience, setAudience] = useState(null);
@@ -753,13 +759,13 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
       <h1 className="admin-page-title">{brewery.name || t('Brewery')} · {t('Dashboard')}</h1>
 
       <div className="admin-tabs">
-        <button className={`admin-tab ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>{t('Overview')}</button>
-        <button className={`admin-tab ${activeTab === 'ratings' ? 'active' : ''}`} onClick={() => setActiveTab('ratings')}>{t('Beer Ratings')}</button>
-        <button className={`admin-tab ${activeTab === 'competition' ? 'active' : ''}`} onClick={() => setActiveTab('competition')}>{t('Trail Competition')}</button>
-        {canManage && <button className={`admin-tab ${activeTab === 'events' ? 'active' : ''}`} onClick={() => setActiveTab('events')}>{t('Events')} ({events.length})</button>}
-        {canManage && <button className={`admin-tab ${activeTab === 'beers' ? 'active' : ''}`} onClick={() => setActiveTab('beers')}>{t('Beer Menu')}</button>}
-        <button className={`admin-tab ${activeTab === 'stock' ? 'active' : ''}`} onClick={() => setActiveTab('stock')}>{brewMerch.some(m => m.lowStock) ? t('Stock · low') : t('Stock')}</button>
-        <button className={`admin-tab ${activeTab === 'audience' ? 'active' : ''}`} onClick={() => {
+        <button data-tour="tab-overview" className={`admin-tab ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>{t('Overview')}</button>
+        <button data-tour="tab-ratings" className={`admin-tab ${activeTab === 'ratings' ? 'active' : ''}`} onClick={() => setActiveTab('ratings')}>{t('Beer Ratings')}</button>
+        <button data-tour="tab-competition" className={`admin-tab ${activeTab === 'competition' ? 'active' : ''}`} onClick={() => setActiveTab('competition')}>{t('Trail Competition')}</button>
+        {canManage && <button data-tour="tab-events" className={`admin-tab ${activeTab === 'events' ? 'active' : ''}`} onClick={() => setActiveTab('events')}>{t('Events')} ({events.length})</button>}
+        {canManage && <button data-tour="tab-beers" className={`admin-tab ${activeTab === 'beers' ? 'active' : ''}`} onClick={() => setActiveTab('beers')}>{t('Beer Menu')}</button>}
+        <button data-tour="tab-stock" className={`admin-tab ${activeTab === 'stock' ? 'active' : ''}`} onClick={() => setActiveTab('stock')}>{brewMerch.some(m => m.lowStock) ? t('Stock · low') : t('Stock')}</button>
+        <button data-tour="tab-audience" className={`admin-tab ${activeTab === 'audience' ? 'active' : ''}`} onClick={() => {
           setActiveTab('audience');
           if (!audience && !audienceLoading) {
             setAudienceLoading(true);
@@ -770,10 +776,10 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
           }
         }}>{t('Audience')}</button>
         {(staffRole === 'owner' || staffRole === 'manager') && (
-          <button className={`admin-tab ${activeTab === 'team' ? 'active' : ''}`} onClick={() => setActiveTab('team')}>{t('Team')}</button>
+          <button data-tour="tab-team" className={`admin-tab ${activeTab === 'team' ? 'active' : ''}`} onClick={() => setActiveTab('team')}>{t('Team')}</button>
         )}
-        <button className={`admin-tab ${activeTab === 'promote' ? 'active' : ''}`} onClick={() => setActiveTab('promote')}>{t('Promote')}</button>
-        <button className={`admin-tab ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>{t('Settings')}</button>
+        <button data-tour="tab-promote" className={`admin-tab ${activeTab === 'promote' ? 'active' : ''}`} onClick={() => setActiveTab('promote')}>{t('Promote')}</button>
+        <button data-tour="tab-settings" className={`admin-tab ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>{t('Settings')}</button>
       </div>
 
       {canManage && activeTab === 'overview' && (

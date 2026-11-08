@@ -1,0 +1,50 @@
+/* What's new on the dashboard (design/whats-new-mockup.html). Squared corners, no pills. */
+.wn-m { color: var(--admin-text-muted); display: block; font-weight: 400; }
+.wn-count, .wn-tag, .wn-badge { background: var(--hq-accent, #F5A623); color: var(--hq-accent-ink, #111); border-radius: 4px; font-size: 12px; font-weight: 700; padding: 1px 7px; line-height: 1.5; }
+.wn-badge { font-size: 11px; padding: 0 6px; margin-left: 6px; }
+.wn-btn { background: var(--hq-panel2, #1F2125); color: var(--admin-text); border: 1px solid var(--admin-border); border-radius: 9px; padding: 9px 14px; font: 600 14px/1.2 inherit; font-family: inherit; cursor: pointer; }
+.wn-btn.primary { background: var(--hq-accent, #F5A623); border-color: var(--hq-accent, #F5A623); color: var(--hq-accent-ink, #111); font-weight: 700; }
+.wn-btn:disabled { opacity: .6; cursor: default; }
+.wn-link { background: none; border: 0; padding: 0; color: var(--admin-primary); font: 600 13.5px/1.3 inherit; font-family: inherit; cursor: pointer; }
+.wn-acts { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+
+.wn-scrim { position: fixed; inset: 0; z-index: 9000; background: rgba(10, 11, 13, .72); display: grid; place-items: center; padding: 16px; animation: wn-in .2s ease; }
+.wn-box { width: min(460px, 100%); max-height: calc(100vh - 32px); overflow: auto; background: var(--admin-card-bg); color: var(--admin-text); border: 1px solid var(--admin-border); border-radius: 16px; padding: 22px; box-shadow: 0 30px 60px rgba(0, 0, 0, .5); display: flex; flex-direction: column; gap: 14px; }
+.wn-box h2 { margin: 2px 0 0; font-size: 20px; display: flex; align-items: center; gap: 8px; }
+.wn-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.wn-list li { display: grid; grid-template-columns: 26px 1fr; gap: 10px; }
+.wn-list li b { display: block; }
+.wn-list li .wn-link { grid-column: 2; justify-self: start; }
+.wn-num { width: 26px; height: 26px; border-radius: 6px; background: var(--hq-panel2, #1F2125); display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+@keyframes wn-in { from { opacity: 0; } to { opacity: 1; } }
+
+.wn-tour { position: fixed; inset: 0; z-index: 9001; }
+.wn-dim { position: absolute; inset: 0; background: rgba(10, 11, 13, .72); transition: opacity .2s ease; }
+.wn-spot { position: fixed; border: 2px solid var(--hq-accent, #F5A623); border-radius: 10px; box-shadow: 0 0 0 9999px rgba(10, 11, 13, .72); transition: opacity .2s ease; pointer-events: none; }
+.wn-bubble { position: fixed; background: var(--admin-card-bg); color: var(--admin-text); border: 1px solid var(--admin-border); border-radius: 12px; padding: 14px 16px; box-shadow: 0 20px 50px rgba(0, 0, 0, .55); display: flex; flex-direction: column; gap: 8px; transition: opacity .2s ease; max-height: calc(100vh - 32px); overflow: auto; }
+.wn-tour.glide .wn-spot, .wn-tour.glide .wn-bubble { transition: left .4s ease, top .4s ease, width .4s ease, height .4s ease, opacity .2s ease; }
+.wn-row { display: flex; justify-content: space-between; align-items: center; color: var(--admin-text-muted); font-size: 12px; }
+.wn-dots { display: flex; gap: 4px; }
+.wn-dots i { width: 6px; height: 6px; border-radius: 2px; background: var(--admin-border); }
+.wn-dots i.on { background: var(--hq-accent, #F5A623); }
+@media (prefers-reduced-motion: reduce) { .wn-tour.glide .wn-spot, .wn-tour.glide .wn-bubble, .wn-dim, .wn-spot, .wn-bubble { transition: none; } }
+
+.wn-page { max-width: 760px; margin: 0 auto; padding: 24px 20px 60px; }
+.wn-page h1 { font-size: 22px; margin: 0 0 4px; }
+.wn-rel { background: var(--admin-card-bg); border: 1px solid var(--admin-border); border-radius: 14px; padding: 16px 18px; margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+.wn-rel.new { border-color: var(--hq-accent, #F5A623); }
+.wn-rel h2 { font-size: 15px; margin: 0; display: flex; gap: 8px; align-items: center; }
+.wn-rel ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.wn-rel li b { display: block; }
+
+/* The update notice: small, bottom right (full width on a phone). */
+.wn-notice { position: fixed; right: 18px; bottom: 18px; z-index: 9500; width: 320px; background: var(--admin-card-bg, #16181B); color: var(--admin-text, #F3F4F6); border: 1px solid var(--admin-border, #2A2D32); border-radius: 12px; padding: 14px 16px; box-shadow: 0 20px 50px rgba(0, 0, 0, .5); display: flex; flex-direction: column; gap: 4px; animation: wn-in .2s ease; }
+.wn-notice b { font-size: 15px; }
+.wn-notice .wn-acts { margin-top: 10px; }
+@media (max-width: 600px) { .wn-notice { left: 12px; right: 12px; width: auto; bottom: 12px; } }
+
+/* Phones: the header's right-hand buttons wrap instead of running off the left edge. */
+@media (max-width: 600px) {
+  .admin-header-right { flex-wrap: wrap; justify-content: flex-end; gap: 8px; min-width: 0; max-width: 100%; }
+  .admin-header-right .admin-user-info { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}

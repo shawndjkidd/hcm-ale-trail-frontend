@@ -5,9 +5,11 @@ import HQDashboard from './HQDashboard';
 import BreweryDashboard from './BreweryDashboard';
 import AdminFeedbackProvider from './AdminFeedback';
 import AdminUpdateBar from './AdminUpdateBar';
+import { useWhatsNew } from './whatsNewData';
+import { WhatsNewBox, Tour, WhatsNewPage } from './WhatsNew';
 import './admin.css';
 import './hq.css';
-import { useAdminLang, setAdminLang } from './i18n';
+import { useAdminLang, setAdminLang, useT } from './i18n';
 
 // Default export wraps the app in AdminFeedbackProvider so any descendant
 // component can call useToast() / useConfirm(). All real logic lives in
@@ -22,12 +24,26 @@ export default function AdminApp() {
 
 function AdminAppInner() {
   const adminLang = useAdminLang();
+  const tAdmin = useT();
   const [loading, setLoading] = useState(true);
   const [adminUser, setAdminUser] = useState(null);
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('admin-theme') || 'dark';
   });
   const [currentView, setCurrentView] = useState('dashboard');
+
+  // What's new: the box once after an update, the tour, and the What's new page.
+  const wn = useWhatsNew(!!adminUser);
+  const [wnBoxClosed, setWnBoxClosed] = useState(false);
+  const [tourItems, setTourItems] = useState(null);
+  const [backView, setBackView] = useState('dashboard');
+  const openWhatsNew = () => { if (currentView !== 'whatsnew') setBackView(currentView); setCurrentView('whatsnew'); };
+  // Tour stops go to a page: { view: 'dashboard' | 'brewery' | 'whatsnew', tab }. The dashboards
+  // listen for 'admin-nav' to switch tab.
+  const tourNav = (nav) => {
+    if (nav?.view) setCurrentView(nav.view === 'whatsnew' ? 'whatsnew' : nav.view);
+    if (nav?.tab) setTimeout(() => window.dispatchEvent(new CustomEvent('admin-nav', { detail: { tab: nav.tab } })), 0);
+  };
 
   // Profile dropdown
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -225,7 +241,7 @@ function AdminAppInner() {
 
   return (
     <div className="admin-app hq-theme">
-      <AdminUpdateBar />
+      <AdminUpdateBar signedIn />
       <header className="admin-header">
         <div className="admin-header-left">
           <span className="admin-logo">Ho Chi Minh Ale Trail Admin</span>
@@ -249,6 +265,10 @@ function AdminAppInner() {
         </div>
 
         <div className="admin-header-right">
+          <button type="button" data-tour="wn-link" className={`admin-quick-filter ${currentView === 'whatsnew' ? 'active' : ''}`}
+            onClick={() => (currentView === 'whatsnew' ? setCurrentView(backView) : openWhatsNew())}>
+            {tAdmin("What's new")}{wn.unseen.length > 0 && <span className="wn-badge">{wn.unseen.length}</span>}
+          </button>
           <div role="group" aria-label="Language" style={{ display: 'inline-flex', border: '1px solid var(--admin-border)', borderRadius: 9, padding: 2, gap: 2 }}>
             {[['en', 'EN'], ['vi', 'VI']].map(([code, label]) => (
               <button key={code} type="button" aria-pressed={adminLang === code} onClick={() => setAdminLang(code)}
@@ -302,7 +322,9 @@ function AdminAppInner() {
         <div role="status" style={{ margin: '12px auto 0', maxWidth: 1100, padding: '10px 14px', borderRadius: 10, border: `1px solid ${passkeyMsg.startsWith('✓') ? 'var(--admin-success)' : 'var(--admin-border)'}`, fontSize: 14 }}>{passkeyMsg}</div>
       )}
 
-      {isBreweryUser && (
+      {currentView === 'whatsnew' && <WhatsNewPage wn={wn} onTour={setTourItems} />}
+
+      {isBreweryUser && currentView !== 'whatsnew' && (
         <BreweryDashboard
           breweryId={adminUser.breweryId}
           adminEmail={adminUser.email}
@@ -317,6 +339,11 @@ function AdminAppInner() {
       {isHQ && currentView === 'brewery' && (
         <BreweryDashboard isHQ={true} staffRole="owner" />
       )}
+
+      {wn.loaded && !wnBoxClosed && !tourItems && (wn.unseen.length > 0 || wn.smallFixes > 0) && (
+        <WhatsNewBox wn={wn} onClose={() => setWnBoxClosed(true)} onTour={(list) => { setWnBoxClosed(true); setTourItems(list); }} />
+      )}
+      {tourItems && <Tour items={tourItems} nav={tourNav} onDone={() => setTourItems(null)} />}
 
       {/* Change Password Modal */}
       {showChangePwd && (

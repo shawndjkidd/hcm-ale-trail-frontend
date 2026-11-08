@@ -101,6 +101,27 @@ export async function getAdminMe() {
   }
 }
 
+// ==================== WHAT'S NEW ====================
+
+/** Every dashboard update, with only the notes this person may read, and the newest one they've seen. */
+export async function getWhatsNew() {
+  try {
+    const res = await apiFetch(`${API_BASE}/api/admin/whats-new`, { headers: authHeaders(), cache: 'no-store' });
+    return await readJson(res);
+  } catch (err) {
+    return { ok: false, error: netError(err) };
+  }
+}
+
+export async function markWhatsNewSeen(releaseId) {
+  try {
+    const res = await apiFetch(`${API_BASE}/api/admin/whats-new/seen`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ releaseId }) });
+    return await readJson(res);
+  } catch (err) {
+    return { ok: false, error: netError(err) };
+  }
+}
+
 // ==================== HQ DASHBOARD ====================
 
 export async function getTrailAnalytics(trailId, scope = 'trail', breweryId = null) {

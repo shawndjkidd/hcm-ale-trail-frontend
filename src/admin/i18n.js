@@ -28,6 +28,32 @@ function fill(s, vars) {
 }
 
 const VI = {
+  // What's new
+  'What\'s new': 'Có gì mới',
+  'Updated {d}': 'Cập nhật {d}',
+  'Show me how · {n} steps': 'Chỉ tôi cách làm · {n} bước',
+  'Plus 1 small fix.': 'Cùng 1 chỉnh sửa nhỏ.',
+  'Plus {n} small fixes.': 'Cùng {n} chỉnh sửa nhỏ.',
+  'Take the tour': 'Xem hướng dẫn',
+  'Take the tour again': 'Xem lại hướng dẫn',
+  'Tour of what\'s new': 'Hướng dẫn những điểm mới',
+  '{a} of {b}': '{a} / {b}',
+  'Skip tour': 'Bỏ qua',
+  'Back': 'Quay lại',
+  'Next': 'Tiếp',
+  'Every update to the dashboard, newest first': 'Mọi bản cập nhật của trang quản lý, mới nhất trước',
+  'No updates yet.': 'Chưa có cập nhật nào.',
+  '1 update': '1 cập nhật',
+  '{n} updates': '{n} cập nhật',
+  '1 small fix': '1 chỉnh sửa nhỏ',
+  '{n} small fixes': '{n} chỉnh sửa nhỏ',
+  'New': 'Mới',
+  'New version: 1 update': 'Phiên bản mới: 1 cập nhật',
+  'New version: {n} updates': 'Phiên bản mới: {n} cập nhật',
+  'Refresh to see what\'s new. Anything you\'ve saved is safe.': 'Tải lại trang để xem có gì mới. Những gì bạn đã lưu vẫn an toàn.',
+  'Refresh to get the latest version. Anything you\'ve saved is safe.': 'Tải lại trang để dùng phiên bản mới nhất. Những gì bạn đã lưu vẫn an toàn.',
+  'Refresh': 'Tải lại',
+  'Loading…': 'Đang tải…',
   // Tabs and header
   'Overview': 'Tổng quan',
   'Beer Ratings': 'Đánh giá bia',

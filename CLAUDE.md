@@ -101,3 +101,16 @@ We use **Brave** (not Chrome) as our primary browser. Claude always has access t
 ### Routing notes
 - `/reset-password` is handled in `main.jsx` (not `App.jsx`) to bypass the `showWelcome` guard that fires when no `hcm-user` is in localStorage
 - `resetPassword()` lives in `supabase.js` (not `api.js`) because it uses the Supabase JS client directly
+
+## Every dashboard update ships with What's new notes (Shawn, 8 Nov 2026)
+
+The venue/HQ dashboard (`/admin`) tells people what changed after each update: a notice when a new version is live, a "What's new" box once after they refresh, a guided tour, and a What's new page (header button). Notes live in the database (backend `supabase/migrations/20261108_admin_whats_new.sql`: `admin_releases`, `admin_release_items`, `admin_release_seen`); the backend route `/api/admin/whats-new` only returns notes each person may see. Frontend: `src/admin/WhatsNew.jsx`, `whatsNewData.js`, `AdminUpdateBar.jsx`; mockup `design/whats-new-mockup.html`.
+
+For every change people would notice on the dashboard:
+a. Wait until the deploy is live (`https://hcm.thealetrail.app/version.json` shows the new build). Notes added earlier describe something people can't see yet.
+b. Add one `admin_releases` row (id `YYYY-MM-DD`, or `YYYY-MM-DD-2` for a second update that day; `small_fixes` = fixes too small to list) plus one `admin_release_items` row per change, through `supabase-rw-aletrail`, and save the same SQL as a migration file in the backend repo.
+c. Each note: a short title and a body for someone who has never seen the dashboard (what changed, why it helps, where to find it). Add `title_vi`/`body_vi` when you can. No money figures, no people's names, nothing private.
+d. Audience: `hq_only` (HQ team only), `brewery_id` (HQ and that venue only), `owners_only` (HQ and venue owners). Leave them empty only for things every dashboard user can open.
+e. Tour: `{"nav": {"view": "dashboard"|"brewery", "tab": "<tab id>"}, "target": "<data-tour name>"}` and put `data-tour="<name>"` on the new thing (tabs already have `data-tour="tab-<id>"`, the header button is `wn-link`). For a walkthrough use `{"steps": [{"title", "body", "nav", "target", "click": true, "missing": "what to say if it isn't there"}]}`.
+f. Check it as each kind of user before reporting (HQ, a venue owner, venue staff), e.g. with the filter in `src/lib/services/whats-new.ts` or a rolled-back transaction.
+g. Never reset anyone's `admin_release_seen` to re-test (it makes the same notes pop up again and again). Test with a fresh test note or on the What's new page instead.

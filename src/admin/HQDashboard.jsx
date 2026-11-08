@@ -54,6 +54,12 @@ export default function HQDashboard({ adminEmail = '' }) {
   // Remember the open page for this browser tab, so a refresh (e.g. the new-version pop-up) reopens it.
   const [activeTab, setActiveTab] = useState(() => { try { return sessionStorage.getItem('hcm-hq-tab') || 'home'; } catch { return 'home'; } });
   useEffect(() => { try { sessionStorage.setItem('hcm-hq-tab', activeTab); } catch {} }, [activeTab]);
+  // The What's new tour opens a tab by name.
+  useEffect(() => {
+    const onNav = (e) => { if (e.detail?.tab) setActiveTab(e.detail.tab); };
+    window.addEventListener('admin-nav', onNav);
+    return () => window.removeEventListener('admin-nav', onNav);
+  }, []);
   // Pages that load their data on first click need it when reopened after a refresh too.
   useEffect(() => {
     if (activeTab === 'analytics') loadAnalytics();
@@ -599,7 +605,7 @@ export default function HQDashboard({ adminEmail = '' }) {
         ].map((item) => item.grp
           ? <div key={item.grp} className="grp">{item.grp}</div>
           : (
-            <button key={item.id} type="button" className={activeTab === item.id ? 'on' : ''} aria-current={activeTab === item.id ? 'page' : undefined}
+            <button key={item.id} type="button" data-tour={`tab-${item.id}`} className={activeTab === item.id ? 'on' : ''} aria-current={activeTab === item.id ? 'page' : undefined}
               onClick={() => { setActiveTab(item.id); item.onOpen?.(); }}>
               {item.label}
               {item.dot ? <span className="dot" aria-label="needs attention" /> : item.ct != null ? <span className="ct">{item.ct}</span> : null}
