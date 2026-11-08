@@ -783,6 +783,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
         <button data-tour="tab-settings" className={`admin-tab ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>{t('Settings')}</button>
       </div>
 
+      {canManage && breweryId && activeTab === 'overview' && <ScorecardCard breweryId={breweryId} t={t} />}
       {canManage && activeTab === 'overview' && (
         <VenueChecklist breweryId={breweryId} isHQ={isHQ} photoUrl={photoUrl} hasHours={hasHours} socialLinks={socialLinks}
           descriptionEn={descriptionEn} descriptionVn={descriptionVn} savedPin={savedPin} beers={beers} merch={brewMerch} events={events} staff={staff}
@@ -794,7 +795,6 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
 
       {activeTab === 'overview' && (
         <>
-          {canManage && breweryId && <ScorecardCard breweryId={breweryId} t={t} />}
 
           <div className="admin-filters">
             <button className={`admin-quick-filter ${dateRange === '24h' ? 'active' : ''}`} onClick={() => setDateRange('24h')}>{t('Last 24h')}</button>
