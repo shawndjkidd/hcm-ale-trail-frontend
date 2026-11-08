@@ -990,6 +990,14 @@ export async function getTrailReport(trailId, period) {
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
+/** A venue's own one-page scorecard (owners, managers and HQ). */
+export async function getVenueScorecard(breweryId) {
+  try {
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/scorecard`, { headers: authHeaders(), cache: 'no-store' });
+    return await readJson(res);
+  } catch (err) { return { ok: false, error: netError(err) }; }
+}
+
 // ==================== HQ SIGN-UPS ====================
 
 export async function hqGetSignups(trailId) {

@@ -28,6 +28,14 @@ function fill(s, vars) {
 }
 
 const VI = {
+  // Venue scorecard
+  'Your scorecard': 'Bảng điểm của bạn',
+  'A one-page PDF of how your venue is doing on the trail, and what to try next. Only your team can see it.': 'Một trang PDF cho biết quán bạn đang làm thế nào trên hành trình, và nên thử gì tiếp theo. Chỉ đội của bạn xem được.',
+  'Download scorecard': 'Tải bảng điểm',
+  'Making the PDF…': 'Đang tạo PDF…',
+  'Downloaded': 'Đã tải xong',
+  'Could not load your numbers': 'Không tải được số liệu',
+  'Could not make the PDF. Please try again.': 'Không tạo được PDF. Vui lòng thử lại.',
   // What's new
   'What\'s new': 'Có gì mới',
   'Updated {d}': 'Cập nhật {d}',

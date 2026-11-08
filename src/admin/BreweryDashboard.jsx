@@ -7,6 +7,7 @@ import LocationsCard from './LocationsCard';
 import VenueDemoCard from './VenueDemoCard';
 import VenueChecklist from './VenueChecklist';
 import PromoteTab from './PromoteTab';
+import { ScorecardCard } from './TrailReport';
 import { useT } from './i18n';
 
 const DAY_NAMES = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -793,6 +794,7 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
 
       {activeTab === 'overview' && (
         <>
+          {canManage && breweryId && <ScorecardCard breweryId={breweryId} t={t} />}
 
           <div className="admin-filters">
             <button className={`admin-quick-filter ${dateRange === '24h' ? 'active' : ''}`} onClick={() => setDateRange('24h')}>{t('Last 24h')}</button>
