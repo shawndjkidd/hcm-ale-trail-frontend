@@ -1,0 +1,15 @@
+{
+  "id": "/admin",
+  "name": "HCM Ale Trail Admin",
+  "short_name": "Trail Admin",
+  "description": "The Ho Chi Minh Ale Trail dashboard for HQ and venues.",
+  "start_url": "/admin",
+  "scope": "/admin",
+  "display": "standalone",
+  "background_color": "#0E0F11",
+  "theme_color": "#0E0F11",
+  "icons": [
+    { "src": "/icons/hcm-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/hcm-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

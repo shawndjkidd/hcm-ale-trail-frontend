@@ -26,6 +26,16 @@ try {
 
 // Simple routing: /admin → AdminApp, /reset-password → ResetPassword, everything else → App
 const isAdminRoute = window.location.pathname.startsWith('/admin')
+
+// The dashboard saved to a home screen opens the dashboard, not the guest app: it has its own
+// home-screen settings (start page /admin) and name.
+if (isAdminRoute) {
+  try {
+    document.getElementById('app-manifest')?.setAttribute('href', '/manifest-admin.webmanifest')
+    document.querySelector('meta[name="apple-mobile-web-app-title"]')?.setAttribute('content', 'Trail Admin')
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#0E0F11')
+  } catch {}
+}
 const isResetPassword = window.location.pathname === '/reset-password'
 const venueToken = venueTokenFromPath(window.location.pathname)
 
