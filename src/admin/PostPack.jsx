@@ -234,14 +234,21 @@ export function PostPackCard() {
   if (error) return <div className="hq-card"><h3 style={{ margin: 0 }}>This week’s posts</h3><p className="hq-note">{error}</p></div>;
   if (!pack) return <div className="hq-card"><h3 style={{ margin: 0 }}>This week’s posts</h3><p className="hq-note">Loading…</p></div>;
   const day = pack.week.monday;
+  // Browsers only allow one download per click, so all the stories go into one zip file.
   const allVenues = async () => {
     a.setBusy('all');
     try {
+      const { default: JSZip } = await import('jszip');
+      const zip = new JSZip();
       for (const v of pack.venues) {
-        save(await renderPng(<VenueStory venue={v} />, STORY), `ale-trail-week-${day}-${slug(short(v.name))}.png`);
-        await new Promise((r) => setTimeout(r, 400));
+        const png = await renderPng(<VenueStory venue={v} />, STORY);
+        zip.file(`ale-trail-week-${day}-${slug(short(v.name))}.png`, png.split(',')[1], { base64: true });
       }
-      a.flash(`Downloaded ${pack.venues.length} venue stories`);
+      const blob = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(blob);
+      save(url, `ale-trail-week-${day}-venue-stories.zip`);
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      a.flash(`Downloaded ${pack.venues.length} venue stories in one zip file`);
     } catch { a.flash('Could not make the pictures. Please try again.'); }
     a.setBusy('');
   };
@@ -284,7 +291,7 @@ export function PostPackCard() {
               </li>
             ))}
           </ul>
-          <div className="pp-btns"><button type="button" className="trp-dl" disabled={!!a.busy} onClick={allVenues}>{a.busy === 'all' ? 'Making…' : 'Download all'}</button></div>
+          <div className="pp-btns"><button type="button" className="trp-dl" disabled={!!a.busy} onClick={allVenues}>{a.busy === 'all' ? `Making ${pack.venues.length} pictures…` : 'Download all (zip)'}</button></div>
           <p className="hq-note">Each venue also sees its own on its Promote tab.</p>
         </div>
       </div>
