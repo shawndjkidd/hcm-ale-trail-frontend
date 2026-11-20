@@ -1361,3 +1361,13 @@ body:has(.admin-app) {
 
 /* Saved to a home screen, the dashboard keeps clear of the phone's clock and camera area. */
 .admin-app { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+/* Buttons without a colour of their own get the dashboard's dark style (iPhones otherwise show
+   plain blue text on grey). */
+.hq-theme .admin-btn:not(.admin-btn-primary):not(.admin-btn-success):not(.admin-btn-danger) {
+  background: var(--hq-panel2, #1F2125); color: var(--admin-text); border: 1px solid var(--admin-border);
+}
+/* Phones zoom in when a typing box has text under 16px, and the page then slides around. */
+@media (max-width: 768px) {
+  .admin-app input, .admin-app select, .admin-app textarea { font-size: 16px !important; }
+}

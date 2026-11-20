@@ -78,7 +78,9 @@ async function adminPage(url) {
       .replace(/(<meta name="apple-mobile-web-app-title" content=")[^"]*(")/, '$1Trail Admin$2')
       .replace(/(<meta name="theme-color" content=")[^"]*(")/, '$1#0E0F11$2')
       // A solid status bar: the dashboard starts below the clock instead of underneath it.
-      .replace(/(<meta name="apple-mobile-web-app-status-bar-style" content=")[^"]*(")/, '$1black$2');
+      .replace(/(<meta name="apple-mobile-web-app-status-bar-style" content=")[^"]*(")/, '$1black$2')
+      // No pinch or tap zoom on the dashboard: a zoomed page slides around on a phone.
+      .replace(/(<meta name="viewport" content=")[^"]*(")/, '$1width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover$2');
     return new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=0, must-revalidate' } });
   } catch {
     return undefined;
