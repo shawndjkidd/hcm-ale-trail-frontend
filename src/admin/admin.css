@@ -1358,3 +1358,6 @@ body:has(.admin-app) {
     min-height: 28px;
   }
 }
+
+/* Saved to a home screen, the dashboard keeps clear of the phone's clock and camera area. */
+.admin-app { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }

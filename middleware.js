@@ -76,7 +76,9 @@ async function adminPage(url) {
       .replace(/(<link id="app-manifest" rel="manifest" href=")[^"]*(")/, '$1/manifest-admin.webmanifest$2')
       .replace(/(<link id="app-touch-icon" rel="apple-touch-icon" href=")[^"]*(")/, '$1/icons/hcm-180.png$2')
       .replace(/(<meta name="apple-mobile-web-app-title" content=")[^"]*(")/, '$1Trail Admin$2')
-      .replace(/(<meta name="theme-color" content=")[^"]*(")/, '$1#0E0F11$2');
+      .replace(/(<meta name="theme-color" content=")[^"]*(")/, '$1#0E0F11$2')
+      // A solid status bar: the dashboard starts below the clock instead of underneath it.
+      .replace(/(<meta name="apple-mobile-web-app-status-bar-style" content=")[^"]*(")/, '$1black$2');
     return new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=0, must-revalidate' } });
   } catch {
     return undefined;
