@@ -147,3 +147,31 @@
 .pp-tf .evr .t b { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-family: Anton, Impact, sans-serif; font-weight: 400; font-size: 50px; line-height: 1.02; text-transform: uppercase; }
 .pp-tf .evr .t span { font-weight: 700; font-size: 28px; }
 .pp-tf .hat { display: block; flex: none; margin: 10px auto 0; width: 360px; height: 240px; }
+
+/* HQ story pictures (drawn on the server) and the Automatic posting card */
+.pp-shot { display: block; width: 162px; height: 288px; object-fit: cover; border-radius: 10px; background: #1b1d21; margin: 8px 0; }
+.ap-card .ap-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ap-state { font-size: 13px; font-weight: 700; color: var(--admin-text-muted, #9aa0a6); }
+.ap-state.on { color: var(--admin-success, #1f9d55); }
+.ap-state.ready { color: var(--admin-text-muted); }
+.ap-steps { margin: 8px 0 12px; padding-left: 20px; line-height: 1.5; font-size: 14px; }
+.ap-connect { display: flex; gap: 10px; flex-wrap: wrap; }
+.ap-connect input { flex: 1 1 260px; min-width: 0; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--admin-border); background: var(--admin-surface, transparent); color: inherit; font-size: 16px; }
+.ap-sched { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0 14px; }
+.ap-sched > div { border: 1px solid var(--admin-border); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+.ap-sched span { font-size: 13px; color: var(--admin-text-muted, #9aa0a6); }
+.ap-switch { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; cursor: pointer; margin-bottom: 12px; }
+.ap-switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.ap-track { width: 44px; height: 26px; border-radius: 13px; background: var(--admin-border); position: relative; transition: background .2s; flex: none; }
+.ap-track::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: transform .2s; }
+.ap-switch input:checked + .ap-track { background: var(--admin-success, #1f9d55); }
+.ap-switch input:checked + .ap-track::after { transform: translateX(18px); }
+.ap-switch input:focus-visible + .ap-track { outline: 2px solid var(--admin-text); outline-offset: 2px; }
+.ap-btns { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.ap-btns select { padding: 9px 10px; border-radius: 10px; border: 1px solid var(--admin-border); background: var(--admin-surface, transparent); color: inherit; font-size: 16px; }
+.ap-confirm { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.ap-confirm span { flex: 1 1 100%; font-weight: 600; }
+.ap-log { margin-top: 14px; border-top: 1px solid var(--admin-border); padding-top: 10px; font-size: 13px; line-height: 1.6; color: var(--admin-text-muted, #9aa0a6); }
+.ap-log b { color: var(--admin-text, #e8eaed); }
+.ap-log .bad { color: var(--admin-danger, #c0392b); }
+@media (max-width: 560px) { .ap-sched { grid-template-columns: 1fr; } }

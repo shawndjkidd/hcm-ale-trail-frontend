@@ -1022,6 +1022,20 @@ export async function featureEvent(eventId, on = true) {
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
+/** HQ's automatic Instagram stories: status, connect, on/off, disconnect, post now. */
+export async function getInstagram(trailId) {
+  try {
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/hq/instagram`, { headers: authHeaders(), cache: 'no-store' });
+    return await readJson(res);
+  } catch (err) { return { ok: false, error: netError(err) }; }
+}
+export async function instagramAction(trailId, body) {
+  try {
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/hq/instagram`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
+    return await readJson(res);
+  } catch (err) { return { ok: false, error: netError(err) }; }
+}
+
 // ==================== HQ SIGN-UPS ====================
 
 export async function hqGetSignups(trailId) {

@@ -4,7 +4,6 @@ import { toPng } from 'html-to-image';
 import { getPostPack, getVenuePostPack, TRAIL_ID } from './adminApi';
 import { printFontCss } from './printFonts';
 import { trackedLink } from './PromoteTab';
-import { logoFor } from '../v2/util';
 import './post-pack.css';
 
 // Weekly post pack (mockup approved 20 Nov 2026): every Monday, last week's trail post, the event
@@ -113,85 +112,6 @@ function Branded({ corner, children, cta, tap }) {
 }
 
 const weekShort = (wk) => weekLabel(wk);
-
-// HQ's three stories a week (mockup approved 20 Nov 2026), all about the whole trail so every
-// brewery can be tagged: the big Ale Trail logo and slogan on top, all 8 brewery logos below.
-function TrailFrame({ kick, children, venues }) {
-  return (
-    <div className="pp pp-bs pp-tf" style={{ width: STORY.w, height: STORY.h }}>
-      <div className="in">
-        <img className="biglogo" src="/brand/logo-white-900.png" alt="" />
-        <div className="tagline">8 breweries. 8 stamps. 1 free hat.</div>
-        <div className="kick2">{kick}</div>
-        {children}
-        <div className="logos">
-          <small>{venues.length} BREWERIES · 1 STAMP AT EACH</small>
-          {venues.slice(0, 8).map((v) => {
-            // The app's own copy of the logo first (same website, so it always draws in the picture).
-            const src = logoFor({ id: v.id, name: v.name }) || logoFor({ logo_url: v.logo });
-            return <span key={v.id}>{src ? <img src={src} alt="" /> : <b>{stampName(v.name)}</b>}</span>;
-          })}
-        </div>
-        <div className="tap"><div className="lbl">Tap the link · start free</div><div className="arrow">↓</div><div className="space" /></div>
-      </div>
-    </div>
-  );
-}
-
-// Monday: last week on the trail.
-export function MondayStory({ pack }) {
-  const t = pack.trail;
-  const head = t.hats > 0 ? [`${t.hats} more hat${t.hats === 1 ? '' : 's'}`, 'handed out.'] : headline(t);
-  const lines = [
-    t.busiest.length ? ['Busiest', t.busiest.map((b) => short(b.name)).join(' · ')] : null,
-    t.topBeer ? ['Guest fave', `${beer(t.topBeer.name)} · ${t.topBeer.avg.toFixed(1)}`] : null,
-  ].filter(Boolean);
-  return (
-    <TrailFrame kick={`LAST WEEK ON THE TRAIL · ${weekLabel(pack.week)}`} venues={pack.venues}>
-      <div className="h1c">{head[0]}<br />{head[1]}</div>
-      <div className="boxes2">
-        <div><b>{t.stamps}</b><span>stamps</span></div>
-        <div><b>{t.newGuests}</b><span>new trailers</span></div>
-        <div><b>{t.finishers}</b><span>finished all 8</span></div>
-      </div>
-      {lines.length > 0 && <div className="hl2">{lines.map(([k, v]) => <div key={k}><i>{k}:</i> {v}</div>)}</div>}
-    </TrailFrame>
-  );
-}
-
-// Thursday: every event on the trail this weekend.
-export function ThursdayStory({ pack }) {
-  const list = (pack.weekend || []).slice(0, 3);
-  return (
-    <TrailFrame kick="WHAT'S ON THIS WEEKEND" venues={pack.venues}>
-      {list.length ? list.map((e) => (
-        <div key={e.id} className="evr">
-          <div className="d"><small>{weekday(e.startsAt).toUpperCase()}</small><b>{new Date(e.startsAt).toLocaleDateString('en-GB', { day: 'numeric', timeZone: TZ })}</b><small>{new Date(e.startsAt).toLocaleDateString('en-GB', { month: 'short', timeZone: TZ }).toUpperCase()}</small></div>
-          <div className="t"><b>{pick(e.title)}</b><span>{short(e.place)} · {time12(e.startsAt)}</span></div>
-        </div>
-      )) : (
-        <><div className="h1c">8 breweries.<br />All weekend.</div><div className="hl2"><div>Start at any of them and collect a stamp at each.</div></div></>
-      )}
-    </TrailFrame>
-  );
-}
-
-// Saturday: start tonight, win the hat.
-export function SaturdayStory({ pack }) {
-  const hats = pack.allTime?.hats || 0;
-  return (
-    <TrailFrame kick="TONIGHT ON THE TRAIL" venues={pack.venues}>
-      <div className="h1c">Start tonight.<br />Win the hat.</div>
-      <svg className="hat" viewBox="0 0 120 80" aria-hidden="true">
-        <path d="M14 58c0-26 20-44 46-44s46 18 46 44z" fill="#FFD100" stroke="#111" strokeWidth="5" />
-        <path d="M60 58h56c2 0 3 6-2 8H60z" fill="#FFD100" stroke="#111" strokeWidth="5" strokeLinejoin="round" />
-        <circle cx="60" cy="14" r="5" fill="#111" />
-        <text x="60" y="47" textAnchor="middle" fontFamily="Anton, Impact, sans-serif" fontSize="16" fill="#C8102E">ALE TRAIL</text>
-      </svg>
-      <div className="hl2"><div>Start at any of the 8. Collect a stamp at each.</div>{hats > 0 && <div><i>{hats} trailers have their hat already.</i></div>}</div>
-    </TrailFrame>
-  );
-}
 
 export function VenueStory({ venue: v, week }) {
   return (
@@ -339,16 +259,31 @@ const signInAgain = (e) => (/authori[sz]|token|expired|401/i.test(e || '') ? 'Pl
 
 const tagLine = (handles) => handles.filter(Boolean).map((h) => `@${h}`).join(' ');
 
+// HQ's three stories are drawn on the server (18 rotating designs, approved 20 Nov 2026), so the
+// preview here is exactly what posts to Instagram. Each preview shows the next one of that day.
 const HQ_STORIES = [
-  { key: 'mon', day: 'Monday', title: 'Last week on the trail', Story: MondayStory, words: (p) => trailCaption({ ...p, story: { kind: 'numbers' } }) },
-  { key: 'thu', day: 'Thursday', title: 'What’s on this weekend', Story: ThursdayStory, words: weekendCaption },
-  { key: 'sat', day: 'Saturday', title: 'Tonight on the trail', Story: SaturdayStory, words: tonightCaption },
+  { key: 'mon', dow: 1, day: 'Monday', title: 'Last week on the trail', words: (p) => trailCaption({ ...p, story: { kind: 'numbers' } }) },
+  { key: 'thu', dow: 4, day: 'Thursday', title: 'What’s on this weekend', words: weekendCaption },
+  { key: 'sat', dow: 6, day: 'Saturday', title: 'Tonight on the trail', words: tonightCaption },
 ];
+const SAIGON = 7 * 3600000;
+/** The next posting time (10:00 Saigon) of a weekday; today counts until 10:00. */
+export function nextPostAt(dow, now = Date.now()) {
+  const sg = new Date(now + SAIGON);
+  const midnight = Date.UTC(sg.getUTCFullYear(), sg.getUTCMonth(), sg.getUTCDate()) - SAIGON;
+  for (let i = 0; i < 8; i++) {
+    const at = midnight + i * 86400000 + 10 * 3600000;
+    if (new Date(at + SAIGON).getUTCDay() === dow && at > now) return at;
+  }
+  return now;
+}
+export const storyImage = (kind, at) => `/api/trails/${TRAIL_ID}/stories/${kind}.jpg?at=${encodeURIComponent(new Date(at).toISOString())}`;
 
 export function PostPackCard() {
   useBrandFonts();
   const [pack, setPack] = useState(null);
   const [error, setError] = useState('');
+  const [busy, setBusy] = useState('');
   const a = useActions((s) => s);
   useEffect(() => {
     let live = true;
@@ -359,30 +294,44 @@ export function PostPackCard() {
   if (!pack) return <div className="hq-card"><h3 style={{ margin: 0 }}>This week’s stories</h3><p className="hq-note">Loading…</p></div>;
   const day = pack.week.monday;
   const tags = tagLine(pack.tags || []);
+  const download = async (key, url, at) => {
+    setBusy(key);
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error();
+      const href = URL.createObjectURL(await res.blob());
+      save(href, `ale-trail-${new Date(at + SAIGON).toISOString().slice(0, 10)}-${key}.jpg`);
+      setTimeout(() => URL.revokeObjectURL(href), 5000);
+      a.flash('Downloaded');
+    } catch { a.flash('Could not get the picture. Please try again.'); }
+    setBusy('');
+  };
   return (
     <div className="hq-card pp-card" data-tour="post-pack">
       <div className="pp-head">
-        <div><h3 style={{ margin: 0 }}>This week’s stories · {dayMonth(`${day}T12:00:00Z`)}</h3>
-          <p className="hq-note" style={{ margin: '2px 0 0' }}>Three stories a week, all about the whole trail. Post each one, add the link sticker, and tag every brewery.</p></div>
+        <div><h3 style={{ margin: 0 }}>This week’s stories</h3>
+          <p className="hq-note" style={{ margin: '2px 0 0' }}>Three stories a week about the whole trail, a new look every week. Each picture is the next one that goes out.</p></div>
         {a.msg && <span className="trp-msg ok" role="status">{a.msg}</span>}
       </div>
       <div className="pp-items">
-        {HQ_STORIES.map(({ key, day: d, title, Story, words }) => (
-          <div key={key} className="pp-item">
-            <h4>{d} <small>{title}</small></h4>
-            <Preview size={STORY} scale={0.15}><Story pack={pack} /></Preview>
-            <div className="pp-btns">
-              <button type="button" className="trp-dl" disabled={!!a.busy} onClick={() => a.download(key, <Story pack={pack} />, STORY, `ale-trail-${day}-${key}.png`)}>{a.busy === key ? 'Making…' : 'Download picture'}</button>
+        {HQ_STORIES.map(({ key, dow, day: d, title, words }) => {
+          const at = nextPostAt(dow);
+          const url = storyImage(key, at);
+          return (
+            <div key={key} className="pp-item">
+              <h4>{d} <small>{title} · {dayMonth(new Date(at).toISOString())}</small></h4>
+              <img className="pp-shot" src={url} alt={`${d} story`} loading="lazy" width={162} height={288} />
+              <div className="pp-btns">
+                <button type="button" className="trp-dl" disabled={!!busy} onClick={() => download(key, url, at)}>{busy === key ? 'Getting it…' : 'Download picture'}</button>
+              </div>
+              <div className="pp-btns">
+                <button type="button" className="admin-btn" style={{ width: 'auto' }} onClick={() => a.copy(tags)}>Copy tags</button>
+                <button type="button" className="admin-btn" style={{ width: 'auto' }} onClick={() => a.copy(words(pack))}>Copy words</button>
+              </div>
             </div>
-            <div className="pp-btns">
-              <button type="button" className="admin-btn" style={{ width: 'auto' }} onClick={() => a.copy(STORY_LINK)}>Copy link</button>
-              <button type="button" className="admin-btn" style={{ width: 'auto' }} onClick={() => a.copy(tags)}>Copy tags</button>
-              <button type="button" className="admin-btn" style={{ width: 'auto' }} onClick={() => a.copy(words(pack))}>Copy words</button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
-      <div className="pp-tags" style={{ marginTop: 12 }}>{tags}</div>
       <p className="hq-note">Want a feed post too? <button type="button" className="wn-link" disabled={!!a.busy} onClick={() => a.download('post', <TrailPost pack={pack} />, POST, `ale-trail-${day}-post.png`)}>Download last week as a feed post</button></p>
     </div>
   );
