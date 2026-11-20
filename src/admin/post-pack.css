@@ -117,3 +117,33 @@
 @media (max-width: 1100px) { .pp-items.two { grid-template-columns: 1fr; } }
 @media (max-width: 560px) { .pp-item.row { flex-direction: column; } }
 .pp-bs .ev .grab { display: block; margin-top: 10px; color: var(--yel); }
+
+/* HQ's three weekly stories (approved 20 Nov 2026): the whole trail, big logo, all 8 brewery logos. */
+.pp-tf .in { padding: 64px 64px 56px; }
+.pp-tf .biglogo { width: 86%; height: auto; display: block; margin: 0 auto; }
+.pp-tf .tagline { margin-top: 18px; background: var(--yel); color: var(--ink); border: 7px solid var(--ink); box-shadow: 10px 10px 0 var(--ink); text-align: center; font-family: Anton, Impact, sans-serif; font-size: 52px; padding: 10px 0; text-transform: uppercase; }
+.pp-tf .kick2 { font-weight: 800; font-size: 28px; letter-spacing: .16em; color: var(--yel); margin-top: 28px; text-align: center; }
+.pp-tf .h1c { font-family: Anton, Impact, sans-serif; font-size: 116px; line-height: .9; text-transform: uppercase; text-shadow: 10px 10px 0 var(--ink); margin-top: 10px; text-align: center; }
+.pp-tf .boxes2 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 30px; }
+.pp-tf .boxes2 div { background: #fff; color: var(--ink); border: 7px solid var(--ink); box-shadow: 10px 10px 0 var(--ink); padding: 16px 18px; text-align: center; }
+.pp-tf .boxes2 b { display: block; font-family: Anton, Impact, sans-serif; font-weight: 400; font-size: 88px; line-height: 1; }
+.pp-tf .boxes2 span { font-weight: 800; font-size: 27px; }
+.pp-tf .hl2 { margin-top: 24px; text-align: center; font-weight: 700; font-size: 34px; line-height: 1.5; }
+.pp-tf .hl2 i { font-style: normal; color: var(--yel); font-weight: 800; }
+.pp-tf .logos { margin-top: auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px 30px; padding: 16px 56px; background: var(--ink); border: 7px solid var(--yel); }
+.pp-tf .logos small { grid-column: 1 / -1; text-align: center; font-weight: 800; font-size: 24px; letter-spacing: .14em; color: var(--yel); }
+.pp-tf .logos span { display: grid; place-items: center; aspect-ratio: 1; background: #fff; border-radius: 50%; border: 4px solid var(--ink); overflow: hidden; }
+.pp-tf .logos img { width: 82%; height: 82%; object-fit: contain; }
+.pp-tf .logos b { color: var(--ink); font-family: Anton, Impact, sans-serif; font-weight: 400; font-size: 26px; text-align: center; line-height: 1; padding: 8px; }
+.pp-tf .tap { margin-top: 26px; flex: none; }
+.pp-tf .tap .lbl { font-size: 54px; padding: 10px 30px; }
+.pp-tf .tap .arrow { font-size: 70px; }
+.pp-tf .tap .space { height: 130px; }
+.pp-tf .evr { background: #fff; color: var(--ink); border: 7px solid var(--ink); box-shadow: 12px 12px 0 var(--ink); display: grid; grid-template-columns: 140px 1fr; margin-top: 18px; flex: none; }
+.pp-tf .evr .d { background: var(--yel); border-right: 7px solid var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px; }
+.pp-tf .evr .d small { font-weight: 800; font-size: 24px; letter-spacing: .1em; }
+.pp-tf .evr .d b { font-family: Anton, Impact, sans-serif; font-weight: 400; font-size: 80px; line-height: 1; }
+.pp-tf .evr .t { padding: 16px 22px; min-width: 0; }
+.pp-tf .evr .t b { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-family: Anton, Impact, sans-serif; font-weight: 400; font-size: 50px; line-height: 1.02; text-transform: uppercase; }
+.pp-tf .evr .t span { font-weight: 700; font-size: 28px; }
+.pp-tf .hat { display: block; flex: none; margin: 10px auto 0; width: 360px; height: 240px; }
