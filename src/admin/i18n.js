@@ -28,6 +28,15 @@ function fill(s, vars) {
 }
 
 const VI = {
+  // Weekly story
+  'This week’s story': 'Story của tuần này',
+  'Ready every Monday: your venue’s week on the Ale Trail, sized for an Instagram or Facebook story. Post it to bring new guests in. The words come in English and Vietnamese, with your own app link.': 'Có sẵn mỗi thứ Hai: tuần của quán trên Ale Trail, đúng kích cỡ story Instagram hoặc Facebook. Đăng lên để thu hút khách mới. Lời đăng có tiếng Anh và tiếng Việt, kèm đường link riêng của quán.',
+  'Download picture': 'Tải hình',
+  'Copy words': 'Sao chép lời',
+  'Words copied': 'Đã sao chép lời',
+  'Could not make the picture. Please try again.': 'Không tạo được hình. Vui lòng thử lại.',
+  'Making…': 'Đang tạo…',
+  'Could not copy. Select the text and copy it yourself.': 'Không sao chép được. Hãy tự chọn và sao chép.',
   // Venue scorecard
   'Your scorecard': 'Bảng điểm của bạn',
   'A one-page PDF of how your venue is doing on the trail, and what to try next. Only your team can see it.': 'Một trang PDF cho biết quán bạn đang làm thế nào trên hành trình, và nên thử gì tiếp theo. Chỉ đội của bạn xem được.',
