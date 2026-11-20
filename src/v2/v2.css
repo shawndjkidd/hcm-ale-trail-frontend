@@ -794,6 +794,13 @@ body.night-mode .v2 .v2-evcard:not(.is-tonight) { background: var(--surface); co
 .v2-sqzone .v2-sq2 { box-shadow: 6px 6px 0 var(--yellow); }
 
 /* ── What's On zone: yellow band, one big card at a time ─────────────── */
+/* Event of the week: a red-on-ink band near the top of Home with one full-width event card. */
+.v2-eowzone { margin: 18px 0 4px; }
+.v2-eowzone .zhead { padding: 0 0 12px; }
+.v2-eowzone .eyebrow { display: inline-block; background: var(--yellow); color: var(--ink); font-weight: 800; font-size: .66rem; letter-spacing: .16em; padding: 3px 8px; text-transform: uppercase; border: 2px solid var(--ink); }
+.v2-eowzone h2 { font-family: var(--display); font-weight: 400; font-size: 2.2rem; line-height: .95; text-transform: uppercase; margin: 8px 0 0; color: var(--yellow); text-shadow: 3px 3px 0 var(--ink); }
+.v2 .v2-eowzone .v2-evcard { width: 100%; }
+.v2-eowzone .v2-evcard .top { height: 170px; }
 .v2-evzone { margin: 18px -16px 4px; padding: 0 0 18px; background: var(--yellow); color: var(--ink); border-top: 6px solid var(--ink); border-bottom: 6px solid var(--ink); }
 .v2-evzone .zhead { padding: 18px 16px 14px; }
 .v2-evzone .eyebrow { display: inline-block; background: var(--ink); color: var(--yellow); font-weight: 800; font-size: .66rem; letter-spacing: .16em; padding: 3px 8px; }

@@ -998,6 +998,30 @@ export async function getVenueScorecard(breweryId) {
   } catch (err) { return { ok: false, error: netError(err) }; }
 }
 
+/** This week's posts (HQ): last week's trail numbers, the event of the week, every venue's story. */
+export async function getPostPack(trailId) {
+  try {
+    const res = await apiFetch(`${API_BASE}/api/admin/trails/${trailId}/hq/postpack`, { headers: authHeaders(), cache: 'no-store' });
+    return await readJson(res);
+  } catch (err) { return { ok: false, error: netError(err) }; }
+}
+
+/** A venue's own story for this week (owners, managers and HQ). */
+export async function getVenuePostPack(breweryId) {
+  try {
+    const res = await apiFetch(`${API_BASE}/api/admin/breweries/${breweryId}/postpack`, { headers: authHeaders(), cache: 'no-store' });
+    return await readJson(res);
+  } catch (err) { return { ok: false, error: netError(err) }; }
+}
+
+/** HQ makes an event this week's event of the week (on: false goes back to the automatic pick). */
+export async function featureEvent(eventId, on = true) {
+  try {
+    const res = await apiFetch(`${API_BASE}/api/admin/events/${eventId}/feature`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ on }) });
+    return await readJson(res);
+  } catch (err) { return { ok: false, error: netError(err) }; }
+}
+
 // ==================== HQ SIGN-UPS ====================
 
 export async function hqGetSignups(trailId) {

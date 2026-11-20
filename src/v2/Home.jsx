@@ -197,6 +197,17 @@ function TonightNeon({ events, breweries, language, here, onOpen }) {
   );
 }
 
+// Event of the week (picked each Monday, or by HQ): one big card near the top of Home all week.
+function EventOfWeek({ ev, breweries, language, onOpenEvents }) {
+  const v = useV(language);
+  return (
+    <section className="v2-eowzone" aria-label={v.eventOfWeek}>
+      <div className="zhead"><span className="eyebrow">{v.eowEyebrow}</span><h2>{v.eventOfWeek}</h2></div>
+      <EventCard ev={ev} language={language} onOpen={onOpenEvents} brewery={(breweries || []).find((b) => b.id === ev.breweryId)} />
+    </section>
+  );
+}
+
 // What's On: its own yellow zone with one big card at a time; swipe left/right, dots show where you are.
 function EventCarousel({ events, breweries, language, onOpenEvents }) {
   const v = useV(language);
@@ -308,6 +319,7 @@ export default function Home({
 
   const upcoming = (events || []).filter((e) => eventEndMs(e) >= Date.now());
   const tonight = upcoming.filter(isTonight);
+  const eventOfWeek = upcoming.find((e) => e.eventOfWeek) || null;
   const topEntry = boardTop?.[0];
 
   const clockMs = timerStart ? (timerEnd || now) - timerStart : null;
@@ -363,6 +375,10 @@ export default function Home({
 
       {tonight.length > 0 && (
         <TonightNeon events={tonight} breweries={breweries} language={language} here={here} onOpen={onOpenEvents} />
+      )}
+
+      {eventOfWeek && !tonight.some((e) => e.id === eventOfWeek.id) && (
+        <EventOfWeek ev={eventOfWeek} breweries={breweries} language={language} onOpenEvents={onOpenEvents} />
       )}
 
       <section className="v2-trailzone" aria-label={v.theTrail}>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { getHqSummary, TRAIL_ID } from './adminApi';
 import { buildChecklist } from './checklist';
 import TrailReportButton from './TrailReport';
+import { PostPackCard } from './PostPack';
 
 // HQ Home: how the trail is doing this week, what needs attention (each with a
 // button to the page that fixes it), every venue's readiness, and app traffic.
@@ -101,6 +102,8 @@ export default function HQHome({ onGo }) {
         <div style={{ flex: 1, minWidth: 220 }}><h3 style={{ margin: 0 }}>Trail report</h3><p className="hq-note" style={{ margin: '2px 0 0' }}>A one-page PDF to share with the team and the venues. Guests only.</p></div>
         <TrailReportButton />
       </div>
+
+      <PostPackCard />
 
       <div className="hq-g hq-g4">
         <div className="hq-card hq-kpi"><div className="l">Stamps</div><div className="v">{totals.stamps7d}</div><div className={`d ${trendClass(totals.stamps7d, totals.stampsPrev7d)}`}>{pct(totals.stamps7d, totals.stampsPrev7d)}</div></div>

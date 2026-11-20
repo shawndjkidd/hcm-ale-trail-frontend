@@ -7,6 +7,7 @@ import { getVenueQrStats } from './adminApi';
 import { logoFor } from '../v2/util';
 import { useT } from './i18n';
 import './promote.css';
+import { VenueStoryCard } from './PostPack';
 
 // Promote: each venue's own QR codes, printable and shareable designs in the Ale Trail
 // landing-page branding, and ready-to-post ad copy. Every format has its own tracked
@@ -293,6 +294,7 @@ export default function PromoteTab({ brewery }) {
   if (!brewery?.id) return null;
   return (
     <div style={{ display: 'grid', gap: 18 }}>
+      <VenueStoryCard breweryId={brewery.id} t={t} />
       <div className="admin-card">
         <h3 className="admin-card-title">{t('Bring guests onto the trail')}</h3>
         <p style={{ color: 'var(--admin-text-muted)', margin: '0 0 12px' }}>

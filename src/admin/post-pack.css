@@ -1,0 +1,54 @@
+/* Weekly post pack pictures at full size (feed post 1080 × 1350, story 1080 × 1920).
+   Ale Trail look: red, yellow, ink, Anton for headlines, Be Vietnam Pro for words. */
+.pp { --red: #C8102E; --yel: #FFD100; --ink: #111; box-sizing: border-box; position: relative; overflow: hidden; color: #fff; font-family: 'Be Vietnam Pro', sans-serif; font-weight: 500; }
+.pp *, .pp *::before, .pp *::after { box-sizing: border-box; margin: 0; }
+.pp-post { background: var(--red); display: flex; flex-direction: column; padding-bottom: 110px; }
+.pp-post .top { padding: 55px 55px 0; display: flex; justify-content: space-between; align-items: flex-start; }
+.pp-post .logo { height: 85px; width: auto; }
+.pp-post .wk { font-weight: 700; font-size: 25px; letter-spacing: .14em; color: var(--yel); text-align: right; line-height: 1.4; }
+.pp-post h1 { font-family: Anton, Impact, sans-serif; font-weight: 400; font-size: 130px; line-height: .92; padding: 34px 55px 0; text-transform: uppercase; text-shadow: 8px 8px 0 var(--ink); }
+.pp-post .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 40px 55px 0; }
+.pp-post .st { background: #fff; color: var(--ink); border: 6px solid var(--ink); box-shadow: 10px 10px 0 var(--ink); padding: 18px 24px; }
+.pp-post .st b { display: block; font-family: Anton, Impact, sans-serif; font-weight: 400; font-size: 92px; line-height: 1; }
+.pp-post .st span { font-size: 26px; font-weight: 700; }
+.pp-post .lines { padding: 44px 55px 0; display: flex; flex-direction: column; gap: 22px; }
+.pp-post .ln { display: grid; grid-template-columns: 230px 1fr; gap: 24px; font-size: 36px; align-items: baseline; }
+.pp-post .ln i { font-style: normal; font-weight: 800; font-size: 23px; letter-spacing: .1em; color: var(--yel); text-transform: uppercase; }
+.pp-post .ln b { font-weight: 700; }
+.pp-post .ev { margin: auto 55px 45px; background: var(--yel); color: var(--ink); border: 6px solid var(--ink); box-shadow: 10px 10px 0 var(--ink); padding: 22px 28px; }
+.pp-post .ev small { font-weight: 800; font-size: 23px; letter-spacing: .12em; color: var(--red); }
+.pp-post .ev b { display: block; font-family: Anton, Impact, sans-serif; font-weight: 400; font-size: 58px; line-height: 1.05; text-transform: uppercase; }
+.pp-post .ev span { font-size: 28px; font-weight: 700; }
+.pp-post .foot { position: absolute; left: 0; right: 0; bottom: 0; height: 110px; background: var(--ink); padding: 0 55px; display: flex; align-items: center; justify-content: space-between; font-size: 30px; font-weight: 700; }
+.pp-post .foot b { color: var(--yel); }
+
+.pp-story { background: var(--ink); }
+.pp-story .ph { position: absolute; inset: 0; background-size: cover; background-position: center; }
+.pp-story .ph.none { background: var(--red); }
+.pp-story .sh { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.75) 0%, rgba(0,0,0,0) 22%, rgba(0,0,0,.1) 40%, rgba(0,0,0,.88) 70%); }
+.pp-story .in { position: absolute; inset: 0; padding: 75px 68px 90px; display: flex; flex-direction: column; }
+.pp-story .logo { height: 100px; width: auto; align-self: flex-start; }
+.pp-story .tag { margin-top: auto; font-weight: 800; font-size: 31px; letter-spacing: .14em; color: var(--yel); }
+.pp-story h2 { font-family: Anton, Impact, sans-serif; font-weight: 400; font-size: 140px; line-height: .95; margin-top: 12px; text-transform: uppercase; text-shadow: 8px 8px 0 var(--ink); }
+.pp-story .big { display: flex; gap: 32px; margin-top: 40px; }
+.pp-story .big div { background: var(--yel); color: var(--ink); border: 7px solid var(--ink); padding: 22px 28px; flex: 1; min-width: 0; }
+.pp-story .big b { display: block; font-family: Anton, Impact, sans-serif; font-weight: 400; font-size: 96px; line-height: 1; }
+.pp-story .big span { font-size: 31px; font-weight: 700; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pp-story p { font-size: 38px; font-weight: 700; margin-top: 32px; line-height: 1.35; }
+.pp-story p b { color: var(--yel); }
+.pp-story .cta { margin-top: 40px; background: var(--red); border: 7px solid #fff; padding: 26px 30px; font-weight: 800; font-size: 36px; text-align: center; }
+
+/* Cards in the dashboard */
+.pp-prev { overflow: hidden; border-radius: 8px; border: 1px solid var(--admin-border); flex: none; }
+.pp-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+.pp-items { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 14px; }
+.pp-item { background: var(--hq-panel2, rgba(255,255,255,.04)); border: 1px solid var(--admin-border); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.pp-item h4 { margin: 0; font-size: 14px; }
+.pp-item h4 small { color: var(--admin-text-muted); font-weight: 500; margin-left: 6px; }
+.pp-btns { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.pp-venues { list-style: none; margin: 0; padding: 0; width: 100%; display: flex; flex-direction: column; gap: 6px; }
+.pp-venues li { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
+.pp-venues li small { display: block; color: var(--admin-text-muted); font-weight: 500; font-size: 11.5px; }
+.pp-vcard { display: flex; gap: 18px; align-items: flex-start; flex-wrap: wrap; }
+.pp-vcard > div:last-child { flex: 1; min-width: 240px; }
+@media (max-width: 980px) { .pp-items { grid-template-columns: 1fr; } }
