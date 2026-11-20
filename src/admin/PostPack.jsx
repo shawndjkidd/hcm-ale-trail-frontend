@@ -70,43 +70,86 @@ export function TrailPost({ pack }) {
   );
 }
 
-function Story({ photo, tag, title, children, cta }) {
+// Branded stories (mockup approved 20 Nov 2026): Ale Trail red with a dotted texture, the photo in a
+// bold tilted frame with a yellow "stamp" badge, the trail slogan, and a yellow button.
+const DROP = /\b(brewing|brewery|brewpub|co\.?|company|bar|taproom|craft beer)\b/gi;
+// The name on the round stamp: short enough to fit (at most 3 words, else the first word).
+export function stampName(name) {
+  const words = short(name).replace(DROP, '').replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
+  const pickW = words.length > 3 ? words.slice(0, 1) : words;
+  return pickW.join(' ').toUpperCase() || short(name).toUpperCase();
+}
+const stampSize = (text) => Math.max(30, Math.min(56, Math.floor(215 / (0.5 * Math.max(...text.split(' ').map((w) => w.length), 1)))));
+
+function Pints({ filled }) {
+  return <div className="pints">{Array.from({ length: 8 }, (_, i) => <i key={i} className={`pint${i < filled ? ' on' : ''}`} />)}</div>;
+}
+
+function Frame({ photo, top, big, bottom }) {
   return (
-    <div className="pp pp-story" style={{ width: STORY.w, height: STORY.h }}>
+    <div className="frame">
       {photo ? <div className="ph" style={{ backgroundImage: `url("${photo}")` }} /> : <div className="ph none" />}
-      <div className="sh" />
+      <div className="stamp"><div><small>{top}</small><b style={{ fontSize: stampSize(big) }}>{big}</b><small>{bottom}</small></div></div>
+    </div>
+  );
+}
+
+function Branded({ corner, children, cta }) {
+  return (
+    <div className="pp pp-bs" style={{ width: STORY.w, height: STORY.h }}>
       <div className="in">
-        <img className="logo" src="/brand/logo-white.png" alt="" />
-        <div className="tag">{tag}</div>
-        <h2>{title}</h2>
+        <div className="hdr"><img src="/brand/logo-white.png" alt="" /><div className="wk">{corner}</div></div>
         {children}
-        <div className="cta">{cta}</div>
+        <div className="cta"><b>{cta}</b><span>{SITE}</span></div>
       </div>
     </div>
+  );
+}
+
+const weekShort = (wk) => weekLabel(wk);
+
+export function TrailStory({ pack }) {
+  const t = pack.trail;
+  const [l1, l2] = headline(t);
+  const lines = [
+    t.busiest.length ? ['Busiest', listOf(t.busiest.map((b) => short(b.name)))] : null,
+    t.topBeer ? ['Guest fave', `${beer(t.topBeer.name)} at ${short(t.topBeer.venue)} · ${t.topBeer.avg.toFixed(1)}`] : null,
+    t.countries.length ? ['Trailers from', listOf(t.countries.map(countryName('en')))] : null,
+  ].filter(Boolean);
+  return (
+    <Branded corner={<>THIS WEEK ON<br />THE TRAIL · {weekShort(pack.week)}</>} cta="START THE TRAIL FREE">
+      <div className="h1">{l1}<br />{l2}</div>
+      <div className="boxes">
+        <div className="bx"><b>{t.stamps}</b><span>stamps</span></div>
+        <div className="bx"><b>{t.newGuests}</b><span>new trailers</span></div>
+        <div className="bx"><b>{t.finishers}</b><span>finished all 8</span></div>
+      </div>
+      <div className="lines">{lines.map(([k, v]) => <div key={k} className="ln"><i>{k.toUpperCase()}</i><span>{v}</span></div>)}</div>
+      <Pints filled={8} />
+    </Branded>
   );
 }
 
 export function EventStory({ event: e }) {
   const blurb = firstLine(pick(e.description));
   return (
-    <Story photo={eventPhoto(e)} tag="EVENT OF THE WEEK" title={pick(e.title)} cta={`START THE TRAIL FREE · ${SITE}`}>
-      <p>{short(e.place)} · {eventWhen(e)}{blurb ? <><br />{blurb}</> : null}<br />Grab your Ale Trail stamp while you’re there.</p>
-    </Story>
+    <Branded corner={<>EVENT OF<br />THE WEEK</>} cta="START THE TRAIL FREE">
+      <Frame photo={eventPhoto(e)} top={`${weekday(e.startsAt)} ${dayMonth(e.startsAt)}`.toUpperCase()} big={time12(e.startsAt).toUpperCase()} bottom="ALE TRAIL" />
+      <div className="ev"><small>{short(e.place).toUpperCase()}</small><b>{pick(e.title)}</b>{blurb ? <span>{blurb}</span> : null}</div>
+      <div className="slogan sm">Grab your stamp<br />while you’re there.</div>
+    </Branded>
   );
 }
 
-export function VenueStory({ venue: v }) {
+export function VenueStory({ venue: v, week }) {
   return (
-    <Story photo={v.photo} tag="THIS WEEK ON THE ALE TRAIL" title={short(v.name)} cta={`START HERE · ${SITE}`}>
-      {!v.quiet && (
-        <div className="big">
-          <div><b>{v.stamps}</b><span>trailers stamped in</span></div>
-          {v.topBeer ? <div><b>{v.topBeer.avg.toFixed(1)}</b><span>{beer(v.topBeer.name)}, guest fave</span></div> : null}
-        </div>
-      )}
-      {v.quiet && v.topBeer ? <p>Guest fave here: <b>{beer(v.topBeer.name)}</b> · {v.topBeer.avg.toFixed(1)}</p> : null}
-      <p>Collect all 8 brewery stamps across Saigon and win a free Ale Trail hat.</p>
-    </Story>
+    <Branded corner={v.quiet || !week ? <>GET YOUR<br />STAMP HERE</> : <>THIS WEEK<br />{weekShort(week)}</>} cta="START THE TRAIL HERE">
+      <Frame photo={v.photo} top="STAMP HERE" big={stampName(v.name)} bottom="ALE TRAIL" />
+      <div className="slogan">8 breweries.<br />8 stamps.<br />1 free hat.</div>
+      {v.quiet
+        ? <Pints filled={1} />
+        : <div className="stat"><b>{v.stamps}</b><span>trailers got their<br />{short(v.name)} stamp this week</span></div>}
+    </Branded>
   );
 }
 
@@ -241,7 +284,7 @@ export function PostPackCard() {
       const { default: JSZip } = await import('jszip');
       const zip = new JSZip();
       for (const v of pack.venues) {
-        const png = await renderPng(<VenueStory venue={v} />, STORY);
+        const png = await renderPng(<VenueStory venue={v} week={pack.week} />, STORY);
         zip.file(`ale-trail-week-${day}-${slug(short(v.name))}.png`, png.split(',')[1], { base64: true });
       }
       const blob = await zip.generateAsync({ type: 'blob' });
@@ -261,12 +304,13 @@ export function PostPackCard() {
       </div>
       <div className="pp-items">
         <div className="pp-item">
-          <h4>Trail post <small>Instagram and Facebook feed</small></h4>
-          <Preview size={POST} scale={0.2}><TrailPost pack={pack} /></Preview>
+          <h4>Trail story <small>Instagram and Facebook story</small></h4>
+          <Preview size={STORY} scale={0.1406}><TrailStory pack={pack} /></Preview>
           <div className="pp-btns">
-            <button type="button" className="trp-dl" disabled={!!a.busy} onClick={() => a.download('post', <TrailPost pack={pack} />, POST, `ale-trail-week-${day}-post.png`)}>{a.busy === 'post' ? 'Making…' : 'Download picture'}</button>
+            <button type="button" className="trp-dl" disabled={!!a.busy} onClick={() => a.download('story', <TrailStory pack={pack} />, STORY, `ale-trail-week-${day}-story.png`)}>{a.busy === 'story' ? 'Making…' : 'Download picture'}</button>
             <button type="button" className="admin-btn" style={{ width: 'auto' }} onClick={() => a.copy(trailCaption(pack))}>Copy words</button>
           </div>
+          <button type="button" className="admin-btn-small" disabled={!!a.busy} onClick={() => a.download('post', <TrailPost pack={pack} />, POST, `ale-trail-week-${day}-post.png`)}>{a.busy === 'post' ? 'Making…' : 'Also as a feed post (1080 × 1350)'}</button>
         </div>
         <div className="pp-item">
           <h4>Event of the week <small>story</small></h4>
@@ -287,7 +331,7 @@ export function PostPackCard() {
             {pack.venues.map((v) => (
               <li key={v.id}>
                 <span>{short(v.name)}<small>{v.quiet ? 'quiet week: no numbers' : `${v.stamps} stamps`}</small></span>
-                <button type="button" className="admin-btn-small" disabled={!!a.busy} onClick={() => a.download(v.id, <VenueStory venue={v} />, STORY, `ale-trail-week-${day}-${slug(short(v.name))}.png`)}>{a.busy === v.id ? '…' : 'Download'}</button>
+                <button type="button" className="admin-btn-small" disabled={!!a.busy} onClick={() => a.download(v.id, <VenueStory venue={v} week={pack.week} />, STORY, `ale-trail-week-${day}-${slug(short(v.name))}.png`)}>{a.busy === v.id ? '…' : 'Download'}</button>
               </li>
             ))}
           </ul>
@@ -315,12 +359,12 @@ export function VenueStoryCard({ breweryId, t = (s) => s }) {
   const day = data.week.monday;
   return (
     <div className="admin-card pp-vcard" data-tour="venue-story">
-      <Preview size={STORY} scale={0.16}><VenueStory venue={v} /></Preview>
+      <Preview size={STORY} scale={0.16}><VenueStory venue={v} week={data.week} /></Preview>
       <div>
         <h3 className="admin-card-title">{t('This week’s story')}</h3>
         <p style={{ color: 'var(--admin-text-muted)', margin: '0 0 12px' }}>{t('Ready every Monday: your venue’s week on the Ale Trail, sized for an Instagram or Facebook story. Post it to bring new guests in. The words come in English and Vietnamese, with your own app link.')}</p>
         <div className="pp-btns">
-          <button type="button" className="trp-dl" disabled={!!a.busy} onClick={() => a.download('v', <VenueStory venue={v} />, STORY, `ale-trail-week-${day}-${slug(short(v.name))}.png`)}>{a.busy === 'v' ? t('Making…') : t('Download picture')}</button>
+          <button type="button" className="trp-dl" disabled={!!a.busy} onClick={() => a.download('v', <VenueStory venue={v} week={data.week} />, STORY, `ale-trail-week-${day}-${slug(short(v.name))}.png`)}>{a.busy === 'v' ? t('Making…') : t('Download picture')}</button>
           <button type="button" className="admin-btn" style={{ width: 'auto' }} onClick={() => a.copy(venueCaption(v))}>{t('Copy words')}</button>
           {a.msg && <span className="trp-msg ok" role="status">{a.msg}</span>}
         </div>

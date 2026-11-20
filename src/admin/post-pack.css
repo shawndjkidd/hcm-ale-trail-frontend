@@ -52,3 +52,43 @@
 .pp-vcard { display: flex; gap: 18px; align-items: flex-start; flex-wrap: wrap; }
 .pp-vcard > div:last-child { flex: 1; min-width: 240px; }
 @media (max-width: 980px) { .pp-items { grid-template-columns: 1fr; } }
+
+/* Branded stories (approved 20 Nov 2026): red with a dotted texture, tilted photo frame, stamp badge. */
+.pp-bs { background: var(--red); }
+.pp-bs::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(rgba(0,0,0,.13) 3px, transparent 3.5px); background-size: 26px 26px; pointer-events: none; }
+.pp-bs .in { position: absolute; inset: 0; padding: 80px 72px 84px; display: flex; flex-direction: column; }
+.pp-bs .hdr { display: flex; justify-content: space-between; align-items: center; }
+.pp-bs .hdr img { height: 96px; width: auto; }
+.pp-bs .wk { font-weight: 800; font-size: 26px; letter-spacing: .14em; color: var(--yel); text-align: right; line-height: 1.35; }
+.pp-bs .frame { margin-top: 60px; background: #fff; border: 9px solid var(--ink); box-shadow: 18px 18px 0 var(--ink); padding: 18px; transform: rotate(-2.5deg); position: relative; }
+.pp-bs .frame .ph { height: 640px; background-size: cover; background-position: center; border: 5px solid var(--ink); }
+.pp-bs .frame .ph.none { background: var(--ink); }
+.pp-bs .stamp { position: absolute; right: -40px; bottom: -70px; width: 300px; height: 300px; border-radius: 50%; background: var(--yel); border: 9px solid var(--ink); box-shadow: 10px 10px 0 var(--ink); display: grid; place-items: center; text-align: center; transform: rotate(9deg); color: var(--ink); }
+.pp-bs .stamp > div { width: 250px; height: 250px; border-radius: 50%; border: 5px dashed var(--ink); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+.pp-bs .stamp small { font-weight: 800; font-size: 22px; letter-spacing: .14em; }
+.pp-bs .stamp b { font-family: Anton, Impact, sans-serif; font-weight: 400; line-height: .95; text-transform: uppercase; margin: 6px 0; }
+.pp-bs .slogan { margin-top: 120px; font-family: Anton, Impact, sans-serif; font-size: 128px; line-height: .92; color: var(--yel); text-transform: uppercase; text-shadow: 9px 9px 0 var(--ink); }
+.pp-bs .slogan.sm { font-size: 96px; margin-top: 50px; }
+.pp-bs .pints { display: flex; gap: 22px; margin-top: 44px; }
+.pp-bs .pint { width: 84px; height: 112px; clip-path: polygon(0 0, 100% 0, 84% 100%, 16% 100%); position: relative; background: rgba(255,255,255,.28); }
+.pp-bs .pint.on { background: var(--yel); }
+.pp-bs .pint::after { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 24%; background: rgba(255,255,255,.35); }
+.pp-bs .pint.on::after { background: rgba(255,255,255,.92); }
+.pp-bs .stat { margin-top: 44px; background: #fff; color: var(--ink); border: 8px solid var(--ink); box-shadow: 12px 12px 0 var(--ink); padding: 24px 30px; display: flex; align-items: center; gap: 26px; }
+.pp-bs .stat b { font-family: Anton, Impact, sans-serif; font-weight: 400; font-size: 110px; line-height: .9; }
+.pp-bs .stat span { font-weight: 800; font-size: 36px; line-height: 1.15; }
+.pp-bs .cta { margin-top: auto; background: var(--yel); color: var(--ink); border: 8px solid var(--ink); box-shadow: 12px 12px 0 var(--ink); padding: 30px; text-align: center; }
+.pp-bs .cta b { display: block; font-family: Anton, Impact, sans-serif; font-weight: 400; font-size: 70px; line-height: 1; }
+.pp-bs .cta span { font-weight: 800; font-size: 32px; }
+.pp-bs .h1 { font-family: Anton, Impact, sans-serif; font-size: 178px; line-height: .9; text-transform: uppercase; text-shadow: 10px 10px 0 var(--ink); margin-top: 56px; }
+.pp-bs .boxes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 56px; }
+.pp-bs .bx { background: #fff; color: var(--ink); border: 8px solid var(--ink); box-shadow: 12px 12px 0 var(--ink); padding: 20px 24px; }
+.pp-bs .bx b { display: block; font-family: Anton, Impact, sans-serif; font-weight: 400; font-size: 108px; line-height: 1; }
+.pp-bs .bx span { font-weight: 800; font-size: 28px; }
+.pp-bs .lines { margin-top: 56px; display: flex; flex-direction: column; gap: 22px; }
+.pp-bs .ln i { display: block; font-style: normal; font-weight: 800; font-size: 25px; letter-spacing: .12em; color: var(--yel); }
+.pp-bs .ln span { font-weight: 700; font-size: 44px; }
+.pp-bs .ev { margin-top: 120px; background: var(--ink); border: 8px solid var(--yel); padding: 26px 30px; }
+.pp-bs .ev small { font-weight: 800; font-size: 25px; letter-spacing: .12em; color: var(--yel); }
+.pp-bs .ev b { display: block; font-family: Anton, Impact, sans-serif; font-weight: 400; font-size: 76px; line-height: 1.05; text-transform: uppercase; }
+.pp-bs .ev span { font-weight: 700; font-size: 32px; }
