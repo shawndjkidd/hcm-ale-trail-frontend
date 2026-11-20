@@ -48,3 +48,32 @@
   .admin-header-right { flex-wrap: wrap; justify-content: flex-end; gap: 8px; min-width: 0; max-width: 100%; }
   .admin-header-right .admin-user-info { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
+
+/* Phones: a slim top bar (What's new, Menu) and an HQ / Venue view switch instead of the full header. */
+.adm-mob { display: none; }
+.adm-mob-bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: var(--admin-card-bg); border-bottom: 1px solid var(--admin-border); }
+.adm-mob-bar b { flex: 1; min-width: 0; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.adm-mob-btn { display: inline-flex; align-items: center; gap: 4px; background: var(--hq-panel2, #1F2125); color: var(--admin-text); border: 1px solid var(--admin-border); border-radius: 9px; padding: 8px 11px; font: 600 13.5px/1 inherit; font-family: inherit; cursor: pointer; white-space: nowrap; }
+.adm-mob-btn.on { background: var(--hq-accent, #F5A623); border-color: var(--hq-accent, #F5A623); color: var(--hq-accent-ink, #111); }
+.adm-mob-seg { display: flex; margin: 10px 14px 0; border: 1px solid var(--admin-border); border-radius: 10px; padding: 3px; background: var(--admin-card-bg); }
+.adm-mob-seg button { flex: 1; border: 0; background: none; color: var(--admin-text-muted); border-radius: 7px; padding: 8px; font: 600 14px/1 inherit; font-family: inherit; cursor: pointer; }
+.adm-mob-seg button.on { background: var(--hq-accent, #F5A623); color: var(--hq-accent-ink, #111); }
+.adm-menu { gap: 12px; }
+.adm-menu .who { font-size: 13px; color: var(--admin-text-muted); }
+.adm-menu .who b { display: block; color: var(--admin-text); font-size: 14.5px; margin-top: 2px; word-break: break-all; }
+.adm-menu .role { background: var(--hq-good, #22C55E); color: #08260f; border-radius: 4px; font-size: 11px; font-weight: 800; padding: 1px 6px; margin-left: 4px; white-space: nowrap; }
+.adm-menu .mrow { display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 600; }
+.adm-menu .mini { display: inline-flex; border: 1px solid var(--admin-border); border-radius: 9px; padding: 2px; }
+.adm-menu .mini button { border: 0; background: none; color: var(--admin-text-muted); border-radius: 7px; padding: 6px 12px; font: 700 13px/1 inherit; font-family: inherit; cursor: pointer; }
+.adm-menu .mini button.on { background: var(--hq-accent, #F5A623); color: var(--hq-accent-ink, #111); }
+.adm-menu .mitem { text-align: left; border: 0; border-radius: 10px; background: var(--hq-panel2, #1F2125); color: var(--admin-text); padding: 12px; font: 600 14px/1.2 inherit; font-family: inherit; cursor: pointer; }
+.adm-menu .mitem.danger { color: var(--hq-bad, #F87171); }
+@media (max-width: 600px) {
+  .adm-desk { display: none !important; }
+  .adm-mob { display: block; }
+  /* Venue checklist: the words get the full width, the two buttons go underneath. */
+  .vc-row { flex-wrap: wrap; align-items: flex-start !important; }
+  .vc-text { flex: 1 1 calc(100% - 40px) !important; }
+  .vc-btns { flex: 1 1 100% !important; padding-left: 34px; }
+  .vc-btns > button { flex: 1; }
+}

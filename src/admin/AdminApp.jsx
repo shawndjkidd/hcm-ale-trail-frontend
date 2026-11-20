@@ -45,6 +45,15 @@ function AdminAppInner() {
     if (nav?.tab) setTimeout(() => window.dispatchEvent(new CustomEvent('admin-nav', { detail: { tab: nav.tab } })), 0);
   };
 
+  // Phones: a slim bar with What's new and Menu; everything else lives in the Menu card.
+  const [showMenu, setShowMenu] = useState(false);
+  const [venueName, setVenueName] = useState('');
+  useEffect(() => {
+    const onName = (e) => setVenueName(e.detail?.name || '');
+    window.addEventListener('admin-venue-name', onName);
+    return () => window.removeEventListener('admin-venue-name', onName);
+  }, []);
+
   // Profile dropdown
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileMenuRef = useRef(null);
@@ -242,7 +251,40 @@ function AdminAppInner() {
   return (
     <div className="admin-app hq-theme">
       <AdminUpdateBar signedIn />
-      <header className="admin-header">
+      <div className="adm-mob">
+        <div className="adm-mob-bar">
+          <b>{isBreweryUser && venueName ? venueName.split(' - ')[0] : 'Ale Trail Admin'}</b>
+          <button type="button" data-tour="wn-link-mobile" className={`adm-mob-btn${currentView === 'whatsnew' ? ' on' : ''}`}
+            onClick={() => (currentView === 'whatsnew' ? setCurrentView(backView) : openWhatsNew())}>
+            {tAdmin("What's new")}{wn.unseen.length > 0 && <span className="wn-badge">{wn.unseen.length}</span>}
+          </button>
+          <button type="button" className="adm-mob-btn" onClick={() => setShowMenu(true)}>{tAdmin('Menu')}</button>
+        </div>
+        {isHQ && (
+          <div className="adm-mob-seg" role="group" aria-label="View">
+            <button type="button" className={currentView !== 'brewery' ? 'on' : ''} onClick={() => setCurrentView('dashboard')}>HQ</button>
+            <button type="button" className={currentView === 'brewery' ? 'on' : ''} onClick={() => setCurrentView('brewery')}>Venue view</button>
+          </div>
+        )}
+      </div>
+      {showMenu && (
+        <div className="wn-scrim" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) setShowMenu(false); }}>
+          <div className="wn-box adm-menu" role="dialog" aria-modal="true" aria-label={tAdmin('Menu')}>
+            <div className="who">{tAdmin('Signed in as')}<b>{adminUser.email} <span className="role">{roleLabel}</span></b></div>
+            <div className="mrow">{tAdmin('Language')}
+              <span className="mini">{[['en', 'EN'], ['vi', 'VI']].map(([code, label]) => <button key={code} type="button" className={adminLang === code ? 'on' : ''} onClick={() => setAdminLang(code)}>{label}</button>)}</span>
+            </div>
+            <div className="mrow">{tAdmin('Look')}
+              <span className="mini">{[['dark', tAdmin('Dark')], ['light', tAdmin('Light')]].map(([k, label]) => <button key={k} type="button" className={theme === k ? 'on' : ''} onClick={() => { if (theme !== k) toggleTheme(); }}>{label}</button>)}</span>
+            </div>
+            <button type="button" className="mitem" onClick={() => { setShowMenu(false); openChangePwd(); }}>{tAdmin('Change password')}</button>
+            {passkeysOn && <button type="button" className="mitem" onClick={() => { setShowMenu(false); addPasskey(); }}>{tAdmin('Set up a passkey (Face ID / Touch ID)')}</button>}
+            <button type="button" className="mitem danger" onClick={() => { setShowMenu(false); handleLogout(); }}>{tAdmin('Log out')}</button>
+            <button type="button" className="wn-link" style={{ alignSelf: 'center', color: 'var(--admin-text-muted)' }} onClick={() => setShowMenu(false)}>{tAdmin('Close')}</button>
+          </div>
+        </div>
+      )}
+      <header className="admin-header adm-desk">
         <div className="admin-header-left">
           <span className="admin-logo">Ho Chi Minh Ale Trail Admin</span>
 

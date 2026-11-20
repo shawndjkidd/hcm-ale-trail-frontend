@@ -311,7 +311,7 @@ export function PostPackCard() {
   const a = useActions((s) => s);
   useEffect(() => {
     let live = true;
-    getPostPack(TRAIL_ID).then((r) => { if (!live) return; if (r?.ok) setPack(r); else setError(signInAgain(r?.error) || 'Could not load this week’s story.'); });
+    getPostPack(TRAIL_ID).then((r) => { if (!live) return; if (r?.ok && r.week && r.trail) setPack(r); else setError(signInAgain(r?.error) || 'Could not load this week’s story.'); });
     return () => { live = false; };
   }, []);
   if (error) return <div className="hq-card"><h3 style={{ margin: 0 }}>This week’s story</h3><p className="hq-note">{error}</p></div>;
@@ -384,7 +384,7 @@ export function VenueStoryCard({ breweryId, t = (s) => s }) {
   const a = useActions(t);
   useEffect(() => {
     let live = true;
-    getVenuePostPack(breweryId).then((r) => { if (live && r?.ok) setData(r); });
+    getVenuePostPack(breweryId).then((r) => { if (live && r?.ok && r.week && r.venue) setData(r); });
     return () => { live = false; };
   }, [breweryId]);
   if (!data) return null;

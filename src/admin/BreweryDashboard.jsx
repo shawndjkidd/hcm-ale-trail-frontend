@@ -36,6 +36,9 @@ export default function BreweryDashboard({ breweryId: propBreweryId, isHQ = fals
   // Remember the open tab for this browser tab, so a refresh (e.g. the new-version pop-up) reopens it.
   const [activeTab, setActiveTab] = useState(() => { try { return sessionStorage.getItem('hcm-venue-tab') || 'overview'; } catch { return 'overview'; } });
   useEffect(() => { try { sessionStorage.setItem('hcm-venue-tab', activeTab); } catch {} }, [activeTab]);
+  // The phone header shows the venue's name.
+  const headerName = data?.brewery?.name;
+  useEffect(() => { if (headerName) window.dispatchEvent(new CustomEvent('admin-venue-name', { detail: { name: headerName } })); }, [headerName]);
   // The What's new tour opens a tab by name.
   useEffect(() => {
     const onNav = (e) => { if (e.detail?.tab) setActiveTab(e.detail.tab); };

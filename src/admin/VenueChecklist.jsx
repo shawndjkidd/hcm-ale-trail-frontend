@@ -74,16 +74,16 @@ export default function VenueChecklist({ breweryId, isHQ = false, photoUrl, hasH
         <div style={{ height: '100%', width: `${(list.done / list.total) * 100}%`, background: 'var(--hq-good, #22C55E)', borderRadius: 4 }} />
       </div>
       {list.items.map((i) => (
-        <div key={i.key} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid var(--admin-border)', opacity: i.done ? 0.62 : 1 }}>
+        <div key={i.key} className="vc-row" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid var(--admin-border)', opacity: i.done ? 0.62 : 1 }}>
           {i.done
             ? <span aria-label={t('Done')} style={{ width: 22, height: 22, borderRadius: '50%', background: 'var(--hq-good, #22C55E)', color: '#fff', display: 'grid', placeItems: 'center', fontSize: 12, fontWeight: 800, flex: 'none' }}>✓</span>
             : <span aria-hidden="true" style={{ width: 22, height: 22, borderRadius: '50%', border: '2px solid var(--admin-text-muted)', flex: 'none' }} />}
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="vc-text" style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontWeight: 600, textDecoration: i.done ? 'line-through' : 'none' }}>{i.title}{i.optional ? <span style={{ color: 'var(--admin-text-muted)', fontWeight: 500 }}> · {t('optional')}</span> : null}</div>
             {!i.done && <div style={{ color: 'var(--admin-text-muted)', fontSize: 13, marginTop: 2 }}>{i.why}</div>}
           </div>
           {!i.done && (
-            <div style={{ display: 'flex', gap: 8, flex: 'none' }}>
+            <div className="vc-btns" style={{ display: 'flex', gap: 8, flex: 'none' }}>
               {i.action === 'removeDemo' && facts.demoItems > 0
                 ? <button type="button" className="admin-btn admin-btn-primary" style={{ width: 'auto' }} onClick={removeDemo} disabled={busy}>{busy ? t('Removing…') : i.cta}</button>
                 : i.go && <button type="button" className="admin-btn admin-btn-primary" style={{ width: 'auto' }} onClick={() => onGo(i.go)}>{i.cta}</button>}

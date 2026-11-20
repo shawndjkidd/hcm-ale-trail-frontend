@@ -115,8 +115,9 @@ export function Tour({ items, nav, onDone }) {
       let el = null;
       const t0 = Date.now();
       while (alive && stop.target && Date.now() - t0 < 3500) {
-        const x = document.querySelector(`[data-tour="${CSS.escape(stop.target)}"]`);
-        if (x && x.getBoundingClientRect().width > 0) { el = x; break; }
+        // The thing on screen: on a phone some buttons have a phone version ("<name>-mobile").
+        const x = [...document.querySelectorAll(`[data-tour="${CSS.escape(stop.target)}"], [data-tour="${CSS.escape(stop.target)}-mobile"]`)].find((n) => n.getBoundingClientRect().width > 0);
+        if (x) { el = x; break; }
         await wait(80);
       }
       if (!alive) return;

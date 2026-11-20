@@ -28,6 +28,16 @@ function fill(s, vars) {
 }
 
 const VI = {
+  // Phone menu
+  'Menu': 'Menu',
+  'Signed in as': 'Đăng nhập với',
+  'Language': 'Ngôn ngữ',
+  'Look': 'Giao diện',
+  'Dark': 'Tối',
+  'Light': 'Sáng',
+  'Change password': 'Đổi mật khẩu',
+  'Set up a passkey (Face ID / Touch ID)': 'Thiết lập passkey (Face ID / Touch ID)',
+  'Log out': 'Đăng xuất',
   // Weekly story
   'This week’s story': 'Story của tuần này',
   'Ready every Monday: your venue’s week on the Ale Trail, sized for an Instagram or Facebook story. Post it to bring new guests in. The words come in English and Vietnamese, with your own app link.': 'Có sẵn mỗi thứ Hai: tuần của quán trên Ale Trail, đúng kích cỡ story Instagram hoặc Facebook. Đăng lên để thu hút khách mới. Lời đăng có tiếng Anh và tiếng Việt, kèm đường link riêng của quán.',
