@@ -12,6 +12,8 @@ import './post-pack.css';
 
 const TZ = 'Asia/Ho_Chi_Minh';
 const SITE = 'hcm.thealetrail.app';
+// HQ's stories link here (v=hq): the app records each visit, so stories can be counted.
+export const STORY_LINK = `https://${SITE}/?v=hq&s=story`;
 const POST = { w: 1080, h: 1350 };
 const STORY = { w: 1080, h: 1920 };
 
@@ -94,13 +96,17 @@ function Frame({ photo, top, big, bottom }) {
   );
 }
 
-function Branded({ corner, children, cta }) {
+// tap: HQ's stories leave clear space at the bottom for Instagram's link sticker, with a label
+// pointing at it. Venue stories end with the yellow button instead (venues may not add a sticker).
+function Branded({ corner, children, cta, tap }) {
   return (
     <div className="pp pp-bs" style={{ width: STORY.w, height: STORY.h }}>
       <div className="in">
         <div className="hdr"><img src="/brand/logo-white.png" alt="" /><div className="wk">{corner}</div></div>
         {children}
-        <div className="cta"><b>{cta}</b><span>{SITE}</span></div>
+        {tap
+          ? <div className="tap"><div className="lbl">Tap the link · start free</div><div className="arrow">↓</div><div className="space" /></div>
+          : <div className="cta"><b>{cta}</b><span>{SITE}</span></div>}
       </div>
     </div>
   );
@@ -108,23 +114,42 @@ function Branded({ corner, children, cta }) {
 
 const weekShort = (wk) => weekLabel(wk);
 
+// HQ's weekly trail story: the trail in numbers, a brewery spotlight, or the beer of the week
+// (the backend picks which, in turn).
 export function TrailStory({ pack }) {
+  const st = pack.story || { kind: 'numbers' };
+  if (st.kind === 'spotlight') {
+    const v = st.venue;
+    return (
+      <Branded corner={<>BREWERY<br />SPOTLIGHT</>} tap>
+        <Frame photo={v.photo} top={`STAMP ${v.position} OF ${v.of}`} big={stampName(v.name)} bottom="ALE TRAIL" />
+        {v.topBeer
+          ? <><div className="kick">GUEST FAVE HERE</div><div className="slogan fave">{beer(v.topBeer.name)} · {v.topBeer.avg.toFixed(1)}</div></>
+          : <div className="slogan">8 breweries.<br />8 stamps.<br />1 free hat.</div>}
+      </Branded>
+    );
+  }
+  if (st.kind === 'beer') {
+    const b = st.beer;
+    return (
+      <Branded corner={<>BEER OF<br />THE WEEK</>} tap>
+        <div className="kick">RATED BY TRAILERS · {short(b.venue).toUpperCase()}</div>
+        <div className="beer">{beer(b.name)}</div>
+        <div className="score"><div><b>{b.avg.toFixed(1)}</b><span>guest rating</span></div><div><b>{b.count}</b><span>trailer{b.count === 1 ? '' : 's'} rated it</span></div></div>
+        {st.venue?.photo ? <div className="minif"><div className="ph" style={{ backgroundImage: `url("${st.venue.photo}")` }} /></div> : null}
+      </Branded>
+    );
+  }
   const t = pack.trail;
   const [l1, l2] = headline(t);
-  const lines = [
-    t.busiest.length ? ['Busiest', listOf(t.busiest.map((b) => short(b.name)))] : null,
-    t.topBeer ? ['Guest fave', `${beer(t.topBeer.name)} at ${short(t.topBeer.venue)} · ${t.topBeer.avg.toFixed(1)}`] : null,
-    t.countries.length ? ['Trailers from', listOf(t.countries.map(countryName('en')))] : null,
-  ].filter(Boolean);
   return (
-    <Branded corner={<>THIS WEEK ON<br />THE TRAIL · {weekShort(pack.week)}</>} cta="START THE TRAIL FREE">
+    <Branded corner={<>THIS WEEK ON<br />THE TRAIL · {weekShort(pack.week)}</>} tap>
       <div className="h1">{l1}<br />{l2}</div>
       <div className="boxes">
         <div className="bx"><b>{t.stamps}</b><span>stamps</span></div>
         <div className="bx"><b>{t.newGuests}</b><span>new trailers</span></div>
         <div className="bx"><b>{t.finishers}</b><span>finished all 8</span></div>
       </div>
-      <div className="lines">{lines.map(([k, v]) => <div key={k} className="ln"><i>{k.toUpperCase()}</i><span>{v}</span></div>)}</div>
       <Pints filled={8} />
     </Branded>
   );
@@ -133,10 +158,9 @@ export function TrailStory({ pack }) {
 export function EventStory({ event: e }) {
   const blurb = firstLine(pick(e.description));
   return (
-    <Branded corner={<>EVENT OF<br />THE WEEK</>} cta="START THE TRAIL FREE">
+    <Branded corner={<>EVENT OF<br />THE WEEK</>} tap>
       <Frame photo={eventPhoto(e)} top={`${weekday(e.startsAt)} ${dayMonth(e.startsAt)}`.toUpperCase()} big={time12(e.startsAt).toUpperCase()} bottom="ALE TRAIL" />
-      <div className="ev"><small>{short(e.place).toUpperCase()}</small><b>{pick(e.title)}</b>{blurb ? <span>{blurb}</span> : null}</div>
-      <div className="slogan sm">Grab your stamp<br />while you’re there.</div>
+      <div className="ev"><small>{short(e.place).toUpperCase()}</small><b>{pick(e.title)}</b>{blurb ? <span>{blurb}</span> : null}<span className="grab">Grab your Ale Trail stamp while you’re there.</span></div>
     </Branded>
   );
 }
@@ -156,6 +180,19 @@ export function VenueStory({ venue: v, week }) {
 // ----------------------------------------------------------------- the words
 
 export function trailCaption(pack) {
+  const st = pack.story || { kind: 'numbers' };
+  if (st.kind === 'spotlight') {
+    const v = st.venue; const name = short(v.name);
+    const fave = v.topBeer ? ` Guest fave here: ${beer(v.topBeer.name)} (${v.topBeer.avg.toFixed(1)}).` : '';
+    const faveVn = v.topBeer ? ` Bia được yêu thích ở đây: ${beer(v.topBeer.name)} (${v.topBeer.avg.toFixed(1)}).` : '';
+    return `Brewery spotlight: ${name}, stamp ${v.position} of ${v.of} on the Ho Chi Minh Ale Trail.${fave} Collect all ${v.of} stamps across Saigon and win a free hat.\nStart free: ${SITE}\n\n`
+      + `Gương mặt tuần này: ${name}, con tem ${v.position}/${v.of} trên Ho Chi Minh Ale Trail.${faveVn} Sưu tập đủ ${v.of} con tem khắp Sài Gòn để nhận mũ miễn phí.\nTham gia miễn phí: ${SITE}`;
+  }
+  if (st.kind === 'beer') {
+    const b = st.beer;
+    return `Beer of the week on the Ho Chi Minh Ale Trail: ${beer(b.name)} at ${short(b.venue)}, rated ${b.avg.toFixed(1)} by ${b.count} trailer${b.count === 1 ? '' : 's'}. Get your stamp and try it.\nStart free: ${SITE}\n\n`
+      + `Bia của tuần trên Ho Chi Minh Ale Trail: ${beer(b.name)} tại ${short(b.venue)}, được ${b.count} người chấm ${b.avg.toFixed(1)} điểm. Ghé lấy tem và thử ngay.\nTham gia miễn phí: ${SITE}`;
+  }
   const t = pack.trail; const e = pack.event;
   const en = countryName('en'); const vi = countryName('vn');
   const [l1, l2] = headline(t);
@@ -264,6 +301,9 @@ const signInAgain = (e) => (/authori[sz]|token|expired|401/i.test(e || '') ? 'Pl
 
 // ----------------------------------------------------------------- HQ Home card
 
+const KIND_LABEL = { numbers: 'the trail in numbers', spotlight: 'brewery spotlight', beer: 'beer of the week' };
+const tagLine = (handles) => handles.filter(Boolean).map((h) => `@${h}`).join(' ');
+
 export function PostPackCard() {
   useBrandFonts();
   const [pack, setPack] = useState(null);
@@ -271,72 +311,65 @@ export function PostPackCard() {
   const a = useActions((s) => s);
   useEffect(() => {
     let live = true;
-    getPostPack(TRAIL_ID).then((r) => { if (!live) return; if (r?.ok) setPack(r); else setError(signInAgain(r?.error) || 'Could not load this week’s posts.'); });
+    getPostPack(TRAIL_ID).then((r) => { if (!live) return; if (r?.ok) setPack(r); else setError(signInAgain(r?.error) || 'Could not load this week’s story.'); });
     return () => { live = false; };
   }, []);
-  if (error) return <div className="hq-card"><h3 style={{ margin: 0 }}>This week’s posts</h3><p className="hq-note">{error}</p></div>;
-  if (!pack) return <div className="hq-card"><h3 style={{ margin: 0 }}>This week’s posts</h3><p className="hq-note">Loading…</p></div>;
+  if (error) return <div className="hq-card"><h3 style={{ margin: 0 }}>This week’s story</h3><p className="hq-note">{error}</p></div>;
+  if (!pack) return <div className="hq-card"><h3 style={{ margin: 0 }}>This week’s story</h3><p className="hq-note">Loading…</p></div>;
   const day = pack.week.monday;
-  // Browsers only allow one download per click, so all the stories go into one zip file.
-  const allVenues = async () => {
-    a.setBusy('all');
-    try {
-      const { default: JSZip } = await import('jszip');
-      const zip = new JSZip();
-      for (const v of pack.venues) {
-        const png = await renderPng(<VenueStory venue={v} week={pack.week} />, STORY);
-        zip.file(`ale-trail-week-${day}-${slug(short(v.name))}.png`, png.split(',')[1], { base64: true });
-      }
-      const blob = await zip.generateAsync({ type: 'blob' });
-      const url = URL.createObjectURL(blob);
-      save(url, `ale-trail-week-${day}-venue-stories.zip`);
-      setTimeout(() => URL.revokeObjectURL(url), 10000);
-      a.flash(`Downloaded ${pack.venues.length} venue stories in one zip file`);
-    } catch { a.flash('Could not make the pictures. Please try again.'); }
-    a.setBusy('');
-  };
+  const tags = tagLine(pack.tags || []);
+  const e = pack.event;
+  const eventTags = e ? tagLine([e.instagram, 'hcm.aletrail']) : '';
   return (
     <div className="hq-card pp-card" data-tour="post-pack">
       <div className="pp-head">
-        <div><h3 style={{ margin: 0 }}>This week’s posts · {dayMonth(`${day}T12:00:00Z`)}</h3>
-          <p className="hq-note" style={{ margin: '2px 0 0' }}>Last week on the trail, ready to post. Download the pictures, copy the words (English and Vietnamese), post. Venues get their own story in their dashboard.</p></div>
+        <div><h3 style={{ margin: 0 }}>This week’s story · {dayMonth(`${day}T12:00:00Z`)}</h3>
+          <p className="hq-note" style={{ margin: '2px 0 0' }}>A new story every Monday. Post it, add the link sticker, tag the breweries.</p></div>
         {a.msg && <span className="trp-msg ok" role="status">{a.msg}</span>}
       </div>
-      <div className="pp-items">
-        <div className="pp-item">
-          <h4>Trail story <small>Instagram and Facebook story</small></h4>
-          <Preview size={STORY} scale={0.1406}><TrailStory pack={pack} /></Preview>
-          <div className="pp-btns">
-            <button type="button" className="trp-dl" disabled={!!a.busy} onClick={() => a.download('story', <TrailStory pack={pack} />, STORY, `ale-trail-week-${day}-story.png`)}>{a.busy === 'story' ? 'Making…' : 'Download picture'}</button>
-            <button type="button" className="admin-btn" style={{ width: 'auto' }} onClick={() => a.copy(trailCaption(pack))}>Copy words</button>
+      <div className="pp-items two">
+        <div className="pp-item row">
+          <Preview size={STORY} scale={0.1389}><TrailStory pack={pack} /></Preview>
+          <div className="pp-side">
+            <h4>Trail story <small>{KIND_LABEL[pack.story?.kind || 'numbers']}</small></h4>
+            <ol className="pp-steps">
+              <li>Download picture and post it as a story.</li>
+              <li>Add a Link sticker: press Copy link and paste it.</li>
+              <li>Press Copy tags and paste them as text on the story.</li>
+            </ol>
+            <div className="pp-btns">
+              <button type="button" className="trp-dl" disabled={!!a.busy} onClick={() => a.download('story', <TrailStory pack={pack} />, STORY, `ale-trail-week-${day}-story.png`)}>{a.busy === 'story' ? 'Making…' : 'Download picture'}</button>
+              <button type="button" className="admin-btn" style={{ width: 'auto' }} onClick={() => a.copy(STORY_LINK)}>Copy link</button>
+              <button type="button" className="admin-btn" style={{ width: 'auto' }} onClick={() => a.copy(tags)}>Copy tags</button>
+              <button type="button" className="admin-btn" style={{ width: 'auto' }} onClick={() => a.copy(trailCaption(pack))}>Copy words</button>
+            </div>
+            <div className="pp-tags">{tags}</div>
+            <button type="button" className="admin-btn-small" disabled={!!a.busy} onClick={() => a.download('post', <TrailPost pack={pack} />, POST, `ale-trail-week-${day}-post.png`)}>{a.busy === 'post' ? 'Making…' : 'Also as a feed post (1080 × 1350)'}</button>
           </div>
-          <button type="button" className="admin-btn-small" disabled={!!a.busy} onClick={() => a.download('post', <TrailPost pack={pack} />, POST, `ale-trail-week-${day}-post.png`)}>{a.busy === 'post' ? 'Making…' : 'Also as a feed post (1080 × 1350)'}</button>
         </div>
-        <div className="pp-item">
-          <h4>Event of the week <small>story</small></h4>
-          {pack.event ? (
+        <div className="pp-item row">
+          {e ? (
             <>
-              <Preview size={STORY} scale={0.1406}><EventStory event={pack.event} /></Preview>
-              <div className="pp-btns">
-                <button type="button" className="trp-dl" disabled={!!a.busy} onClick={() => a.download('event', <EventStory event={pack.event} />, STORY, `ale-trail-week-${day}-event.png`)}>{a.busy === 'event' ? 'Making…' : 'Download picture'}</button>
-                <button type="button" className="admin-btn" style={{ width: 'auto' }} onClick={() => a.copy(eventCaption(pack.event))}>Copy words</button>
+              <Preview size={STORY} scale={0.1389}><EventStory event={e} /></Preview>
+              <div className="pp-side">
+                <h4>Event of the week <small>story</small></h4>
+                <ol className="pp-steps">
+                  <li>Download and post it as a story.</li>
+                  <li>Add the Link sticker and tag the venue.</li>
+                </ol>
+                <div className="pp-btns">
+                  <button type="button" className="trp-dl" disabled={!!a.busy} onClick={() => a.download('event', <EventStory event={e} />, STORY, `ale-trail-week-${day}-event.png`)}>{a.busy === 'event' ? 'Making…' : 'Download picture'}</button>
+                  <button type="button" className="admin-btn" style={{ width: 'auto' }} onClick={() => a.copy(STORY_LINK)}>Copy link</button>
+                  <button type="button" className="admin-btn" style={{ width: 'auto' }} onClick={() => a.copy(eventTags)}>Copy tags</button>
+                  <button type="button" className="admin-btn" style={{ width: 'auto' }} onClick={() => a.copy(eventCaption(e))}>Copy words</button>
+                </div>
+                <div className="pp-tags">{eventTags}</div>
+                <p className="hq-note">Picked automatically. To choose another, open What’s On and press Event of the week on it.</p>
               </div>
-              <p className="hq-note">Picked automatically. To choose another, open What’s On and press Event of the week on it.</p>
             </>
-          ) : <p className="hq-note">No events in the next two weeks. Add some in What’s On and one will be picked.</p>}
-        </div>
-        <div className="pp-item">
-          <h4>Venue stories <small>{pack.venues.length} venues</small></h4>
-          <ul className="pp-venues">
-            {pack.venues.map((v) => (
-              <li key={v.id}>
-                <span>{short(v.name)}<small>{v.quiet ? 'quiet week: no numbers' : `${v.stamps} stamps`}</small></span>
-                <button type="button" className="admin-btn-small" disabled={!!a.busy} onClick={() => a.download(v.id, <VenueStory venue={v} week={pack.week} />, STORY, `ale-trail-week-${day}-${slug(short(v.name))}.png`)}>{a.busy === v.id ? '…' : 'Download'}</button>
-              </li>
-            ))}
-          </ul>
-          <div className="pp-btns"><button type="button" className="trp-dl" disabled={!!a.busy} onClick={allVenues}>{a.busy === 'all' ? `Making ${pack.venues.length} pictures…` : 'Download all (zip)'}</button></div>
-          <p className="hq-note">Each venue also sees its own on its Promote tab.</p>
+          ) : (
+            <div className="pp-side"><h4>Event of the week</h4><p className="hq-note">No events in the next two weeks. Add some in What’s On and one will be picked.</p></div>
+          )}
         </div>
       </div>
     </div>

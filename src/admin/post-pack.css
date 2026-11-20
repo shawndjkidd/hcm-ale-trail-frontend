@@ -92,3 +92,28 @@
 .pp-bs .ev small { font-weight: 800; font-size: 25px; letter-spacing: .12em; color: var(--yel); }
 .pp-bs .ev b { display: block; font-family: Anton, Impact, sans-serif; font-weight: 400; font-size: 76px; line-height: 1.05; text-transform: uppercase; }
 .pp-bs .ev span { font-weight: 700; font-size: 32px; }
+
+/* HQ stories: space for Instagram's link sticker, with a label pointing at it. */
+.pp-bs .tap { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.pp-bs .tap .lbl { background: var(--yel); color: var(--ink); border: 7px solid var(--ink); box-shadow: 10px 10px 0 var(--ink); font-family: Anton, Impact, sans-serif; font-size: 64px; padding: 14px 36px; text-transform: uppercase; }
+.pp-bs .tap .arrow { font-family: Anton, Impact, sans-serif; font-size: 90px; line-height: .8; color: #fff; text-shadow: 6px 6px 0 var(--ink); }
+.pp-bs .tap .space { height: 200px; width: 100%; }
+.pp-bs .kick { font-weight: 800; font-size: 30px; letter-spacing: .14em; color: var(--yel); margin-top: 50px; }
+.pp-bs .slogan.fave { margin-top: 8px; font-size: 110px; }
+.pp-bs .beer { font-family: Anton, Impact, sans-serif; font-size: 190px; line-height: .88; text-transform: uppercase; text-shadow: 10px 10px 0 var(--ink); margin-top: 14px; overflow-wrap: anywhere; }
+.pp-bs .score { display: flex; gap: 24px; margin-top: 40px; }
+.pp-bs .score div { background: #fff; color: var(--ink); border: 8px solid var(--ink); box-shadow: 12px 12px 0 var(--ink); padding: 18px 26px; }
+.pp-bs .score b { display: block; font-family: Anton, Impact, sans-serif; font-weight: 400; font-size: 100px; line-height: 1; }
+.pp-bs .score span { font-weight: 800; font-size: 28px; }
+.pp-bs .minif { margin-top: 50px; background: #fff; border: 8px solid var(--ink); box-shadow: 14px 14px 0 var(--ink); padding: 14px; transform: rotate(2deg); }
+.pp-bs .minif .ph { height: 380px; background-size: cover; background-position: center; border: 5px solid var(--ink); }
+
+/* HQ card: preview beside the steps and buttons. */
+.pp-items.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.pp-item.row { flex-direction: row; align-items: flex-start; gap: 14px; }
+.pp-side { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; min-width: 0; }
+.pp-steps { margin: 0; padding-left: 18px; color: var(--admin-text-muted); font-size: 13px; line-height: 1.55; }
+.pp-tags { background: var(--admin-card-bg); border: 1px solid var(--admin-border); border-radius: 8px; padding: 8px 10px; font-size: 12px; line-height: 1.5; color: var(--admin-text-muted); word-break: break-word; }
+@media (max-width: 1100px) { .pp-items.two { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .pp-item.row { flex-direction: column; } }
+.pp-bs .ev .grab { display: block; margin-top: 10px; color: var(--yel); }

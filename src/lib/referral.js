@@ -1,4 +1,5 @@
-// Venue QR codes and ad links open the app as https://hcm.thealetrail.app/?v=<venue ref>&s=<format>.
+// Venue QR codes and ad links open the app as https://hcm.thealetrail.app/?v=<venue ref>&s=<format>
+// (v=hq for HQ's own weekly stories).
 // We remember the scan on this phone, record it (qr_scan), and once the phone signs in we
 // record qr_link so HQ can see which venue and format brought each new guest in.
 import { track } from './track';
@@ -10,7 +11,8 @@ export function captureReferral() {
   try {
     const url = new URL(window.location.href);
     const v = (url.searchParams.get('v') || '').toLowerCase();
-    if (!/^[0-9a-f]{8}$/.test(v)) return;
+    // 'hq' = HQ's own stories and posts (not a venue).
+    if (!/^[0-9a-f]{8}$/.test(v) && v !== 'hq') return;
     const raw = url.searchParams.get('s') || '';
     // A fixed format, or a spot the venue named itself (c-front-window).
     const s = SOURCES.includes(raw) || /^c-[a-z0-9-]{1,24}$/.test(raw) ? raw : 'link';
