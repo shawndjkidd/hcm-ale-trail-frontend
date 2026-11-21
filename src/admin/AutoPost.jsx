@@ -45,11 +45,11 @@ export function AutoPostCard() {
         <>
           <p className="hq-note">Connect @hcm.aletrail once and the three stories post themselves at 10 am on Monday, Thursday and Saturday, tagging every brewery.</p>
           <ol className="ap-steps">
-            <li>In the Meta app, open <b>Instagram</b> › <b>API setup with Instagram login</b> and press <b>Generate token</b> next to @hcm.aletrail.</li>
-            <li>Copy the token and paste it here.</li>
+            <li>Get a token from Meta for the Facebook Page linked to @hcm.aletrail (or from <b>API setup with Instagram login</b>).</li>
+            <li>Copy the whole token and paste it here.</li>
           </ol>
           <div className="ap-connect">
-            <input type="password" autoComplete="off" spellCheck={false} placeholder="Paste the Instagram token" value={token} onChange={(e) => setToken(e.target.value)} />
+            <input type="password" autoComplete="off" spellCheck={false} placeholder="Paste the token" value={token} onChange={(e) => setToken(e.target.value)} />
             <button type="button" className="trp-dl" disabled={!token.trim() || !!busy} onClick={() => act({ action: 'connect', token }, 'Connected. Switch on automatic posting when you’re ready.')}>
               {busy === 'connect' ? 'Checking…' : 'Connect Instagram'}
             </button>
