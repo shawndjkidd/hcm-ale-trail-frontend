@@ -1,4 +1,11 @@
 {
+  "redirects": [
+    {
+      "source": "/ig",
+      "destination": "/?v=hq&s=bio",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/(.*)",
