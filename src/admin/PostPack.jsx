@@ -404,7 +404,7 @@ export function PostPackCard() {
 
       {ready.map((r) => (
         <div key={r.id} className="ig-ready">
-          <span><b>Ready to post:</b> {HQ_STORIES.find((h) => h.key === r.kind)?.day}’s story{r.manual ? ' (sent from Post now)' : ''}</span>
+          <span><b>Ready to post:</b> {HQ_STORIES.find((h) => h.key === r.kind)?.day}’s story{r.manual ? ' (sent from Post now)' : ''}. Open it on your phone from Command Centre, or here.</span>
           {r.readyUrl && <a className="trp-dl" href={r.readyUrl} target="_blank" rel="noreferrer">Get the story</a>}
           <button type="button" className="admin-btn" style={{ width: 'auto' }} disabled={!!busy} onClick={() => act({ action: 'posted', id: r.id }, 'Marked as posted with link.')}>Mark as posted</button>
         </div>
@@ -412,7 +412,8 @@ export function PostPackCard() {
 
       <div className="pp-items">
         {slots.map(({ key, day: d, title, at, renderAt, custom }) => {
-          const url = storyImage(key, renderAt);
+          // v = the design version, so a new design shows straight away instead of a saved old picture.
+          const url = `${storyImage(key, renderAt)}${s.designVersion ? `&v=${s.designVersion}` : ''}`;
           return (
             <div key={key} className="pp-item ig-tile">
               <h4>{d} <small>{title}</small></h4>
@@ -438,7 +439,7 @@ export function PostPackCard() {
                 <div className="ig-ask">
                   <span>Post {d}’s story to @{s.username} now?</span>
                   <button type="button" className="trp-dl" disabled={!!busy} onClick={async () => { if (await act({ action: 'post', kind: key, how: 'now' }, 'Posted. Check the story on Instagram.')) setAsk(null); }}>{busy === `post-${key}` ? 'Posting… (up to a minute)' : 'Post it now (no link)'}</button>
-                  <button type="button" className="admin-btn" disabled={!!busy} onClick={async () => { const r = await act({ action: 'post', kind: key, how: 'phone' }, 'Ready. The page with Save picture, Copy link and Done is open.'); if (r?.readyUrl) window.open(r.readyUrl, '_blank', 'noopener'); setAsk(null); }}>Send to my phone (with link)</button>
+                  <button type="button" className="admin-btn" disabled={!!busy} onClick={async () => { await act({ action: 'post', kind: key, how: 'phone' }, 'Sent. It’s in Command Centre on your phone, and under Ready to post at the top of this box.'); setAsk(null); }}>Send to my phone (with link)</button>
                   <button type="button" className="wn-link" onClick={() => setAsk(null)}>Cancel</button>
                 </div>
               ) : (
