@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { toPng } from 'html-to-image';
-import { getPostPack, getVenuePostPack, TRAIL_ID } from './adminApi';
+import { getInstagram, getPostPack, getVenuePostPack, instagramAction, TRAIL_ID } from './adminApi';
 import { printFontCss } from './printFonts';
 import { trackedLink } from './PromoteTab';
 import './post-pack.css';
@@ -279,60 +279,162 @@ export function nextPostAt(dow, now = Date.now()) {
 }
 export const storyImage = (kind, at) => `/api/trails/${TRAIL_ID}/stories/${kind}.jpg?at=${encodeURIComponent(new Date(at).toISOString())}`;
 
+const toSaigonInput = (iso) => new Date(Date.parse(iso) + SAIGON).toISOString().slice(0, 16);
+const fromSaigonInput = (v) => new Date(Date.parse(`${v}:00+07:00`)).toISOString();
+const whenText = (iso) => new Date(iso).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: TZ }).replace(',', '').replace(/ (\d\d:\d\d)$/, ' · $1');
+
+// HQ Home: "Instagram stories" (mockup approved 22 Nov 2026). One box: each story's real picture with the
+// live numbers (tap to enlarge), when it goes out (changeable for that week), Post now (straight to
+// Instagram without a link, or to the phone page to post with a link sticker) and Download. Below: one
+// switch to send them at their times, and how they go out. Connecting Instagram lives here too.
 export function PostPackCard() {
   useBrandFonts();
   const [pack, setPack] = useState(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState('');
-  const a = useActions((s) => s);
+  const [s, setS] = useState(null);
+  const [big, setBig] = useState(null);
+  const [edit, setEdit] = useState(null);
+  const [ask, setAsk] = useState(null);
+  const [token, setToken] = useState('');
+  const a = useActions((x) => x);
+  const load = () => getInstagram(TRAIL_ID).then((r) => setS(r?.ok || r?.connected !== undefined ? r : { connected: false, error: r?.error }));
   useEffect(() => {
     let live = true;
     getPostPack(TRAIL_ID).then((r) => { if (!live) return; if (r?.ok && r.week && r.trail) setPack(r); else setError(signInAgain(r?.error) || 'Could not load this week’s stories.'); });
+    load();
     return () => { live = false; };
   }, []);
-  if (error) return <div className="hq-card"><h3 style={{ margin: 0 }}>This week’s stories</h3><p className="hq-note">{error}</p></div>;
-  if (!pack) return <div className="hq-card"><h3 style={{ margin: 0 }}>This week’s stories</h3><p className="hq-note">Loading…</p></div>;
-  const day = pack.week.monday;
+  if (error) return <div className="hq-card"><h3 style={{ margin: 0 }}>Instagram stories</h3><p className="hq-note">{error}</p></div>;
+  if (!pack || !s) return <div className="hq-card"><h3 style={{ margin: 0 }}>Instagram stories</h3><p className="hq-note">Loading…</p></div>;
   const tags = tagLine(pack.tags || []);
+  const act = async (body, done) => {
+    setBusy(`${body.action}-${body.kind || ''}`);
+    const r = await instagramAction(TRAIL_ID, body);
+    setBusy('');
+    if (r?.connected !== undefined) setS(r);
+    if (r?.ok) { if (done) a.flash(done); if (body.action === 'connect') setToken(''); return r; }
+    a.flash(r?.error || 'Something went wrong. Please try again.');
+    return null;
+  };
   const download = async (key, url, at) => {
-    setBusy(key);
+    setBusy(`dl-${key}`);
     try {
       const res = await fetch(url);
       if (!res.ok) throw new Error();
       const href = URL.createObjectURL(await res.blob());
-      save(href, `ale-trail-${new Date(at + SAIGON).toISOString().slice(0, 10)}-${key}.jpg`);
+      save(href, `ale-trail-${new Date(Date.parse(at) + SAIGON).toISOString().slice(0, 10)}-${key}.jpg`);
       setTimeout(() => URL.revokeObjectURL(href), 5000);
       a.flash('Downloaded');
     } catch { a.flash('Could not get the picture. Please try again.'); }
     setBusy('');
   };
+  // Each story's next slot: from the server when connected, else the usual 10:00 on its day.
+  const slots = HQ_STORIES.map((h) => {
+    const n = s.next?.find((x) => x.kind === h.key);
+    const usual = new Date(nextPostAt(h.dow)).toISOString();
+    return { ...h, at: n?.at || usual, renderAt: n?.renderAt || usual, custom: !!n?.custom };
+  });
+  const ready = (s.log || []).filter((r) => r.status === 'ready');
   return (
     <div className="hq-card pp-card" data-tour="post-pack">
       <div className="pp-head">
-        <div><h3 style={{ margin: 0 }}>This week’s stories</h3>
-          <p className="hq-note" style={{ margin: '2px 0 0' }}>Three stories a week about the whole trail, a new look every week. Each picture is the next one that goes out.</p></div>
-        {a.msg && <span className="trp-msg ok" role="status">{a.msg}</span>}
+        <div><h3 style={{ margin: 0 }}>Instagram stories</h3>
+          <p className="hq-note" style={{ margin: '2px 0 0' }}>Each picture is exactly what will post, with the live numbers. Tap it to see it full size.</p></div>
+        <span className="ig-acct">{s.connected ? `Posting to @${s.username}` : 'Instagram not connected'}</span>
       </div>
+      {a.msg && <p className="trp-msg ok" role="status" style={{ margin: '8px 0 0' }}>{a.msg}</p>}
+
+      {ready.map((r) => (
+        <div key={r.id} className="ig-ready">
+          <span><b>Ready to post:</b> {HQ_STORIES.find((h) => h.key === r.kind)?.day}’s story{r.manual ? ' (sent from Post now)' : ''}</span>
+          {r.readyUrl && <a className="trp-dl" href={r.readyUrl} target="_blank" rel="noreferrer">Get the story</a>}
+          <button type="button" className="admin-btn" style={{ width: 'auto' }} disabled={!!busy} onClick={() => act({ action: 'posted', id: r.id }, 'Marked as posted with link.')}>Mark as posted</button>
+        </div>
+      ))}
+
       <div className="pp-items">
-        {HQ_STORIES.map(({ key, dow, day: d, title, words }) => {
-          const at = nextPostAt(dow);
-          const url = storyImage(key, at);
+        {slots.map(({ key, day: d, title, at, renderAt, custom }) => {
+          const url = storyImage(key, renderAt);
           return (
-            <div key={key} className="pp-item">
-              <h4>{d} <small>{title} · {dayMonth(new Date(at).toISOString())}</small></h4>
-              <img className="pp-shot" src={url} alt={`${d} story`} loading="lazy" width={162} height={288} />
-              <div className="pp-btns">
-                <button type="button" className="trp-dl" disabled={!!busy} onClick={() => download(key, url, at)}>{busy === key ? 'Getting it…' : 'Download picture'}</button>
-              </div>
-              <div className="pp-btns">
-                <button type="button" className="admin-btn" style={{ width: 'auto' }} onClick={() => a.copy(tags)}>Copy tags</button>
-                <button type="button" className="admin-btn" style={{ width: 'auto' }} onClick={() => a.copy(words(pack))}>Copy words</button>
-              </div>
+            <div key={key} className="pp-item ig-tile">
+              <h4>{d} <small>{title}</small></h4>
+              <button type="button" className="ig-shot" onClick={() => setBig({ url, d })} aria-label={`See ${d}’s story full size`}>
+                <img className="pp-shot" src={url} alt={`${d} story`} loading="lazy" width={162} height={288} />
+                <em>Tap to enlarge</em>
+              </button>
+              {edit?.key === key ? (
+                <div className="ig-when edit">
+                  <input type="datetime-local" value={edit.v} onChange={(e) => setEdit({ key, v: e.target.value })} aria-label="Day and time (Saigon)" />
+                  <button type="button" className="trp-dl" disabled={!!busy || !edit.v} onClick={async () => { if (await act({ action: 'time', kind: key, at: fromSaigonInput(edit.v) }, 'Time saved.')) setEdit(null); }}>Save time</button>
+                  {custom && <button type="button" className="admin-btn" style={{ width: 'auto' }} disabled={!!busy} onClick={async () => { if (await act({ action: 'time', kind: key, at: null }, 'Back to the usual time.')) setEdit(null); }}>Usual time</button>}
+                  <button type="button" className="wn-link" onClick={() => setEdit(null)}>Cancel</button>
+                  <small>Only this week’s story moves. Saigon time.</small>
+                </div>
+              ) : (
+                <div className="ig-when">
+                  <span>Goes out <b>{whenText(at)}</b>{custom ? ' (moved)' : ''}</span>
+                  {s.connected && <button type="button" className="wn-link" onClick={() => setEdit({ key, v: toSaigonInput(at) })}>Change</button>}
+                </div>
+              )}
+              {ask === key ? (
+                <div className="ig-ask">
+                  <span>Post {d}’s story to @{s.username} now?</span>
+                  <button type="button" className="trp-dl" disabled={!!busy} onClick={async () => { if (await act({ action: 'post', kind: key, how: 'now' }, 'Posted. Check the story on Instagram.')) setAsk(null); }}>{busy === `post-${key}` ? 'Posting… (up to a minute)' : 'Post it now (no link)'}</button>
+                  <button type="button" className="admin-btn" disabled={!!busy} onClick={async () => { const r = await act({ action: 'post', kind: key, how: 'phone' }, 'Ready. The page with Save picture, Copy link and Done is open.'); if (r?.readyUrl) window.open(r.readyUrl, '_blank', 'noopener'); setAsk(null); }}>Send to my phone (with link)</button>
+                  <button type="button" className="wn-link" onClick={() => setAsk(null)}>Cancel</button>
+                </div>
+              ) : (
+                <div className="pp-btns ig-btns">
+                  {s.connected && <button type="button" className="trp-dl" disabled={!!busy} onClick={() => setAsk(key)}>Post now</button>}
+                  <button type="button" className="admin-btn" style={{ width: 'auto' }} disabled={!!busy} onClick={() => download(key, url, renderAt)}>{busy === `dl-${key}` ? 'Getting it…' : 'Download'}</button>
+                </div>
+              )}
+              <button type="button" className="wn-link" onClick={() => a.copy(tags)}>Copy brewery tags</button>
             </div>
           );
         })}
       </div>
-      <p className="hq-note">Want a feed post too? <button type="button" className="wn-link" disabled={!!a.busy} onClick={() => a.download('post', <TrailPost pack={pack} />, POST, `ale-trail-${day}-post.png`)}>Download last week as a feed post</button></p>
+
+      {s.connected ? (
+        <div className="ig-auto" data-tour="auto-post">
+          <label className="ap-switch">
+            <input type="checkbox" checked={!!s.enabled} disabled={!!busy} onChange={(e) => act({ action: e.target.checked ? 'enable' : 'disable' }, e.target.checked ? 'Stories will go out at their times.' : 'Stories won’t go out by themselves.')} />
+            <span className="ap-track" aria-hidden="true" />
+            Send the stories at their times
+          </label>
+          <div className="ig-how" role="radiogroup" aria-label="How stories go out">
+            {[['assist', 'With a clickable link (recommended)', 'At the time, you get a phone task: save the picture and post it with a link sticker. About 30 seconds.'], ['auto', 'Post by itself', 'Goes up on its own at the time. Instagram doesn’t allow a clickable link this way.']].map(([m, t, sub]) => (
+              <button key={m} type="button" role="radio" aria-checked={s.mode === m} className={s.mode === m ? 'on' : ''} disabled={!!busy} onClick={() => s.mode !== m && act({ action: 'mode', mode: m }, 'Saved.')}>
+                <b>{t}</b><span>{sub}</span>
+              </button>
+            ))}
+          </div>
+          <p className="hq-note" style={{ margin: '10px 0 0' }}>
+            {(s.log || []).filter((r) => r.status !== 'ready').slice(0, 3).map((r) => `${whenText(r.created_at)}: ${HQ_STORIES.find((h) => h.key === r.kind)?.day} ${r.status === 'posted' ? (r.with_link ? 'posted with link' : 'posted') : r.status === 'failed' ? 'didn’t post' : 'posting'}`).join(' · ') || 'Nothing posted yet.'}
+            {' '}<button type="button" className="wn-link" disabled={!!busy} onClick={() => act({ action: 'disconnect' }, 'Disconnected. Nothing will post.')}>Disconnect Instagram</button>
+          </p>
+        </div>
+      ) : (
+        <div className="ig-auto" data-tour="auto-post">
+          <p className="hq-note" style={{ margin: 0 }}>Connect @hcm.aletrail to post from here. Get a token from Meta for the Facebook Page linked to it, then paste it below.</p>
+          <div className="ap-connect" style={{ marginTop: 8 }}>
+            <input type="password" autoComplete="off" spellCheck={false} placeholder="Paste the token" value={token} onChange={(e) => setToken(e.target.value)} />
+            <button type="button" className="trp-dl" disabled={!token.trim() || !!busy} onClick={() => act({ action: 'connect', token }, 'Connected.')}>{busy === 'connect-' ? 'Checking…' : 'Connect Instagram'}</button>
+          </div>
+        </div>
+      )}
+
+      <p className="hq-note">Want a feed post too? <button type="button" className="wn-link" disabled={!!a.busy} onClick={() => a.download('post', <TrailPost pack={pack} />, POST, `ale-trail-${pack.week.monday}-post.png`)}>Download last week as a feed post</button></p>
+
+      {big && (
+        <div className="ig-big" role="dialog" aria-label={`${big.d}’s story`} onClick={() => setBig(null)}>
+          <div className="ig-big-card" onClick={(e) => e.stopPropagation()}>
+            <img src={big.url} alt={`${big.d} story full size`} />
+            <button type="button" className="admin-btn" onClick={() => setBig(null)}>Close</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

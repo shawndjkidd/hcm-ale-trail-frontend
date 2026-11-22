@@ -184,3 +184,28 @@
 .ap-log .wait { color: var(--admin-accent, #f5a524); }
 .ap-ready { display: flex; gap: 8px; margin: 6px 0 4px; flex-wrap: wrap; }
 .ap-ready .trp-dl { text-decoration: none; width: auto; }
+/* "Instagram stories" box (22 Nov 2026) */
+.ig-acct { font-size: 13px; color: var(--admin-text-muted, #9aa0a6); font-weight: 600; }
+.ig-tile { align-items: stretch !important; }
+.ig-shot { position: relative; padding: 0; border: 0; background: none; cursor: zoom-in; align-self: flex-start; }
+.ig-shot .pp-shot { margin: 0; }
+.ig-shot em { position: absolute; right: 8px; bottom: 8px; background: rgba(0,0,0,.72); color: #fff; font-style: normal; font-size: 12px; padding: 4px 8px; border-radius: 6px; }
+.ig-when { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; border: 1px solid var(--admin-border); border-radius: 8px; padding: 8px 10px; flex-wrap: wrap; }
+.ig-when.edit { justify-content: flex-start; }
+.ig-when input { padding: 7px 8px; border-radius: 8px; border: 1px solid var(--admin-border); background: var(--admin-surface, transparent); color: inherit; font-size: 15px; }
+.ig-when small { width: 100%; color: var(--admin-text-muted); }
+.ig-btns { flex-wrap: wrap; }
+.ig-ask { display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--admin-border); border-radius: 8px; padding: 10px; font-size: 13px; }
+.ig-ask .admin-btn, .ig-ask .trp-dl { width: 100%; }
+.ig-ready { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; padding: 10px 12px; border: 1px solid var(--admin-accent, #f5a524); border-radius: 10px; font-size: 14px; }
+.ig-ready .trp-dl { text-decoration: none; width: auto; }
+.ig-auto { margin-top: 16px; border-top: 1px solid var(--admin-border); padding-top: 14px; }
+.ig-how { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ig-how button { text-align: left; background: transparent; border: 1px solid var(--admin-border); border-radius: 10px; padding: 10px 12px; color: inherit; font: inherit; cursor: pointer; }
+.ig-how button.on { border-color: var(--admin-accent, #f5a524); box-shadow: inset 0 0 0 1px var(--admin-accent, #f5a524); }
+.ig-how b { display: block; font-size: 14px; margin-bottom: 2px; }
+.ig-how span { font-size: 13px; color: var(--admin-text-muted); }
+.ig-big { position: fixed; inset: 0; background: rgba(0,0,0,.7); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
+.ig-big-card { display: flex; flex-direction: column; align-items: center; gap: 10px; max-height: 92vh; }
+.ig-big-card img { max-height: calc(92vh - 60px); max-width: 100%; border-radius: 12px; display: block; }
+@media (max-width: 760px) { .ig-how { grid-template-columns: 1fr; } }

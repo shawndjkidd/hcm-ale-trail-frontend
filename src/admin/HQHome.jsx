@@ -3,7 +3,6 @@ import { getHqSummary, TRAIL_ID } from './adminApi';
 import { buildChecklist } from './checklist';
 import TrailReportButton from './TrailReport';
 import { PostPackCard } from './PostPack';
-import { AutoPostCard } from './AutoPost';
 
 // HQ Home: how the trail is doing this week, what needs attention (each with a
 // button to the page that fixes it), every venue's readiness, and app traffic.
@@ -105,7 +104,6 @@ export default function HQHome({ onGo }) {
       </div>
 
       <PostPackCard />
-      <AutoPostCard />
 
       <div className="hq-g hq-g4">
         <div className="hq-card hq-kpi"><div className="l">Stamps</div><div className="v">{totals.stamps7d}</div><div className={`d ${trendClass(totals.stamps7d, totals.stampsPrev7d)}`}>{pct(totals.stamps7d, totals.stampsPrev7d)}</div></div>
