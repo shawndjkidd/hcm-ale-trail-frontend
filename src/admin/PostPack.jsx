@@ -279,6 +279,63 @@ export function nextPostAt(dow, now = Date.now()) {
 }
 export const storyImage = (kind, at) => `/api/trails/${TRAIL_ID}/stories/${kind}.jpg?at=${encodeURIComponent(new Date(at).toISOString())}`;
 
+const DAY_NAME = { mon: 'Monday', thu: 'Thursday', sat: 'Saturday' };
+const hourText = (h) => `${h % 12 || 12} ${h < 12 ? 'am' : 'pm'}`;
+const n = (v) => (typeof v === 'number' ? v : '–');
+
+function LastResult({ r, d }) {
+  if (!r) return <div className="ig-last"><div className="k">Results show here after {d}’s first story.</div></div>;
+  return (
+    <div className="ig-last">
+      <div className="k">Last {d}’s story ({whenText(r.postedAt)})</div>
+      <div className="ig-nums">
+        <div><b>{n(r.seenBy)}</b><span>seen by</span></div>
+        <div><b>{n(r.visits)}</b><span>app visits</span></div>
+        <div><b>{n(r.signups)}</b><span>sign-ups</span></div>
+        <div><b>{n(r.replies)}</b><span>replies</span></div>
+      </div>
+    </div>
+  );
+}
+
+// Story results (approved 22 Nov 2026): followers online by Saigon hour, a time suggestion once there are
+// enough stories to compare, and the last 8 stories.
+function StoryResults({ ins, usual, busy, onUse }) {
+  if (!ins) return null;
+  const max = ins.online ? Math.max(...ins.online, 1) : 1;
+  const top = ins.online ? [...ins.online].sort((x, y) => y - x)[3] ?? 0 : 0;
+  const sug = ins.suggestion;
+  const already = sug && usual[sug.kind] === `${String(sug.hour).padStart(2, '0')}:00`;
+  return (
+    <div className="ig-results">
+      <h4>When your followers are online</h4>
+      {ins.online ? (
+        <>
+          <p className="hq-note" style={{ margin: '0 0 8px' }}>Average over the last 30 days, Saigon time. Orange = the busiest hours.</p>
+          <div className="ig-chart" role="img" aria-label="Followers online by hour">
+            {ins.online.map((v, h) => <div key={h} className={`b${v >= top && v > 0 ? ' best' : ''}`} style={{ height: `${(v / max) * 100}%` }} title={`${hourText(h)}: ${v}`}><i>{h % 3 === 0 ? h : ''}</i></div>)}
+          </div>
+        </>
+      ) : <p className="hq-note" style={{ margin: 0 }}>Instagram shares this once the account has 100 followers.</p>}
+      {sug && !already && (
+        <div className="ig-sugg">
+          <span><b>Suggestion:</b> {DAY_NAME[sug.kind]}’s story gets {sug.lift}% more views at {hourText(sug.hour)} ({sug.weeks} stories compared).</span>
+          <button type="button" className="trp-dl" disabled={!!busy} onClick={() => onUse(sug.kind, sug.hour)}>Use {hourText(sug.hour)} for {DAY_NAME[sug.kind]}s</button>
+        </div>
+      )}
+      <h4 style={{ marginTop: 16 }}>Recent stories</h4>
+      {ins.recent?.length ? (
+        <div className="ig-table-wrap"><table className="ig-table">
+          <thead><tr><th>Story</th><th>Posted</th><th>Seen by</th><th>Kept watching</th><th>App visits</th><th>Sign-ups</th></tr></thead>
+          <tbody>{ins.recent.map((r) => (
+            <tr key={r.postedAt}><td>{DAY_NAME[r.kind] || 'Other'}</td><td>{whenText(r.postedAt)}</td><td>{n(r.seenBy)}</td><td>{typeof r.keptWatching === 'number' ? `${r.keptWatching}%` : '–'}</td><td>{n(r.visits)}</td><td>{n(r.signups)}</td></tr>
+          ))}</tbody>
+        </table></div>
+      ) : <p className="hq-note" style={{ margin: 0 }}>Each story’s results are saved here while it’s up (Instagram deletes them after 24 hours).</p>}
+    </div>
+  );
+}
+
 const toSaigonInput = (iso) => new Date(Date.parse(iso) + SAIGON).toISOString().slice(0, 16);
 const fromSaigonInput = (v) => new Date(Date.parse(`${v}:00+07:00`)).toISOString();
 const whenText = (iso) => new Date(iso).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: TZ }).replace(',', '').replace(/ (\d\d:\d\d)$/, ' · $1');
@@ -391,10 +448,12 @@ export function PostPackCard() {
                 </div>
               )}
               <button type="button" className="wn-link" onClick={() => a.copy(tags)}>Copy brewery tags</button>
+              {s.connected && <LastResult r={s.insights?.last?.[key]} d={d} />}
             </div>
           );
         })}
       </div>
+      {s.connected && <StoryResults ins={s.insights} usual={s.postTimes || {}} busy={busy} onUse={(kind, hour) => act({ action: 'usual', kind, at: `${String(hour).padStart(2, '0')}:00` }, 'Saved. That story now goes out at the new time each week.')} />}
 
       {s.connected ? (
         <div className="ig-auto" data-tour="auto-post">

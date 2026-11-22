@@ -209,3 +209,21 @@
 .ig-big-card { display: flex; flex-direction: column; align-items: center; gap: 10px; max-height: 92vh; }
 .ig-big-card img { max-height: calc(92vh - 60px); max-width: 100%; border-radius: 12px; display: block; }
 @media (max-width: 760px) { .ig-how { grid-template-columns: 1fr; } }
+/* Story results (22 Nov 2026) */
+.ig-last { border-top: 1px solid var(--admin-border); padding-top: 8px; font-size: 13px; }
+.ig-last .k { color: var(--admin-text-muted); font-size: 12px; margin-bottom: 4px; }
+.ig-nums { display: flex; gap: 14px; flex-wrap: wrap; }
+.ig-nums b { display: block; font-size: 18px; }
+.ig-nums span { color: var(--admin-text-muted); font-size: 12px; }
+.ig-results { margin-top: 16px; border-top: 1px solid var(--admin-border); padding-top: 14px; }
+.ig-results h4 { margin: 0 0 4px; font-size: 15px; }
+.ig-chart { display: flex; align-items: flex-end; gap: 3px; height: 110px; padding-bottom: 18px; }
+.ig-chart .b { flex: 1; background: var(--admin-border); border-radius: 3px 3px 0 0; position: relative; min-height: 2px; }
+.ig-chart .b.best { background: var(--admin-accent, #f5a524); }
+.ig-chart i { position: absolute; bottom: -17px; left: 50%; transform: translateX(-50%); font-style: normal; font-size: 10px; color: var(--admin-text-muted); }
+.ig-sugg { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; border: 1px solid var(--admin-accent, #f5a524); border-radius: 10px; padding: 10px 12px; margin-top: 12px; font-size: 14px; }
+.ig-sugg .trp-dl { width: auto; }
+.ig-table-wrap { overflow-x: auto; }
+.ig-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 520px; }
+.ig-table th, .ig-table td { text-align: left; padding: 7px 6px; border-bottom: 1px solid var(--admin-border); }
+.ig-table th { color: var(--admin-text-muted); font-weight: 600; }
