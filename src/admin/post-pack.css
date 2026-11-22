@@ -175,3 +175,12 @@
 .ap-log b { color: var(--admin-text, #e8eaed); }
 .ap-log .bad { color: var(--admin-danger, #c0392b); }
 @media (max-width: 560px) { .ap-sched { grid-template-columns: 1fr; } }
+/* "How stories go out" choice (22 Nov 2026) */
+.ap-seg { display: flex; border: 1px solid var(--admin-border); border-radius: 10px; overflow: hidden; margin: 10px 0 12px; }
+.ap-seg button { flex: 1; text-align: left; padding: 10px 12px; background: transparent; border: 0; color: var(--admin-text-muted, #9aa0a6); font: inherit; font-weight: 700; font-size: 14px; cursor: pointer; }
+.ap-seg button + button { border-left: 1px solid var(--admin-border); }
+.ap-seg button.on { color: var(--admin-text); background: var(--admin-surface-2, rgba(127,127,127,.12)); box-shadow: inset 0 -3px 0 var(--admin-accent, #f5a524); }
+.ap-seg small { display: block; font-weight: 500; font-size: 12px; margin-top: 2px; color: var(--admin-text-muted, #9aa0a6); }
+.ap-log .wait { color: var(--admin-accent, #f5a524); }
+.ap-ready { display: flex; gap: 8px; margin: 6px 0 4px; flex-wrap: wrap; }
+.ap-ready .trp-dl { text-decoration: none; width: auto; }

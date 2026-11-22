@@ -5,6 +5,9 @@ import { nextPostAt } from './PostPack';
 // HQ Home: "Automatic posting" (mockup approved 20 Nov 2026). Connect @hcm.aletrail once with an
 // Instagram token and the three stories post themselves at 10:00 Saigon on Mon/Thu/Sat, tagging every
 // brewery. Nothing posts until the switch is on; "Post now" sends one story straight away (a test).
+// 22 Nov 2026: Instagram's API can't add a link sticker, so the default mode is "Make it, I add the link":
+// at 10:00 the story is prepared and a Command Centre task opens a phone page (save picture, copy link,
+// Done); "Post it for me" posts by itself with no clickable link.
 const TZ = 'Asia/Ho_Chi_Minh';
 const DAYS = { mon: ['Monday', 'Last week on the trail', 1], thu: ['Thursday', 'What’s on this weekend', 4], sat: ['Saturday', 'Tonight on the trail', 6] };
 const when = (iso) => new Date(iso).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: TZ });
@@ -37,7 +40,7 @@ export function AutoPostCard() {
       <div className="ap-head">
         <h3 style={{ margin: 0 }}>Automatic posting</h3>
         <span className={`ap-state ${s.connected ? (s.enabled ? 'on' : 'ready') : ''}`}>
-          {s.connected ? `@${s.username} · ${s.enabled ? 'posting automatically' : 'switched off'}` : 'Not connected'}
+          {s.connected ? `@${s.username} · ${s.enabled ? 'on' : 'switched off'}` : 'Not connected'}
         </span>
       </div>
 
@@ -57,14 +60,21 @@ export function AutoPostCard() {
         </>
       ) : (
         <>
-          <p className="hq-note">The three stories post at 10 am Saigon time, tagging every brewery. The connection renews itself.</p>
+          <div className="ap-seg" role="radiogroup" aria-label="How stories go out">
+            {[['assist', 'Make it, I add the link', 'Ready at 10:00, you post with a link sticker'], ['auto', 'Post it for me', 'Posts itself, no clickable link']].map(([m, t, sub]) => (
+              <button key={m} type="button" role="radio" aria-checked={s.mode === m} className={s.mode === m ? 'on' : ''} disabled={!!busy}
+                onClick={() => s.mode !== m && act({ action: 'mode', mode: m }, m === 'assist' ? 'At 10:00 you’ll get a task to post the story with a link.' : 'Stories will post themselves, without a clickable link.')}>
+                {t}<small>{sub}</small>
+              </button>
+            ))}
+          </div>
           <div className="ap-sched">
             {Object.entries(DAYS).map(([k, [d, t]]) => <div key={k}><b>{d}</b><span>{t}</span></div>)}
           </div>
           <label className="ap-switch">
             <input type="checkbox" checked={s.enabled} disabled={!!busy} onChange={(e) => act({ action: e.target.checked ? 'enable' : 'disable' }, e.target.checked ? 'Automatic posting is on.' : 'Automatic posting is off.')} />
             <span className="ap-track" aria-hidden="true" />
-            Post automatically
+            {s.mode === 'auto' ? 'Post automatically' : 'Make the stories at 10:00'}
           </label>
           <div className="ap-btns">
             {!confirmPost ? (
@@ -86,8 +96,14 @@ export function AutoPostCard() {
           <div className="ap-log">
             {s.enabled && s.next?.[0] && <div><b>Next:</b> {when(s.next[0].at)} · {DAYS[s.next[0].kind][1]}</div>}
             {(s.log || []).slice(0, 6).map((r) => (
-              <div key={r.id} className={r.status === 'failed' ? 'bad' : ''}>
-                <b>{when(r.created_at)}</b> · {DAYS[r.kind][1]}{r.manual ? ' (posted by hand)' : ''} · {r.status === 'posted' ? (r.tagged ? 'posted' : 'posted, Instagram didn’t allow the tags') : r.status === 'failed' ? `didn’t post: ${r.error || 'unknown reason'}` : 'posting…'}
+              <div key={r.id} className={r.status === 'failed' ? 'bad' : r.status === 'ready' ? 'wait' : ''}>
+                <b>{when(r.created_at)}</b> · {DAYS[r.kind][1]}{r.manual ? ' (test)' : ''} · {r.status === 'ready' ? 'ready, waiting for you' : r.status === 'posted' ? (r.with_link ? 'posted with link' : r.tagged ? 'posted, no link' : 'posted, no link, Instagram didn’t allow the tags') : r.status === 'failed' ? `didn’t post: ${r.error || 'unknown reason'}` : 'posting…'}
+                {r.status === 'ready' && r.readyUrl && (
+                  <span className="ap-ready">
+                    <a className="trp-dl" href={r.readyUrl} target="_blank" rel="noreferrer">Get the story</a>
+                    <button type="button" className="admin-btn" style={{ width: 'auto' }} disabled={!!busy} onClick={() => act({ action: 'posted', id: r.id }, 'Marked as posted with link.')}>Mark as posted</button>
+                  </span>
+                )}
               </div>
             ))}
             {!s.log?.length && <div>Nothing posted yet.</div>}
